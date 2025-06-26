@@ -1,0 +1,80 @@
+:root {
+  /* Colors */
+  --color-primary: #3e8cff;
+  --color-secondary: #f36f0d;
+  --color-tertiary: #002cba;
+  --color-disable: #9b9b9b;
+  --color-white: #ffffff; /* color for background */
+  --color-black: #000000; /* color for some title text */
+  --color-text-primary: #000e0f; /* color for text */
+  --color-text-secondary: #5f5f5f; /* color for text */
+  --color-foreground-dark: #ebf3ff; /* color for some sections foreground */
+  --color-foreground-light: #f5f9ff; /* color for some sections foreground */
+  --color-border: #ffffff33;
+
+  /* Typography */
+  --font-size-h1: 40px;
+  --font-size-h2: 32px;
+  --font-size-subheading-1: 20px;
+  --font-size-subheading-2: 26px;
+  --font-size-body-1: 20px;
+  --font-size-body-2: 20px;
+  --font-size-body-3: 15px;
+  --font-size-button: 15px;
+
+  --font-family-jakarta: "Plus Jakarta Sans", sans-serif;
+  --font-family-quick-beach: "Quick Beach", sans-serif;
+
+  /* Box Shadow */
+  --box-shadow-1: 0px 4px 22px 0px rgba(0, 0, 0, 0.25);
+
+  /* Container */
+  --container-max-width: 1200px;
+  --container-padding: 0 120px;
+
+  /* atomic unit */
+  --atomic-unit: 8px;
+
+  /* gap */
+  --section-gap: 148px;
+  --gap-0: 0;
+  --gap-1: var(--atomic-unit);
+  --gap-2: calc(var(--atomic-unit) * 2);
+  --gap-3: calc(var(--atomic-unit) * 3);
+  --gap-4: calc(var(--atomic-unit) * 4);
+  --gap-5: calc(var(--atomic-unit) * 5);
+  --gap-6: calc(var(--atomic-unit) * 6);
+  --gap-7: calc(var(--atomic-unit) * 7);
+  --gap-8: calc(var(--atomic-unit) * 8);
+  --gap-9: calc(var(--atomic-unit) * 9);
+  --gap-10: calc(var(--atomic-unit) * 10);
+
+  /* padding */
+  --padding-0: 0;
+  --padding-1: var(--atomic-unit);
+  --padding-2: calc(var(--atomic-unit) * 2);
+  --padding-3: calc(var(--atomic-unit) * 3);
+  --padding-4: calc(var(--atomic-unit) * 4);
+  --padding-5: calc(var(--atomic-unit) * 5);
+  --padding-6: calc(var(--atomic-unit) * 6);
+  --padding-7: calc(var(--atomic-unit) * 7);
+  --padding-8: calc(var(--atomic-unit) * 8);
+  --padding-9: calc(var(--atomic-unit) * 9);
+  --padding-10: calc(var(--atomic-unit) * 10);
+
+  /* margin */
+  --margin-0: 0;
+  --margin-1: var(--atomic-unit);
+  --margin-2: calc(var(--atomic-unit) * 2);
+  --margin-3: calc(var(--atomic-unit) * 3);
+  --margin-4: calc(var(--atomic-unit) * 4);
+  --margin-5: calc(var(--atomic-unit) * 5);
+
+  /* border radius */
+  --border-radius-0: 0;
+  --border-radius-1: var(--atomic-unit);
+  --border-radius-2: calc(var(--atomic-unit) * 2);
+  --border-radius-3: calc(var(--atomic-unit) * 3);
+  --border-radius-4: calc(var(--atomic-unit) * 4);
+  --border-radius-5: calc(var(--atomic-unit) * 5);
+}

@@ -1,0 +1,23 @@
+.button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--font-size-button);
+}
+
+.primary {
+  background-color: var(--color-primary-2);
+  color: white;
+}
+
+.secondary {
+  background-color: var(--color-secondary-2);
+  color: white;
+}
+
+.disabled {
+  background-color: var(--color-disable);
+  color: white;
+  cursor: not-allowed;
+}

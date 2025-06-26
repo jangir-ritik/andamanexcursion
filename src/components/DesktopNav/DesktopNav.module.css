@@ -1,0 +1,168 @@
+.navigationMenu {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.navigationMenuList {
+  display: flex;
+  gap: var(--gap-0);
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navigationMenuItem {
+  position: relative;
+  padding: var(--padding-1);
+}
+
+.navigationMenuItem:hover {
+  background-color: var(--color-foreground-light);
+  border-radius: var(--border-radius-1);
+}
+
+.navigationMenuLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-1);
+  padding: 0;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-body-3);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.navigationMenuLink:hover {
+  color: var(--color-primary);
+}
+
+.navigationMenuLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-1);
+}
+
+.active {
+  color: var(--color-primary);
+}
+
+.navigationMenuLinkUnique {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--border-radius-1);
+  padding: var(--padding-1) var(--padding-2);
+  margin-left: var(--margin-1);
+  font-weight: 400;
+}
+
+.navigationMenuLinkUnique:hover {
+  background-color: var(--color-tertiary);
+  color: var(--color-white);
+}
+
+.navigationMenuItem:has(.navigationMenuLinkUnique) {
+  padding: 0;
+}
+
+.navigationMenuItem:has(.navigationMenuLinkUnique):hover {
+  background-color: transparent;
+}
+
+.navigationMenuItemWithDropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-1);
+}
+
+.navigationMenuTrigger {
+  all: unset;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: var(--gap-1);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.navigationMenuTrigger:hover {
+  color: var(--color-primary);
+}
+
+.navigationMenuTrigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-1);
+}
+
+.navigationMenuTrigger[data-state="open"] {
+  color: var(--color-primary);
+}
+
+.navigationMenuItem:has(.navigationMenuTrigger[data-state="open"]) {
+  background-color: var(--color-foreground-light);
+  border-radius: var(--border-radius-1);
+}
+
+.navigationMenuTriggerIcon {
+  transition: transform 0.2s ease;
+}
+
+.navigationMenuTrigger[data-state="open"] .navigationMenuTriggerIcon {
+  transform: rotate(180deg);
+}
+
+.navigationMenuContent {
+  position: absolute;
+  top: 200%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  min-width: max-content;
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-1);
+  box-shadow: var(--box-shadow-1);
+  padding: var(--padding-3);
+  z-index: 100;
+}
+
+.navigationMenuContent::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 15px;
+  height: 15px;
+  background-color: var(--color-white);
+}
+
+.navigationMenuDropdown {
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap-3);
+  align-items: center;
+  white-space: nowrap;
+}
+
+.navigationMenuDropdown .navigationMenuLink {
+  padding: var(--padding-1);
+  font-weight: 600;
+}
+
+.navigationMenuDropdown .navigationMenuLink:hover {
+  background-color: var(--color-foreground-light);
+  border-radius: var(--border-radius-1);
+  color: var(--color-primary);
+}

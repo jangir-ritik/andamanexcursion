@@ -4,7 +4,7 @@ import styles from "./page.module.css";
 export default function Home() {
   return (
     <div>
-      <h1>Andaman Excursion</h1>
+      <h1 className={styles.title}>Andaman Excursion</h1>
     </div>
   );
 }
