@@ -5,6 +5,7 @@ import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
 import { Header } from "@/components/Header/Header";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Andaman Excursion",
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
         <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

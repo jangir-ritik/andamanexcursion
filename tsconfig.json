@@ -26,6 +26,7 @@
       "@videos/*": ["./public/videos/*"],
       "@components/*": ["./src/components/*"],
       "@icons/*": ["./public/icons/*"],
+      "@graphics/*": ["./public/graphics/*"],
       "@types/*": ["./src/types/*"]
     }
   },
