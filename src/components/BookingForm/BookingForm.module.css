@@ -24,7 +24,6 @@
 }
 
 .tabsTrigger {
-  all: unset;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -91,7 +90,6 @@
 
 .selectWrapper,
 .slotTrigger {
-  all: unset;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -207,7 +205,6 @@
 }
 
 .dateNavButton {
-  all: unset;
   cursor: pointer;
   display: flex;
   align-items: center;

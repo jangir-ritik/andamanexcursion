@@ -1,5 +1,4 @@
 .trigger {
-  all: unset;
   cursor: pointer;
   padding: var(--padding-1);
   border-radius: var(--border-radius-1);
@@ -55,7 +54,6 @@
 }
 
 .close {
-  all: unset;
   cursor: pointer;
   padding: var(--padding-1);
   color: var(--color-text-primary);
@@ -144,7 +142,6 @@
 }
 
 .dropdownTrigger {
-  all: unset;
   display: flex;
   align-items: center;
   justify-content: space-between;
