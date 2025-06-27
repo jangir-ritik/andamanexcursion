@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import * as Select from "@radix-ui/react-select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./SlotSelect.module.css";
 
