@@ -3,16 +3,13 @@ import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { MoveRight } from "lucide-react";
 import styles from "./BookingForm.module.css";
-import { LocationSelect } from "./components/LocationSelect";
-import { DateSelect } from "./components/DateSelect";
-import { SlotSelect } from "./components/SlotSelect";
-import {
-  PassengerCounter,
-  PassengerCount,
-} from "./components/PassengerCounter";
-import { ActivitySelect } from "./components/ActivitySelect";
+import { LocationSelect } from "../../atoms/LocationSelect";
+import { DateSelect } from "../../atoms/DateSelect";
+import { SlotSelect } from "../../atoms/SlotSelect";
+import { PassengerCounter, PassengerCount } from "../../atoms/PassengerCounter";
 import { TAB_CONFIG } from "./config/formConfig";
-import { Button } from "../Button/Button";
+import { Button } from "../../atoms/Button/Button";
+import { ActivitySelect } from "@/components/atoms/ActivitySelect";
 
 type BookingFormProps = {
   className?: string;

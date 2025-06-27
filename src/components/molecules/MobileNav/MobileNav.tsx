@@ -12,7 +12,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import CustomLink from "@components/CustomLink/CustomLink";
+import CustomLink from "@/components/atoms/CustomLink/CustomLink";
 import styles from "./MobileNav.module.css";
 import { BaseNavProps } from "@/types/navigation";
 

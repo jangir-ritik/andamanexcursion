@@ -3,8 +3,8 @@ import clsx from "clsx";
 import Image from "next/image";
 import logo from "@icons/logo.svg";
 import { navItems } from "./Header.content";
-import { DesktopNav } from "@components/DesktopNav/DesktopNav";
-import { MobileNav } from "@components/MobileNav/MobileNav";
+import { DesktopNav } from "@/components/molecules/DesktopNav/DesktopNav";
+import { MobileNav } from "@/components/molecules/MobileNav/MobileNav";
 import styles from "./Header.module.css";
 import Link from "next/link";
 

@@ -1,5 +1,5 @@
-import { Location } from "../components/LocationSelect";
-import { TimeSlot } from "../components/SlotSelect";
+import { Location } from "../../../atoms/LocationSelect";
+import { TimeSlot } from "../../../atoms/SlotSelect";
 
 export type Activity = {
   id: string;

@@ -10,7 +10,7 @@ import {
 import { ChevronDown, MoveRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import CustomLink from "@components/CustomLink/CustomLink";
+import CustomLink from "@/components/atoms/CustomLink/CustomLink";
 import { BaseNavProps } from "@/types/navigation";
 import styles from "./DesktopNav.module.css";
 

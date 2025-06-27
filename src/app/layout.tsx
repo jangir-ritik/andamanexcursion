@@ -4,8 +4,8 @@ import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
-import { Header } from "@/components/Header/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "@/components/organisms/Header/Header";
+import { Footer } from "@/components/organisms/Footer";
 
 export const metadata: Metadata = {
   title: "Andaman Excursion",

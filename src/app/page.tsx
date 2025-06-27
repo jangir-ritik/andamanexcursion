@@ -1,6 +1,5 @@
-
 import styles from "./page.module.css";
-import { BookingForm } from "@/components/BookingForm";
+import { BookingForm } from "@/components/organisms/BookingForm";
 
 export default function Home() {
   return (
