@@ -1,0 +1,82 @@
+.passengerCounter {
+  display: flex;
+  gap: var(--gap-1);
+}
+
+.counterGroup {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--padding-1);
+  gap: var(--gap-0);
+  width: 116px;
+  height: 72px;
+  background: var(--color-white);
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius-1);
+}
+
+.counterGroup:hover {
+  border-color: var(--color-primary);
+}
+
+.counterGroup:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(62, 140, 255, 0.1);
+}
+
+.counterGroup label {
+  font-family: var(--font-family-jakarta);
+  font-weight: 400;
+  font-size: var(--font-size-body-3);
+  line-height: 18px;
+  color: var(--color-text-secondary);
+}
+
+.counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  gap: var(--gap-0);
+  width: 92px;
+  height: 24px;
+}
+
+.counter button {
+  width: 20px;
+  height: 21px;
+  font-family: "Eudoxus Sans";
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 16px;
+  color: var(--color-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.counter button:hover:not(:disabled) {
+  color: var(--color-primary-dark);
+}
+
+.counter button:disabled {
+  color: var(--color-disable);
+  cursor: not-allowed;
+}
+
+.counter span {
+  font-family: var(--font-family-jakarta);
+  font-weight: 500;
+  font-size: var(--font-size-body-2);
+  line-height: 20px;
+  color: var(--color-text-primary);
+  text-align: center;
+  min-width: 20px;
+}

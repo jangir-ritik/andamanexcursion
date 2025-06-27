@@ -1,0 +1,71 @@
+.datePickerWrapper {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--padding-1) var(--padding-2);
+  gap: var(--gap-0);
+  width: 219px;
+  height: 72px;
+  background: var(--color-white);
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius-1);
+}
+
+.datePickerWrapper:hover {
+  border-color: var(--color-primary);
+}
+
+.datePickerWrapper:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(62, 140, 255, 0.1);
+}
+
+.selectLabel {
+  font-family: var(--font-family-jakarta);
+  font-weight: 400;
+  font-size: var(--font-size-body-3);
+  line-height: 18px;
+  color: var(--color-text-secondary);
+}
+
+.datePickerInner {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-0);
+  width: 100%;
+}
+
+.datePicker {
+  width: 100%;
+  border: none;
+  font-family: var(--font-family-jakarta);
+  font-weight: 500;
+  font-size: var(--font-size-body-2);
+  line-height: 20px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  background: transparent;
+  text-align: center;
+}
+
+.dateNavButton {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  width: 24px;
+  height: 24px;
+}
+
+.dateNavButton:hover {
+  color: var(--color-primary-dark);
+}
+
+.dateNavButton:focus {
+  box-shadow: 0 0 0 2px rgba(62, 140, 255, 0.1);
+  border-radius: var(--border-radius-0);
+}
