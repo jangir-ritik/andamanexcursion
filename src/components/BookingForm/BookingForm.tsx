@@ -100,13 +100,15 @@ export function BookingForm({ className }: BookingFormProps) {
                 />
               </div>
             ) : (
-              <ActivitySelect
-                value={formState.selectedActivity}
-                onChange={(value) =>
-                  handleFormChange("selectedActivity", value)
-                }
-                options={currentTabConfig?.activities || []}
-              />
+              <div className={styles.activityContainer}>
+                <ActivitySelect
+                  value={formState.selectedActivity}
+                  onChange={(value) =>
+                    handleFormChange("selectedActivity", value)
+                  }
+                  options={currentTabConfig?.activities || []}
+                />
+              </div>
             )}
 
             <DateSelect

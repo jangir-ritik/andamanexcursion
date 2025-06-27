@@ -1,8 +1,10 @@
 .bookingForm {
-  width: 1130px;
+  width: 100%;
+  max-width: 1130px;
   margin: 0 auto;
   filter: drop-shadow(-1px 1px 7px rgba(0, 0, 0, 0.1));
   z-index: 1000;
+  padding: var(--padding-2);
 }
 
 /* Tabs */
@@ -64,8 +66,7 @@
   padding: var(--padding-2);
   gap: var(--gap-2);
   background: var(--color-white);
-  border-radius: 0 var(--border-radius-2) var(--border-radius-2)
-    var(--border-radius-2);
+  border-radius: 0 0 var(--border-radius-2) var(--border-radius-2);
 }
 
 /* Form Grid */
@@ -84,6 +85,13 @@
 .locationSelectors {
   display: flex;
   gap: var(--gap-1);
+}
+
+/* Activity Container - New class for activities */
+.activityContainer {
+  width: 100%;
+  display: flex;
+  flex: 1;
 }
 
 /* View Details Button */
@@ -110,24 +118,92 @@
   background: var(--color-primary-dark);
 }
 
-/* Responsive Design */
+/* Desktop Responsive Design */
+@media (min-width: 1200px) {
+  .tabsContent {
+    border-radius: 0 var(--border-radius-2) var(--border-radius-2)
+      var(--border-radius-2);
+  }
+
+  .formGrid {
+    flex-wrap: nowrap;
+    height: var(--formfield-height);
+  }
+}
+
+/* Tablet Responsive Design */
+@media (min-width: 851px) and (max-width: 1199px) {
+  .tabsContent {
+    border-radius: 0 var(--border-radius-2) var(--border-radius-2)
+      var(--border-radius-2);
+  }
+
+  .formGrid {
+    flex-wrap: wrap;
+    height: auto;
+    gap: var(--gap-2);
+    justify-content: flex-start;
+  }
+
+  .locationSelectors {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .formGrid > :last-child {
+    width: 100%;
+    margin-top: var(--margin-1);
+  }
+}
+
+/* Small Tablet Responsive Design */
+@media (max-width: 850px) {
+  .formGrid {
+    flex-wrap: wrap;
+    height: auto;
+    gap: var(--gap-2);
+    justify-content: flex-start;
+  }
+
+  .locationSelectors {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
   .bookingForm {
     width: 100%;
     padding: var(--padding-2);
   }
 
+  .tabsList {
+    width: 100%;
+  }
+
   .formGrid {
     flex-direction: column;
     height: auto;
     gap: var(--gap-2);
+    align-items: stretch;
   }
 
   .locationSelectors {
     width: 100%;
+    flex-direction: column;
+    gap: var(--gap-2);
+  }
+}
+
+/* Small Mobile Responsive Design */
+@media (max-width: 480px) {
+  .tabsContent {
+    padding: var(--padding-1);
   }
 
-  .viewDetailsButton {
-    width: 100%;
+  .tabsTrigger {
+    font-size: var(--font-size-xs);
+    padding: 0 var(--padding-1);
   }
 }

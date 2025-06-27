@@ -33,6 +33,7 @@
 .datePickerInner {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--gap-0);
   width: 100%;
 }
@@ -62,6 +63,7 @@
   color: var(--color-primary);
   width: 24px;
   height: 24px;
+  flex-shrink: 0;
 }
 
 .dateNavButton:hover {
@@ -76,3 +78,29 @@
 /* calendar styles */
 /* .react-datepicker-popper {
 } */
+
+/* Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .datePickerWrapper {
+    width: 200px;
+    flex: 1;
+  }
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .datePickerWrapper {
+    width: 100%;
+  }
+
+  .datePicker {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Small Mobile Responsive Design */
+@media (max-width: 480px) {
+  .datePicker {
+    font-size: var(--font-size-xs);
+  }
+}
