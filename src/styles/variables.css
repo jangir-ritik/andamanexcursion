@@ -11,16 +11,29 @@
   --color-foreground-dark: #ebf3ff; /* color for some sections foreground */
   --color-foreground-light: #f5f9ff; /* color for some sections foreground */
   --color-border: #ffffff33;
+  --color-border-2: #e0e0e0;
+  --color-focus: rgba(62, 140, 255, 0.1);
 
-  /* Typography */
-  --font-size-h1: 40px;
-  --font-size-h2: 32px;
-  --font-size-subheading-1: 20px;
-  --font-size-subheading-2: 26px;
-  --font-size-body-1: 20px;
-  --font-size-body-2: 20px;
-  --font-size-body-3: 15px;
-  --font-size-button: 15px;
+  /* Typography - Standardized font sizes */
+  --font-size-xs: 14px;
+  --font-size-sm: 15px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 32px;
+  --font-size-4xl: 40px;
+
+  /* Legacy font size variables (mapped to new standardized sizes) */
+  --font-size-h1: var(--font-size-4xl);
+  --font-size-h2: var(--font-size-3xl);
+  --font-size-subheading-1: var(--font-size-xl);
+  --font-size-subheading-2: var(--font-size-2xl);
+  --font-size-body-1: var(--font-size-xl);
+  --font-size-body-2: var(--font-size-lg);
+  --font-size-body-3: var(--font-size-sm);
+  --font-size-body-4: var(--font-size-xs);
+  --font-size-button: var(--font-size-sm);
 
   --font-family-jakarta: "Plus Jakarta Sans", sans-serif;
   --font-family-quick-beach: "Quick Beach", sans-serif;
@@ -38,6 +51,7 @@
   /* gap */
   --section-gap: 148px;
   --gap-0: 0;
+  --gap-half-unit: calc(var(--atomic-unit) / 2);
   --gap-1: var(--atomic-unit);
   --gap-2: calc(var(--atomic-unit) * 2);
   --gap-3: calc(var(--atomic-unit) * 3);
@@ -77,4 +91,8 @@
   --border-radius-3: calc(var(--atomic-unit) * 3);
   --border-radius-4: calc(var(--atomic-unit) * 4);
   --border-radius-5: calc(var(--atomic-unit) * 5);
+
+  /* magic values*/
+  --formfield-min-width: 120px;
+  --formfield-height: 72px;
 }

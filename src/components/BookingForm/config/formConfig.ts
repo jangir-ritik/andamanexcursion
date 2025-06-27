@@ -30,23 +30,46 @@ export const ACTIVITIES: Activity[] = [
 ];
 
 export const TIME_SLOTS: TimeSlot[] = [
-  { id: "09-00", time: "9:00AM" },
-  { id: "11-00", time: "11:00AM" },
-  { id: "13-00", time: "1:00PM" },
-  { id: "15-00", time: "3:00PM" },
+  { id: "09-00", time: "9:00AM - 9:30AM" },
+  { id: "09-30", time: "9:30AM - 10:00AM" },
+  { id: "10-00", time: "10:00AM - 10:30AM" },
+  { id: "10-30", time: "10:30AM - 11:00AM" },
+  { id: "11-00", time: "11:00AM - 11:30AM" },
+  { id: "11-30", time: "11:30AM - 12:00PM" },
+  { id: "13-00", time: "1:00PM - 1:30PM" },
+  { id: "13-30", time: "1:30PM - 2:00PM" },
+  { id: "14-00", time: "2:00PM - 2:30PM" },
+  { id: "14-30", time: "2:30PM - 3:00PM" },
+  { id: "15-00", time: "3:00PM - 3:30PM" },
+  { id: "15-30", time: "3:30PM - 4:00PM" },
 ];
 
 export const LOCAL_BOAT_TIME_SLOTS: TimeSlot[] = [
-  { id: "08-00", time: "8:00AM" },
-  { id: "10-00", time: "10:00AM" },
-  { id: "12-00", time: "12:00PM" },
+  { id: "08-00", time: "8:00AM - 8:30AM" },
+  { id: "08-30", time: "8:30AM - 9:00AM" },
+  { id: "09-00", time: "9:00AM - 9:30AM" },
+  { id: "09-30", time: "9:30AM - 10:00AM" },
+  { id: "10-00", time: "10:00AM - 10:30AM" },
+  { id: "10-30", time: "10:30AM - 11:00AM" },
+  { id: "11-00", time: "11:00AM - 11:30AM" },
+  { id: "11-30", time: "11:30AM - 12:00PM" },
+  { id: "12-00", time: "12:00PM - 12:30PM" },
+  { id: "12-30", time: "12:30PM - 1:00PM" },
 ];
 
 export const ACTIVITY_TIME_SLOTS: TimeSlot[] = [
-  { id: "07-00", time: "7:00AM" },
-  { id: "09-00", time: "9:00AM" },
-  { id: "11-00", time: "11:00AM" },
-  { id: "14-00", time: "2:00PM" },
+  { id: "07-00", time: "7:00AM - 7:30AM" },
+  { id: "07-30", time: "7:30AM - 8:00AM" },
+  { id: "08-00", time: "8:00AM - 8:30AM" },
+  { id: "08-30", time: "8:30AM - 9:00AM" },
+  { id: "09-00", time: "9:00AM - 9:30AM" },
+  { id: "09-30", time: "9:30AM - 10:00AM" },
+  { id: "10-00", time: "10:00AM - 10:30AM" },
+  { id: "10-30", time: "10:30AM - 11:00AM" },
+  { id: "11-00", time: "11:00AM - 11:30AM" },
+  { id: "11-30", time: "11:30AM - 12:00PM" },
+  { id: "14-00", time: "2:00PM - 2:30PM" },
+  { id: "14-30", time: "2:30PM - 3:00PM" },
 ];
 
 export const TAB_CONFIG: TabConfig[] = [

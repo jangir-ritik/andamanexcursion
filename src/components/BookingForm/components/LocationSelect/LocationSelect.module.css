@@ -4,12 +4,12 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: var(--padding-1) var(--padding-2);
-  gap: var(--gap-0);
-  min-width: 101px;
-  height: 72px;
+  padding: var(--padding-2);
+  gap: var(--gap-half-unit);
+  min-width: var(--formfield-min-width);
+  height: var(--formfield-height);
   background: var(--color-white);
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-2);
   border-radius: var(--border-radius-1);
   cursor: pointer;
 }
@@ -20,21 +20,28 @@
 
 .selectWrapper:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(62, 140, 255, 0.1);
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+.selectWrapper > span:last-of-type {
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  font-family: var(--font-family-jakarta);
+  color: var(--color-black);
+  white-space: nowrap;
 }
 
 .selectLabel {
   font-family: var(--font-family-jakarta);
   font-weight: 400;
-  font-size: var(--font-size-body-3);
-  line-height: 18px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
 
 .selectValue {
   font-family: var(--font-family-jakarta);
   font-weight: 500;
-  font-size: var(--font-size-body-2);
+  font-size: var(--font-size-md);
   line-height: 20px;
   color: var(--color-text-primary);
 }
@@ -42,16 +49,16 @@
 .selectContent {
   overflow: hidden;
   background: var(--color-white);
-  border-radius: var(--border-radius-1);
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-2);
+  box-shadow: var(--box-shadow-1);
   min-width: var(--min-width, 180px);
   animation: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20000;
 }
 
 .selectItem {
   font-family: var(--font-family-jakarta);
-  font-size: var(--font-size-body-2);
-  line-height: 20px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-primary);
   padding: var(--padding-2) var(--padding-3);
   cursor: pointer;

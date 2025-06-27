@@ -9,29 +9,28 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: var(--padding-1);
-  gap: var(--gap-0);
-  width: 116px;
-  height: 72px;
+  padding: var(--padding-2);
+  gap: var(--gap-half-unit);
+  min-width: var(--formfield-min-width);
+  height: var(--formfield-height);
   background: var(--color-white);
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-2);
   border-radius: var(--border-radius-1);
 }
-
 .counterGroup:hover {
   border-color: var(--color-primary);
 }
 
 .counterGroup:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(62, 140, 255, 0.1);
+  box-shadow: 0 0 0 2px var(--color-focus);
 }
 
 .counterGroup label {
+  white-space: nowrap;
   font-family: var(--font-family-jakarta);
   font-weight: 400;
-  font-size: var(--font-size-body-3);
-  line-height: 18px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
 
@@ -49,9 +48,9 @@
 .counter button {
   width: 20px;
   height: 21px;
-  font-family: "Eudoxus Sans";
+  font-family: var(--font-family-jakarta);
   font-weight: 500;
-  font-size: 20px;
+  font-size: var(--font-size-xl);
   line-height: 16px;
   color: var(--color-primary);
   background: transparent;
@@ -60,6 +59,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .counter button:hover:not(:disabled) {
@@ -74,7 +77,7 @@
 .counter span {
   font-family: var(--font-family-jakarta);
   font-weight: 500;
-  font-size: var(--font-size-body-2);
+  font-size: var(--font-size-md);
   line-height: 20px;
   color: var(--color-text-primary);
   text-align: center;

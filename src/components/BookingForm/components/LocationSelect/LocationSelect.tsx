@@ -26,7 +26,9 @@ export const LocationSelect = ({
 }: LocationSelectProps) => (
   <Select.Root value={value} onValueChange={onChange}>
     <Select.Trigger className={`${styles.selectWrapper} ${className || ""}`}>
-      <span className={styles.selectLabel}>{label}</span>
+      <span className={styles.selectLabel}>
+        {label}
+      </span>
       <Select.Value className={styles.selectValue}>
         {options.find((loc) => loc.id === value)?.name}
       </Select.Value>

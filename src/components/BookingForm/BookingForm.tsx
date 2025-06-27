@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
-import { ArrowRight } from "lucide-react";
+import { MoveRight } from "lucide-react";
 import styles from "./BookingForm.module.css";
 import { LocationSelect } from "./components/LocationSelect";
 import { DateSelect } from "./components/DateSelect";
@@ -12,6 +12,7 @@ import {
 } from "./components/PassengerCounter";
 import { ActivitySelect } from "./components/ActivitySelect";
 import { TAB_CONFIG } from "./config/formConfig";
+import { Button } from "../Button/Button";
 
 type BookingFormProps = {
   className?: string;
@@ -125,11 +126,9 @@ export function BookingForm({ className }: BookingFormProps) {
               value={formState.passengers}
               onChange={handlePassengerChange}
             />
-
-            <button className={styles.viewDetailsButton}>
-              View Details
-              <ArrowRight size={24} />
-            </button>
+            <Button>
+              View Details <MoveRight size={18} />
+            </Button>
           </div>
         </Tabs.Content>
       </Tabs.Root>
