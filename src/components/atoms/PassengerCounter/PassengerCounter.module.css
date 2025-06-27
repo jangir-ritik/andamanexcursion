@@ -1,6 +1,7 @@
 .passengerCounter {
   display: flex;
   gap: var(--gap-1);
+  width: 100%;
 }
 
 .counterGroup {
@@ -16,7 +17,9 @@
   background: var(--color-white);
   border: 1px solid var(--color-border-2);
   border-radius: var(--border-radius-1);
+  width: 100%;
 }
+
 .counterGroup:hover {
   border-color: var(--color-primary);
 }
@@ -41,7 +44,6 @@
   align-items: center;
   padding: 0;
   gap: var(--gap-0);
-  /* width: 92px; */
   width: 100%;
   height: 24px;
 }
@@ -87,13 +89,12 @@
 
 /* Tablet Responsive Design */
 @media (max-width: 1024px) {
-  .passengerCounter {
-    flex: 1;
-    min-width: 250px;
-  }
+  /* .passengerCounter {
+    flex-direction: column;
+  } */
 
   .counterGroup {
-    flex: 1;
+    width: 100%;
   }
 }
 
@@ -101,13 +102,6 @@
 @media (max-width: 768px) {
   .passengerCounter {
     width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: var(--gap-2);
-  }
-
-  .counterGroup {
-    flex: 1;
   }
 }
 

@@ -1,0 +1,12 @@
+import { ReactNode } from "react";
+
+export interface ButtonProps {
+  children: ReactNode;
+  onClick?: () => void;
+  className?: string;
+  variant?: "primary" | "secondary" | "outline";
+  size?: "small" | "medium" | "large";
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
+  showArrow?: boolean;
+}

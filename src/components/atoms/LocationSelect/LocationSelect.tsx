@@ -3,19 +3,7 @@
 import React from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./LocationSelect.module.css";
-
-export type Location = {
-  id: string;
-  name: string;
-};
-
-export type LocationSelectProps = {
-  value: string;
-  onChange: (value: string) => void;
-  label: string;
-  options: Location[];
-  className?: string;
-};
+import { LocationSelectProps } from "@/types/components/atoms/locationSelect";
 
 export const LocationSelect = ({
   value,
@@ -26,9 +14,7 @@ export const LocationSelect = ({
 }: LocationSelectProps) => (
   <Select.Root value={value} onValueChange={onChange}>
     <Select.Trigger className={`${styles.selectWrapper} ${className || ""}`}>
-      <span className={styles.selectLabel}>
-        {label}
-      </span>
+      <span className={styles.selectLabel}>{label}</span>
       <Select.Value className={styles.selectValue}>
         {options.find((loc) => loc.id === value)?.name}
       </Select.Value>

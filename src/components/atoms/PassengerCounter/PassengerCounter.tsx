@@ -2,17 +2,12 @@
 
 import React from "react";
 import styles from "./PassengerCounter.module.css";
+import {
+  PassengerCounterProps,
+  PassengerCount,
+} from "@/types/components/atoms/passengerCounter";
 
-export type PassengerCount = {
-  adults: number;
-  infants: number;
-};
-
-export type PassengerCounterProps = {
-  value: PassengerCount;
-  onChange: (type: keyof PassengerCount, value: number) => void;
-  className?: string;
-};
+export type { PassengerCount };
 
 export const PassengerCounter = ({
   value,

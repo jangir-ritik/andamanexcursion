@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
-import { MoveRight } from "lucide-react";
 import styles from "./BookingForm.module.css";
 import { LocationSelect } from "../../atoms/LocationSelect";
 import { DateSelect } from "../../atoms/DateSelect";
@@ -10,22 +9,13 @@ import { PassengerCounter, PassengerCount } from "../../atoms/PassengerCounter";
 import { TAB_CONFIG } from "./config/formConfig";
 import { Button } from "../../atoms/Button/Button";
 import { ActivitySelect } from "@/components/atoms/ActivitySelect";
-
-type BookingFormProps = {
-  className?: string;
-};
-
-type FormState = {
-  fromLocation: string;
-  toLocation: string;
-  selectedActivity: string;
-  selectedDate: Date;
-  selectedSlot: string;
-  passengers: PassengerCount;
-};
+import {
+  BookingFormProps,
+  FormState,
+} from "@/types/components/organisms/bookingForm";
 
 export function BookingForm({ className }: BookingFormProps) {
-  const [selectedTab, setSelectedTab] = React.useState(TAB_CONFIG[0].id);
+  const [selectedTab, setSelectedTab] = useState<string>("ferry");
   const [formState, setFormState] = React.useState<FormState>({
     fromLocation: "port-blair",
     toLocation: "havelock",
@@ -39,6 +29,24 @@ export function BookingForm({ className }: BookingFormProps) {
   });
 
   const currentTabConfig = TAB_CONFIG.find((tab) => tab.id === selectedTab);
+
+  // Update slot when tab changes to ensure a valid slot is selected
+  useEffect(() => {
+    if (currentTabConfig && currentTabConfig.timeSlots.length > 0) {
+      // Check if current slot exists in new tab's time slots
+      const slotExists = currentTabConfig.timeSlots.some(
+        (slot) => slot.id === formState.selectedSlot
+      );
+
+      // If not, set to first available slot
+      if (!slotExists) {
+        setFormState((prev) => ({
+          ...prev,
+          selectedSlot: currentTabConfig.timeSlots[0].id,
+        }));
+      }
+    }
+  }, [selectedTab, currentTabConfig, formState.selectedSlot]);
 
   const handlePassengerChange = (type: keyof PassengerCount, value: number) => {
     setFormState((prev) => ({
@@ -60,12 +68,21 @@ export function BookingForm({ className }: BookingFormProps) {
     }));
   };
 
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
+    // Reset slot when changing tabs
+    setFormState((prev) => ({
+      ...prev,
+      selectedSlot: "",
+    }));
+  };
+
   return (
     <div className={`${styles.bookingForm} ${className || ""}`}>
       <Tabs.Root
         className={styles.tabsRoot}
         value={selectedTab}
-        onValueChange={setSelectedTab}
+        onValueChange={handleTabChange}
       >
         <Tabs.List className={styles.tabsList} aria-label="Book your travel">
           {TAB_CONFIG.map((tab) => (
@@ -108,26 +125,34 @@ export function BookingForm({ className }: BookingFormProps) {
               </div>
             )}
 
-            <DateSelect
-              selected={formState.selectedDate}
-              onChange={(date) =>
-                date && handleFormChange("selectedDate", date)
-              }
-            />
+            <div className={styles.dateTimeSection}>
+              <DateSelect
+                selected={formState.selectedDate}
+                onChange={(date) =>
+                  date && handleFormChange("selectedDate", date)
+                }
+              />
 
-            <SlotSelect
-              value={formState.selectedSlot}
-              onChange={(value) => handleFormChange("selectedSlot", value)}
-              options={currentTabConfig?.timeSlots || []}
-            />
+              <SlotSelect
+                value={formState.selectedSlot}
+                onChange={(value) => handleFormChange("selectedSlot", value)}
+                options={currentTabConfig?.timeSlots || []}
+              />
+            </div>
 
-            <PassengerCounter
-              value={formState.passengers}
-              onChange={handlePassengerChange}
-            />
-            <Button>
-              View Details <MoveRight size={18} />
-            </Button>
+            <div className={styles.passengerButtonSection}>
+              <PassengerCounter
+                value={formState.passengers}
+                onChange={handlePassengerChange}
+              />
+              <Button
+                variant="primary"
+                className={styles.viewDetailsButton}
+                showArrow
+              >
+                View Details
+              </Button>
+            </div>
           </div>
         </Tabs.Content>
       </Tabs.Root>

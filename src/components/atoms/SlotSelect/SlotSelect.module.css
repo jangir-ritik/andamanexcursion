@@ -1,3 +1,52 @@
+.slotSelectContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--border-radius-1);
+  padding: 12px 16px;
+  background-color: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  min-width: 180px;
+}
+
+.selectContent {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-1);
+  box-shadow: var(--box-shadow-1);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.selectItem {
+  padding: 10px 16px;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s;
+}
+
+.selectItem:hover {
+  background-color: var(--color-foreground-light);
+}
+
+.selectItem[data-highlighted] {
+  background-color: var(--color-foreground-dark);
+  color: var(--color-primary);
+}
+
 .selectWrapper {
   box-sizing: border-box;
   display: flex;
@@ -6,22 +55,23 @@
   align-items: flex-start;
   padding: var(--padding-2);
   gap: var(--gap-half-unit);
-  width: 250px;
+  min-width: var(--formfield-min-width);
+  width: 100%;
   height: var(--formfield-height);
   background: var(--color-white);
   border: 1px solid var(--color-border-2);
   border-radius: var(--border-radius-1);
-  cursor: pointer;
 }
 
 .selectWrapper:hover {
   border-color: var(--color-primary);
 }
 
-.selectWrapper:focus-within {
+.selectWrapper:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-focus);
 }
+
 .selectLabel {
   font-family: var(--font-family-jakarta);
   font-weight: 400;
@@ -31,10 +81,13 @@
 
 .slotPickerInner {
   display: flex;
-  align-items: center;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  gap: var(--gap-1);
   width: 100%;
-  gap: var(--gap-0);
+  height: 24px;
 }
 
 .selectValue {
@@ -43,50 +96,25 @@
   font-size: var(--font-size-md);
   line-height: 20px;
   color: var(--color-text-primary);
-  text-align: center;
-  flex: 1;
+  text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.selectContent {
-  overflow: hidden;
-  background: var(--color-white);
-  border-radius: var(--border-radius-2);
-  box-shadow: var(--box-shadow-1);
-  min-width: var(--min-width, 180px);
-  animation: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 20000;
-}
-
-.selectItem {
-  font-family: var(--font-family-jakarta);
-  font-size: var(--font-size-sm);
-  line-height: 20px;
-  color: var(--color-text-primary);
-  padding: var(--padding-2) var(--padding-3);
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-}
-
-.selectItem[data-highlighted] {
-  background: var(--color-foreground-light);
-  color: var(--color-primary);
+  text-align: center;
+  min-width: 0;
+  flex: 1;
 }
 
 .slotNavButton {
-  background: none;
-  border: none;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
   color: var(--color-primary);
-  width: 24px;
-  height: 24px;
   padding: 0;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -97,12 +125,6 @@
 
 .slotNavButton:hover:not(:disabled) {
   color: var(--color-primary-dark);
-}
-
-.slotNavButton:focus {
-  box-shadow: 0 0 0 2px var(--color-focus);
-  border-radius: var(--border-radius-0);
-  outline: none;
 }
 
 @keyframes slideDownAndFade {
@@ -117,27 +139,15 @@
 }
 
 /* Tablet Responsive Design */
-@media (max-width: 1024px) {
-  .selectWrapper {
-    width: 220px;
-    flex: 1;
-  }
-}
-
-/* Mobile Responsive Design */
 @media (max-width: 768px) {
   .selectWrapper {
     width: 100%;
   }
-
-  .selectValue {
-    font-size: var(--font-size-sm);
-  }
 }
 
-/* Small Mobile Responsive Design */
+/* Mobile Responsive Design */
 @media (max-width: 480px) {
   .selectValue {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
   }
 }

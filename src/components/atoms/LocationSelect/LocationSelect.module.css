@@ -12,6 +12,7 @@
   border: 1px solid var(--color-border-2);
   border-radius: var(--border-radius-1);
   cursor: pointer;
+  width: 100%;
 }
 
 .selectWrapper:hover {
@@ -59,6 +60,7 @@
 .selectItem {
   font-family: var(--font-family-jakarta);
   font-size: var(--font-size-sm);
+  line-height: 20px;
   color: var(--color-text-primary);
   padding: var(--padding-2) var(--padding-3);
   cursor: pointer;
@@ -83,16 +85,8 @@
 }
 
 /* Tablet Responsive Design */
-@media (max-width: 1024px) {
-  .selectWrapper {
-    flex: 1;
-  }
-}
-
-/* Mobile Responsive Design */
 @media (max-width: 768px) {
   .selectWrapper {
     width: 100%;
-    min-width: 100%;
   }
 }

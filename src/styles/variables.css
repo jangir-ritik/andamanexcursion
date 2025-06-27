@@ -1,7 +1,10 @@
 :root {
   /* Colors */
   --color-primary: #3e8cff;
+  --color-primary-dark: #2a7ce6;
+  --color-primary-light: #e6f0ff;
   --color-secondary: #f36f0d;
+  --color-secondary-dark: #d85c00;
   --color-tertiary: #002cba;
   --color-disable: #9b9b9b;
   --color-white: #ffffff; /* color for background */
@@ -65,6 +68,7 @@
 
   /* padding */
   --padding-0: 0;
+  --padding-half: calc(var(--atomic-unit) / 2);
   --padding-1: var(--atomic-unit);
   --padding-2: calc(var(--atomic-unit) * 2);
   --padding-3: calc(var(--atomic-unit) * 3);

@@ -52,6 +52,10 @@
   border-radius: 0 var(--border-radius-3) 0 0;
 }
 
+.tabsTrigger:hover {
+  color: var(--color-primary);
+}
+
 .tabsTrigger[data-state="active"] {
   background: var(--color-white);
   color: var(--color-black);
@@ -73,49 +77,37 @@
 .formGrid {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  padding: 0;
-  gap: var(--gap-1);
+  justify-content: space-between;
   width: 100%;
-  height: var(--formfield-height);
+  gap: var(--gap-1);
+  flex-wrap: nowrap;
 }
 
 /* Location Selectors */
 .locationSelectors {
   display: flex;
+  flex-direction: row;
   gap: var(--gap-1);
 }
 
-/* Activity Container - New class for activities */
-.activityContainer {
-  width: 100%;
+/* Date and Time Section */
+.dateTimeSection {
   display: flex;
-  flex: 1;
+  gap: var(--gap-1);
+}
+
+/* Passenger and Button Section */
+.passengerButtonSection {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-1);
 }
 
 /* View Details Button */
 .viewDetailsButton {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: var(--padding-1) var(--padding-2);
-  gap: var(--gap-1);
-  height: 40px;
-  background: var(--color-primary);
-  border-radius: var(--border-radius-1);
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-family-jakarta);
-  font-weight: 500;
-  font-size: var(--font-size-sm);
-  line-height: 18px;
-  color: var(--color-white);
-}
-
-.viewDetailsButton:hover {
-  background: var(--color-primary-dark);
+  white-space: nowrap;
+  margin-left: var(--margin-1);
 }
 
 /* Desktop Responsive Design */
@@ -126,54 +118,64 @@
   }
 
   .formGrid {
-    flex-wrap: nowrap;
     height: var(--formfield-height);
   }
 }
 
 /* Tablet Responsive Design */
 @media (min-width: 851px) and (max-width: 1199px) {
+  .bookingForm {
+    max-width: 60vw;
+  }
   .tabsContent {
     border-radius: 0 var(--border-radius-2) var(--border-radius-2)
       var(--border-radius-2);
   }
 
   .formGrid {
-    flex-wrap: wrap;
-    height: auto;
-    gap: var(--gap-2);
+    /* flex-wrap: wrap; */
+    flex-direction: column;
     justify-content: flex-start;
+    align-items: unset;
   }
 
-  .locationSelectors {
-    width: 100%;
-    flex-wrap: wrap;
+  .dateTimeSection {
+    flex-direction: column;
   }
 
-  .formGrid > :last-child {
-    width: 100%;
-    margin-top: var(--margin-1);
+  .passengerButtonSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .viewDetailsButton {
+    margin-left: 0;
   }
 }
 
 /* Small Tablet Responsive Design */
 @media (max-width: 850px) {
+  .bookingForm {
+    max-width: 80vw;
+  }
   .formGrid {
     flex-wrap: wrap;
-    height: auto;
-    gap: var(--gap-2);
-    justify-content: flex-start;
   }
 
-  .locationSelectors {
-    width: 100%;
-    flex-wrap: wrap;
+  .locationSelectors,
+  .activityContainer,
+  .dateTimeSection,
+  .passengerButtonSection {
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
 /* Mobile Responsive Design */
 @media (max-width: 768px) {
   .bookingForm {
+    max-width: unset;
     width: 100%;
     padding: var(--padding-2);
   }
@@ -184,15 +186,26 @@
 
   .formGrid {
     flex-direction: column;
-    height: auto;
-    gap: var(--gap-2);
     align-items: stretch;
   }
 
   .locationSelectors {
-    width: 100%;
     flex-direction: column;
-    gap: var(--gap-2);
+  }
+
+  .dateTimeSection {
+    flex-direction: column;
+  }
+
+  .passengerButtonSection {
+    flex-direction: column;
+    /* gap: var(--gap-2); */
+    align-items: stretch;
+  }
+
+  .viewDetailsButton {
+    width: 100%;
+    margin-left: 0;
   }
 }
 

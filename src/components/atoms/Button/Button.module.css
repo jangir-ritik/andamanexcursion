@@ -1,37 +1,79 @@
 .button {
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-family-jakarta);
-  font-size: var(--font-size-button);
-  border-radius: var(--border-radius-1);
-  padding: var(--padding-1) var(--padding-2);
-  margin-left: var(--margin-1);
-  font-weight: 400;
-  white-space: nowrap;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: max-content;
-  gap: var(--gap-half-unit);
-  height: 40px;
   box-sizing: border-box;
-  max-width: 100%; /* Ensure button doesn't overflow container */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-1);
+  padding: 0 var(--padding-3);
+  height: var(--formfield-height);
+  border-radius: 12px;
+  font-family: var(--font-family-jakarta);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  border: none;
 }
 
+/* Button variants */
 .primary {
   background-color: var(--color-primary);
   color: var(--color-white);
 }
 
-.secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-white);
+.primary:hover {
+  background-color: var(--color-primary-dark);
 }
 
+.secondary {
+  background-color: var(--color-foreground-light);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.secondary:hover {
+  background-color: var(--color-foreground-lighter);
+}
+
+.outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.outline:hover {
+  background-color: var(--color-primary-light);
+}
+
+/* Button sizes */
+.small {
+  padding: var(--padding-half) var(--padding-1);
+  height: 32px;
+  font-size: var(--font-size-xs);
+}
+
+.medium {
+  padding: var(--padding-1) var(--padding-2);
+  height: 40px;
+  font-size: var(--font-size-button);
+}
+
+.large {
+  padding: var(--padding-1) var(--padding-3);
+  height: 48px;
+  font-size: var(--font-size-md);
+}
+
+/* Disabled state */
 .disabled {
-  background-color: var(--color-disable);
-  color: var(--color-white);
+  opacity: 0.6;
   cursor: not-allowed;
+}
+
+.disabled:hover {
+  background-color: var(--color-primary);
 }
 
 /* Tablet Responsive Design */
@@ -46,6 +88,14 @@
   .button {
     width: 100%;
     margin-left: 0;
-    padding: var(--padding-1) var(--padding-1); /* Reduce padding on mobile */
+    padding: var(--padding-1) var(--padding-1);
+    font-size: var(--font-size-sm);
+    height: 40px;
   }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  margin-left: var(--margin-1);
 }

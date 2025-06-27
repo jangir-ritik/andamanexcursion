@@ -3,18 +3,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./SlotSelect.module.css";
-
-export type TimeSlot = {
-  id: string;
-  time: string;
-};
-
-export type SlotSelectProps = {
-  value: string;
-  onChange: (value: string) => void;
-  options: TimeSlot[];
-  className?: string;
-};
+import { SlotSelectProps } from "@/types/components/atoms/slotSelect";
 
 export const SlotSelect = ({
   value,
