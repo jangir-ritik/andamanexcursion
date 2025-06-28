@@ -1,7 +1,5 @@
-import { ReactNode } from "react";
-
 export interface FlexProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   gap?: number | string;
   wrap?: boolean;
@@ -11,12 +9,30 @@ export interface FlexProps {
   alignItems?: "start" | "end" | "center" | "baseline" | "stretch";
 }
 
-export interface RowProps extends FlexProps {}
+export interface RowProps extends FlexProps {
+  children: React.ReactNode;
+  className?: string;
+  gap?: number | string;
+  wrap?: boolean;
+  fullWidth?: boolean;
+  fullHeight?: boolean;
+  justifyContent?: "start" | "end" | "center" | "between" | "around" | "evenly";
+  alignItems?: "start" | "end" | "center" | "baseline" | "stretch";
+}
 
-export interface ColumnProps extends FlexProps {}
+export interface ColumnProps extends FlexProps {
+  children: React.ReactNode;
+  className?: string;
+  gap?: number | string;
+  wrap?: boolean;
+  fullWidth?: boolean;
+  fullHeight?: boolean;
+  justifyContent?: "start" | "end" | "center" | "between" | "around" | "evenly";
+  alignItems?: "start" | "end" | "center" | "baseline" | "stretch";
+}
 
 export interface SectionProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   id?: string;
   backgroundColor?: "white" | "light" | "primary" | "secondary";

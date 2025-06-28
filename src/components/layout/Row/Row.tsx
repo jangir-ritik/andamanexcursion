@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Row.module.css";
-import { RowProps } from "@/types/components/layout";
+import { RowProps } from "@/types";
 
 export const Row = ({
   children,

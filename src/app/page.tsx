@@ -7,8 +7,10 @@ import { Row } from "@/components/layout/Row";
 import { Column } from "@/components/layout/Column";
 import { Section } from "@/components/layout";
 import { ImageContainer } from "@/components/atoms/ImageContainer";
+import { SmallCard, MediumCard, LargeCard } from "@/components/molecules/Cards";
 import heroImage from "@public/images/placeholder.png";
 import { Button } from "@/components/atoms/Button/Button";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -50,11 +52,44 @@ export default function Home() {
             </Row>
           </Row>
 
-          {/* Package cards will go here */}
-          <Row gap={3} fullWidth wrap>
-            {/* Package cards content */}
-            <p>Package cards will be added here</p>
-          </Row>
+          {/* Package cards */}
+          <div className={styles.cardsContainer}>
+            <SmallCard
+              image="/images/placeholder.png"
+              imageAlt="Serene Shores"
+              title="Serene Shores"
+              duration="3 Days, 4 Nights"
+              price="Starting @₹1,520"
+            />
+
+            <Link href="/activities/fishing" style={{ textDecoration: "none" }}>
+              <MediumCard
+                image="/images/placeholder.png"
+                imageAlt="Fishing Experience"
+                title="Fishing"
+                description="Set sail with local fishermen and experience the thrill of fishing as the sun rises over crystal-clear waters."
+                badge="Most Viewed"
+                badgeIcon={
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z"
+                      fill="#000000"
+                    />
+                  </svg>
+                }
+              />
+            </Link>
+
+            <LargeCard
+              image="/images/placeholder.png"
+              imageAlt="Scuba Diving Experience"
+              subtitle="Scuba Diving"
+              title="Dive Beneath Waves, Discover Hidden Worlds"
+              description="Explore vibrant coral reefs and encounter exotic marine life in the crystal-clear waters of the Andaman Sea."
+              ctaText="View Details"
+              ctaHref="/activities/scuba-diving"
+            />
+          </div>
         </Column>
       </Section>
     </>
