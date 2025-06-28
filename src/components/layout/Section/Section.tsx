@@ -7,7 +7,7 @@ interface SectionProps {
   className?: string;
   id?: string;
   backgroundColor?: "white" | "light" | "primary" | "secondary";
-  spacing?: "4" | "5" | "10";
+  spacing?: "0" | "4" | "5" | "10";
   fullWidth?: boolean;
   noPadding?: boolean;
 }
@@ -17,7 +17,7 @@ export const Section = ({
   className = "",
   id,
   backgroundColor = "white",
-  spacing = "4",
+  spacing = "0",
   fullWidth = false,
   noPadding = false,
 }: SectionProps) => {

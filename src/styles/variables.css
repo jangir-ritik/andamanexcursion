@@ -102,4 +102,5 @@
   /* magic values*/
   --formfield-min-width: 120px;
   --formfield-height: 72px;
+  --floating-button-size: 45px;
 }

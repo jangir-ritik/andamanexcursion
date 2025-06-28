@@ -1,15 +1,12 @@
 .sectionTitle {
   position: relative;
-  width: 442px;
-  height: 119px;
+  max-width: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .title {
-  position: absolute;
-  width: 442px;
-  height: 101px;
-  left: 0px;
-  top: 0px;
   font-family: var(--font-family-jakarta);
   font-style: normal;
   font-weight: 400;
@@ -37,13 +34,7 @@
 
 /* Tablet Responsive Design */
 @media (max-width: 1024px) {
-  .sectionTitle {
-    width: 380px;
-    height: 110px;
-  }
   .title {
-    width: 380px;
-    height: 90px;
     font-size: 36px;
     line-height: 45px;
   }
@@ -53,24 +44,11 @@
 @media (max-width: 768px) {
   .sectionTitle {
     width: 100%;
-    height: auto;
-    min-height: 100px;
-    margin-bottom: var(--margin-4);
-  }
-  .title {
-    position: relative;
-    width: 100%;
-    height: auto;
-    font-size: var(--font-size-2xl);
-    line-height: 40px;
   }
 }
 
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
-  .sectionTitle {
-    min-height: 80px;
-  }
   .title {
     font-size: 20px;
     line-height: 30px;

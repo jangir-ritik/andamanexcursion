@@ -10,20 +10,21 @@ export const SmallCard = ({
 }: SmallCardProps) => {
   return (
     <div className={styles.cardContainer}>
-      <div
-        className={styles.imageContainer}
-        style={{ backgroundImage: `url(${image})` }}
-        aria-label={imageAlt}
-      >
+      <div className={styles.imageWrapper}>
+        <div
+          className={styles.imageContainer}
+          style={{ backgroundImage: `url(${image})` }}
+          aria-label={imageAlt}
+        />
         <div className={styles.imageOverlay} />
-      </div>
-      <div className={styles.contentContainer}>
-        <div className={styles.durationBadge}>
-          <span className={styles.durationText}>{duration}</span>
-        </div>
-        <div className={styles.cardInfo}>
-          <h3 className={styles.cardTitle}>{title}</h3>
-          <p className={styles.cardPrice}>{price}</p>
+        <div className={styles.contentContainer}>
+          <div className={styles.durationBadge}>
+            <span className={styles.durationText}>{duration}</span>
+          </div>
+          <div className={styles.cardInfo}>
+            <h3 className={styles.cardTitle}>{title}</h3>
+            <p className={styles.cardPrice}>{price}</p>
+          </div>
         </div>
       </div>
     </div>
