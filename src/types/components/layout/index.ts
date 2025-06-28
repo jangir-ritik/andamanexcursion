@@ -14,3 +14,13 @@ export interface FlexProps {
 export interface RowProps extends FlexProps {}
 
 export interface ColumnProps extends FlexProps {}
+
+export interface SectionProps {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+  backgroundColor?: "white" | "light" | "primary" | "secondary";
+  spacing?: "small" | "medium" | "large";
+  fullWidth?: boolean;
+  noPadding?: boolean;
+}

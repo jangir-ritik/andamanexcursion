@@ -1,0 +1,61 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: var(--border-radius-5);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Aspect ratios */
+.auto {
+  /* No specific aspect ratio */
+  min-height: 200px;
+}
+
+.square {
+  aspect-ratio: 1 / 1;
+}
+
+.video {
+  aspect-ratio: 16 / 9;
+}
+
+.portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.banner {
+  aspect-ratio: 21 / 9;
+}
+
+/* Object fit styles */
+.cover {
+  object-fit: cover;
+}
+
+.contain {
+  object-fit: contain;
+}
+
+.fill {
+  object-fit: fill;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .container {
+    border-radius: var(--border-radius-1);
+  }
+
+  .banner {
+    aspect-ratio: 16 / 9; /* Adjust banner aspect ratio for mobile */
+  }
+}

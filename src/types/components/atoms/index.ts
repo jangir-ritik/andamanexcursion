@@ -8,3 +8,4 @@ export * from "./customLink";
 export * from "./heroTitle";
 export * from "./sectionTitle";
 export * from "./descriptionText";
+export * from "./imageContainer";

@@ -2,6 +2,30 @@
 
 Flexible layout components to help structure your UI with consistent spacing and alignment.
 
+## Section Component
+
+A semantic section component that provides proper HTML structure and consistent spacing for page sections.
+
+```jsx
+import { Section } from '@/components/layout';
+
+// Basic usage
+<Section>
+  <p>Content goes here</p>
+</Section>
+
+// With background color and spacing
+<Section backgroundColor="light" spacing="large" id="about">
+  <h2>About Us</h2>
+  <p>Section content...</p>
+</Section>
+
+// Without horizontal padding
+<Section noPadding>
+  <p>This section won't have horizontal padding</p>
+</Section>
+```
+
 ## Container Component
 
 A centered container with max-width and responsive padding.
@@ -118,6 +142,18 @@ import { Column } from '@/components/layout';
 ```
 
 ## Props
+
+### Section Props
+
+| Prop            | Type                                           | Default  | Description                            |
+| --------------- | ---------------------------------------------- | -------- | -------------------------------------- |
+| children        | ReactNode                                      | -        | Content to render within the section   |
+| className       | string                                         | -        | Additional CSS class                   |
+| id              | string                                         | -        | HTML id attribute for the section      |
+| backgroundColor | 'white' \| 'light' \| 'primary' \| 'secondary' | 'white'  | Background color of the section        |
+| spacing         | 'small' \| 'medium' \| 'large'                 | 'medium' | Vertical padding of the section        |
+| fullWidth       | boolean                                        | false    | Whether content should take full width |
+| noPadding       | boolean                                        | false    | Whether to remove horizontal padding   |
 
 ### Container Props
 

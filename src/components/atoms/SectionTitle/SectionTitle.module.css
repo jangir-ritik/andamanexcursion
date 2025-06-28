@@ -19,14 +19,20 @@
   margin: var(--margin-0);
 }
 
+.specialWord {
+  font-weight: 700;
+  font-family: var(--font-family-quick-beach);
+  color: var(--color-secondary);
+  transition: color 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
 .underline {
   position: absolute;
-  width: 170px;
-  height: 9px;
-  left: 170px;
-  top: 110px;
-  background: var(--color-secondary);
-  transform: matrix(-1, 0, 0, 1, 0, 0);
+  /* Remove static positioning - now handled by inline styles */
+  z-index: 1;
+  pointer-events: none; /* Prevents interference with text selection */
 }
 
 /* Tablet Responsive Design */
@@ -35,18 +41,11 @@
     width: 380px;
     height: 110px;
   }
-
   .title {
     width: 380px;
     height: 90px;
     font-size: 36px;
     line-height: 45px;
-  }
-
-  .underline {
-    width: 150px;
-    left: 150px;
-    top: 100px;
   }
 }
 
@@ -58,22 +57,12 @@
     min-height: 100px;
     margin-bottom: var(--margin-4);
   }
-
   .title {
     position: relative;
     width: 100%;
     height: auto;
     font-size: var(--font-size-2xl);
     line-height: 40px;
-  }
-
-  .underline {
-    position: relative;
-    width: 120px;
-    height: 6px;
-    left: 0;
-    top: var(--margin-1);
-    margin-top: var(--margin-2);
   }
 }
 
@@ -82,14 +71,8 @@
   .sectionTitle {
     min-height: 80px;
   }
-
   .title {
     font-size: 20px;
     line-height: 30px;
-  }
-
-  .underline {
-    width: 100px;
-    height: 5px;
   }
 }
