@@ -18,11 +18,12 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: var(--color-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -5,3 +5,6 @@ export * from "./slotSelect";
 export * from "./passengerCounter";
 export * from "./activitySelect";
 export * from "./customLink";
+export * from "./heroTitle";
+export * from "./sectionTitle";
+export * from "./descriptionText";

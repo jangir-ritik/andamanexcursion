@@ -26,10 +26,11 @@
   --font-size-2xl: 24px;
   --font-size-3xl: 32px;
   --font-size-4xl: 40px;
+  --font-size-5xl: 54px;
 
   /* Legacy font size variables (mapped to new standardized sizes) */
-  --font-size-h1: var(--font-size-4xl);
-  --font-size-h2: var(--font-size-3xl);
+  --font-size-h1: var(--font-size-5xl);
+  --font-size-h2: var(--font-size-4xl);
   --font-size-subheading-1: var(--font-size-xl);
   --font-size-subheading-2: var(--font-size-2xl);
   --font-size-body-1: var(--font-size-xl);

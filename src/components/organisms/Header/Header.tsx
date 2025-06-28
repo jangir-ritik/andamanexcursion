@@ -14,8 +14,8 @@ export interface HeaderProps {
 
 export const Header = React.memo(({ className, ...props }: HeaderProps) => {
   return (
-    <header className={clsx(styles.root, className)} {...props}>
-      <div className={styles.container}>
+    <header className={clsx(styles.header_root, className)} {...props}>
+      <div className={styles.header_container}>
         <div className={styles.logo}>
           <Link href="/">
             <Image
