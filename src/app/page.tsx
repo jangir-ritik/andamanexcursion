@@ -6,6 +6,7 @@ import HiddenGems from "@/components/sectionBlocks/homepage/hiddenGems/HiddenGem
 import { LovedAdventures } from "@/components/sectionBlocks/homepage/lovedAdventures";
 import Partners from "@/components/sectionBlocks/homepage/partners/Partners";
 import ScubaDiving from "@/components/sectionBlocks/homepage/scubaDivingCTA/ScubaDiving";
+import WhyChooseUs from "@/components/sectionBlocks/homepage/whyChooseUs/WhyChooseUs";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <LovedAdventures />
       <Partners />
       <ScubaDiving />
+      <WhyChooseUs />
     </>
   );
 }
