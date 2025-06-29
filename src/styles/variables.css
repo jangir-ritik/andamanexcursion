@@ -18,6 +18,14 @@
   --color-focus: rgba(62, 140, 255, 0.1);
   --color-divider: #d6d6d6;
 
+  /* Testimonial specific colors */
+  --color-testimonial-border: #89b9ff;
+  --color-testimonial-text: #3e3e3e;
+  --color-testimonial-divider: #ececec;
+  --testimonial-card-width: 282px;
+  --testimonial-card-height: 263px;
+  --testimonial-rotation-angle: 8deg;
+
   /* Typography - Standardized font sizes */
   --font-size-xs: 14px;
   --font-size-sm: 15px;
