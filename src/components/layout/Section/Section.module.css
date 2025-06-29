@@ -10,6 +10,22 @@
   max-width: var(--container-max-width);
 }
 
+/* Full bleed section styles */
+.fullBleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.fullBleedContent {
+  width: 100%;
+  max-width: none;
+  padding-left: var(--padding-6);
+  padding-right: var(--padding-6);
+}
+
 /* Background colors */
 .bg-white {
   background-color: var(--color-white);
@@ -50,6 +66,14 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+  .content,
+  .fullBleedContent {
+    padding-left: var(--padding-4);
+    padding-right: var(--padding-4);
+  }
+}
+
 @media (max-width: 768px) {
   .spacing-4 {
     padding-top: var(--padding-4);
@@ -59,5 +83,19 @@
   .spacing-5 {
     padding-top: var(--padding-5);
     padding-bottom: var(--padding-5);
+  }
+
+  .content,
+  .fullBleedContent {
+    padding-left: var(--padding-3);
+    padding-right: var(--padding-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .content,
+  .fullBleedContent {
+    padding-left: var(--padding-2);
+    padding-right: var(--padding-2);
   }
 }

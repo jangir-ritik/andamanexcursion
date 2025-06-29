@@ -10,6 +10,8 @@ interface SectionProps {
   spacing?: "0" | "4" | "5" | "10";
   fullWidth?: boolean;
   noPadding?: boolean;
+  fullBleed?: boolean;
+  ariaLabelledby?: string;
 }
 
 export const Section = ({
@@ -20,12 +22,15 @@ export const Section = ({
   spacing = "0",
   fullWidth = false,
   noPadding = false,
+  fullBleed = false,
+  ariaLabelledby,
 }: SectionProps) => {
   const sectionClasses = [
     styles.section,
     styles[`bg-${backgroundColor}`],
     styles[`spacing-${spacing}`],
     noPadding && styles.noPadding,
+    fullBleed && styles.fullBleed,
     className,
   ]
     .filter(Boolean)
@@ -33,8 +38,15 @@ export const Section = ({
     .trim();
 
   return (
-    <section className={sectionClasses} id={id}>
-      <Column fullWidth={fullWidth} className={styles.content}>
+    <section
+      className={sectionClasses}
+      id={id}
+      aria-labelledby={ariaLabelledby}
+    >
+      <Column
+        fullWidth={fullWidth || fullBleed}
+        className={fullBleed ? styles.fullBleedContent : styles.content}
+      >
         {children}
       </Column>
     </section>

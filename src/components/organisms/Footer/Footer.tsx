@@ -4,10 +4,10 @@ import Image from "next/image";
 import logo from "@icons/logo_white.svg";
 import wavePlusBoat from "@graphics/wavePlusBoat.svg";
 import { footerItems } from "./Footer.content";
-import Instagram from "@icons/instagram.svg";
-import Threads from "@icons/threads.svg";
-import Youtube from "@icons/youtube.svg";
-import Linkedin from "@icons/linkedin.svg";
+import Instagram from "@icons/socials/instagram.svg";
+import Threads from "@icons/socials/threads.svg";
+import Youtube from "@icons/socials/youtube.svg";
+import Linkedin from "@icons/socials/linkedin.svg";
 import Link from "next/link";
 
 export type FooterProps = {

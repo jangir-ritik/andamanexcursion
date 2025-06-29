@@ -16,6 +16,7 @@
   --color-border: #ffffff33;
   --color-border-2: #e0e0e0;
   --color-focus: rgba(62, 140, 255, 0.1);
+  --color-divider: #d6d6d6;
 
   /* Typography - Standardized font sizes */
   --font-size-xs: 14px;
@@ -103,4 +104,5 @@
   --formfield-min-width: 120px;
   --formfield-height: 72px;
   --floating-button-size: 45px;
+  --divider-height: 86px;
 }
