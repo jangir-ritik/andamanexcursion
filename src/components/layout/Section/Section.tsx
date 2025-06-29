@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "./Section.module.css";
-import { Column } from "../Column";
 
 interface SectionProps {
   children: React.ReactNode;
@@ -8,7 +7,6 @@ interface SectionProps {
   id?: string;
   backgroundColor?: "white" | "light" | "primary" | "secondary";
   spacing?: "0" | "4" | "5" | "10";
-  fullWidth?: boolean;
   noPadding?: boolean;
   fullBleed?: boolean;
   ariaLabelledby?: string;
@@ -20,7 +18,6 @@ export const Section = ({
   id,
   backgroundColor = "white",
   spacing = "0",
-  fullWidth = false,
   noPadding = false,
   fullBleed = false,
   ariaLabelledby,
@@ -43,12 +40,7 @@ export const Section = ({
       id={id}
       aria-labelledby={ariaLabelledby}
     >
-      <Column
-        fullWidth={fullWidth || fullBleed}
-        className={fullBleed ? styles.fullBleedContent : styles.content}
-      >
-        {children}
-      </Column>
+      {children}
     </section>
   );
 };

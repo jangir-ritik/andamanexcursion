@@ -1,0 +1,15 @@
+.hiddenGemsSection {
+  justify-content: center;
+  align-items: center;
+  background-image: url("/graphics/waveLight.svg");
+  background-size: 100% auto;
+  background-position: center;
+}
+
+.sectionTitle {
+  max-width: 400px;
+}
+
+.hiddenGemsRow {
+  max-width: var(--container-max-width);
+}

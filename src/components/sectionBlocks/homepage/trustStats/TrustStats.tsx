@@ -10,6 +10,7 @@ import Image from "next/image";
 export const TrustStats = () => {
   return (
     <Section
+      spacing="5"
       className={styles.trustStatsSection}
       aria-labelledby="trust-stats-title"
       fullBleed

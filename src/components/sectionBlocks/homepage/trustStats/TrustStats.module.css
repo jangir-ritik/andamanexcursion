@@ -1,8 +1,7 @@
 .trustStatsSection {
   position: relative;
-  padding: var(--padding-5) 0;
   overflow: hidden;
-  background-image: url("/graphics/waveDark.svg");
+  background-image: url("/graphics/waveLight.svg");
   background-size: 100% auto;
   background-position: center;
   pointer-events: none;
@@ -11,7 +10,6 @@
 .mainRow {
   pointer-events: auto;
   max-width: var(--container-max-width);
-  margin: 0 auto;
   position: relative;
 }
 
@@ -58,7 +56,7 @@
 
 @media (max-width: 992px) {
   .trustStatsSection {
-    padding: var(--padding-4) 0;
+    /* padding: var(--padding-4) 0; */
   }
 
   .statsContainer {
@@ -86,7 +84,7 @@
 
 @media (max-width: 576px) {
   .trustStatsSection {
-    padding: var(--padding-3) 0;
+    /* padding: var(--padding-3) 0; */
   }
 
   .mainRow {

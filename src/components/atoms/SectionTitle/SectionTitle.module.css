@@ -17,7 +17,7 @@
 }
 
 .specialWord {
-  font-weight: 700;
+  font-weight: 400;
   font-family: var(--font-family-quick-beach);
   color: var(--color-secondary);
   transition: color 0.3s ease;

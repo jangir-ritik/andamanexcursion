@@ -67,8 +67,11 @@ export const SectionTitle = ({
     if (!specialWord) {
       return <span>{text}</span>;
     }
-
-    const regex = new RegExp(`\\b${specialWord}\\b`, "gi");
+    const escapedSpecialWord = specialWord.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+    const regex = new RegExp(escapedSpecialWord, "gi");
     const parts = text.split(regex);
     const matches = text.match(regex) || [];
 

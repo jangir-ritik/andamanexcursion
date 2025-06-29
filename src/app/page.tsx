@@ -2,6 +2,7 @@ import { Packages } from "@/components/sectionBlocks/homepage/packages/Packages"
 import { Banner } from "@/components/sectionBlocks/homepage/banner/Banner";
 import PackageCarousel from "@/components/sectionBlocks/homepage/packageCarousel/PackageCarousel";
 import { TrustStats } from "@/components/sectionBlocks/homepage/trustStats";
+import HiddenGems from "@/components/sectionBlocks/homepage/hiddenGems/HiddenGems";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <Packages />
       <PackageCarousel />
       <TrustStats />
+      <HiddenGems />
     </>
   );
 }
