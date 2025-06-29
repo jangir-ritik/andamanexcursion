@@ -21,7 +21,7 @@ export interface MediumCardProps extends BaseCardProps {
 
 export interface LargeCardProps extends BaseCardProps {
   subtitle?: string;
-  description: string;
+  description?: string;
   ctaText?: string;
   ctaHref?: string;
 }
