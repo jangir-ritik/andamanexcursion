@@ -1,0 +1,353 @@
+.carouselContainer {
+  position: relative;
+  width: 100%;
+  max-width: var(--container-max-width);
+  height: 488px;
+  margin: 0 auto;
+}
+
+.carouselWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--gap-7);
+  width: 100%;
+  height: 392px;
+  position: relative;
+}
+
+.slidesContainer {
+  width: 100%;
+  height: 392px;
+  background: var(--color-foreground-dark);
+  border-radius: var(--border-radius-5);
+  position: relative;
+  overflow: hidden;
+  background-image: url("/graphics/waveDark.svg");
+  background-size: 100% auto;
+  background-position: center;
+  pointer-events: none;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.activeSlide {
+  opacity: 1;
+  z-index: 1;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--gap-4);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 1018px;
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  min-width: 463px;
+}
+
+.slideTitle {
+  font-family: var(--font-family-quick-beach);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-5xl);
+  line-height: 58px;
+  color: var(--color-tertiary);
+  margin: 0;
+}
+
+.slidePrice {
+  font-family: var(--font-family-jakarta);
+  font-style: normal;
+  font-weight: 600;
+  font-size: var(--font-size-2xl);
+  line-height: 30px;
+  color: var(--color-tertiary);
+  margin: 0;
+}
+
+.slideDescription {
+  font-family: var(--font-family-jakarta);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-2xl);
+  line-height: 30px;
+  color: var(--color-primary);
+  margin: 0;
+  margin-top: var(--margin-4);
+  width: 100%;
+  max-width: 460px;
+}
+
+.viewMoreWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--gap-1);
+  margin-top: var(--margin-2);
+}
+
+.viewMoreText {
+  font-family: var(--font-family-jakarta);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  line-height: 20px;
+  text-decoration-line: underline;
+  color: var(--color-primary);
+}
+
+.viewMoreIcon {
+  color: var(--color-primary);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 517px;
+  height: 312px;
+}
+
+.imageWrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 95%;
+  height: 90%;
+  border-radius: 20px;
+  border: 1px solid var(--color-tertiary);
+  transform: rotate(-5deg) translateX(20px) translateY(20px);
+  z-index: -1;
+}
+.slideImage {
+  width: 495px;
+  height: 270px;
+  object-fit: cover;
+  border-radius: 20px 20px 20px 60px;
+  position: absolute;
+  right: 0;
+  top: 20px;
+}
+
+.starIconTop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--padding-half);
+  width: 32px;
+  height: 32px;
+  background: var(--color-white);
+  border-radius: 16.5px;
+  position: absolute;
+  left: 0;
+  top: 22px;
+  z-index: 2;
+}
+
+.starIconBottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--padding-half);
+  width: 32px;
+  height: 32px;
+  background: var(--color-tertiary);
+  border-radius: 16.5px;
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  z-index: 2;
+}
+
+.carouselControls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+  height: 42px;
+  margin-top: var(--margin-5);
+}
+
+.indicators {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gap-half-unit);
+  width: fit-content;
+  height: 8px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  background: #d9d9d9;
+  border-radius: 24px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.activeIndicator {
+  width: 77px;
+  background: var(--color-primary);
+}
+
+.navigationButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap-7);
+  width: 138px;
+  height: 42px;
+}
+
+.navButton {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--color-primary);
+  border-radius: 24px;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .carouselContainer {
+    padding: 0 var(--padding-4);
+  }
+
+  .contentWrapper {
+    padding: 0 var(--padding-4);
+  }
+}
+
+@media (max-width: 992px) {
+  .contentWrapper {
+    flex-direction: column;
+    gap: var(--gap-4);
+  }
+
+  .textContent {
+    width: 100%;
+    height: auto;
+    margin-bottom: var(--margin-4);
+  }
+
+  .slideTitle,
+  .slidePrice,
+  .slideDescription {
+    width: 100%;
+  }
+
+  .imageWrapper {
+    width: 100%;
+    height: 250px;
+  }
+
+  .slideImage {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    top: 0;
+  }
+
+  .starIconTop {
+    left: 10px;
+    top: 10px;
+  }
+
+  .starIconBottom {
+    right: 10px;
+    bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carouselContainer {
+    height: auto;
+  }
+
+  .carouselWrapper {
+    height: auto;
+  }
+
+  .slidesContainer {
+    height: auto;
+    min-height: 500px;
+  }
+
+  .slide {
+    position: relative;
+    height: auto;
+  }
+
+  .contentWrapper {
+    position: relative;
+    transform: none;
+    left: 0;
+    top: 0;
+    padding: var(--padding-4);
+  }
+
+  .slideTitle {
+    font-size: var(--font-size-4xl);
+    line-height: 1.2;
+  }
+
+  .slidePrice {
+    font-size: var(--font-size-xl);
+  }
+
+  .slideDescription {
+    font-size: var(--font-size-lg);
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 480px) {
+  .carouselContainer {
+    padding: 0 var(--padding-2);
+  }
+
+  .slideTitle {
+    font-size: var(--font-size-3xl);
+  }
+
+  .slideDescription {
+    font-size: var(--font-size-md);
+  }
+
+  .navigationButtons {
+    width: 100px;
+    gap: var(--gap-4);
+  }
+}

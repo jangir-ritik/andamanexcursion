@@ -1,0 +1,9 @@
+.packageCarouselSection {
+  margin-bottom: var(--section-gap);
+}
+
+@media (max-width: 768px) {
+  .packageCarouselSection {
+    margin-bottom: calc(var(--section-gap) / 2);
+  }
+}
