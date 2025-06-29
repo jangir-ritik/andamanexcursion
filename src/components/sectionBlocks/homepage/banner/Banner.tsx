@@ -10,7 +10,7 @@ import { content } from "./Banner.content";
 
 export const Banner = () => {
   return (
-    <Section noPadding id="hero">
+    <Section noPadding id="hero" className={styles.sectionContainer}>
       <Column gap="var(--gap-4)" fullWidth>
         <Row
           justifyContent="between"

@@ -1,0 +1,8 @@
+.sectionContainer {
+  max-width: var(--container-max-width);
+}
+
+.image {
+  border-radius: 20px 60px 20px 60px;
+  aspect-ratio: 8/3;
+}

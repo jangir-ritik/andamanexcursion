@@ -7,6 +7,7 @@ import { LovedAdventures } from "@/components/sectionBlocks/homepage/lovedAdvent
 import Partners from "@/components/sectionBlocks/homepage/partners/Partners";
 import ScubaDiving from "@/components/sectionBlocks/homepage/scubaDivingCTA/ScubaDiving";
 import WhyChooseUs from "@/components/sectionBlocks/homepage/whyChooseUs/WhyChooseUs";
+import Story from "@/components/sectionBlocks/homepage/story/Story";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
       <Partners />
       <ScubaDiving />
       <WhyChooseUs />
+      <Story />
     </>
   );
 }
