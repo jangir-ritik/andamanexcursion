@@ -1,6 +1,6 @@
-import { Heart, Star } from "lucide-react";
 import fishing from "@public/images/homepage/lovedAdventures/fishing.png";
 import liveVolcano from "@public/images/homepage/lovedAdventures/liveVolcano.png";
+import { StaticImageData } from "next/image";
 
 // Define types
 export type BadgeIconType = "Star" | "Heart";
@@ -10,7 +10,7 @@ export interface Adventure {
   badge: string;
   badgeIconType: BadgeIconType;
   description: string;
-  image: any; // Using any for StaticImageData
+  image: StaticImageData;
   imageAlt: string;
   href: string;
 }

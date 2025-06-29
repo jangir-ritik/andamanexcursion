@@ -12,7 +12,7 @@ export const Carousel = ({
 }: CarouselProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Check if we're on a mobile device

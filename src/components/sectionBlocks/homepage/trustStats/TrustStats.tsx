@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Section, Column } from "@/components/layout";
+import { Row, Section } from "@/components/layout";
 import { StatCard } from "@/components/molecules/StatCard";
 import { trustStatsContent } from "./TrustStats.content";
 import styles from "./TrustStats.module.css";
