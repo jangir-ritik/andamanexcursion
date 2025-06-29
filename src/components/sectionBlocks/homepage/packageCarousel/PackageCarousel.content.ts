@@ -29,3 +29,9 @@ export const packageCarouselContent = {
     },
   ],
 };
+
+export const sectionContent = {
+  title: "Our Package Is All That You Need!",
+  description:
+    "From serene beaches and thrilling water sports to guided island tours, our packages are crafted for every kind of traveler.",
+};

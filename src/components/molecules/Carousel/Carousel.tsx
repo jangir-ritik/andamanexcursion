@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { CarouselProps } from "@/types/components/molecules/carousel";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Star } from "lucide-react";
 import styles from "./Carousel.module.css";
@@ -12,6 +12,22 @@ export const Carousel = ({
 }: CarouselProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Check if we're on a mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 900);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+    };
+  }, []);
 
   const nextSlide = useCallback(() => {
     if (!isTransitioning) {
@@ -45,7 +61,7 @@ export const Carousel = ({
   }, [autoPlay, autoPlayInterval, nextSlide]);
 
   return (
-    <div className={styles.carouselContainer}>
+    <div className={styles.carouselContainer} ref={containerRef}>
       <div className={styles.carouselWrapper}>
         <div className={styles.slidesContainer}>
           {slides.map((slide, index) => (
@@ -82,6 +98,7 @@ export const Carousel = ({
                     src={slide.image}
                     alt={slide.imageAlt}
                     className={styles.slideImage}
+                    loading="lazy"
                   />
                   <div className={styles.starIconBottom}>
                     <Star size={24} fill="#EBF3FF" stroke="none" />
