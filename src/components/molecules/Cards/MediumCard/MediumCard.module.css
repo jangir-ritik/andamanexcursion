@@ -7,6 +7,12 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.cardContainer:hover {
+  transform: translateY(-5px);
 }
 
 .imageWrapper {
@@ -68,6 +74,9 @@
 }
 
 .badgeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
   order: 0;
   flex-grow: 0;
@@ -121,7 +130,6 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: var(--padding-2);
   width: 45px;
   height: 45px;
   right: var(--padding-5);
@@ -129,13 +137,26 @@
   background: var(--color-white);
   border-radius: 50%;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
   border: none;
   z-index: 4;
+  opacity: 0;
+}
+
+.cardContainer:hover .arrowButton {
+  opacity: 1;
 }
 
 .arrowButton:hover {
   transform: scale(1.1);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+  width: 100%;
 }
 
 @media (max-width: 768px) {

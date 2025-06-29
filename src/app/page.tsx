@@ -3,6 +3,7 @@ import { Banner } from "@/components/sectionBlocks/homepage/banner/Banner";
 import PackageCarousel from "@/components/sectionBlocks/homepage/packageCarousel/PackageCarousel";
 import { TrustStats } from "@/components/sectionBlocks/homepage/trustStats";
 import HiddenGems from "@/components/sectionBlocks/homepage/hiddenGems/HiddenGems";
+import LovedAdventure from "@/components/sectionBlocks/homepage/lovedAdventures/LovedAdventure";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <PackageCarousel />
       <TrustStats />
       <HiddenGems />
+      <LovedAdventure />
     </>
   );
 }

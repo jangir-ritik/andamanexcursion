@@ -9,12 +9,14 @@ export interface BaseCardProps {
 export interface SmallCardProps extends BaseCardProps {
   duration: string;
   price: string;
+  href?: string;
 }
 
 export interface MediumCardProps extends BaseCardProps {
   badge?: string;
   badgeIcon?: ReactNode;
   description: string;
+  href?: string;
 }
 
 export interface LargeCardProps extends BaseCardProps {

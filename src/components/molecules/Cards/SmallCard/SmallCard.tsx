@@ -1,4 +1,8 @@
+"use client";
+
 import { SmallCardProps } from "@/types/components/molecules/cards";
+import { MoveUpRight } from "lucide-react";
+import Link from "next/link";
 import styles from "./SmallCard.module.css";
 
 export const SmallCard = ({
@@ -7,9 +11,10 @@ export const SmallCard = ({
   title,
   duration,
   price,
+  href,
 }: SmallCardProps) => {
-  return (
-    <div className={styles.cardContainer}>
+  const CardContent = () => (
+    <>
       <div className={styles.imageWrapper}>
         <div
           className={styles.imageContainer}
@@ -26,7 +31,22 @@ export const SmallCard = ({
             <p className={styles.cardPrice}>{price}</p>
           </div>
         </div>
+        <div className={styles.arrowButton} aria-hidden="true">
+          <MoveUpRight size={20} color="var(--color-primary)" />
+        </div>
       </div>
+    </>
+  );
+
+  return (
+    <div className={styles.cardContainer}>
+      {href ? (
+        <Link href={href} className={styles.cardLink}>
+          <CardContent />
+        </Link>
+      ) : (
+        <CardContent />
+      )}
     </div>
   );
 };

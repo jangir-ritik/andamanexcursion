@@ -9,6 +9,7 @@ export const packages = [
     title: "Serene Shores",
     duration: "3 Days, 4 Nights",
     price: "Starting @₹1,520",
+    href: "/packages/serene-shores",
   },
   {
     image: image2,
@@ -16,6 +17,7 @@ export const packages = [
     title: "Family Fiesta",
     duration: "4 Days, 3 Nights",
     price: "Starting @₹1,520",
+    href: "/packages/family-fiesta",
   },
   {
     image: image3,
@@ -23,5 +25,6 @@ export const packages = [
     title: "Honeymoon Whispers",
     duration: "5 Days, 4 Nights",
     price: "Starting @₹1,520",
+    href: "/packages/honeymoon-whispers",
   },
 ];

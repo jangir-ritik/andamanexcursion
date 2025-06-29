@@ -36,6 +36,7 @@ export const Packages = () => {
               title={item.title}
               duration={item.duration}
               price={item.price}
+              href={item.href}
             />
           ))}
         </Row>

@@ -3,6 +3,7 @@
 import { MediumCardProps } from "@/types/components/molecules/cards";
 import { MoveUpRight } from "lucide-react";
 import styles from "./MediumCard.module.css";
+import Link from "next/link";
 
 export const MediumCard = ({
   image,
@@ -11,9 +12,10 @@ export const MediumCard = ({
   description,
   badge,
   badgeIcon,
+  href,
 }: MediumCardProps) => {
-  return (
-    <div className={styles.cardContainer}>
+  const CardContent = () => (
+    <>
       <div className={styles.imageWrapper}>
         <div
           className={styles.imageContainer}
@@ -39,6 +41,18 @@ export const MediumCard = ({
           <MoveUpRight size={20} color="var(--color-primary)" />
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <div className={styles.cardContainer}>
+      {href ? (
+        <Link href={href} className={styles.cardLink}>
+          <CardContent />
+        </Link>
+      ) : (
+        <CardContent />
+      )}
     </div>
   );
 };
