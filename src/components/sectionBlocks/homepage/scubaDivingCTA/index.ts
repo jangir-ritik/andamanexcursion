@@ -1,2 +1,1 @@
-export * from './ScubaDivingCTA';
-export { default as ScubaDiving } from './ScubaDiving';
+export { default } from "./ScubaDiving";

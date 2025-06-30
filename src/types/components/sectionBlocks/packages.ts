@@ -3,7 +3,7 @@ import { BaseSectionProps } from "./common";
 
 export interface PackagesProps extends BaseSectionProps {}
 
-export interface PackageItem {
+export interface PackageCardItem {
   title: string;
   image: {
     src: string;
@@ -15,5 +15,5 @@ export interface PackageItem {
 }
 
 export interface PackagesContent {
-  packages: PackageItem[];
+  packages: PackageCardItem[];
 }

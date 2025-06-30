@@ -7,7 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen": "hygen component new --name"
+    "gen": "hygen component new --name",
+    "check-component": "node ./scripts/component-checker.js",
+    "check-components": "node ./scripts/component-checker.js --staged",
+    "check-all-components": "node ./scripts/component-checker.js --all",
+    "setup-hooks": "node ./scripts/setup-hooks.js",
+    "postinstall": "npm run setup-hooks",
+    "gen-index": "node ./scripts/generate-index-files.js",
+    "gen-types": "node ./scripts/generate-type-definitions.js",
+    "fix-components": "npm run gen-index && npm run gen-types",
+    "fix-and-check": "npm run fix-components && npm run check-all-components"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
