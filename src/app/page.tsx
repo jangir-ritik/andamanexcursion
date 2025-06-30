@@ -10,6 +10,7 @@ import WhyChooseUs from "@/components/sectionBlocks/homepage/whyChooseUs/WhyChoo
 import Story from "@/components/sectionBlocks/homepage/story/Story";
 import Testimonials from "@/components/sectionBlocks/homepage/testimonials";
 import FAQ from "@/components/sectionBlocks/homepage/faq/FAQ";
+import AndamanCalling from "@/components/sectionBlocks/homepage/andamanCalling/AndamanCalling";
 
 export default function Home() {
   return (
@@ -27,6 +28,7 @@ export default function Home() {
       <Story />
       <Testimonials />
       <FAQ />
+      <AndamanCalling />
     </>
   );
 }
