@@ -1,0 +1,32 @@
+.titleColumn {
+  position: relative;
+  width: 30%;
+}
+
+.contentColumn {
+  width: 65%;
+}
+
+.decorativeElement {
+  position: absolute;
+  width: 136.87px;
+  height: 84.53px;
+  left: 256.64px;
+  top: 137.6px;
+  transform: matrix(0.71, 0.71, 0.71, -0.71, 0, 0);
+  z-index: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .decorativeElement {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .titleColumn,
+  .contentColumn {
+    width: 100%;
+  }
+}
