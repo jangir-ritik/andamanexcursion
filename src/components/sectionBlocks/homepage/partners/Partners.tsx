@@ -6,11 +6,12 @@ import { partnersContent } from "./Partners.content";
 
 function Partners() {
   return (
-    <Section>
+    <Section id="partners" aria-labelledby="partners-title">
       <Column fullWidth gap="var(--gap-6)" alignItems="center">
         <SectionTitle
           text={partnersContent.title}
           specialWord={partnersContent.specialWord}
+          id="partners-title"
         />
         <Row
           justifyContent="between"
@@ -23,7 +24,10 @@ function Partners() {
             <Image
               key={index}
               src={partner}
-              alt={partnersContent.partnersAlt[index]}
+              alt={`${partnersContent.partnersAlt[index]} - Partner logo`}
+              width={150}
+              height={60}
+              style={{ height: "auto", objectFit: "contain" }}
             />
           ))}
         </Row>

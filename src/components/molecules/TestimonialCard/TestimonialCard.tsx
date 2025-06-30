@@ -27,24 +27,23 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
     <div
       className={`${styles.card} ${getRotationClass()}`}
       style={{ transform: `rotate(${rotation}deg)` }}
+      role="article"
+      aria-label={`Testimonial from ${author}`}
     >
-      <div
-        className={styles.cardContent}
-        // style={{ transform: `rotate(${rotation * -1}deg)` }}
-      >
+      <div className={styles.cardContent}>
         <div className={styles.testimonialText}>
-          <div className={styles.quoteIconWrapper}>
-            <Image src={quoteIcon} alt="quote" width={29.5} height={25} />
+          <div className={styles.quoteIconWrapper} aria-hidden="true">
+            <Image src={quoteIcon} alt="" width={29.5} height={25} />
           </div>
           <p className={styles.text}>{text}</p>
         </div>
         <div className={styles.authorSection}>
-          <div className={styles.divider} />
+          <div className={styles.divider} aria-hidden="true" />
           <div className={styles.authorInfo}>
             <div className={styles.avatar}>
               <Image
                 src={avatar}
-                alt={author}
+                alt={`${author}'s profile picture`}
                 width={36}
                 height={36}
                 style={{ objectFit: "cover" }}

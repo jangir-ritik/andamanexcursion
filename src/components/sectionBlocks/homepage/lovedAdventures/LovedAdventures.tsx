@@ -9,30 +9,48 @@ import {
 } from "./LovedAdventures.content";
 import styles from "./LovedAdventures.module.css";
 import { Heart, Star } from "lucide-react";
+import { LovedAdventuresProps } from "@/types/components/sectionBlocks";
 
-export function LovedAdventures() {
+export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
   const { title, specialWord, adventures } = lovedAdventuresContent;
 
   // Render badge icons based on type
   const getBadgeIcon = (iconType: BadgeIconType) => {
     switch (iconType) {
       case "Star":
-        return <Star fill="#000" stroke="#000" />;
+        return (
+          <Star
+            fill="var(--color-black)"
+            stroke="var(--color-black)"
+            aria-hidden="true"
+          />
+        );
       case "Heart":
-        return <Heart fill="#000" stroke="#000" />;
+        return (
+          <Heart
+            fill="var(--color-black)"
+            stroke="var(--color-black)"
+            aria-hidden="true"
+          />
+        );
       default:
         return null;
     }
   };
 
   return (
-    <Section>
+    <Section
+      id="loved-adventures"
+      aria-labelledby="loved-adventures-title"
+      className={className}
+    >
       <Row fullWidth>
         <Column fullWidth gap="var(--gap-6)">
           <SectionTitle
             text={title}
             specialWord={specialWord}
             className={styles.sectionTitle}
+            id="loved-adventures-title"
           />
           <Row gap="var(--gap-3)" fullWidth>
             {adventures.map((adventure, index) => (

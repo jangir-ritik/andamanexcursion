@@ -14,11 +14,20 @@ const Testimonials = () => {
   const duplicatedTestimonials = [...testimonials, ...testimonials];
 
   return (
-    <Section className={styles.testimonialsSection} fullBleed>
+    <Section
+      className={styles.testimonialsSection}
+      fullBleed
+      id="testimonials"
+      aria-labelledby="testimonials-title"
+    >
       <Column gap={6} fullWidth className={styles.testimonialsContainer}>
         <Container className={styles.testimonialsHeaderContainer}>
           <Column gap={2}>
-            <SectionTitle text={title} specialWord={specialWord} />
+            <SectionTitle
+              text={title}
+              specialWord={specialWord}
+              id="testimonials-title"
+            />
             <div className={styles.googleInfo}>
               <div className={styles.googleIcon}>
                 <Image src={googleIcon} alt="Google" width={20} height={20} />
@@ -28,7 +37,10 @@ const Testimonials = () => {
           </Column>
         </Container>
 
-        <div className={styles.carouselContainer}>
+        <div
+          className={styles.carouselContainer}
+          aria-label="Customer testimonials carousel"
+        >
           <div className={styles.carousel}>
             {duplicatedTestimonials.map((testimonial, index) => (
               <TestimonialCard

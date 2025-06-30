@@ -9,7 +9,7 @@ import { packages } from "./Packages.content";
 
 export const Packages = () => {
   return (
-    <Section id="packages">
+    <Section id="packages" aria-labelledby="packages-title">
       <Column gap="var(--gap-5)" fullWidth>
         <Row
           justifyContent="between"
@@ -20,9 +20,12 @@ export const Packages = () => {
           <SectionTitle
             specialWord="Packages"
             text="Our Perfectly Designed Packages for You!"
+            id="packages-title"
           />
           <Row justifyContent="end">
-            <Button>View All</Button>
+            <Button href="/packages" ariaLabel="View all packages" showArrow>
+              View All
+            </Button>
           </Row>
         </Row>
 

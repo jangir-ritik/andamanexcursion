@@ -9,14 +9,15 @@ import { faqContent } from "./FAQ.content";
 
 function FAQ() {
   return (
-    <Section>
+    <Section id="faq" aria-labelledby="faq-title">
       <Row wrap fullWidth justifyContent="between">
         <Column className={styles.titleColumn}>
           <SectionTitle
             text={faqContent.title}
             specialWord={faqContent.specialWord}
+            id="faq-title"
           />
-          <div className={styles.decorativeElement}>
+          <div className={styles.decorativeElement} aria-hidden="true">
             {/* Decorative elements will be handled by CSS */}
           </div>
         </Column>

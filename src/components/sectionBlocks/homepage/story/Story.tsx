@@ -8,19 +8,26 @@ import { storyContent } from "./Story.content";
 
 function Story() {
   return (
-    <Section fullBleed backgroundColor="light" spacing="5">
+    <Section
+      fullBleed
+      backgroundColor="light"
+      spacing="5"
+      id="our-story"
+      aria-labelledby="story-title"
+    >
       <Column gap="var(--gap-6)" fullWidth className={styles.sectionContainer}>
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
             text={storyContent.title}
             specialWord={storyContent.specialWord}
+            id="story-title"
           />
           <DescriptionText text={storyContent.description} align="center" />
         </Row>
         <Row fullWidth justifyContent="center" alignItems="center">
           <ImageContainer
             src={storyContent.image}
-            alt={storyContent.imageAlt}
+            alt="Scenic view of Andaman Islands coastline with pristine beaches and crystal clear waters"
             className={styles.image}
           />
         </Row>

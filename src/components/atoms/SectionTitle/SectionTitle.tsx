@@ -9,6 +9,7 @@ export const SectionTitle = ({
   text,
   className,
   specialWord,
+  id,
 }: SectionTitleProps) => {
   const titleClasses = [styles.sectionTitle, className || ""].join(" ").trim();
   const [isHovered, setIsHovered] = useState(false);
@@ -101,7 +102,7 @@ export const SectionTitle = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <h2 ref={titleRef} className={styles.title}>
+      <h2 ref={titleRef} className={styles.title} id={id}>
         {renderTextWithSpecialWord()}
       </h2>
       {specialWord && underlineWidth > 0 && (
@@ -123,6 +124,7 @@ export const SectionTitle = ({
               height: "auto",
               objectFit: "fill",
             }}
+            aria-hidden="true"
           />
         </div>
       )}

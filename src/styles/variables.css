@@ -108,6 +108,16 @@
   --border-radius-4: calc(var(--atomic-unit) * 4);
   --border-radius-5: calc(var(--atomic-unit) * 5);
 
+  /* image border radius - unique to the website */
+  --border-radius-image-small: 24px;
+  --border-radius-image-medium: 32px;
+  --border-radius-image-large: 40px;
+  --border-radius-image-xl: 48px;
+  --border-radius-image-top-left: 24px;
+  --border-radius-image-top-right: 0;
+  --border-radius-image-bottom-left: 0;
+  --border-radius-image-bottom-right: 24px;
+
   /* magic values*/
   --formfield-min-width: 120px;
   --formfield-height: 72px;

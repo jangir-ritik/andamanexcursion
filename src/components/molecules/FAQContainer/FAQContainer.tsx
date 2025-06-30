@@ -4,16 +4,7 @@ import React, { useState } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { Plus, Minus } from "lucide-react";
 import styles from "./FAQContainer.module.css";
-
-export interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-interface FAQContainerProps {
-  items: FAQItem[];
-  className?: string;
-}
+import { FAQContainerProps } from "@/types/components/molecules/faqContainer";
 
 function FAQContainer({ items, className = "" }: FAQContainerProps) {
   const [openItem, setOpenItem] = useState<string>("item-0");
@@ -31,6 +22,7 @@ function FAQContainer({ items, className = "" }: FAQContainerProps) {
         collapsible
         onValueChange={handleValueChange}
         value={openItem}
+        aria-label="Frequently Asked Questions"
       >
         {items.map((item, index) => (
           <Accordion.Item
@@ -39,9 +31,12 @@ function FAQContainer({ items, className = "" }: FAQContainerProps) {
             className={styles.accordionItem}
           >
             <Accordion.Header className={styles.accordionHeader}>
-              <Accordion.Trigger className={styles.accordionTrigger}>
+              <Accordion.Trigger
+                className={styles.accordionTrigger}
+                aria-controls={`content-${index}`}
+              >
                 <span className={styles.questionText}>{item.question}</span>
-                <div className={styles.iconWrapper}>
+                <div className={styles.iconWrapper} aria-hidden="true">
                   {openItem === `item-${index}` ? (
                     <Minus size={24} />
                   ) : (
@@ -50,7 +45,10 @@ function FAQContainer({ items, className = "" }: FAQContainerProps) {
                 </div>
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Content className={styles.accordionContent}>
+            <Accordion.Content
+              className={styles.accordionContent}
+              id={`content-${index}`}
+            >
               <div className={styles.accordionContentText}>{item.answer}</div>
             </Accordion.Content>
           </Accordion.Item>

@@ -10,7 +10,12 @@ import { content } from "./Banner.content";
 
 export const Banner = () => {
   return (
-    <Section noPadding id="hero" className={styles.sectionContainer}>
+    <Section
+      noPadding
+      id="hero"
+      className={styles.sectionContainer}
+      aria-labelledby="hero-title"
+    >
       <Column gap="var(--gap-4)" fullWidth>
         <Row
           justifyContent="between"
@@ -22,6 +27,7 @@ export const Banner = () => {
           <HeroTitle
             primaryText={content.title}
             secondaryText={content.subtitle}
+            id="hero-title"
           />
           <DescriptionText
             text={content.description}

@@ -9,8 +9,26 @@ import { Footer } from "@/components/organisms/Footer";
 import { Column, Container } from "@/components/layout";
 
 export const metadata: Metadata = {
-  title: "Andaman Excursion",
-  description: "Andaman Excursion",
+  title: "Andaman Excursion | Explore the Andaman Islands",
+  description:
+    "Discover pristine beaches, hidden adventures, and unforgettable experiences across the Andaman Islands with our perfectly designed travel packages.",
+  keywords: [
+    "Andaman Islands",
+    "travel packages",
+    "island vacation",
+    "beach holiday",
+    "scuba diving",
+    "Andaman tourism",
+  ],
+  openGraph: {
+    title: "Andaman Excursion | Explore the Andaman Islands",
+    description:
+      "Discover pristine beaches, hidden adventures, and unforgettable experiences across the Andaman Islands with our perfectly designed travel packages.",
+    url: "https://andamanexcursion.com",
+    siteName: "Andaman Excursion",
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 const plusJakartaSans = Plus_Jakarta_Sans({

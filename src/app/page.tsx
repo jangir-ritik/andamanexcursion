@@ -15,7 +15,6 @@ import AndamanCalling from "@/components/sectionBlocks/homepage/andamanCalling/A
 export default function Home() {
   return (
     <>
-      {/* Hero Section */}
       <Banner />
       <Packages />
       <PackageCarousel />

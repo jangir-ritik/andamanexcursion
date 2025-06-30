@@ -14,4 +14,5 @@ export interface ImageContainerProps {
   objectFit?: "cover" | "contain" | "fill";
   priority?: boolean;
   fullWidth?: boolean;
+  decorative?: boolean;
 }

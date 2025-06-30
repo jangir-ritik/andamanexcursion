@@ -1,23 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import styles from "./ImageContainer.module.css";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
-
-interface ImageContainerProps {
-  src: string | StaticImport;
-  alt: string;
-  className?: string;
-  aspectRatio?:
-    | "auto"
-    | "square"
-    | "video"
-    | "portrait"
-    | "landscape"
-    | "banner";
-  objectFit?: "cover" | "contain" | "fill";
-  priority?: boolean;
-  fullWidth?: boolean;
-}
+import { ImageContainerProps } from "@/types/components/atoms/imageContainer";
 
 export const ImageContainer = ({
   src,
@@ -27,6 +11,7 @@ export const ImageContainer = ({
   objectFit = "cover",
   priority = false,
   fullWidth = false,
+  decorative = false,
 }: ImageContainerProps) => {
   const containerClasses = [
     styles.container,
@@ -39,7 +24,11 @@ export const ImageContainer = ({
     .trim();
 
   return (
-    <div className={containerClasses}>
+    <div
+      className={containerClasses}
+      role={decorative ? "presentation" : "img"}
+      aria-label={decorative ? undefined : alt}
+    >
       <Image
         src={src}
         alt={alt}

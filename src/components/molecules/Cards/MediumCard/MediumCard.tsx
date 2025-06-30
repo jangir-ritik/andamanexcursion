@@ -4,6 +4,7 @@ import { MediumCardProps } from "@/types/components/molecules/cards";
 import { MoveUpRight } from "lucide-react";
 import styles from "./MediumCard.module.css";
 import Link from "next/link";
+import Image from "next/image";
 
 export const MediumCard = ({
   image,
@@ -17,15 +18,19 @@ export const MediumCard = ({
   const CardContent = () => (
     <>
       <div className={styles.imageWrapper}>
-        <div
-          className={styles.imageContainer}
-          style={{ backgroundImage: `url(${image})` }}
-          aria-label={imageAlt}
-        />
-        <div className={styles.imageOverlay} />
+        <div className={styles.imageContainer}>
+          <Image
+            src={image}
+            alt={imageAlt}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
+        <div className={styles.imageOverlay} aria-hidden="true" />
         <div className={styles.contentContainer}>
           {badge && (
-            <div className={styles.badge}>
+            <div className={styles.badge} aria-label={`${badge} adventure`}>
               {badgeIcon && (
                 <span className={styles.badgeIcon}>{badgeIcon}</span>
               )}
@@ -47,7 +52,11 @@ export const MediumCard = ({
   return (
     <div className={styles.cardContainer}>
       {href ? (
-        <Link href={href} className={styles.cardLink}>
+        <Link
+          href={href}
+          className={styles.cardLink}
+          aria-label={`${title} - ${description}`}
+        >
           <CardContent />
         </Link>
       ) : (

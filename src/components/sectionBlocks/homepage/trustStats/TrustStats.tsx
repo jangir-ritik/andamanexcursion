@@ -13,6 +13,7 @@ export const TrustStats = () => {
       spacing="5"
       className={styles.trustStatsSection}
       aria-labelledby="trust-stats-title"
+      id="trust-stats"
       fullBleed
     >
       <Row
@@ -25,11 +26,13 @@ export const TrustStats = () => {
         <SectionTitle
           specialWord={trustStatsContent.title.specialWord}
           text={trustStatsContent.title.text}
+          id="trust-stats-title"
         />
         <Image
           src={curlyArrow}
-          alt="curly arrow"
+          alt=""
           className={styles.curlyArrow}
+          aria-hidden="true"
         />
 
         <Row

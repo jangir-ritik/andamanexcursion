@@ -5,21 +5,25 @@ import { SectionTitle } from "@/components/atoms/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import styles from "./WhyChooseUs.module.css";
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { Chip } from "@/components/atoms/Chip";
 import { ImageContainer } from "@/components/atoms/ImageContainer";
 import { whyChooseUsContent } from "./WhyChooseUs.content";
+import { InlineLink } from "@/components/atoms/InlineLink";
 
 function WhyChooseUs() {
   return (
-    <Section className={styles.whyChooseUsSection}>
+    <Section
+      className={styles.whyChooseUsSection}
+      id="why-choose-us"
+      aria-labelledby="why-choose-us-title"
+    >
       <Column gap="var(--gap-5)" className={styles.sectionContainer}>
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
             className={styles.sectionTitle}
             text={whyChooseUsContent.title}
             specialWord={whyChooseUsContent.specialWord}
+            id="why-choose-us-title"
           />
           <DescriptionText
             text={whyChooseUsContent.description}
@@ -42,14 +46,26 @@ function WhyChooseUs() {
           >
             {whyChooseUsContent.points.map((item) => (
               <div key={item.id} className={styles.pointItem}>
-                <h3 className={styles.pointTitle}>{item.title}</h3>
-                <p className={styles.pointDescription}>{item.description}</p>
+                <h3 className={styles.pointTitle} id={`point-title-${item.id}`}>
+                  {item.title}
+                </h3>
+                <p
+                  className={styles.pointDescription}
+                  aria-labelledby={`point-title-${item.id}`}
+                >
+                  {item.description}
+                </p>
               </div>
             ))}
-            <Link href={whyChooseUsContent.ctaHref} className={styles.ctaLink}>
+            <InlineLink
+              href={whyChooseUsContent.ctaHref}
+              ariaLabel={`${whyChooseUsContent.ctaText} about why choose Andaman Excursion`}
+              icon="arrow-up-right"
+              color="primary"
+              className={styles.ctaLink}
+            >
               {whyChooseUsContent.ctaText}
-              <ArrowUpRight />
-            </Link>
+            </InlineLink>
           </Column>
 
           <Column
@@ -59,21 +75,21 @@ function WhyChooseUs() {
           >
             <ImageContainer
               src={whyChooseUsContent.image}
-              alt={whyChooseUsContent.imageAlt}
+              alt="Features of Andaman Excursion services showing beautiful beaches and activities"
               className={styles.featureImage}
             />
-            <div className={styles.customerSatisfactionChip}>
+            <div className={styles.customerSatisfactionChip} aria-hidden="true">
               <Chip
                 icon="/icons/misc/smilie.svg"
                 text="Customer Satisfaction"
               />
             </div>
 
-            <div className={styles.personalizedServiceChip}>
+            <div className={styles.personalizedServiceChip} aria-hidden="true">
               <Chip icon="/icons/misc/star.svg" text="Personalized Service" />
             </div>
 
-            <div className={styles.localExpertsChip}>
+            <div className={styles.localExpertsChip} aria-hidden="true">
               <Chip icon="/icons/misc/crown.svg" text="Local Experts" />
             </div>
           </Column>

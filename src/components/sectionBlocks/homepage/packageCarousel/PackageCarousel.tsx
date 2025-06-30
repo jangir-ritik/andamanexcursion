@@ -11,10 +11,18 @@ import React from "react";
 
 function PackageCarousel() {
   return (
-    <Section className={styles.packageCarouselSection}>
+    <Section
+      className={styles.packageCarouselSection}
+      id="package-carousel"
+      aria-labelledby="package-carousel-title"
+    >
       <Column fullWidth gap="var(--gap-5)">
         <Row fullWidth justifyContent="between">
-          <SectionTitle specialWord="Package" text={sectionContent.title} />
+          <SectionTitle
+            specialWord="Package"
+            text={sectionContent.title}
+            id="package-carousel-title"
+          />
           <DescriptionText text={sectionContent.description} align="right" />
         </Row>
         <Row fullWidth>

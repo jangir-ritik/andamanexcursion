@@ -9,4 +9,7 @@ export interface ButtonProps {
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
   showArrow?: boolean;
+  href?: string;
+  target?: "_blank" | "_self";
+  ariaLabel?: string;
 }

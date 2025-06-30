@@ -5,5 +5,6 @@ export const storyContent = {
   specialWord: "Story!",
   description: "Discover the soul of the Andamans, an unforgettable journey.",
   image: storyImage,
-  imageAlt: "Story",
+  imageAlt:
+    "Scenic view of Andaman Islands coastline with pristine beaches and crystal clear waters",
 };
