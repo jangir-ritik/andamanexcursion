@@ -10,6 +10,13 @@
   align-items: center;
 }
 
+.card:hover {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+  box-shadow: var(--box-shadow-2);
+  background-color: var(--color-primary-light);
+}
+
 .contentWrapper {
   display: flex;
   width: 100%;

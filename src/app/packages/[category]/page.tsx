@@ -9,8 +9,6 @@ import { FeaturePackageCard } from "@/components/molecules/Cards/FeaturePackageC
 
 import { usePackageCategoryPage } from "@/hooks/usePackageCategoryPage";
 
-import image from "@public/images/packages/honeymoonRetreat/package1/image.png";
-
 import styles from "../page.module.css";
 import { packageOptions, periodOptions } from "../page.content";
 
@@ -50,25 +48,25 @@ const CategoryPage = () => {
       </Section>
       <Section>
         <Column gap={7} fullWidth>
-          <Column gap={3} alignItems="start" justifyContent="start" fullWidth>
+          <Column alignItems="start" justifyContent="start" fullWidth>
             <SectionTitle
               text={getCategoryTitle(category) + " Packages"}
               specialWord={getCategoryTitle(category)}
+              className={styles.sectionTitle}
             />
+            {packages.map((pkg) => (
+              <FeaturePackageCard
+                key={pkg.id}
+                title={pkg.title}
+                description={pkg.description}
+                price={pkg.price}
+                location={pkg.location}
+                duration={formatDuration(pkg.period)}
+                image={pkg.images[0]}
+                href={`/packages/${category}/${pkg.id}`}
+              />
+            ))}
           </Column>
-
-          {packages.map((pkg) => (
-            <FeaturePackageCard
-              key={pkg.id}
-              title={pkg.title}
-              description={pkg.description}
-              price={pkg.price}
-              location="Havelock"
-              duration={formatDuration(pkg.period)}
-              image={image.src}
-              href={`/packages/${category}/${pkg.id}`}
-            />
-          ))}
         </Column>
       </Section>
     </main>

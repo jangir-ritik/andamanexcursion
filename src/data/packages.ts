@@ -16,6 +16,7 @@ export interface Package {
   }>;
   includes: string[];
   excludes: string[];
+  location: string;
 }
 
 // Sample packages data
@@ -27,10 +28,14 @@ export const packages: Package[] = [
     description:
       "Enjoy a magical 3-night, 4-day honeymoon in the Andaman Islands. Start with a night in lively Port Blair, then relax for two nights on the beautiful Swaraj Dweep (Havelock).e",
     category: "honeymoon",
+    location: "Havelock",
     period: "4-3", // 4 days, 3 nights
     price: 1500,
     discountedPrice: 1500,
-    images: [""],
+    images: [
+      "/images/packages/honeymoonRetreat/package1/image.png",
+      "/images/packages/honeymoonRetreat/package1/heroImage.png",
+    ],
     features: [
       "Private beach dinners",
       "Couple spa treatments",
@@ -88,6 +93,7 @@ export const packages: Package[] = [
     price: 34999,
     discountedPrice: 32999,
     images: ["/images/packages/honeymoon/island-escapade.jpg"],
+    location: "Havelock",
     features: [
       "Island hopping",
       "Private beach access",
@@ -114,6 +120,144 @@ export const packages: Package[] = [
     ],
     excludes: ["Flights", "Personal expenses", "Optional activities"],
   },
+  {
+  id: "secluded-shores",
+  title: "Secluded Shores",
+  description:
+    "Step into a world where time slows down. This 5-day, 4-night honeymoon is crafted for couples who crave privacy, intimacy, and untouched beauty. Explore the hidden corners of Neil Island and the soft, golden sands of Radhanagar Beach. Every detail, from ocean-view breakfasts to quiet kayak rides at sunrise, is tailored to deepen your connection and free you from the noise of the world. It's not about doing more, but feeling more — together.",
+  category: "honeymoon",
+  location: "Neil & Havelock",
+  period: "5-4",
+  price: 1900,
+  discountedPrice: 1700,
+  images: [
+    "/images/packages/honeymoonRetreat/package1/image.png",
+    "/images/packages/honeymoonRetreat/package1/heroImage.png",
+  ],
+  features: [
+    "Oceanfront candle-lit dinner",
+    "Sunrise kayaking for two",
+    "Couple's photography session on hidden beaches",
+  ],
+  itinerary: [
+    {
+      day: 1,
+      title: "Private Arrival",
+      description: "Arrive in Port Blair and check in to your boutique stay",
+      activities: ["Airport pickup", "Floral welcome", "Sunset at Chidiya Tapu"],
+    },
+    {
+      day: 2,
+      title: "Neil Island Escape",
+      description:
+        "Travel to the serene Neil Island and settle into a quiet beachside resort",
+      activities: [
+        "Ferry to Neil",
+        "Natural Bridge walk",
+        "Private dinner under the stars",
+      ],
+    },
+    {
+      day: 3,
+      title: "Untouched Beauty",
+      description:
+        "Wake early for a peaceful kayak ride followed by a spa session",
+      activities: [
+        "Sunrise kayaking",
+        "Couple spa therapy",
+        "Photoshoot at secluded beach",
+      ],
+    },
+    {
+      day: 4,
+      title: "Havelock Indulgence",
+      description: "Spend the day at Radhanagar Beach",
+      activities: [
+        "Transfer to Havelock",
+        "Radhanagar sunset walk",
+        "Beachfront live music",
+      ],
+    },
+    {
+      day: 5,
+      title: "Goodbye for Now",
+      description: "Return to Port Blair and fly back with lifelong memories",
+      activities: ["Souvenir shopping", "Return ferry", "Airport transfer"],
+    },
+  ],
+  includes: [
+    "Accommodation in premium beach resorts",
+    "All meals (Breakfast, Dinner)",
+    "Ferry tickets & private transfers",
+    "Kayaking & spa",
+  ],
+  excludes: ["Flights", "Lunches", "Optional excursions"],
+  },
+{
+  id: "tropical-bliss",
+  title: "Tropical Bliss",
+  description:
+    "A dreamy 4-day honeymoon designed for couples who want to mix comfort with a touch of tropical adventure. From private candle-lit dinners to reef snorkeling, this package is ideal for newlyweds who want to relax but also create unforgettable experiences together in Andaman’s vibrant waters and golden sunsets.",
+  category: "honeymoon",
+  location: "Port Blair & Havelock",
+  period: "4-3",
+  price: 1600,
+  discountedPrice: 1450,
+  images: [
+    "/images/packages/honeymoonRetreat/package1/image.png",
+    "/images/packages/honeymoonRetreat/package1/heroImage.png",
+  ],
+  features: [
+    "Couple snorkeling with guide",
+    "Floating breakfast",
+    "Sunset cruise with live acoustic music",
+  ],
+  itinerary: [
+    {
+      day: 1,
+      title: "Island Welcome",
+      description:
+        "Arrive in Port Blair and unwind at your resort with drinks and dinner",
+      activities: ["Airport pickup", "Welcome mocktails", "Poolside dinner"],
+    },
+    {
+      day: 2,
+      title: "Adventurous Waters",
+      description: "Head to Havelock for underwater exploration",
+      activities: [
+        "Ferry to Havelock",
+        "Snorkeling with instructor",
+        "Floating breakfast in pool",
+      ],
+    },
+    {
+      day: 3,
+      title: "Golden Hour Romance",
+      description:
+        "Relax through the day and end with a romantic sunset cruise",
+      activities: [
+        "Spa & leisure time",
+        "Private sunset boat cruise",
+        "Live music + champagne",
+      ],
+    },
+    {
+      day: 4,
+      title: "Departure",
+      description: "Wrap up the journey and transfer back to the airport",
+      activities: ["Return ferry", "Local shopping", "Airport drop"],
+    },
+  ],
+  includes: [
+    "Luxury resort stay",
+    "Breakfast & Dinner",
+    "Snorkeling equipment & guide",
+    "Transfers & ferry tickets",
+  ],
+  excludes: ["Flights", "Lunch", "Alcoholic beverages"],
+},
+
+
 
   // Family packages
   {
@@ -124,6 +268,7 @@ export const packages: Package[] = [
     category: "family",
     period: "5-4", // 5 days, 4 nights
     price: 28999,
+    location: "Andaman",
     discountedPrice: 26999,
     images: ["/images/packages/family/family-adventure.jpg"],
     features: ["Kid-friendly activities", "Family rooms", "Educational tours"],
@@ -144,6 +289,73 @@ export const packages: Package[] = [
     ],
     excludes: ["Flights", "Personal expenses", "Optional activities"],
   },
+  {
+    id: "family-escape",
+    title: "Andaman Family Escape",
+    description:
+      "A relaxed and fun-filled 4-day getaway designed for families of all ages. Stay in family-friendly resorts in Port Blair and Havelock, with curated activities that engage kids and adults alike. From beach games to shallow snorkeling and island picnics, every day is crafted to balance downtime with discovery.",
+    category: "family",
+    location: "Port Blair & Havelock",
+    period: "4-3",
+    price: 1400,
+    discountedPrice: 1250,
+    images: [
+      "/images/packages/honeymoonRetreat/package1/image.png",
+      "/images/packages/honeymoonRetreat/package1/heroImage.png",
+    ],
+    features: [
+      "Family beach games",
+      "Kid-friendly snorkeling",
+      "Island picnics with local cuisine",
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: "Warm Welcome",
+        description:
+          "Arrive in Port Blair and enjoy a comfortable family check-in followed by light sightseeing",
+        activities: [
+          "Airport pickup",
+          "Corbyn's Cove beach",
+          "Evening dinner at a family restaurant",
+        ],
+      },
+      {
+        day: 2,
+        title: "Havelock Island",
+        description: "Explore Havelock with easy-paced activities for everyone",
+        activities: [
+          "Ferry to Havelock",
+          "Visit to Radhanagar Beach",
+          "Family beach games & photos",
+        ],
+      },
+      {
+        day: 3,
+        title: "Marine Fun",
+        description:
+          "Explore underwater life in a safe and guided environment suitable for all ages",
+        activities: [
+          "Shallow snorkeling with instructors",
+          "Picnic lunch on the beach",
+          "Evening storytelling session by locals",
+        ],
+      },
+      {
+        day: 4,
+        title: "Wrap-up & Return",
+        description: "Return to Port Blair and end with some local shopping",
+        activities: ["Return ferry", "Handicraft shopping", "Airport transfer"],
+      },
+    ],
+    includes: [
+      "Accommodation in family rooms",
+      "Breakfast & Dinner",
+      "Ferry tickets",
+      "Sightseeing transfers",
+    ],
+    excludes: ["Flights", "Lunch", "Extra adventure activities"],
+  },
 
   // Best-seller packages
   {
@@ -156,6 +368,7 @@ export const packages: Package[] = [
     price: 39999,
     discountedPrice: 37999,
     images: ["/images/packages/best/andaman-explorer.jpg"],
+    location: "Andaman",
     features: [
       "All major attractions",
       "Premium accommodations",
@@ -181,6 +394,83 @@ export const packages: Package[] = [
       "Entry tickets",
     ],
     excludes: ["Flights", "Personal expenses", "Optional activities"],
+  },
+  {
+    id: "island-explorer",
+    title: "Island Explorer",
+    description:
+      "Perfect for adventurers and nature lovers, this 5-day, 4-night trip takes you deep into the heart of Andaman. Split your time between the bustling Port Blair and the unspoiled serenity of Neil Island. Hike through dense tropical forests, relax on lesser-known beaches, and snorkel around coral gardens. Whether you're chasing sunsets or seeking underwater life, this journey promises a balance of thrill and tranquility.",
+    category: "best",
+    location: "Neil Island",
+    period: "5-4",
+    price: 1800,
+    discountedPrice: 1650,
+    images: [
+      "/images/packages/honeymoonRetreat/package1/image.png",
+      "/images/packages/honeymoonRetreat/package1/heroImage.png",
+    ],
+    features: [
+      "Jungle treks & nature walks",
+      "Snorkeling & marine life tours",
+      "Sunset at Natural Bridge",
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: "Arrival in Port Blair",
+        description: "Check in, local exploration, and orientation",
+        activities: [
+          "Airport transfer",
+          "Cellular Jail visit",
+          "Sound & Light show",
+        ],
+      },
+      {
+        day: 2,
+        title: "To Neil Island",
+        description: "Ferry to Neil Island and exploration of secluded beaches",
+        activities: [
+          "Bharatpur Beach snorkel session",
+          "Natural Bridge hike",
+          "Evening market walk",
+        ],
+      },
+      {
+        day: 3,
+        title: "Marine Life Experience",
+        description:
+          "Explore coral gardens and marine biodiversity in their natural habitat",
+        activities: [
+          "Glass bottom boat tour",
+          "Free diving (optional)",
+          "Local seafood tasting",
+        ],
+      },
+      {
+        day: 4,
+        title: "Hiking & Hidden Coves",
+        description: "Trek through forest trails and swim in secret lagoons",
+        activities: ["Jungle trek", "Sunset swim", "Beachside dinner"],
+      },
+      {
+        day: 5,
+        title: "Departure",
+        description: "Return to Port Blair and farewell to the islands",
+        activities: ["Return ferry", "Airport drop"],
+      },
+    ],
+    includes: [
+      "Accommodation",
+      "Breakfast",
+      "All inter-island transfers",
+      "Entry tickets to attractions",
+    ],
+    excludes: [
+      "Lunch & Dinner",
+      "Flights",
+      "Personal shopping",
+      "Optional tours",
+    ],
   },
 ];
 

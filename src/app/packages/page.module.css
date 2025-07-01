@@ -6,6 +6,10 @@
   gap: var(--section-gap);
 }
 
+.sectionTitle {
+  margin-bottom: var(--gap-3);
+}
+
 .packageSelectorWrapper {
   padding-top: var(--padding-10);
   min-height: 150px; /* Fixed height to prevent layout shift */
