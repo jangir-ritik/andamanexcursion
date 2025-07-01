@@ -5,7 +5,6 @@ export const packageOptions: PackageOption[] = [
   { id: "honeymoon", label: "Honeymoon" },
   { id: "family", label: "Family" },
   { id: "best", label: "Best Sellers" },
-  { id: "all", label: "All Packages" },
 ];
 
 export const periodOptions: PeriodOption[] = [

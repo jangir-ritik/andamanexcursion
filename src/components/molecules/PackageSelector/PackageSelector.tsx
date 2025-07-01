@@ -28,6 +28,19 @@ export const PackageSelector = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
 
+  // Update local state when props change
+  useEffect(() => {
+    if (defaultPackage && defaultPackage !== selectedPackage) {
+      setSelectedPackage(defaultPackage);
+    }
+  }, [defaultPackage, selectedPackage]);
+
+  useEffect(() => {
+    if (defaultPeriod && defaultPeriod !== selectedPeriod) {
+      setSelectedPeriod(defaultPeriod);
+    }
+  }, [defaultPeriod, selectedPeriod]);
+
   const handlePackageChange = (packageId: string) => {
     setSelectedPackage(packageId);
     setIsDropdownOpen(false);
@@ -79,6 +92,12 @@ export const PackageSelector = ({
     };
   }, []);
 
+  // Find the selected package and period labels
+  const selectedPackageLabel =
+    packageOptions.find((p) => p.id === selectedPackage)?.label || "";
+  const selectedPeriodLabel =
+    periodOptions.find((p) => p.id === selectedPeriod)?.label || "";
+
   return (
     <div className={`${styles.packageSelector} ${className}`}>
       <div className={styles.selectorContainer}>
@@ -89,9 +108,7 @@ export const PackageSelector = ({
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             ref={triggerRef}
           >
-            <div className={styles.packageSelect}>
-              {packageOptions.find((p) => p.id === selectedPackage)?.label}
-            </div>
+            <div className={styles.packageSelect}>{selectedPackageLabel}</div>
             <div className={styles.selectArrow}>
               <ChevronDown size={18} />
             </div>
@@ -113,7 +130,9 @@ export const PackageSelector = ({
               {packageOptions.map((option) => (
                 <div
                   key={option.id}
-                  className={styles.selectItem}
+                  className={`${styles.selectItem} ${
+                    option.id === selectedPackage ? styles.selected : ""
+                  }`}
                   onClick={() => handlePackageChange(option.id)}
                 >
                   {option.label}
@@ -135,9 +154,7 @@ export const PackageSelector = ({
               <ChevronLeft size={18} />
             </button>
 
-            <span className={styles.periodDisplay}>
-              {periodOptions.find((p) => p.id === selectedPeriod)?.label}
-            </span>
+            <span className={styles.periodDisplay}>{selectedPeriodLabel}</span>
 
             <button
               className={styles.arrowButton}

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { usePackageContext } from "@/context/PackageContext";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -31,31 +31,47 @@ export const usePackageCategoryPage = () => {
 
   const dataCategory = categoryMap[category] || "honeymoon";
 
-  // Set the selected package to match the category when page loads
+  // Set the selected package to match the category when page loads or category changes
   useEffect(() => {
     const mappedPackage =
       categoryToPackageMap[category as keyof typeof categoryToPackageMap];
-    if (mappedPackage && mappedPackage !== selectedPackage) {
-      setSelectedPackage(mappedPackage);
+
+    if (mappedPackage) {
+      // Use setTimeout to ensure this runs after the current execution context
+      setTimeout(() => {
+        setSelectedPackage(mappedPackage);
+      }, 0);
     }
-  }, [category, selectedPackage, setSelectedPackage]);
+  }, [category, setSelectedPackage]);
 
-  const handlePackageChange = (packageId: string) => {
-    setSelectedPackage(packageId);
+  // Memoize the handler to prevent recreating it on each render
+  const handlePackageChange = useCallback(
+    (packageId: string) => {
+      // First update the state
+      setSelectedPackage(packageId);
 
-    // Navigate to the appropriate category page based on package selection
-    if (packageId !== "all" && packageId in packageToCategoryMap) {
-      const newCategory =
-        packageToCategoryMap[packageId as keyof typeof packageToCategoryMap];
-      if (newCategory !== category) {
-        router.push(`/packages/${newCategory}`);
+      // Then navigate if needed
+      if (packageId !== "all" && packageId in packageToCategoryMap) {
+        const newCategory =
+          packageToCategoryMap[packageId as keyof typeof packageToCategoryMap];
+
+        if (newCategory !== category) {
+          // Use setTimeout to ensure state is updated before navigation
+          setTimeout(() => {
+            router.push(`/packages/${newCategory}`);
+          }, 0);
+        }
       }
-    }
-  };
+    },
+    [category, router, setSelectedPackage]
+  );
 
-  const handlePeriodChange = (periodId: string) => {
-    setSelectedPeriod(periodId);
-  };
+  const handlePeriodChange = useCallback(
+    (periodId: string) => {
+      setSelectedPeriod(periodId);
+    },
+    [setSelectedPeriod]
+  );
 
   // Filter packages by both category and period
   const packages: Package[] =
