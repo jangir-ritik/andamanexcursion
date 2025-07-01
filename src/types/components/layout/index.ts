@@ -29,6 +29,7 @@ export interface ColumnProps extends FlexProps {
   fullHeight?: boolean;
   justifyContent?: "start" | "end" | "center" | "between" | "around" | "evenly";
   alignItems?: "start" | "end" | "center" | "baseline" | "stretch";
+  style?: React.CSSProperties;
 }
 
 export interface SectionProps {
@@ -40,7 +41,7 @@ export interface SectionProps {
   fullWidth?: boolean;
   noPadding?: boolean;
 }
-export * from './column';
-export * from './container';
-export * from './row';
-export * from './section';
+export * from "./column";
+export * from "./container";
+export * from "./row";
+export * from "./section";

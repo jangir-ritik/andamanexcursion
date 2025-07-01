@@ -8,4 +8,5 @@
 
 .packageSelectorWrapper {
   padding-top: var(--padding-10);
+  min-height: 150px; /* Fixed height to prevent layout shift */
 }

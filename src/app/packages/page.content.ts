@@ -4,15 +4,17 @@ import { FAQContent } from "@/types/components/sectionBlocks";
 export const packageOptions: PackageOption[] = [
   { id: "honeymoon", label: "Honeymoon" },
   { id: "family", label: "Family" },
-  { id: "adventure", label: "Adventure" },
-  { id: "beach", label: "Beach" },
+  { id: "best", label: "Best Sellers" },
+  { id: "all", label: "All Packages" },
 ];
 
 export const periodOptions: PeriodOption[] = [
-  { id: "3-2", label: "3 Days & 2 Nights" },
-  { id: "4-3", label: "4 Days & 3 Nights" },
-  { id: "5-4", label: "5 Days & 4 Nights" },
-  { id: "7-6", label: "7 Days & 6 Nights" },
+  { id: "all", label: "All Durations" },
+  { id: "3-2", label: "3D 2N" },
+  { id: "4-3", label: "4D 3N" },
+  { id: "5-4", label: "5D 4N" },
+  { id: "6-5", label: "6D 5N" },
+  { id: "7-6", label: "7D 6N" },
 ];
 
 export const packageCategoriesContent = [
@@ -81,37 +83,24 @@ export const packageCategoriesContent = [
   },
 ];
 
+// Map category IDs to package selector values
+export const categoryToPackageMap = {
+  "honeymoon-retreat": "honeymoon",
+  "family-tours": "family",
+  "best-sellers": "best",
+};
+
+// Map package selector values to category IDs
+export const packageToCategoryMap = {
+  honeymoon: "honeymoon-retreat",
+  family: "family-tours",
+  best: "best-sellers",
+};
+
 export const packagesPageFAQContent: FAQContent = {
   title: "Get Answers to all Your Questions!",
   specialWord: "Answers",
   items: [
-    {
-      question: "What kind of packages do you offer for Andaman?",
-      answer:
-        "We offer a variety of packages including Honeymoon Retreats, Family Tours, Adventure Packages, and Best Sellers that cover the most popular destinations. All our packages can be customized to meet your specific preferences and requirements.",
-    },
-    {
-      question: "Are your packages all-inclusive?",
-      answer:
-        "Our packages typically include accommodation, transfers, selected meals, and mentioned activities. Some packages include airfare as well. We clearly mention what's included and what's not in each package description.",
-    },
-    {
-      question: "Can I customize the duration of my stay?",
-      answer:
-        "Yes, we offer flexible duration options ranging from 3 days & 2 nights to 7 days & 6 nights. We can also create custom itineraries for longer stays.",
-    },
-    {
-      question: "What's the best package for first-time visitors?",
-      answer:
-        "Our Best Sellers package is ideal for first-time visitors as it covers the must-visit destinations including Port Blair, Havelock, and Neil Island with a balanced mix of sightseeing and activities.",
-    },
-    {
-      question: "Do you offer special packages for honeymoon couples?",
-      answer:
-        "Yes, our Honeymoon Retreat package is specifically designed for newlyweds with romantic experiences like luxury accommodations, candlelit dinners, and private beach time.",
-    },
-  ],
-  faqs: [
     {
       question: "What kind of packages do you offer for Andaman?",
       answer:

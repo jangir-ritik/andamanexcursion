@@ -7,6 +7,7 @@ import "@/styles/variables.css";
 import { Header } from "@/components/organisms/Header/Header";
 import { Footer } from "@/components/organisms/Footer";
 import { Column, Container } from "@/components/layout";
+import { PackageProvider } from "@/context/PackageContext";
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
@@ -49,13 +50,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
-        <Header />
-        <Container>
-          <Column gap="var(--section-gap)" fullWidth>
-            {children}
-          </Column>
-        </Container>
-        <Footer />
+        <PackageProvider>
+          <Header />
+          <Container>
+            <Column gap="var(--section-gap)" fullWidth>
+              {children}
+            </Column>
+          </Container>
+          <Footer />
+        </PackageProvider>
       </body>
     </html>
   );

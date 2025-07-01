@@ -18,6 +18,5 @@ export interface FAQContent {
   title: string;
   specialWord?: string;
   description?: string;
-  faqs: FAQItem[];
   items: FAQItem[];
 }

@@ -11,6 +11,11 @@ export const Column = ({
   fullHeight = false,
   justifyContent,
   alignItems,
+  style = {},
+  role,
+  ariaLabel,
+  ariaLabelledBy,
+  ariaDescribedBy,
 }: ColumnProps) => {
   const columnClasses = [
     styles.column,
@@ -25,13 +30,23 @@ export const Column = ({
     .join(" ")
     .trim();
 
-  const style =
-    gap !== undefined
+  // Merge gap style with any custom styles
+  const combinedStyle = {
+    ...(gap !== undefined
       ? { gap: typeof gap === "number" ? `${gap * 8}px` : gap }
-      : {};
+      : {}),
+    ...style,
+  };
 
   return (
-    <div className={columnClasses} style={style}>
+    <div
+      className={columnClasses}
+      style={combinedStyle}
+      role={role}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
+      aria-describedby={ariaDescribedBy}
+    >
       {children}
     </div>
   );

@@ -1,35 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Section } from "@/components/layout/Section";
 import { Column } from "@/components/layout/Column";
 import { SectionTitle } from "@/components/atoms/SectionTitle";
 import { PackageSelector } from "@/components/molecules/PackageSelector";
-import styles from "./page.module.css";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
 import { DescriptionText } from "@/components/atoms/DescriptionText";
+import FAQ from "@/components/sectionBlocks/common/faq/FAQ";
+import Testimonials from "@/components/sectionBlocks/common/testimonials/Testimonials";
+import ScubaDiving from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
+import { usePackageContext } from "@/context/PackageContext";
+
+import styles from "./page.module.css";
 import {
   packageOptions,
   periodOptions,
   packageCategoriesContent,
   packagesPageFAQContent,
 } from "./page.content";
-import FAQ from "@/components/sectionBlocks/common/faq/FAQ";
-import Testimonials from "@/components/sectionBlocks/common/testimonials/Testimonials";
-import ScubaDiving from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
 
 const PackagesPage = () => {
-  const [selectedPackage, setSelectedPackage] = useState("honeymoon");
-  const [selectedPeriod, setSelectedPeriod] = useState("4-3");
+  const {
+    selectedPackage,
+    selectedPeriod,
+    setSelectedPackage,
+    setSelectedPeriod,
+  } = usePackageContext();
 
   const handlePackageChange = (packageId: string) => {
     setSelectedPackage(packageId);
-    // Here you could filter packages based on selection
   };
 
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriod(periodId);
-    // Here you could filter packages based on duration
   };
 
   return (
@@ -41,6 +45,7 @@ const PackagesPage = () => {
           alignItems="start"
           fullWidth
           className={styles.packageSelectorWrapper}
+          style={{ minHeight: "150px" }}
         >
           <SectionTitle text="Chosen Package" />
           <PackageSelector
@@ -66,7 +71,7 @@ const PackagesPage = () => {
                 title={category.title}
                 description={category.description}
                 images={category.images}
-                href={category.href}
+                href={`/packages/${category.id}`}
               />
             ))}
           </Column>

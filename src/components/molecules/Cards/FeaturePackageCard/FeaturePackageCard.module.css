@@ -1,0 +1,133 @@
+.card {
+  position: relative;
+  margin-bottom: var(--gap-3);
+  border-radius: var(--border-radius-2);
+  overflow: hidden;
+  width: 100%;
+  height: 356px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contentWrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: var(--padding-7) var(--padding-3);
+  gap: var(--gap-5);
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  flex: 1;
+  max-width: 427px;
+  background-color: var(--color-border-2);
+  border-radius: 20px 60px 20px 60px !important;
+  overflow: hidden;
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap-3);
+  height: 100%;
+  position: relative;
+  flex: 1;
+}
+
+.titleWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap-2);
+}
+
+.titleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-1);
+  max-width: 350px;
+}
+
+.title {
+  font-family: var(--font-family-jakarta);
+  font-weight: 500;
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+  color: var(--color-black);
+  margin: 0;
+}
+
+.price {
+  font-family: var(--font-family-jakarta);
+  font-weight: 400;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  color: var(--color-black);
+  margin: 0;
+}
+
+.locationInfo {
+  text-align: right;
+}
+
+.location,
+.duration {
+  font-family: var(--font-family-jakarta);
+  font-weight: 600;
+  font-size: var(--font-size-xl);
+  line-height: 1.25;
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+.description {
+  font-family: var(--font-family-jakarta);
+  font-weight: 400;
+  font-size: var(--font-size-xl);
+  line-height: 1.25;
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 100%;
+}
+
+.viewDetailsButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gap-half-unit);
+  text-decoration: none;
+  width: fit-content;
+  margin-top: var(--margin-2);
+}
+
+.viewDetailsText {
+  font-family: var(--font-family-jakarta);
+  font-weight: 400;
+  font-size: var(--font-size-md);
+  line-height: 1.25;
+  color: var(--color-primary);
+}
+
+.arrow {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .card {
+    height: auto;
+  }
+
+  .imageWrapper {
+    max-width: 100%;
+  }
+
+  .contentWrapper {
+    flex-direction: column;
+  }
+}

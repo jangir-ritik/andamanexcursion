@@ -80,6 +80,45 @@ src/types/components/[category]/componentName.ts
 
 Where `[category]` is one of: atoms, molecules, organisms, layout, or sectionBlocks.
 
+For reusable components like cards, the types should be defined in a common file:
+
+```
+src/types/components/molecules/cards.ts
+```
+
+Always import types from the types directory rather than defining them inline in the component file:
+
+```tsx
+// Good
+import { MyComponentProps } from "@/types/components/atoms/myComponent";
+
+// Avoid
+interface MyComponentProps { ... } // Don't define inline
+```
+
+## Accessibility Requirements
+
+All components should include appropriate ARIA attributes to ensure accessibility:
+
+- Use semantic HTML elements when possible (e.g., `<button>`, `<nav>`, `<article>`)
+- Add `role` attributes when semantic HTML is not available
+- Include `aria-label` for elements that need additional context
+- Ensure proper keyboard navigation support
+- Maintain sufficient color contrast
+
+Common ARIA attributes to consider:
+
+```tsx
+// For interactive elements
+<button aria-label="Close dialog">X</button>
+
+// For containers
+<div role="region" aria-label="Search results">...</div>
+
+// For images
+<img src="..." alt="Descriptive text" />
+```
+
 ## Fixing Common Issues
 
 ### Missing Index Files
@@ -107,6 +146,8 @@ npm run fix-components
 3. Ensure proper accessibility attributes are included
 4. Use CSS variables from the design system instead of hardcoded values
 5. Document complex components with README.md files
+6. Import and use types from the types directory
+7. Use `clsx` or `classnames` for conditional class names
 
 ## Troubleshooting
 
@@ -116,3 +157,4 @@ If you encounter issues with the checker system:
 2. Check that exports are properly set up in index.ts files
 3. Verify that type definitions match component props
 4. Ensure component names match their file names
+5. Check for missing accessibility attributes
