@@ -89,10 +89,17 @@
   background-color: transparent;
   border: none;
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--gap-1);
   cursor: pointer;
   transition: color 0.2s ease;
+  padding: 0;
+  width: 100%;
+}
+
+.triggerLabel {
+  flex: 1;
+  text-align: left;
 }
 
 .navigationMenuTrigger:hover {
@@ -164,4 +171,20 @@
   background-color: var(--color-foreground-light);
   border-radius: var(--border-radius-1);
   color: var(--color-primary);
+}
+
+.clickableParentContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-1);
+  width: 100%;
+}
+
+.parentLink {
+  padding-right: 0;
+}
+
+.clickableParentContainer .navigationMenuTrigger {
+  padding: 0;
+  margin-left: -6px; /* Adjust for better visual alignment */
 }

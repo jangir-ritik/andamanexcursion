@@ -5,6 +5,7 @@ import { MoveUpRight } from "lucide-react";
 import styles from "./MediumCard.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import clsx from "clsx";
 
 export const MediumCard = ({
   image,
@@ -14,6 +15,7 @@ export const MediumCard = ({
   badge,
   badgeIcon,
   href,
+  className,
 }: MediumCardProps) => {
   const CardContent = () => (
     <>
@@ -50,7 +52,7 @@ export const MediumCard = ({
   );
 
   return (
-    <div className={styles.cardContainer}>
+    <div className={clsx(styles.cardContainer, className)}>
       {href ? (
         <Link
           href={href}

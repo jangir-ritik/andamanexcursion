@@ -32,18 +32,19 @@ export const navItems = [
   {
     label: "Packages",
     href: "/packages",
+    isClickable: true,
     children: [
       {
-        label: "Sub Item 1",
-        href: "/sub-item-1",
+        label: "Honeymoon Retreat",
+        href: "/packages/honeymoon-retreat",
       },
       {
-        label: "Sub Item 2",
-        href: "/sub-item-2",
+        label: "Best Sellers",
+        href: "/packages/best-sellers",
       },
       {
-        label: "Sub Item 3",
-        href: "/sub-item-3",
+        label: "Family Tours",
+        href: "/packages/family-tours",
       },
     ],
   },

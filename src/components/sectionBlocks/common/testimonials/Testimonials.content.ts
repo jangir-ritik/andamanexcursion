@@ -1,6 +1,6 @@
 export const testimonialsContent = {
-  title: "What Our Travelers Say About Us",
-  specialWord: "Travelers",
+  title: "Our Client Appreciations Keeps Us Going",
+  specialWord: "Client Appreciations",
   subtitle: "All testimonials are pulled from authentic Google reviews.",
   testimonials: [
     {

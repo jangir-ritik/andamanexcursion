@@ -76,8 +76,26 @@ export const MobileNav = React.memo(({ items, className }: BaseNavProps) => {
                     </CustomLink>
                   ) : (
                     <div className={styles.dropdownContainer}>
+                      {item.isClickable && (
+                        <CustomLink
+                          href={item.href}
+                          className={clsx(
+                            styles.link,
+                            styles.parentLink,
+                            pathname === item.href && styles.active
+                          )}
+                          onClick={handleLinkClick}
+                        >
+                          {item.label}
+                        </CustomLink>
+                      )}
                       <NavigationMenuTrigger className={styles.dropdownTrigger}>
-                        <span>{item.label}</span>
+                        {!item.isClickable && <span>{item.label}</span>}
+                        {item.isClickable ? (
+                          <span className={styles.dropdownLabel}>
+                            {item.label} Submenu
+                          </span>
+                        ) : null}
                         <ChevronDown
                           size={16}
                           className={styles.dropdownIcon}

@@ -1,0 +1,203 @@
+.packageCard {
+  position: relative;
+  width: 100%;
+  max-width: var(--container-max-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-testimonial-border);
+  border-radius: var(--border-radius-2) var(--border-radius-2) 0 0;
+  padding: var(--padding-5);
+  gap: var(--gap-4);
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.interactive:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.interactive:hover .imagesContainer img {
+  transform: scale(1.05);
+}
+
+.packageCard:nth-child(2n) {
+  background-color: var(--color-foreground-light);
+  border-width: 0px 1px;
+  border-radius: 0;
+}
+
+.packageCard:first-child {
+  border-radius: var(--border-radius-2) var(--border-radius-2) 0px 0px;
+  border-width: 1px 1px 0px 1px;
+}
+
+.packageCard:last-child {
+  border-radius: 0px 0px var(--border-radius-2) var(--border-radius-2);
+  border-width: 0px 1px 1px 1px;
+  border-color: var(--color-testimonial-border);
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: var(--gap-3);
+  width: 100%;
+  max-width: 1125px;
+}
+
+.headerContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  gap: var(--gap-3);
+  width: 100%;
+  height: 40px;
+}
+
+.title {
+  font-family: var(--font-family-quick-beach);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-3xl);
+  line-height: 38px;
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+.viewDetailsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: var(--padding-1) var(--padding-1-half);
+  gap: var(--gap-half-unit);
+  border-radius: var(--border-radius-1-half);
+}
+
+.viewDetailsText {
+  font-family: var(--font-family-jakarta);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-md);
+  line-height: 20px;
+  color: var(--color-primary);
+}
+
+.divider {
+  width: 100%;
+  height: 0px;
+  border: 1px solid var(--color-border-2);
+}
+
+.description {
+  width: 100%;
+  font-family: var(--font-family-jakarta);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-xl);
+  line-height: 30px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.imagesContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  gap: var(--gap-3);
+  width: 100%;
+}
+
+.smallImageWrapper {
+  position: relative;
+  width: 251px;
+  height: 173px;
+  background: var(--color-border-2);
+  border-radius: var(--border-radius-2);
+  overflow: hidden;
+}
+
+.largeImageWrapper {
+  position: relative;
+  width: 576px;
+  height: 173px;
+  background: var(--color-border-2);
+  border-radius: var(--border-radius-2) var(--border-radius-2)
+    var(--border-radius-2) 60px;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .packageCard {
+    width: 100%;
+    padding: var(--padding-4) var(--padding-2-half);
+  }
+
+  .largeImageWrapper {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .smallImageWrapper {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .packageCard {
+    padding: var(--padding-2-half) var(--padding-2);
+    gap: var(--gap-2-half);
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+    line-height: 32px;
+  }
+
+  .description {
+    font-size: var(--font-size-md);
+    line-height: 24px;
+  }
+
+  .headerContainer {
+    flex-direction: column;
+    height: auto;
+    gap: var(--gap-1-half);
+    align-items: flex-start;
+  }
+
+  .imagesContainer {
+    flex-direction: column;
+    gap: var(--gap-2);
+  }
+
+  .smallImageWrapper,
+  .largeImageWrapper {
+    width: 100%;
+    height: 140px;
+    border-radius: var(--border-radius-2);
+  }
+}

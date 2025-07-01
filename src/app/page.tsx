@@ -5,12 +5,14 @@ import { TrustStats } from "@/components/sectionBlocks/homepage/trustStats";
 import HiddenGems from "@/components/sectionBlocks/homepage/hiddenGems/HiddenGems";
 import { LovedAdventures } from "@/components/sectionBlocks/homepage/lovedAdventures";
 import Partners from "@/components/sectionBlocks/homepage/partners/Partners";
-import ScubaDiving from "@/components/sectionBlocks/homepage/scubaDivingCTA/ScubaDiving";
+
 import WhyChooseUs from "@/components/sectionBlocks/homepage/whyChooseUs/WhyChooseUs";
 import Story from "@/components/sectionBlocks/homepage/story/Story";
-import Testimonials from "@/components/sectionBlocks/homepage/testimonials";
-import FAQ from "@/components/sectionBlocks/homepage/faq/FAQ";
-import AndamanCalling from "@/components/sectionBlocks/homepage/andamanCalling/AndamanCalling";
+import ScubaDiving from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
+import AndamanCalling from "@/components/sectionBlocks/common/andamanCalling/AndamanCalling";
+import Testimonials from "@/components/sectionBlocks/common/testimonials/Testimonials";
+import { faqContent } from "@/components/sectionBlocks/homepage/faq/FAQ.content";
+import FAQ from "@/components/sectionBlocks/common/faq/FAQ";
 
 export default function Home() {
   return (
@@ -26,7 +28,7 @@ export default function Home() {
       <WhyChooseUs />
       <Story />
       <Testimonials />
-      <FAQ />
+      <FAQ {...faqContent} />
       <AndamanCalling />
     </>
   );

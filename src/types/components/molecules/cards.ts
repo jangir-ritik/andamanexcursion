@@ -17,6 +17,7 @@ export interface MediumCardProps extends BaseCardProps {
   badgeIcon?: ReactNode;
   description: string;
   href?: string;
+  className?: string;
 }
 
 export interface LargeCardProps extends BaseCardProps {
@@ -24,4 +25,15 @@ export interface LargeCardProps extends BaseCardProps {
   description?: string;
   ctaText?: string;
   ctaHref?: string;
+}
+
+export interface PackageCardProps {
+  title: string;
+  description: string;
+  images: {
+    src: string;
+    alt: string;
+  }[];
+  href?: string;
+  className?: string;
 }

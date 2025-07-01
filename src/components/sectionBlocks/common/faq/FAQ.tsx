@@ -5,24 +5,31 @@ import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import { FAQContainer } from "@/components/molecules/FAQContainer";
 import styles from "./FAQ.module.css";
-import { faqContent } from "./FAQ.content";
 
-function FAQ() {
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface FAQProps {
+  title: string;
+  specialWord?: string;
+  items: FAQItem[];
+  className?: string;
+}
+
+function FAQ({ title, specialWord, items, className }: FAQProps) {
   return (
-    <Section id="faq" aria-labelledby="faq-title">
+    <Section id="faq" aria-labelledby="faq-title" className={className}>
       <Row wrap fullWidth justifyContent="between">
         <Column className={styles.titleColumn}>
-          <SectionTitle
-            text={faqContent.title}
-            specialWord={faqContent.specialWord}
-            id="faq-title"
-          />
+          <SectionTitle text={title} specialWord={specialWord} id="faq-title" />
           <div className={styles.decorativeElement} aria-hidden="true">
             {/* Decorative elements will be handled by CSS */}
           </div>
         </Column>
         <Column className={styles.contentColumn} fullWidth>
-          <FAQContainer items={faqContent.items} />
+          <FAQContainer items={items} />
         </Column>
       </Row>
     </Section>

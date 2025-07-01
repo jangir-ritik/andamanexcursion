@@ -15,6 +15,7 @@
   --color-foreground-light: #f5f9ff; /* color for some sections foreground */
   --color-border: #ffffff33;
   --color-border-2: #e0e0e0;
+  --color-border-3: #c0c0c0;
   --color-focus: rgba(62, 140, 255, 0.1);
   --color-divider: #d6d6d6;
 
@@ -66,7 +67,9 @@
   --gap-0: 0;
   --gap-half-unit: calc(var(--atomic-unit) / 2);
   --gap-1: var(--atomic-unit);
+  --gap-1-half: calc(var(--atomic-unit) * 1.5);
   --gap-2: calc(var(--atomic-unit) * 2);
+  --gap-2-half: calc(var(--atomic-unit) * 2.5);
   --gap-3: calc(var(--atomic-unit) * 3);
   --gap-4: calc(var(--atomic-unit) * 4);
   --gap-5: calc(var(--atomic-unit) * 5);
@@ -80,7 +83,9 @@
   --padding-0: 0;
   --padding-half: calc(var(--atomic-unit) / 2);
   --padding-1: var(--atomic-unit);
+  --padding-1-half: calc(var(--atomic-unit) * 1.5);
   --padding-2: calc(var(--atomic-unit) * 2);
+  --padding-2-half: calc(var(--atomic-unit) * 2.5);
   --padding-3: calc(var(--atomic-unit) * 3);
   --padding-4: calc(var(--atomic-unit) * 4);
   --padding-5: calc(var(--atomic-unit) * 5);
@@ -99,10 +104,12 @@
   --margin-5: calc(var(--atomic-unit) * 5);
   --margin-6: calc(var(--atomic-unit) * 6);
   --margin-7: calc(var(--atomic-unit) * 7);
+  --margin-8: calc(var(--atomic-unit) * 8);
 
   /* border radius */
   --border-radius-0: 0;
   --border-radius-1: var(--atomic-unit);
+  --border-radius-1-half: calc(var(--atomic-unit) * 1.5);
   --border-radius-2: calc(var(--atomic-unit) * 2);
   --border-radius-3: calc(var(--atomic-unit) * 3);
   --border-radius-4: calc(var(--atomic-unit) * 4);
