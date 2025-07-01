@@ -6,13 +6,16 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-primary);
+  background-color: var(--color-foreground-light);
   transition: background-color 0.2s ease;
   min-width: 44px;
   min-height: 44px;
+  z-index: 1000;
 }
 
 .trigger:hover {
-  background-color: var(--color-foreground-light);
+  background-color: var(--color-foreground-dark);
+  color: var(--color-primary);
 }
 
 .trigger:focus-visible {
@@ -41,7 +44,7 @@
   font-family: var(--font-family-jakarta);
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: 10000000;
 }
 
 .header {
