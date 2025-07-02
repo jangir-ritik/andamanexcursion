@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Section } from "@/components/layout";
-import { StatCard } from "@/components/molecules/StatCard";
+import StatCard from "@/components/molecules/StatCard";
 import { trustStatsContent } from "./TrustStats.content";
 import styles from "./TrustStats.module.css";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
@@ -45,6 +45,7 @@ export const TrustStats = () => {
           {trustStatsContent.stats.map((stat, index) => (
             <React.Fragment key={`stat-${index}`}>
               <StatCard
+                label={stat.label}
                 value={stat.value}
                 description={stat.description}
                 icon={stat.icon as "users" | "ferry" | "island"}

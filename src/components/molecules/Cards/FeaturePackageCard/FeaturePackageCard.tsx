@@ -1,7 +1,7 @@
 import React from "react";
 import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
-import { InlineLink } from "@/components/atoms/InlineLink";
-import { FeaturePackageCardProps } from "@/types/components/molecules/cards";
+import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
+import { FeaturePackageCardProps } from "./FeaturePackageCard.types";
 import clsx from "clsx";
 
 import styles from "./FeaturePackageCard.module.css";

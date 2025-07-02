@@ -1,14 +1,14 @@
-import { ReactNode, CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 
 export interface ColumnProps {
-  className?: string;
   children?: ReactNode;
+  className?: string;
   gap?: number | string;
   wrap?: boolean;
   fullWidth?: boolean;
   fullHeight?: boolean;
-  justifyContent?: "start" | "center" | "end" | "between" | "around" | "evenly";
-  alignItems?: "start" | "center" | "end" | "stretch" | "baseline";
+  justifyContent?: "start" | "end" | "center" | "between" | "around" | "evenly";
+  alignItems?: "start" | "end" | "center" | "baseline" | "stretch";
   style?: CSSProperties;
   role?: string;
   ariaLabel?: string;

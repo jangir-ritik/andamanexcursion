@@ -6,8 +6,12 @@ import { testimonialsContent } from "./Testimonials.content";
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
+import { TestimonialsProps } from "./Testimonials.types";
 
-const Testimonials = () => {
+const Testimonials = ({
+  className,
+  id = "testimonials",
+}: TestimonialsProps = {}) => {
   const { title, subtitle, testimonials, specialWord } = testimonialsContent;
 
   // Create a duplicate set of testimonials for the infinite scroll effect
@@ -15,9 +19,9 @@ const Testimonials = () => {
 
   return (
     <Section
-      className={styles.testimonialsSection}
+      className={`${styles.testimonialsSection} ${className || ""}`}
       fullBleed
-      id="testimonials"
+      id={id}
       aria-labelledby="testimonials-title"
     >
       <Column gap={6} fullWidth className={styles.testimonialsContainer}>

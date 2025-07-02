@@ -9,12 +9,11 @@ import { getPackageById } from "@/data/packages";
 import { useParams } from "next/navigation";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 import { PackageDetailTabs } from "@/components/organisms/PackageDetailTabs";
-import { FAQ } from "@/components/sectionBlocks/common/faq";
-
+import FAQ from "@/components/sectionBlocks/common/faq";
 import styles from "../../page.module.css";
 import Testimonials from "@/components/sectionBlocks/common/testimonials";
 import ScubaDiving from "@/components/sectionBlocks/common/scubaDiving";
-import { InlineLink } from "@/components/atoms/InlineLink";
+import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
 import { Row } from "@/components/layout/Row";
 import { Button } from "@/components/atoms/Button/Button";
 

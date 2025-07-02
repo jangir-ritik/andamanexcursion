@@ -3,7 +3,7 @@
 import React from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./ActivitySelect.module.css";
-import { ActivitySelectProps } from "@/types/components/atoms/activitySelect";
+import { ActivitySelectProps } from "./ActivitySelect.types";
 
 export const ActivitySelect = ({
   value,

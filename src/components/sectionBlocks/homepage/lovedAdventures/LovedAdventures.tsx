@@ -2,14 +2,14 @@ import { Column, Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Row } from "@/components/layout";
 import React from "react";
-import { MediumCard } from "@/components/molecules";
 import {
   BadgeIconType,
   lovedAdventuresContent,
 } from "./LovedAdventures.content";
 import styles from "./LovedAdventures.module.css";
 import { Heart, Star } from "lucide-react";
-import { LovedAdventuresProps } from "@/types/components/sectionBlocks";
+import { MediumCard } from "@/components/molecules/Cards/MediumCard";
+import { LovedAdventuresProps } from "./LovedAdventures.types";
 
 export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
   const { title, specialWord, adventures } = lovedAdventuresContent;
@@ -57,7 +57,9 @@ export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
               <MediumCard
                 key={index}
                 badge={adventure.badge}
-                badgeIcon={getBadgeIcon(adventure.badgeIconType)}
+                badgeIcon={getBadgeIcon(
+                  adventure.badgeIconType as BadgeIconType
+                )}
                 title={adventure.title}
                 description={adventure.description}
                 image={adventure.image.src}

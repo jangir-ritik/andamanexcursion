@@ -2,15 +2,16 @@ import React from "react";
 import Image from "next/image";
 import styles from "./TestimonialCard.module.css";
 import quoteIcon from "@public/icons/misc/quote.svg";
+import { TestimonialCardProps } from "./TestimonialCard.types";
 
-interface TestimonialCardProps {
+interface TestimonialCardInternalProps {
   text: string;
   author: string;
   avatar: string;
   rotation?: number;
 }
 
-const TestimonialCard: React.FC<TestimonialCardProps> = ({
+const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
   text,
   author,
   avatar,

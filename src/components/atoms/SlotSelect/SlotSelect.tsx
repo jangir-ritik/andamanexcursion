@@ -3,7 +3,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./SlotSelect.module.css";
-import { SlotSelectProps } from "@/types/components/atoms/slotSelect";
+import { SlotSelectProps } from "./SlotSelect.types";
 
 export const SlotSelect = ({
   value,
@@ -34,6 +34,7 @@ export const SlotSelect = ({
       <span className={styles.selectLabel}>Slot</span>
       <div className={styles.slotPickerInner}>
         <button
+          aria-label="Previous Slot"
           className={styles.slotNavButton}
           onClick={handlePrevious}
           disabled={currentIndex <= 0}
@@ -43,6 +44,7 @@ export const SlotSelect = ({
         </button>
         <span className={styles.selectValue}>{currentSlot?.time}</span>
         <button
+          aria-label="Next Slot"
           className={styles.slotNavButton}
           onClick={handleNext}
           disabled={currentIndex >= options.length - 1}

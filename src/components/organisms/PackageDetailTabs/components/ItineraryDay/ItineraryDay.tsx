@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./ItineraryDay.module.css";
-import { ItineraryDayProps } from "@/types/components/atoms/ItineraryDay";
+import { ItineraryDayProps } from "./ItineraryDay.types";
 
 export const ItineraryDay: React.FC<ItineraryDayProps> = ({
   day,
@@ -9,22 +9,15 @@ export const ItineraryDay: React.FC<ItineraryDayProps> = ({
   isLast = false,
 }) => {
   return (
-    <div
-      role="listitem"
-      aria-label={`Itinerary Day: ${day} - ${title}`}
-      className={styles.dayContainer}
-    >
-      <div className={styles.timelineMarker}>
-        <div className={styles.dot} />
-        {!isLast && <div className={styles.line} />}
+    <div className={styles.itineraryDay}>
+      <div className={styles.dayNumber}>
+        <span>Day {day}</span>
       </div>
-
       <div className={styles.content}>
-        <h3 className={styles.title}>
-          <span className={styles.dayNumber}>Day {day}:</span> {title}
-        </h3>
+        <h3 className={styles.title}>{title}</h3>
         <p className={styles.description}>{description}</p>
       </div>
+      {!isLast && <div className={styles.connector} />}
     </div>
   );
 };

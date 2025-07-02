@@ -5,18 +5,47 @@ import {
 } from "@radix-ui/react-navigation-menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CustomLinkProps } from "./CustomLink.types";
 
-interface CustomLinkProps extends Omit<NavigationMenuLinkProps, "href"> {
-  href: string;
-}
-
-const CustomLink = ({ children, href, ...props }: CustomLinkProps) => {
+const CustomLink = ({
+  children,
+  href,
+  external,
+  className,
+  ...props
+}: CustomLinkProps & Omit<NavigationMenuLinkProps, "href">) => {
   const pathname = usePathname();
   const isActive = href === pathname;
 
+  if (external) {
+    return (
+      <NavigationMenuLink
+        asChild
+        aria-current={isActive ? "page" : undefined}
+        {...props}
+      >
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={className}
+        >
+          {children}
+        </a>
+      </NavigationMenuLink>
+    );
+  }
+
   return (
-    <NavigationMenuLink asChild active={isActive} {...props}>
-      <Link href={href}>{children}</Link>
+    <NavigationMenuLink
+      asChild
+      active={isActive}
+      aria-current={isActive ? "page" : undefined}
+      {...props}
+    >
+      <Link href={href} className={className}>
+        {children}
+      </Link>
     </NavigationMenuLink>
   );
 };

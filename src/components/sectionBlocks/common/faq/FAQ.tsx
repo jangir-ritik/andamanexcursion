@@ -3,19 +3,14 @@
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import React from "react";
-import { FAQContainer } from "@/components/molecules/FAQContainer";
+
 import styles from "./FAQ.module.css";
+import FAQContainer from "@/components/molecules/FAQContainer";
+import { FAQProps } from "./FAQ.types";
 
 export interface FAQItem {
   question: string;
   answer: string;
-}
-
-export interface FAQProps {
-  title: string;
-  specialWord?: string;
-  items: FAQItem[];
-  className?: string;
 }
 
 function FAQ({ title, specialWord, items, className }: FAQProps) {

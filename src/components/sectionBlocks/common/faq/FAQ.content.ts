@@ -1,4 +1,4 @@
-import { FAQContent } from "@/types/components/sectionBlocks";
+import { FAQContent } from "./FAQ.types";
 
 export const faqContent: FAQContent = {
   title: "Get Answers to all Your Questions!",

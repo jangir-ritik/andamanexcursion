@@ -3,12 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import styles from "./Chip.module.css";
-
-interface ChipProps {
-  icon: string;
-  text: string;
-  className?: string;
-}
+import { ChipProps } from "./Chip.types";
 
 export const Chip = ({ icon, text, className = "" }: ChipProps) => {
   return (

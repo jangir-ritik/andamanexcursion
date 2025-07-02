@@ -49,13 +49,7 @@ export * from "./ExampleButton";
 ```tsx
 import React from "react";
 import styles from "./ExampleButton.module.css";
-import { ReactNode } from "react";
-
-export interface ExampleButtonProps {
-  children: ReactNode;
-  onClick?: () => void;
-  variant?: "primary" | "secondary";
-}
+import { ExampleButtonProps } from "./ExampleButton.types";
 
 export const ExampleButton = ({
   children,
@@ -68,6 +62,18 @@ export const ExampleButton = ({
     </button>
   );
 };
+```
+
+### Types File: `src/components/atoms/ExampleButton/ExampleButton.types.ts`
+
+```tsx
+import { ReactNode } from "react";
+
+export interface ExampleButtonProps {
+  children: ReactNode;
+  onClick?: () => void;
+  variant?: "primary" | "secondary";
+}
 ```
 
 ### CSS Module: `src/components/atoms/ExampleButton/ExampleButton.module.css`
@@ -94,7 +100,7 @@ export const ExampleButton = ({
 
 ## Key Changes
 
-1. **Moved Types Inline**: The type definition is now directly in the component file
+1. **Moved Types to Component Directory**: The type definition is now in a `.types.ts` file in the component directory
 2. **Removed Index File**: For simple components, the index.ts file is unnecessary
 3. **Import Path Changes**: When importing this component, use:
 
@@ -114,18 +120,11 @@ Keep the index.ts file if:
 2. The component has multiple exports
 3. You want to maintain a consistent public API for a feature folder
 
-## When to Keep Separate Type Files
-
-Keep separate type files if:
-
-1. The types are complex and shared across multiple components
-2. The types include utility types, enums, or other complex TypeScript features
-3. The types are part of a public API that might be consumed by other modules
-
 ## Migration Strategy
 
 1. Start with simple components like atoms
-2. Move types inline
-3. Remove unnecessary index files
-4. Update imports in other files
-5. Keep content separation for section blocks and content-heavy components
+2. Move types from the central types directory to a `.types.ts` file in the component directory
+3. Update imports in the component file to reference the local types file
+4. Remove unnecessary index files
+5. Update imports in other files
+6. Keep content separation for section blocks and content-heavy components

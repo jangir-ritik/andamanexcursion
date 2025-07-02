@@ -1,5 +1,5 @@
-import { LOCATIONS, ACTIVITIES, TIME_SLOTS } from "@/types/booking";
-import { TabConfig } from "@/types/components/organisms/bookingForm";
+import { LOCATIONS, ACTIVITIES, TIME_SLOTS } from "../BookingForm.types";
+import { TabConfig } from "../BookingForm.types";
 
 // Custom time slots for specific tabs
 const LOCAL_BOAT_TIME_SLOTS = TIME_SLOTS.filter((slot) =>

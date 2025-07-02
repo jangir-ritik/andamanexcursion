@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { Plus, Minus } from "lucide-react";
 import styles from "./FAQContainer.module.css";
-import { FAQContainerProps } from "@/types/components/molecules/faqContainer";
+import { FAQContainerProps } from "./FAQContainer.types";
 
 function FAQContainer({ items, className = "" }: FAQContainerProps) {
   const [openItem, setOpenItem] = useState<string>("item-0");

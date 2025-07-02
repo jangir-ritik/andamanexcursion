@@ -22,22 +22,3 @@ export interface WhatsCoveredTabProps {
   includes: string[];
   excludes: string[];
 }
-
-export interface HighlightItemProps {
-  text: string;
-}
-
-export interface ItineraryDayProps {
-  day: number;
-  title: string;
-  description: string;
-  isLast?: boolean;
-}
-
-export interface IncludeItemProps {
-  text: string;
-}
-
-export interface ExcludeItemProps {
-  text: string;
-}

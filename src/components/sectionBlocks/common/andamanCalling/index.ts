@@ -1,1 +1,2 @@
-export { default as AndamanCalling } from './AndamanCalling';
+export { default } from "./AndamanCalling";
+export * from "./AndamanCalling.types";

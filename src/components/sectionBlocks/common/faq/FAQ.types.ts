@@ -1,6 +1,11 @@
 import { ReactNode } from "react";
-import { BaseSectionProps } from "./common";
-import { FAQItem } from "../molecules/faqContainer";
+import { FAQItem } from "@/components/molecules/FAQContainer/FAQContainer.types";
+
+export interface BaseSectionProps {
+  className?: string;
+  children?: ReactNode;
+  id?: string;
+}
 
 export interface FaqProps {
   title: string;

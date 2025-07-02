@@ -9,10 +9,7 @@ import { DesktopNav } from "@/components/molecules/DesktopNav/DesktopNav";
 import { MobileNav } from "@/components/molecules/MobileNav/MobileNav";
 import styles from "./Header.module.css";
 import Link from "next/link";
-
-export interface HeaderProps {
-  className?: string;
-}
+import { HeaderProps } from "./Header.types";
 
 // Throttle function to limit how often a function runs
 const throttle = (callback: Function, delay = 250) => {

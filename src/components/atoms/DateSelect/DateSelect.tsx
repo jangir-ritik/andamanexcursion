@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./DateSelect.module.css";
-import { DateSelectProps } from "@/types/components/atoms/dateSelect";
+import { DateSelectProps } from "./DateSelect.types";
 
 export const DateSelect = ({
   selected,
@@ -13,10 +13,16 @@ export const DateSelect = ({
   className,
 }: DateSelectProps) => {
   return (
-    <div className={`${styles.datePickerWrapper} ${className || ""}`}>
-      <span className={styles.selectLabel}>Departure</span>
-      <div className={styles.datePickerInner}>
+    <div
+      aria-label="Date Select"
+      className={`${styles.datePickerWrapper} ${className || ""}`}
+    >
+      <span aria-label="Departure" className={styles.selectLabel}>
+        Departure
+      </span>
+      <div aria-label="Date Picker" className={styles.datePickerInner}>
         <button
+          aria-label="Previous Day"
           className={styles.dateNavButton}
           onClick={() => {
             const newDate = new Date(selected);
@@ -34,6 +40,7 @@ export const DateSelect = ({
           className={styles.datePicker}
         />
         <button
+          aria-label="Next Day"
           className={styles.dateNavButton}
           onClick={() => {
             const newDate = new Date(selected);

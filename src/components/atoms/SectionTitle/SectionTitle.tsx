@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./SectionTitle.module.css";
-import { SectionTitleProps } from "@/types/components/atoms/sectionTitle";
+import { SectionTitleProps } from "./SectionTitle.types";
 import underlineGraphic from "@public/graphics/underline.svg";
 import Image from "next/image";
 

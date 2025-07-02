@@ -1,5 +1,10 @@
 import { ReactNode } from "react";
-import { BaseSectionProps } from "./common";
+
+export interface BaseSectionProps {
+  className?: string;
+  children?: ReactNode;
+  id?: string;
+}
 
 export interface ScubaDivingCTAProps {
   className?: string;

@@ -1,2 +1,2 @@
-export { default as InlineLink } from "./InlineLink";
-export type { InlineLinkProps } from "@/types/components/atoms/inlineLink";
+export type { InlineLinkProps } from "./InlineLink.types";
+export { default } from "./InlineLink";

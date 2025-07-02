@@ -7,7 +7,7 @@ import {
   PackageOption,
   PeriodOption,
   PackageSelectorProps,
-} from "@/types/components/molecules";
+} from "./PackageSelector.types";
 
 export const PackageSelector = ({
   packageOptions,

@@ -1,5 +1,10 @@
 import { ReactNode } from "react";
-import { BaseSectionProps } from "./common";
+
+export interface BaseSectionProps {
+  className?: string;
+  children?: ReactNode;
+  id?: string;
+}
 
 export interface AndamanCallingProps extends BaseSectionProps {
   className?: string;
@@ -14,4 +19,4 @@ export interface AndamanCallingContent {
     src: string;
   };
   imageAlt: string;
-}
+} 

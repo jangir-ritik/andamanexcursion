@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./IncludeItem.module.css";
 import { Circle } from "lucide-react";
-import { IncludeItemProps } from "@/types/components/atoms/IncludeItem";
+import { IncludeItemProps } from "./IncludeItem.types";
 
 export const IncludeItem: React.FC<IncludeItemProps> = ({ text }) => {
   return (

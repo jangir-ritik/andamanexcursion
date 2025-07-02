@@ -14,9 +14,9 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import CustomLink from "@/components/atoms/CustomLink/CustomLink";
 import styles from "./MobileNav.module.css";
-import { BaseNavProps } from "@/types/navigation";
+import { MobileNavProps } from "./MobileNav.types";
 
-export const MobileNav = React.memo(({ items, className }: BaseNavProps) => {
+export const MobileNav = React.memo(({ items, className }: MobileNavProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 

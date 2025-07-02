@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ExcludeItem.module.css";
 import { Circle } from "lucide-react";
-import { ExcludeItemProps } from "@/types/components/atoms/ExcludeItem";
+import { ExcludeItemProps } from "./ExcludeItem.types";
 
 export const ExcludeItem: React.FC<ExcludeItemProps> = ({ text }) => {
   return (

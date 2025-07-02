@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import checkboxIcon from "@public/icons/misc/checkbox.svg";
-import { HighlightItemProps } from "@/types/components/atoms/HighlightItem";
+import { HighlightItemProps } from "./HighlightItem.types";
 
 import styles from "./HighlightItem.module.css";
 

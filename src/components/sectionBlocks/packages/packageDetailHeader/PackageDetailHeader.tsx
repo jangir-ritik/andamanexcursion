@@ -4,7 +4,7 @@ import { Row } from "@/components/layout/Row";
 import React from "react";
 
 import styles from "./PackageDetailHeader.module.css";
-import { PackageDetailHeaderProps } from "@/types/components/molecules/packageDetailHeader";
+import { PackageDetailHeaderProps } from "./PackageDetailHeader.types";
 
 export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
   packageData,

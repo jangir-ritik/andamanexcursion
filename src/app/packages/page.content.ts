@@ -1,5 +1,8 @@
-import { PackageOption, PeriodOption } from "@/types/components/molecules";
-import { FAQContent } from "@/types/components/sectionBlocks";
+import {
+  PackageOption,
+  PeriodOption,
+} from "@/components/molecules/PackageSelector/PackageSelector.types";
+import { FAQContent } from "@/components/sectionBlocks/common/faq/FAQ.types";
 
 export const packageOptions: PackageOption[] = [
   { id: "honeymoon", label: "Honeymoon" },

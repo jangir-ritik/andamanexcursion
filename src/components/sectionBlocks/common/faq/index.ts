@@ -1,2 +1,2 @@
-export { default as FAQ } from "./FAQ";
-export type { FAQItem, FAQProps } from "./FAQ";
+export { default } from "./FAQ";
+export * from "./FAQ.types";

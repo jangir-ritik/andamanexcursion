@@ -6,11 +6,11 @@ import FerryIcon from "@icons/misc/ferry.svg";
 import IslandIcon from "@icons/misc/island.svg";
 import styles from "./StatCard.module.css";
 import Image from "next/image";
+import { StatCardProps } from "./StatCard.types";
 
-export interface StatCardProps {
-  value: string;
-  description: string;
+interface StatCardInternalProps extends StatCardProps {
   icon: "users" | "ferry" | "island";
+  description: string;
 }
 
 const iconMap = {
@@ -19,7 +19,11 @@ const iconMap = {
   island: { src: IslandIcon, alt: "Island icon" },
 } as const;
 
-export const StatCard = ({ value, description, icon }: StatCardProps) => {
+export const StatCard = ({
+  value,
+  description,
+  icon,
+}: StatCardInternalProps) => {
   const iconData = iconMap[icon];
 
   return (

@@ -3,14 +3,18 @@ import { LargeCard } from "@/components/molecules";
 import React from "react";
 import styles from "./AndamanCalling.module.css";
 import { andamanCallingContent } from "./AndamanCalling.content";
+import { AndamanCallingProps } from "./AndamanCalling.types";
 
-function AndamanCalling() {
+function AndamanCalling({
+  className,
+  id = "andaman-calling",
+}: AndamanCallingProps = {}) {
   const { image, imageAlt, title, ctaHref, ctaText } = andamanCallingContent;
 
   return (
     <Section
-      className={styles.andamanCalling}
-      id="andaman-calling"
+      className={`${styles.andamanCalling} ${className || ""}`}
+      id={id}
       aria-label="Andaman travel call to action"
     >
       <LargeCard

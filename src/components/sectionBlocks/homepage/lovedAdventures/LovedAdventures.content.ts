@@ -1,7 +1,4 @@
-import {
-  BadgeIconType,
-  LovedAdventuresContent,
-} from "@/types/components/sectionBlocks";
+import { BadgeIconType, LovedAdventuresContent } from "./LovedAdventures.types";
 
 export type { BadgeIconType };
 

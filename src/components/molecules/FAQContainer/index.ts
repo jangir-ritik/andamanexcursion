@@ -1,1 +1,2 @@
-export { default as FAQContainer } from "./FAQContainer";
+export { default } from "./FAQContainer";
+export * from "./FAQContainer.types";

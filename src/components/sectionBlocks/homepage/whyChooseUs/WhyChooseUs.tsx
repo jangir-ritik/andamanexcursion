@@ -8,7 +8,7 @@ import styles from "./WhyChooseUs.module.css";
 import { Chip } from "@/components/atoms/Chip/Chip";
 import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
 import { whyChooseUsContent } from "./WhyChooseUs.content";
-import { InlineLink } from "@/components/atoms/InlineLink";
+import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
 
 function WhyChooseUs() {
   return (

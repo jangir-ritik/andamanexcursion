@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 export interface TestimonialCardProps {
   quote: string;
   author: string;

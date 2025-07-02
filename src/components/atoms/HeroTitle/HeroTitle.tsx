@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./HeroTitle.module.css";
-import { HeroTitleProps } from "@/types/components/atoms/heroTitle";
+import { HeroTitleProps } from "./HeroTitle.types";
 
 export const HeroTitle = ({
   primaryText,

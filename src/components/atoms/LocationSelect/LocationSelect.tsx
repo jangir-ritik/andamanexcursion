@@ -3,7 +3,7 @@
 import React from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./LocationSelect.module.css";
-import { LocationSelectProps } from "@/types/components/atoms/locationSelect";
+import { LocationSelectProps } from "./LocationSelect.types";
 
 export const LocationSelect = ({
   value,

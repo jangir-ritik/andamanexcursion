@@ -20,7 +20,8 @@ For simple components, we use this structure:
 
 ```
 ComponentName/
-  ├── ComponentName.tsx   # Component with inline types
+  ├── ComponentName.tsx     # Component implementation
+  ├── ComponentName.types.ts # Component type definitions
   └── ComponentName.module.css  # Styles
 ```
 
@@ -31,6 +32,7 @@ For content-heavy components (especially section blocks and organisms), we use:
 ```
 ComponentName/
   ├── ComponentName.tsx
+  ├── ComponentName.types.ts
   ├── ComponentName.module.css
   └── ComponentName.content.ts  # Content separation for CMS readiness
 ```
@@ -52,27 +54,32 @@ import { Button } from "@/components/atoms/Button/Button";
 
 ## TypeScript Types
 
-We use a hybrid approach for TypeScript types:
+We use a component-local approach for TypeScript types:
 
-1. **Inline Types**: For simple components, define types directly in the component file:
+1. **Component-Local Types**: Types are defined in a `.types.ts` file in the component's directory:
 
    ```tsx
-   // Button.tsx
+   // Button.types.ts
    export interface ButtonProps {
      variant?: "primary" | "secondary";
      // ...other props
    }
+   ```
+
+   ```tsx
+   // Button.tsx
+   import { ButtonProps } from "./Button.types";
 
    export const Button = ({ variant, ...props }: ButtonProps) => {
      // Component implementation
    };
    ```
 
-2. **External Types**: For complex, shared types that are used across multiple components:
+2. **Shared Types**: For types used across multiple components, we keep them in a central types directory:
 
    ```tsx
-   // Import from types directory
-   import { ComplexType } from "@/types/complexTypes";
+   // Import shared types
+   import { SharedModel } from "@/types/shared/models";
    ```
 
 ## Content Separation
@@ -115,17 +122,17 @@ npm run check-component -- src/components/path/to/YourComponent
 2. **Maintain accessibility**: Use semantic HTML and ARIA attributes
 3. **Separate content for CMS readiness**: Extract content for complex components
 4. **Use CSS modules**: Keep styles scoped to components
-5. **Use TypeScript**: Define types for component props
+5. **Keep types with components**: Place type definitions in a `.types.ts` file in the component directory
 6. **Import directly**: Import components directly from their files, not from index files
 
 ## Import Examples
 
 ```tsx
-// Old way (with index files)
-import { Button } from "@/components/atoms/Button";
-
-// New way (direct imports)
+// Component import
 import { Button } from "@/components/atoms/Button/Button";
+
+// Types import
+import { ButtonProps } from "@/components/atoms/Button/Button.types";
 ```
 
 ## Migration Guide

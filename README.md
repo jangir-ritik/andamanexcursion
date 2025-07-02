@@ -16,7 +16,6 @@ src/
     sectionBlocks/ # Page-specific sections
   app/          # Next.js app directory
   styles/       # Global styles and variables
-  types/        # TypeScript type definitions (for complex shared types)
 ```
 
 ## Getting Started
@@ -39,6 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 This project follows a simplified set of development guidelines to ensure consistency and quality:
 
+- [Component Structure Guide](./docs/COMPONENT_STRUCTURE.md) - Our approach to component organization
 - [Simplified Component Guide](./docs/SIMPLIFIED_COMPONENT_GUIDE.md) - Our streamlined approach to component development
 - [Component Migration Example](./docs/COMPONENT_MIGRATION_EXAMPLE.md) - Example of migrating to the simplified structure
 - [Component Checklist](./docs/COMPONENT_CHECKLIST.md) - A comprehensive checklist for developing components
@@ -52,6 +52,7 @@ Create new components manually following the simplified structure:
 mkdir -p src/components/atoms/YourComponent
 touch src/components/atoms/YourComponent/YourComponent.tsx
 touch src/components/atoms/YourComponent/YourComponent.module.css
+touch src/components/atoms/YourComponent/YourComponent.types.ts
 ```
 
 ### Component Structure
@@ -60,12 +61,14 @@ Components follow a simplified structure:
 
 - **Basic Components**:
 
-  - `ComponentName.tsx` - Component logic with inline types
+  - `ComponentName.tsx` - Component logic
   - `ComponentName.module.css` - Component styles
+  - `ComponentName.types.ts` - Component type definitions
 
 - **Complex Components**:
   - `ComponentName.tsx` - Component logic
   - `ComponentName.module.css` - Component styles
+  - `ComponentName.types.ts` - Component type definitions
   - `ComponentName.content.ts` - Content separation (for CMS readiness)
 
 ### Importing Components
@@ -75,6 +78,10 @@ Import components directly from their files:
 ```tsx
 // Direct import (preferred)
 import { Button } from "@/components/atoms/Button/Button";
+import { ButtonProps } from "@/components/atoms/Button/Button.types";
+
+// Or import from index (exports both component and types)
+import { Button, ButtonProps } from "@/components/atoms/Button";
 ```
 
 ### Code Quality Tools

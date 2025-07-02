@@ -5,7 +5,7 @@ import styles from "./PassengerCounter.module.css";
 import {
   PassengerCounterProps,
   PassengerCount,
-} from "@/types/components/atoms/passengerCounter";
+} from "./PassengerCounter.types";
 
 export type { PassengerCount };
 
@@ -20,13 +20,17 @@ export const PassengerCounter = ({
         <label>Adults (2+ yrs)</label>
         <div className={styles.counter}>
           <button
+            aria-label="Decrease Adults"
             onClick={() => onChange("adults", value.adults - 1)}
             disabled={value.adults <= 1}
           >
             -
           </button>
           <span>{value.adults}</span>
-          <button onClick={() => onChange("adults", value.adults + 1)}>
+          <button
+            aria-label="Increase Adults"
+            onClick={() => onChange("adults", value.adults + 1)}
+          >
             +
           </button>
         </div>
@@ -36,13 +40,17 @@ export const PassengerCounter = ({
         <label>Infants/Kids</label>
         <div className={styles.counter}>
           <button
+            aria-label="Decrease Infants"
             onClick={() => onChange("infants", value.infants - 1)}
             disabled={value.infants <= 0}
           >
             -
           </button>
           <span>{value.infants}</span>
-          <button onClick={() => onChange("infants", value.infants + 1)}>
+          <button
+            aria-label="Increase Infants"
+            onClick={() => onChange("infants", value.infants + 1)}
+          >
             +
           </button>
         </div>

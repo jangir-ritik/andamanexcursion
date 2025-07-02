@@ -12,7 +12,7 @@ import { ActivitySelect } from "../../atoms/ActivitySelect/ActivitySelect";
 import {
   BookingFormProps,
   FormState,
-} from "@/types/components/organisms/bookingForm";
+} from "./BookingForm.types";
 
 export function BookingForm({ className }: BookingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>("ferry");

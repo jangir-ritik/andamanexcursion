@@ -1,1 +1,2 @@
-export { DesktopNav } from './DesktopNav';
+export * from "./DesktopNav";
+export * from "./DesktopNav.types";
