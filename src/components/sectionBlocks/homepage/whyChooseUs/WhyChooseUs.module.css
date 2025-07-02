@@ -92,11 +92,6 @@
   transition: transform 0.2s ease-in-out;
 }
 
-.ctaLink:hover {
-  text-decoration: underline;
-  transform: translateX(4px);
-}
-
 .ctaIcon {
   transform: rotate(-180deg);
   border: 2px solid var(--color-primary);

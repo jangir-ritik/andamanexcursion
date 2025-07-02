@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { CarouselProps } from "@/types/components/molecules/carousel";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Star } from "lucide-react";
 import styles from "./Carousel.module.css";
+import { InlineLink } from "@/components/atoms/InlineLink";
 
 export const Carousel = ({
   slides,
@@ -77,13 +78,11 @@ export const Carousel = ({
                   <h2 className={styles.slideTitle}>{slide.title}</h2>
                   <p className={styles.slidePrice}>{slide.price}</p>
                   <p className={styles.slideDescription}>{slide.description}</p>
+
                   <div className={styles.viewMoreWrapper}>
-                    <span className={styles.viewMoreText}>View More</span>
-                    <ArrowUpRight
-                      className={styles.viewMoreIcon}
-                      size={24}
-                      stroke="var(--color-primary)"
-                    />
+                    <InlineLink href={`/packages/${slide.id}`}>
+                      View More
+                    </InlineLink>
                   </div>
                 </div>
                 <div className={styles.imageWrapper}>
