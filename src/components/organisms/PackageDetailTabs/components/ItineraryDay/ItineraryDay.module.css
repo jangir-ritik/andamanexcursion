@@ -1,0 +1,94 @@
+.dayContainer {
+  display: flex;
+  position: relative;
+  padding-bottom: var(--gap-5);
+}
+
+.timelineMarker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: var(--gap-3);
+}
+
+.dot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-secondary);
+  border-radius: 50%;
+  color: var(--color-white);
+  font-family: var(--font-family-jakarta);
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  z-index: 2;
+  margin-top: 1em;
+}
+
+.line {
+  position: absolute;
+  top: 1em;
+  width: 1px;
+  border: 1px dashed var(--color-secondary);
+  /* dotted */
+
+  height: 150%;
+  /* background-color: var(--color-border-2); */
+  z-index: 1;
+}
+
+.content {
+  flex: 1;
+  padding-top: var(--padding-1);
+}
+
+.dayNumber {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.title {
+  font-family: var(--font-family-jakarta);
+  font-size: var(--font-size-xl);
+  font-weight: 400;
+  color: var(--color-secondary);
+  margin-bottom: var(--gap-1);
+}
+
+.description {
+  font-family: var(--font-family-jakarta);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--gap-2);
+  line-height: 1.5;
+}
+
+.activities {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-1);
+}
+
+.activity {
+  font-family: var(--font-family-jakarta);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .dayContainer {
+    padding-bottom: var(--gap-4);
+  }
+
+  .timelineMarker {
+    margin-right: var(--gap-2);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+}

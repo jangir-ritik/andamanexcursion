@@ -16,7 +16,8 @@
     "gen-index": "node ./scripts/generate-index-files.js",
     "gen-types": "node ./scripts/generate-type-definitions.js",
     "fix-components": "npm run gen-index && npm run gen-types",
-    "fix-and-check": "npm run fix-components && npm run check-all-components"
+    "fix-and-check": "npm run fix-components && npm run check-all-components",
+    "check-strict": "node ./scripts/component-checker.js --all --strict"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",

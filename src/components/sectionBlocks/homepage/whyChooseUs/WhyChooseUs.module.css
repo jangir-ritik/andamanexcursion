@@ -12,7 +12,7 @@
 }
 
 .sectionTitle {
-  max-width: 300px;
+  /* max-width: 300px; */
   font-family: var(--font-family-jakarta);
   font-style: normal;
   font-weight: 400;
@@ -99,7 +99,7 @@
 
 .ctaIcon {
   transform: rotate(-180deg);
-  border: 2px solid #3e8cff;
+  border: 2px solid var(--color-primary);
   border-radius: 50%;
 }
 

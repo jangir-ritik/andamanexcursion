@@ -13,12 +13,10 @@ export const SectionTitle = ({
 }: SectionTitleProps) => {
   const titleClasses = [styles.sectionTitle, className || ""].join(" ").trim();
   const [isHovered, setIsHovered] = useState(false);
-  const [underlineWidth, setUnderlineWidth] = useState(0);
-  const [underlinePosition, setUnderlinePosition] = useState({
-    left: 0,
-    top: 0,
-  });
-  const specialWordRef = useRef<HTMLSpanElement>(null);
+  const [underlinePositions, setUnderlinePositions] = useState<
+    Array<{ left: number; top: number; width: number }>
+  >([]);
+  const specialWordRef = useRef<HTMLSpanElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   const handleMouseEnter = () => {
@@ -29,29 +27,34 @@ export const SectionTitle = ({
     setIsHovered(false);
   };
 
-  // Calculate underline width and position
+  // Calculate underline position
   const calculateUnderlineMetrics = () => {
-    if (specialWordRef.current && titleRef.current) {
-      const specialWordRect = specialWordRef.current.getBoundingClientRect();
+    if (titleRef.current && specialWordRef.current) {
       const titleRect = titleRef.current.getBoundingClientRect();
+      const specialWordRect = specialWordRef.current.getBoundingClientRect();
 
       // Calculate position relative to the title container
       const left = specialWordRect.left - titleRect.left;
-      const top = specialWordRect.bottom - titleRect.top - 9; // 9px below the special word
+      const top = specialWordRect.bottom - titleRect.top;
 
-      setUnderlineWidth(specialWordRect.width);
-      setUnderlinePosition({ left, top });
+      setUnderlinePositions([
+        {
+          left,
+          top: top - 18,
+          width: specialWordRect.width,
+        },
+      ]);
     }
   };
 
   // Calculate underline metrics when component mounts or content changes
   useEffect(() => {
-    if (specialWordRef.current && titleRef.current) {
+    if (specialWord && titleRef.current) {
       // Use setTimeout to ensure DOM is fully rendered
       const timeoutId = setTimeout(calculateUnderlineMetrics, 0);
       return () => clearTimeout(timeoutId);
     }
-  }, [specialWord, text, isHovered]);
+  }, [specialWord, text]);
 
   // Handle resize for responsive updates
   useEffect(() => {
@@ -65,33 +68,25 @@ export const SectionTitle = ({
 
   // Function to render text with special word highlighted
   const renderTextWithSpecialWord = () => {
-    if (!specialWord) {
+    if (!specialWord || !text.includes(specialWord)) {
       return <span>{text}</span>;
     }
-    const escapedSpecialWord = specialWord.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
-    const regex = new RegExp(escapedSpecialWord, "gi");
-    const parts = text.split(regex);
-    const matches = text.match(regex) || [];
+
+    // Instead of using regex, directly split the text by the special word
+    const [before, after] = text.split(specialWord, 2);
 
     return (
       <>
-        {parts.map((part, index) => (
-          <React.Fragment key={index}>
-            {part}
-            {index < matches.length && (
-              <span
-                ref={index === 0 ? specialWordRef : null} // Only attach ref to first match
-                className={styles.specialWord}
-                data-hover={isHovered}
-              >
-                {matches[index]}
-              </span>
-            )}
-          </React.Fragment>
-        ))}
+        {before}
+        <span
+          ref={specialWordRef}
+          className={styles.specialWord}
+          data-hover={isHovered}
+          style={{ whiteSpace: "nowrap" }} // Keep the special phrase together
+        >
+          {specialWord}
+        </span>
+        {after}
       </>
     );
   };
@@ -105,29 +100,32 @@ export const SectionTitle = ({
       <h2 ref={titleRef} className={styles.title} id={id}>
         {renderTextWithSpecialWord()}
       </h2>
-      {specialWord && underlineWidth > 0 && (
-        <div
-          className={styles.underline}
-          style={{
-            left: `${underlinePosition.left}px`,
-            top: `${underlinePosition.top}px`,
-            width: `${underlineWidth}px`,
-          }}
-        >
-          <Image
-            src={underlineGraphic}
-            alt="underline"
-            width={underlineWidth}
-            height={9}
+      {specialWord &&
+        underlinePositions.map((position, index) => (
+          <div
+            key={index}
+            className={styles.underline}
             style={{
-              width: "100%",
-              height: "auto",
-              objectFit: "fill",
+              left: `${position.left}px`,
+              top: `${position.top}px`,
+              width: `${position.width}px`,
             }}
-            aria-hidden="true"
-          />
-        </div>
-      )}
+          >
+            <Image
+              src={underlineGraphic}
+              alt="underline"
+              width={position.width}
+              height={5}
+              style={{
+                width: "100%",
+                height: "6px",
+                objectFit: "cover",
+                objectPosition: "center",
+              }}
+              aria-hidden="true"
+            />
+          </div>
+        ))}
     </div>
   );
 };

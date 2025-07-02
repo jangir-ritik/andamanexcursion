@@ -1,0 +1,15 @@
+.itineraryContainer {
+  width: 100%;
+}
+
+.timeline {
+  position: relative;
+  width: 100%;
+  padding-left: var(--gap-2);
+}
+
+@media (max-width: 768px) {
+  .timeline {
+    padding-left: 0;
+  }
+}

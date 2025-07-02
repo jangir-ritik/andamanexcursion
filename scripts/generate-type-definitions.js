@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Type Definition Generator
+ * Type Definition Generator (Simplified)
  *
  * This script generates TypeScript type definition files for components that are missing them.
+ * Now only generates types when actually needed (components that have props).
  */
 
 const fs = require("fs");
@@ -20,6 +21,29 @@ const COMPONENT_TYPES = {
   sectionBlocks: path.join(TYPES_DIR, "sectionBlocks"),
 };
 
+// Check if component actually needs types (has props)
+const componentNeedsTypes = (componentPath) => {
+  const content = fs.readFileSync(componentPath, "utf8");
+
+  // Skip if already has types defined
+  if (
+    content.includes("Props") ||
+    content.includes("interface") ||
+    content.includes("type ")
+  ) {
+    return false;
+  }
+
+  // Only generate if component actually uses props
+  const usesProps =
+    content.includes("props") ||
+    content.match(/\(\s*\{\s*\w+/) || // destructured props
+    content.includes("FC<") ||
+    content.includes("FunctionComponent<");
+
+  return usesProps;
+};
+
 // Helper function to check if a type definition file exists
 const hasTypeDefinition = (componentName, typeDir) => {
   const fileName = `${
@@ -34,42 +58,63 @@ const getComponentName = (dirPath) => {
   return dirName.charAt(0).toUpperCase() + dirName.slice(1);
 };
 
-// Helper function to generate basic type definition content
-const generateTypeDefinition = (componentName) => {
-  return `import { ReactNode } from "react";
+// Generate smarter type definitions based on component analysis
+const generateTypeDefinition = (componentName, componentPath) => {
+  const content = fs.readFileSync(componentPath, "utf8");
+
+  // Basic props that most components need
+  let propsContent = `import { ReactNode } from "react";
 
 export interface ${componentName}Props {
-  className?: string;
-  children?: ReactNode;
+  className?: string;`;
+
+  // Analyze component to suggest common props
+  if (content.includes("children")) {
+    propsContent += `
+  children?: ReactNode;`;
+  }
+
+  // Check for common prop patterns
+  if (content.includes("onClick") || content.includes("onSubmit")) {
+    propsContent += `
+  onClick?: () => void;`;
+  }
+
+  if (content.includes("disabled")) {
+    propsContent += `
+  disabled?: boolean;`;
+  }
+
+  if (content.includes("title") && !content.includes("children")) {
+    propsContent += `
+  title?: string;`;
+  }
+
+  if (content.includes("href")) {
+    propsContent += `
+  href?: string;`;
+  }
+
+  propsContent += `
 }
 `;
+
+  return propsContent;
 };
 
 // Main function to generate type definitions
 const generateTypeDefinitions = () => {
   let generatedCount = 0;
+  let skippedCount = 0;
 
   // Process each component type
   for (const [componentType, typeDir] of Object.entries(COMPONENT_TYPES)) {
-    const componentsDir = path.join(
-      COMPONENTS_DIR,
-      componentType === "layout"
-        ? "layout"
-        : componentType === "sectionBlocks"
-        ? "sectionBlocks"
-        : componentType
-    );
+    const componentsDir = path.join(COMPONENTS_DIR, componentType);
 
     // Skip if the component type directory doesn't exist
     if (!fs.existsSync(componentsDir)) {
       console.log(`Skipping ${componentType} - directory not found`);
       continue;
-    }
-
-    // Ensure the type directory exists
-    if (!fs.existsSync(typeDir)) {
-      fs.mkdirSync(typeDir, { recursive: true });
-      console.log(`Created directory ${typeDir}`);
     }
 
     // Get all component directories
@@ -88,47 +133,76 @@ const generateTypeDefinitions = () => {
           .map((dirent) => path.join(componentDir, dirent.name));
         pageDirs.push(...subDirs);
       }
-      componentDirs = pageDirs; // Replace with the deeper level directories
+      componentDirs = pageDirs;
     }
 
-    // Generate type definitions for components without them
+    // Generate type definitions for components that need them
     for (const componentDir of componentDirs) {
       const componentName = getComponentName(componentDir);
-      const typeName =
-        componentName.charAt(0).toLowerCase() + componentName.slice(1);
+      const componentPath = path.join(componentDir, `${componentName}.tsx`);
 
-      if (!hasTypeDefinition(componentName, typeDir)) {
-        try {
-          const typeContent = generateTypeDefinition(componentName);
-          const typePath = path.join(typeDir, `${typeName}.ts`);
+      // Skip if component file doesn't exist
+      if (!fs.existsSync(componentPath)) {
+        continue;
+      }
 
-          fs.writeFileSync(typePath, typeContent);
-          console.log(`✅ Generated type definition for ${componentName}`);
-          generatedCount++;
+      // Skip if component doesn't need types
+      if (!componentNeedsTypes(componentPath)) {
+        skippedCount++;
+        continue;
+      }
 
-          // Update index.ts in the type directory
-          const indexPath = path.join(typeDir, "index.ts");
-          const exportStatement = `export * from './${typeName}';\n`;
+      // Skip if type definition already exists
+      if (hasTypeDefinition(componentName, typeDir)) {
+        continue;
+      }
 
-          if (fs.existsSync(indexPath)) {
-            const indexContent = fs.readFileSync(indexPath, "utf8");
-            if (!indexContent.includes(exportStatement.trim())) {
-              fs.appendFileSync(indexPath, exportStatement);
-            }
-          } else {
-            fs.writeFileSync(indexPath, exportStatement);
-          }
-        } catch (error) {
-          console.error(
-            `❌ Error generating type definition for ${componentName}:`,
-            error.message
-          );
+      try {
+        // Ensure the type directory exists
+        if (!fs.existsSync(typeDir)) {
+          fs.mkdirSync(typeDir, { recursive: true });
+          console.log(`Created directory ${typeDir}`);
         }
+
+        const typeContent = generateTypeDefinition(
+          componentName,
+          componentPath
+        );
+        const typeName =
+          componentName.charAt(0).toLowerCase() + componentName.slice(1);
+        const typePath = path.join(typeDir, `${typeName}.ts`);
+
+        fs.writeFileSync(typePath, typeContent);
+        console.log(`✅ Generated type definition for ${componentName}`);
+        generatedCount++;
+
+        // Update index.ts in the type directory
+        const indexPath = path.join(typeDir, "index.ts");
+        const exportStatement = `export * from './${typeName}';\n`;
+
+        if (fs.existsSync(indexPath)) {
+          const indexContent = fs.readFileSync(indexPath, "utf8");
+          if (!indexContent.includes(exportStatement.trim())) {
+            fs.appendFileSync(indexPath, exportStatement);
+          }
+        } else {
+          fs.writeFileSync(indexPath, exportStatement);
+        }
+      } catch (error) {
+        console.error(
+          `❌ Error generating type definition for ${componentName}:`,
+          error.message
+        );
       }
     }
   }
 
-  console.log(`\nGenerated ${generatedCount} type definition files`);
+  console.log(`\n✅ Generated ${generatedCount} type definition files`);
+  if (skippedCount > 0) {
+    console.log(
+      `💡 Skipped ${skippedCount} components that don't need types (no props)`
+    );
+  }
 };
 
 // Run the script

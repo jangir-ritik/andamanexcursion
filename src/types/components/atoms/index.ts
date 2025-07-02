@@ -10,4 +10,5 @@ export * from "./sectionTitle";
 export * from "./descriptionText";
 export * from "./imageContainer";
 export * from "./inlineLink";
-export * from './chip';
+export * from "./chip";
+export * from "./icons";

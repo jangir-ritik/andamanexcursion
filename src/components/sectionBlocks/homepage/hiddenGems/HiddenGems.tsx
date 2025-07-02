@@ -4,9 +4,10 @@ import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import styles from "./HiddenGems.module.css";
 import { Button } from "@/components/atoms/Button/Button";
-import Image from "next/image";
+import { ImageContainer } from "@/components/atoms/ImageContainer";
 import { hiddenGemsContent } from "./HiddenGems.content";
 import Link from "next/link";
+import { cn } from "@/utils/cn";
 
 function HiddenGems() {
   const { title, specialWord, description, ctaText, ctaHref, images } =
@@ -25,7 +26,6 @@ function HiddenGems() {
         justifyContent="between"
         fullWidth
         className={styles.hiddenGemsRow}
-        wrap
         gap="var(--gap-10)"
       >
         <Column gap="var(--gap-4)" alignItems="start">
@@ -40,17 +40,27 @@ function HiddenGems() {
             <Button showArrow>{ctaText}</Button>
           </Link>
         </Column>
-        <Column>
-          <Row gap="var(--gap-3)">
-            <Column fullWidth>
-              <Image src={images.island1.src} alt={images.island1.alt} />
-            </Column>
-            <Column fullWidth fullHeight gap="var(--gap-3)">
-              <Image src={images.island2.src} alt={images.island2.alt} />
-              <Image src={images.island3.src} alt={images.island3.alt} />
-            </Column>
-          </Row>
-        </Column>
+        <div className={styles.imagesGrid}>
+          <ImageContainer
+            src={images.island1.src}
+            alt={images.island1.alt}
+            className={styles.gridImage1}
+            fullWidth
+            priority
+          />
+          <ImageContainer
+            src={images.island2.src}
+            alt={images.island2.alt}
+            className={styles.gridImage2}
+            fullWidth
+          />
+          <ImageContainer
+            src={images.island3.src}
+            alt={images.island3.alt}
+            className={styles.gridImage3}
+            fullWidth
+          />
+        </div>
       </Row>
     </Section>
   );

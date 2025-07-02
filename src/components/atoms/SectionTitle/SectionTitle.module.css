@@ -2,7 +2,7 @@
   position: relative;
   max-width: 450px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: flex-start;
 }
 
@@ -10,10 +10,15 @@
   font-family: var(--font-family-jakarta);
   font-style: normal;
   font-weight: 400;
-  font-size: var(--font-size-3xl);
-  line-height: 50px;
+  font-size: var(--font-size-4xl); /* 40px */
+  line-height: 110%;
   color: var(--color-black);
   margin: var(--margin-0);
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+  line-break: loose;
 }
 
 .specialWord {
@@ -21,22 +26,27 @@
   font-family: var(--font-family-quick-beach);
   color: var(--color-secondary);
   transition: color 0.3s ease;
-  cursor: pointer;
   position: relative;
+  display: inline;
+  white-space: nowrap !important; /* Force special words to stay together */
 }
 
 .underline {
   position: absolute;
-  /* Remove static positioning - now handled by inline styles */
   z-index: 1;
   pointer-events: none; /* Prevents interference with text selection */
+  max-width: 100%;
 }
 
 /* Tablet Responsive Design */
 @media (max-width: 1024px) {
   .title {
     font-size: 36px;
-    line-height: 45px;
+    line-height: 110%;
+  }
+
+  .sectionTitle {
+    max-width: 100%;
   }
 }
 
@@ -45,12 +55,17 @@
   .sectionTitle {
     width: 100%;
   }
+
+  .title {
+    max-width: 100%;
+    line-height: 110%;
+  }
 }
 
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
   .title {
     font-size: 20px;
-    line-height: 30px;
+    line-height: 110%;
   }
 }

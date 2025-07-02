@@ -1,0 +1,21 @@
+.highlightItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-2);
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.text {
+  font-family: var(--font-family-jakarta);
+  font-size: var(--font-size-md);
+  color: var(--color-black);
+  line-height: 1.5;
+}

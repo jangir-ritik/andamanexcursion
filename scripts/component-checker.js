@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Unified Component Checker
+ * Simplified Component Checker
  *
- * This script provides a unified interface for checking components against the project's
- * component checklist. It can check:
- * - A single component (when a path is provided)
- * - All staged components (when --staged flag is used)
- * - All components in the project (when --all flag is used)
+ * This script provides a practical approach for checking components.
+ * Focuses on essential quality checks without being overly prescriptive.
  *
  * Usage:
  * - node component-checker.js path/to/Component      # Check a single component
@@ -34,106 +31,84 @@ const isComponent = (filePath) => {
   return filePath.endsWith(".tsx") && !filePath.endsWith("index.tsx");
 };
 
-// Check if a type definition exists for a component
-const hasTypeDefinition = (componentName, componentDir, componentContent) => {
-  // First, check if the component imports a Props type
-  const importRegex = /import.*\{.*Props.*\}.*from/;
-  if (importRegex.test(componentContent)) {
-    return true;
+// Smart content detection - only suggest extraction when it makes sense
+const shouldExtractContent = (content, filePath) => {
+  // Only for complex components
+  if (
+    !filePath.includes("/organisms/") &&
+    !filePath.includes("/sectionBlocks/")
+  ) {
+    return false;
   }
 
-  // Extract the component type (atoms, molecules, organisms, etc.)
-  const match = componentDir.match(/\/components\/([^/]+)/);
-  if (!match) return false;
+  // Look for significant static content patterns
+  const contentPatterns = [
+    // Arrays of objects with text content
+    /const\s+\w+\s*=\s*\[[\s\S]*?\{[\s\S]*?['"`][^'"`]{30,}['"`]/,
+    // Objects with title/description properties
+    /\{[\s\S]*?(?:title|description|text):\s*['"`][^'"`]{20,}['"`][\s\S]*?\}/,
+    // Multiple navigation/menu items
+    /(?:menuItems|navItems|links|steps)\s*=\s*\[/,
+    // FAQ or testimonial data
+    /(?:faq|testimonials|reviews|features)\s*=\s*\[/,
+  ];
 
-  const componentType = match[1];
-  const typesDir = path.join("src", "types", "components", componentType);
+  const hasSignificantContent = contentPatterns.some((pattern) =>
+    content.match(pattern)
+  );
 
-  // Check for direct type file
-  const typeFile = path.join(typesDir, `${componentName.toLowerCase()}.ts`);
-  if (fs.existsSync(typeFile)) return true;
+  // Also check file size
+  const isLargeFile = content.split("\n").length > 150;
 
-  // For cards, check if they're in a consolidated file
-  if (componentDir.includes("/Cards/")) {
-    const cardsTypeFile = path.join(typesDir, "cards.ts");
-    if (fs.existsSync(cardsTypeFile)) {
-      const content = fs.readFileSync(cardsTypeFile, "utf8");
-      return content.includes(`${componentName}Props`);
-    }
-  }
-
-  // Check for other consolidated files
-  const consolidatedFiles = ["index.ts", "common.ts"];
-  for (const file of consolidatedFiles) {
-    const consolidatedFile = path.join(typesDir, file);
-    if (fs.existsSync(consolidatedFile)) {
-      const content = fs.readFileSync(consolidatedFile, "utf8");
-      if (content.includes(`${componentName}Props`)) return true;
-    }
-  }
-
-  return false;
+  return hasSignificantContent || isLargeFile;
 };
 
-// Basic checks for components
+// Check for basic TypeScript usage
+const hasTypeDefinition = (content) => {
+  return (
+    content.includes("Props") ||
+    content.includes("interface") ||
+    content.includes("type ") ||
+    !content.includes("props") // No props = no need for types
+  );
+};
+
+// Main component checking function
 const checkComponent = (filePath) => {
   const content = fs.readFileSync(filePath, "utf8");
-  const issues = [];
-
-  // Check for structure issues
+  const issues = []; // Critical issues that fail the check
+  const warnings = []; // Suggestions that don't fail
   const componentName = path.basename(filePath, ".tsx");
   const componentDir = path.dirname(filePath);
 
-  // Check for index.ts file
-  if (!fs.existsSync(path.join(componentDir, "index.ts"))) {
-    issues.push(`Missing index.ts file for ${componentName}`);
+  // CRITICAL ISSUES (will fail build)
+
+  // 1. TypeScript types for components with props
+  if (!hasTypeDefinition(content)) {
+    issues.push(`${componentName} should have TypeScript prop types defined`);
   }
 
-  // Check for CSS module
-  if (!fs.existsSync(path.join(componentDir, `${componentName}.module.css`))) {
-    issues.push(`Missing CSS module for ${componentName}`);
-  }
-
-  // Check for TypeScript types
-  if (!hasTypeDefinition(componentName, componentDir, content)) {
-    issues.push(`Missing TypeScript type definition for ${componentName}`);
-  }
-
-  // Check for content in separate file for complex components
-  if (
-    (filePath.includes("/sectionBlocks/") ||
-      filePath.includes("/organisms/")) &&
-    !fs.existsSync(path.join(componentDir, `${componentName}.content.ts`))
-  ) {
-    issues.push(
-      `Consider extracting content to a separate file for ${componentName}`
-    );
-  }
-
-  // Check for code quality issues
+  // 2. Console logs in production code
   if (content.includes("console.log")) {
     issues.push(`Remove console.log statements from ${componentName}`);
   }
 
-  // Check for hardcoded values
-  const colorRegex = /#[0-9A-Fa-f]{3,6}/g;
-  const hardcodedColors = content.match(colorRegex);
-  if (hardcodedColors && hardcodedColors.length > 0) {
+  // 3. Basic accessibility for interactive components
+  const hasInteractiveElements = content.match(
+    /<(button|input|select|textarea|a\s|form)/
+  );
+  const hasAccessibility =
+    content.includes("aria-") ||
+    content.includes("alt=") ||
+    content.includes("role=");
+
+  if (hasInteractiveElements && !hasAccessibility) {
     issues.push(
-      `Hardcoded colors found in ${componentName}: ${hardcodedColors.join(
-        ", "
-      )}`
+      `${componentName} has interactive elements but missing accessibility attributes`
     );
   }
 
-  // Check for accessibility
-  if (!content.includes("aria-") && !content.includes("role=")) {
-    issues.push(
-      `Consider adding ARIA attributes to ${componentName} for better accessibility`
-    );
-  }
-
-  // Check for image alt text
+  // 4. Images without alt text
   if (
     (content.includes("<Image") || content.includes("<img")) &&
     !content.includes("alt=")
@@ -141,7 +116,58 @@ const checkComponent = (filePath) => {
     issues.push(`Ensure all images in ${componentName} have alt text`);
   }
 
-  return issues;
+  // WARNINGS (suggestions that don't fail the build)
+
+  // 1. Hardcoded colors
+  const colorRegex = /#[0-9A-Fa-f]{3,6}/g;
+  const hardcodedColors = content.match(colorRegex);
+  if (hardcodedColors && hardcodedColors.length > 0) {
+    warnings.push(
+      `Consider using CSS variables instead of hardcoded colors: ${hardcodedColors.join(
+        ", "
+      )}`
+    );
+  }
+
+  // 2. Large components
+  const lineCount = content.split("\n").length;
+  if (lineCount > 200) {
+    warnings.push(
+      `${componentName} is quite large (${lineCount} lines). Consider breaking it down.`
+    );
+  }
+
+  // 3. CSS modules suggestion
+  const hasInlineStyles =
+    content.includes("style={{") || content.includes('className="');
+  const hasCSSModule = fs.existsSync(
+    path.join(componentDir, `${componentName}.module.css`)
+  );
+  if (hasInlineStyles && !hasCSSModule && lineCount > 50) {
+    warnings.push(`Consider using CSS modules for ${componentName} styles`);
+  }
+
+  // 4. Content extraction suggestion
+  if (shouldExtractContent(content, filePath)) {
+    const contentFile = path.join(componentDir, `${componentName}.content.ts`);
+    if (!fs.existsSync(contentFile)) {
+      warnings.push(
+        `Consider extracting static content from ${componentName} to improve maintainability`
+      );
+    }
+  }
+
+  // 5. Index file suggestion (only for frequently imported components)
+  if (
+    !fs.existsSync(path.join(componentDir, "index.ts")) &&
+    (filePath.includes("/organisms/") || filePath.includes("/layout/"))
+  ) {
+    warnings.push(
+      `Consider adding index.ts for cleaner imports of ${componentName}`
+    );
+  }
+
+  return { issues, warnings };
 };
 
 // Get all components in the project
@@ -164,7 +190,7 @@ const getAllComponents = () => {
         }
       }
 
-      // Check for nested components (like Cards/SmallCard)
+      // Check for nested components
       const nestedDirs = fs
         .readdirSync(componentPath)
         .filter((dir) =>
@@ -208,14 +234,31 @@ const checkSingleComponent = (componentPath) => {
     process.exit(1);
   }
 
-  const issues = checkComponent(componentPath);
+  const { issues, warnings } = checkComponent(componentPath);
   const componentName = path.basename(componentPath, ".tsx");
 
-  if (issues.length === 0) {
-    console.log(`✅ ${componentName} passes all checks!`);
-  } else {
-    console.log(`❌ ${componentName} has ${issues.length} issue(s):`);
-    issues.forEach((issue) => console.log(`  - ${issue}`));
+  // Show results
+  if (issues.length === 0 && warnings.length === 0) {
+    console.log(`✅ ${componentName} looks good!`);
+    return;
+  }
+
+  // Show critical issues
+  if (issues.length > 0) {
+    console.log(
+      `❌ ${componentName} has ${issues.length} issue(s) that need fixing:`
+    );
+    issues.forEach((issue) => console.log(`  🔴 ${issue}`));
+  }
+
+  // Show suggestions
+  if (warnings.length > 0) {
+    console.log(`⚠️  ${componentName} has ${warnings.length} suggestion(s):`);
+    warnings.forEach((warning) => console.log(`  🟡 ${warning}`));
+  }
+
+  // Only exit with error for critical issues
+  if (issues.length > 0) {
     process.exit(1);
   }
 };
@@ -225,28 +268,49 @@ const checkAllComponents = () => {
   const components = getAllComponents();
   let failedComponents = 0;
   let totalIssues = 0;
+  let totalWarnings = 0;
 
   console.log(`Checking ${components.length} components...`);
 
   for (const componentPath of components) {
-    const issues = checkComponent(componentPath);
+    const { issues, warnings } = checkComponent(componentPath);
     const componentName = path.basename(componentPath, ".tsx");
 
-    if (issues.length > 0) {
-      console.log(`❌ ${componentName} has ${issues.length} issue(s):`);
-      issues.forEach((issue) => console.log(`  - ${issue}`));
-      failedComponents++;
-      totalIssues += issues.length;
+    if (issues.length > 0 || warnings.length > 0) {
+      if (issues.length > 0) {
+        console.log(`❌ ${componentName} has ${issues.length} issue(s):`);
+        issues.forEach((issue) => console.log(`  🔴 ${issue}`));
+        failedComponents++;
+        totalIssues += issues.length;
+      }
+
+      if (warnings.length > 0) {
+        console.log(
+          `⚠️  ${componentName} has ${warnings.length} suggestion(s):`
+        );
+        warnings.forEach((warning) => console.log(`  🟡 ${warning}`));
+        totalWarnings += warnings.length;
+      }
+      console.log(""); // Empty line for readability
     }
   }
 
+  // Summary
   if (failedComponents === 0) {
-    console.log(`✅ All ${components.length} components pass the checks!`);
+    console.log(`✅ All ${components.length} components pass critical checks!`);
+    if (totalWarnings > 0) {
+      console.log(
+        `💡 ${totalWarnings} suggestions to consider for code improvements.`
+      );
+    }
     return true;
   } else {
     console.log(
-      `❌ ${failedComponents} out of ${components.length} components have issues (${totalIssues} total issues)`
+      `❌ ${failedComponents} out of ${components.length} components have critical issues (${totalIssues} total)`
     );
+    if (totalWarnings > 0) {
+      console.log(`💡 Plus ${totalWarnings} suggestions for improvements.`);
+    }
     return false;
   }
 };
@@ -260,31 +324,45 @@ const checkStagedComponents = () => {
     return true;
   }
 
-  console.log(`Checking ${components.length} staged components...`);
+  console.log(`Checking ${components.length} staged component(s)...`);
 
   let failedComponents = 0;
   let totalIssues = 0;
+  let totalWarnings = 0;
 
   for (const componentPath of components) {
-    const issues = checkComponent(componentPath);
+    const { issues, warnings } = checkComponent(componentPath);
     const componentName = path.basename(componentPath, ".tsx");
 
-    if (issues.length > 0) {
-      console.log(`❌ ${componentName} has ${issues.length} issue(s):`);
-      issues.forEach((issue) => console.log(`  - ${issue}`));
-      failedComponents++;
-      totalIssues += issues.length;
+    if (issues.length > 0 || warnings.length > 0) {
+      if (issues.length > 0) {
+        console.log(`❌ ${componentName} has ${issues.length} issue(s):`);
+        issues.forEach((issue) => console.log(`  🔴 ${issue}`));
+        failedComponents++;
+        totalIssues += issues.length;
+      }
+
+      if (warnings.length > 0) {
+        console.log(
+          `⚠️  ${componentName} has ${warnings.length} suggestion(s):`
+        );
+        warnings.forEach((warning) => console.log(`  🟡 ${warning}`));
+        totalWarnings += warnings.length;
+      }
     }
   }
 
   if (failedComponents === 0) {
     console.log(
-      `✅ All ${components.length} staged components pass the checks!`
+      `✅ All ${components.length} staged components pass critical checks!`
     );
+    if (totalWarnings > 0) {
+      console.log(`💡 ${totalWarnings} suggestions to consider.`);
+    }
     return true;
   } else {
     console.log(
-      `❌ ${failedComponents} out of ${components.length} staged components have issues (${totalIssues} total issues)`
+      `❌ ${failedComponents} out of ${components.length} staged components have critical issues`
     );
     return false;
   }

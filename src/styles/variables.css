@@ -18,6 +18,7 @@
   --color-border-3: #c0c0c0;
   --color-focus: rgba(62, 140, 255, 0.1);
   --color-divider: #d6d6d6;
+  --color-exclude-circle: #d3d3d3;
 
   /* Testimonial specific colors */
   --color-testimonial-border: #89b9ff;
@@ -50,7 +51,7 @@
   --font-size-button: var(--font-size-sm);
 
   --font-family-jakarta: "Plus Jakarta Sans", sans-serif;
-  --font-family-quick-beach: "Quick Beach", sans-serif;
+  --font-family-quick-beach: "Quick Beach", cursive, sans-serif;
 
   /* Box Shadow */
   --box-shadow-1: 0px 4px 22px 0px rgba(0, 0, 0, 0.25);
