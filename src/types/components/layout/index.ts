@@ -30,6 +30,10 @@ export interface ColumnProps extends FlexProps {
   justifyContent?: "start" | "end" | "center" | "between" | "around" | "evenly";
   alignItems?: "start" | "end" | "center" | "baseline" | "stretch";
   style?: React.CSSProperties;
+  role?: string;
+  ariaLabel?: string;
+  ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
 }
 
 export interface SectionProps {
