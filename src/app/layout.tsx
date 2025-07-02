@@ -1,3 +1,4 @@
+// layout.tsx - Updated font configuration for Safari compatibility
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import localFont from "next/font/local";
@@ -35,22 +36,23 @@ export const metadata: Metadata = {
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
 });
 
+// Updated Quick Beach font configuration with WOFF2 for Safari compatibility
 const quickBeach = localFont({
   src: [
     {
-      path: "../../public/fonts/quick-beach.otf",
+      path: "../../public/fonts/quick-beach.woff2",
       weight: "400",
       style: "normal",
     },
-    {
-      path: "../../public/fonts/quick-beach-italic.otf",
-      weight: "400",
-      style: "italic",
-    },
   ],
+  variable: "--font-quick-beach", // Add CSS variable
   display: "swap",
+  preload: true, // Ensure font is preloaded
+  fallback: ["cursive", "fantasy", "serif"], // Better fallback chain
 });
 
 export default function RootLayout({
@@ -59,7 +61,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${plusJakartaSans.className} ${quickBeach.variable}`}
+    >
+      <head>
+        {/* Preload critical fonts for Safari */}
+        <link
+          rel="preload"
+          href="/fonts/quick-beach.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/quick-beach-italic.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
         <PackageProvider>
           <Header />
