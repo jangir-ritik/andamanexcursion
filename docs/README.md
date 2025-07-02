@@ -1,22 +1,20 @@
 # Andaman Excursion Documentation
 
-This directory contains documentation for the Andaman Excursion project. It includes guidelines, standards, and best practices for developing and maintaining the codebase.
+This directory contains documentation for the Andaman Excursion project, providing guidelines, standards, and best practices for developing and maintaining the codebase.
 
 ## Available Documentation
 
-- [Simplified Component Guide](./SIMPLIFIED_COMPONENT_GUIDE.md) - Our new streamlined approach to component development
-- [Component Migration Example](./COMPONENT_MIGRATION_EXAMPLE.md) - Example of migrating to the simplified structure
-- [Component Checklist](./COMPONENT_CHECKLIST.md) - A comprehensive checklist for developing components
+- [Component Guide](./COMPONENT_GUIDE.md) - Comprehensive guide to component development and structure
 - [Design System](./DESIGN_SYSTEM.md) - Documentation of the project's design system
 
 ## Quick Start
 
-For new developers, we recommend starting with the [Simplified Component Guide](./SIMPLIFIED_COMPONENT_GUIDE.md), which provides our current approach to component development, including:
+For new developers, start with the [Component Guide](./COMPONENT_GUIDE.md), which covers:
 
-- Simplified component structure
-- Hybrid type approach
+- Component structure and organization
+- TypeScript type management
 - Content separation for CMS readiness
-- When to use index files
+- Best practices and standards
 
 ## Tools and Scripts
 
@@ -26,36 +24,13 @@ We provide several tools to help maintain code quality:
 - `npm run check-components`: Check staged components
 - `npm run check-all-components`: Check all components
 
-## Content Management Strategy
-
-We separate content from presentation in section blocks and organisms to prepare for potential CMS integration. This approach:
-
-1. Makes future CMS integration easier
-2. Allows content changes without touching component logic
-3. Facilitates translation and localization
-4. Ensures content structure is standardized
-
-## Enforcing Standards
-
-We use several tools to enforce our coding standards:
-
-1. **Component Checker** - A pre-commit hook that validates critical aspects of components:
-
-   - Accessibility for interactive elements
-   - Image alt text
-   - No console.log statements
-
-2. **ESLint** - For JavaScript/TypeScript linting
-   - Run: `npm run lint`
-
 ## Development Workflow
 
 When creating new components:
 
-1. Create a new component folder and files manually
-2. Follow the [Simplified Component Guide](./SIMPLIFIED_COMPONENT_GUIDE.md)
-3. Adhere to the [Design System](./DESIGN_SYSTEM.md)
-4. Run `npm run check-components` before committing
+1. Create a new component folder following the structure in the Component Guide
+2. Adhere to the Design System specifications
+3. Run `npm run check-components` before committing
 
 ## Directory Structure
 
@@ -64,6 +39,7 @@ The project follows atomic design principles:
 - `atoms` - Basic building blocks (buttons, inputs, etc.)
 - `molecules` - Combinations of atoms (cards, form fields, etc.)
 - `organisms` - Complex UI components (forms, headers, etc.)
+- `layout` - Structural components (containers, rows, columns)
 - `sectionBlocks` - Page-specific sections
 
 ## Content Management
