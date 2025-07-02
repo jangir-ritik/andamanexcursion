@@ -1,5 +1,5 @@
-import { DescriptionText } from "@/components/atoms/DescriptionText";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import { Carousel } from "@/components/molecules/Carousel";
 import {

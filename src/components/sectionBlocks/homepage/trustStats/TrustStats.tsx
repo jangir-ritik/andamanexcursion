@@ -3,7 +3,7 @@ import { Row, Section } from "@/components/layout";
 import { StatCard } from "@/components/molecules/StatCard";
 import { trustStatsContent } from "./TrustStats.content";
 import styles from "./TrustStats.module.css";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import curlyArrow from "@public/graphics/curlyArrowOrange.svg";
 import Image from "next/image";
 

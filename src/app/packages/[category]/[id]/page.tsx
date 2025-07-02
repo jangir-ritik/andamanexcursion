@@ -3,8 +3,8 @@
 import React from "react";
 import { Section } from "@/components/layout/Section";
 import { Column } from "@/components/layout/Column";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
-import { DescriptionText } from "@/components/atoms/DescriptionText";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
+import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
 import { getPackageById } from "@/data/packages";
 import { useParams } from "next/navigation";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";

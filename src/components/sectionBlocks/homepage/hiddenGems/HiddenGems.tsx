@@ -1,10 +1,10 @@
-import { DescriptionText } from "@/components/atoms/DescriptionText";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import styles from "./HiddenGems.module.css";
 import { Button } from "@/components/atoms/Button/Button";
-import { ImageContainer } from "@/components/atoms/ImageContainer";
+import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
 import { hiddenGemsContent } from "./HiddenGems.content";
 import Link from "next/link";
 import { cn } from "@/utils/cn";

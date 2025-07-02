@@ -1,5 +1,5 @@
 import { Column, Section } from "@/components/layout";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Row } from "@/components/layout";
 import React from "react";
 import { MediumCard } from "@/components/molecules";

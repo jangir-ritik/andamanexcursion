@@ -1,6 +1,6 @@
-import { DescriptionText } from "@/components/atoms/DescriptionText";
-import { ImageContainer } from "@/components/atoms/ImageContainer";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
+import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import styles from "./Story.module.css";
 import React from "react";

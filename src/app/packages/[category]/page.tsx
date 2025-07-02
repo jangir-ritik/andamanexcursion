@@ -3,7 +3,7 @@
 import React from "react";
 import { Section } from "@/components/layout/Section";
 import { Column } from "@/components/layout/Column";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { PackageSelector } from "@/components/molecules/PackageSelector";
 import { FeaturePackageCard } from "@/components/molecules/Cards/FeaturePackageCard";
 

@@ -16,7 +16,7 @@ src/
     sectionBlocks/ # Page-specific sections
   app/          # Next.js app directory
   styles/       # Global styles and variables
-  types/        # TypeScript type definitions
+  types/        # TypeScript type definitions (for complex shared types)
 ```
 
 ## Getting Started
@@ -37,39 +37,57 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Development Guidelines
 
-This project follows a comprehensive set of development guidelines to ensure consistency and quality:
+This project follows a simplified set of development guidelines to ensure consistency and quality:
 
+- [Simplified Component Guide](./docs/SIMPLIFIED_COMPONENT_GUIDE.md) - Our streamlined approach to component development
+- [Component Migration Example](./docs/COMPONENT_MIGRATION_EXAMPLE.md) - Example of migrating to the simplified structure
 - [Component Checklist](./docs/COMPONENT_CHECKLIST.md) - A comprehensive checklist for developing components
 - [Design System](./docs/DESIGN_SYSTEM.md) - Documentation of the project's design system
 
 ### Creating New Components
 
-Use the component generator to create new components:
+Create new components manually following the simplified structure:
 
 ```bash
-npm run gen YourComponentName
+mkdir -p src/components/atoms/YourComponent
+touch src/components/atoms/YourComponent/YourComponent.tsx
+touch src/components/atoms/YourComponent/YourComponent.module.css
 ```
 
 ### Component Structure
 
-Components should follow this structure:
+Components follow a simplified structure:
 
-- `ComponentName.tsx` - Component logic
-- `ComponentName.module.css` - Component styles
-- `index.ts` - Clean exports
-- `ComponentName.content.ts` - (For complex components) Content separation
+- **Basic Components**:
+
+  - `ComponentName.tsx` - Component logic with inline types
+  - `ComponentName.module.css` - Component styles
+
+- **Complex Components**:
+  - `ComponentName.tsx` - Component logic
+  - `ComponentName.module.css` - Component styles
+  - `ComponentName.content.ts` - Content separation (for CMS readiness)
+
+### Importing Components
+
+Import components directly from their files:
+
+```tsx
+// Direct import (preferred)
+import { Button } from "@/components/atoms/Button/Button";
+```
 
 ### Code Quality Tools
 
 We use several tools to maintain code quality:
 
-1. **Component Checker** - Validates components against our checklist
+1. **Component Checker** - Validates critical aspects of components
 
    ```bash
    npm run check-components
    ```
 
-2. **Git Hooks** - Automatically check components before committing
+2. **Git Hooks** - Optionally check components before committing
 
    ```bash
    npm run setup-hooks

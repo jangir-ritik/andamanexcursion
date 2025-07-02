@@ -1,12 +1,12 @@
 "use client";
 
-import { DescriptionText } from "@/components/atoms/DescriptionText";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import styles from "./WhyChooseUs.module.css";
-import { Chip } from "@/components/atoms/Chip";
-import { ImageContainer } from "@/components/atoms/ImageContainer";
+import { Chip } from "@/components/atoms/Chip/Chip";
+import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
 import { whyChooseUsContent } from "./WhyChooseUs.content";
 import { InlineLink } from "@/components/atoms/InlineLink";
 

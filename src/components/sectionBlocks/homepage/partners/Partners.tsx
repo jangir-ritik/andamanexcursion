@@ -1,4 +1,4 @@
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import Image from "next/image";
 import React from "react";

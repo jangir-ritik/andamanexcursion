@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import { FAQContainer } from "@/components/molecules/FAQContainer";

@@ -1,4 +1,4 @@
-import { ImageContainer } from "@/components/atoms/ImageContainer";
+import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
 import { Column } from "@/components/layout/Column";
 import { Row } from "@/components/layout/Row";
 import React from "react";

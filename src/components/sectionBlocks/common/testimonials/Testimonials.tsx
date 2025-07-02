@@ -5,7 +5,7 @@ import { Section, Container, Column } from "@/components/layout";
 import { testimonialsContent } from "./Testimonials.content";
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
-import { SectionTitle } from "@/components/atoms/SectionTitle";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 
 const Testimonials = () => {
   const { title, subtitle, testimonials, specialWord } = testimonialsContent;

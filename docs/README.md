@@ -4,20 +4,19 @@ This directory contains documentation for the Andaman Excursion project. It incl
 
 ## Available Documentation
 
-- [Development Guide](./DEVELOPMENT_GUIDE.md) - The main reference for component development (recommended)
+- [Simplified Component Guide](./SIMPLIFIED_COMPONENT_GUIDE.md) - Our new streamlined approach to component development
+- [Component Migration Example](./COMPONENT_MIGRATION_EXAMPLE.md) - Example of migrating to the simplified structure
 - [Component Checklist](./COMPONENT_CHECKLIST.md) - A comprehensive checklist for developing components
 - [Design System](./DESIGN_SYSTEM.md) - Documentation of the project's design system
-- [Component Checker Guide](./COMPONENT_CHECKER_GUIDE.md) - Guide for using the component checker tools
 
 ## Quick Start
 
-For new developers, we recommend starting with the [Development Guide](./DEVELOPMENT_GUIDE.md), which provides a consolidated overview of our component development approach, including:
+For new developers, we recommend starting with the [Simplified Component Guide](./SIMPLIFIED_COMPONENT_GUIDE.md), which provides our current approach to component development, including:
 
-- Component structure and organization
-- Design system guidelines
-- Development workflow
-- Content management strategy
-- Tools and scripts
+- Simplified component structure
+- Hybrid type approach
+- Content separation for CMS readiness
+- When to use index files
 
 ## Tools and Scripts
 
@@ -26,10 +25,6 @@ We provide several tools to help maintain code quality:
 - `npm run check-component -- path/to/Component`: Check a single component
 - `npm run check-components`: Check staged components
 - `npm run check-all-components`: Check all components
-- `npm run gen-index`: Generate index.ts files
-- `npm run gen-types`: Generate TypeScript definitions
-- `npm run fix-components`: Run both gen-index and gen-types
-- `npm run fix-and-check`: Fix issues and then check all components
 
 ## Content Management Strategy
 
@@ -44,10 +39,11 @@ We separate content from presentation in section blocks and organisms to prepare
 
 We use several tools to enforce our coding standards:
 
-1. **Component Checker** - A pre-commit hook that validates components against our checklist
+1. **Component Checker** - A pre-commit hook that validates critical aspects of components:
 
-   - Run manually: `npm run check-components`
-   - Set up Git hooks: `npm run setup-hooks`
+   - Accessibility for interactive elements
+   - Image alt text
+   - No console.log statements
 
 2. **ESLint** - For JavaScript/TypeScript linting
    - Run: `npm run lint`
@@ -56,8 +52,8 @@ We use several tools to enforce our coding standards:
 
 When creating new components:
 
-1. Use the component generator: `npm run gen YourComponentName`
-2. Follow the [Component Checklist](./COMPONENT_CHECKLIST.md)
+1. Create a new component folder and files manually
+2. Follow the [Simplified Component Guide](./SIMPLIFIED_COMPONENT_GUIDE.md)
 3. Adhere to the [Design System](./DESIGN_SYSTEM.md)
 4. Run `npm run check-components` before committing
 
