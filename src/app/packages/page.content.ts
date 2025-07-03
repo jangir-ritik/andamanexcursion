@@ -1,3 +1,5 @@
+import scubaDiving from "@public/images/homepage/scubaDivingCTA/diver.png";
+
 import {
   PackageOption,
   PeriodOption,
@@ -129,4 +131,13 @@ export const packagesPageFAQContent: FAQContent = {
         "Yes, our Honeymoon Retreat package is specifically designed for newlyweds with romantic experiences like luxury accommodations, candlelit dinners, and private beach time.",
     },
   ],
+};
+
+export const largeCardSectionContent = {
+  subtitle: "Scuba Diving",
+  title: "Dive Beneath Waves, Discover Hidden Worlds",
+  image: scubaDiving.src,
+  imageAlt: "Scuba diver exploring coral reef in the Andaman Sea",
+  ctaText: "View Details",
+  ctaHref: "/scuba-diving",
 };

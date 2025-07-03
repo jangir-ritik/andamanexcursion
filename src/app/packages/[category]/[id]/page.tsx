@@ -10,12 +10,14 @@ import {
 } from "@/components/atoms";
 import { getPackageById } from "@/data/packages";
 import { useParams } from "next/navigation";
-import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
-import { PackageDetailTabs } from "@/components/organisms/PackageDetailTabs";
+
 import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import styles from "../../page.module.css";
 import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
-import { ScubaDiving } from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
+import { LargeCardSection } from "@/components/sectionBlocks/common";
+import { largeCardSectionContent } from "../../page.content";
+import { PackageDetailTabs } from "@/components/organisms";
+import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 
 export default function PackageDetailPage() {
   const params = useParams();
@@ -59,7 +61,14 @@ export default function PackageDetailPage() {
         ]}
       />
       <Testimonials />
-      <ScubaDiving />
+      <LargeCardSection
+        subtitle={largeCardSectionContent.subtitle}
+        title={largeCardSectionContent.title}
+        image={largeCardSectionContent.image}
+        imageAlt={largeCardSectionContent.imageAlt}
+        ctaText={largeCardSectionContent.ctaText}
+        ctaHref={largeCardSectionContent.ctaHref}
+      />
     </main>
   );
 }

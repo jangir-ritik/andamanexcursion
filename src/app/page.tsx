@@ -1,9 +1,8 @@
 import {
-  AndamanCalling,
   FAQ,
-  ScubaDiving,
   Testimonials,
   Partners,
+  LargeCardSection,
 } from "@/components/sectionBlocks/common";
 import {
   Banner,
@@ -15,7 +14,7 @@ import {
   TrustStats,
   WhyChooseUs,
 } from "@/components/sectionBlocks/homepage";
-import { faqContent } from "@/components/sectionBlocks/homepage/faq/FAQ.content";
+import { content } from "./page.content";
 
 export default function Home() {
   return (
@@ -27,12 +26,29 @@ export default function Home() {
       <HiddenGems />
       <LovedAdventures />
       <Partners />
-      <ScubaDiving />
+      <LargeCardSection
+        subtitle={content.largeCardSection.subtitle}
+        title={content.largeCardSection.title}
+        image={content.largeCardSection.image}
+        imageAlt={content.largeCardSection.imageAlt}
+        ctaText={content.largeCardSection.ctaText}
+        ctaHref={content.largeCardSection.ctaHref}
+      />
       <WhyChooseUs />
       <Story />
       <Testimonials />
-      <FAQ {...faqContent} />
-      <AndamanCalling />
+      <FAQ
+        title={content.faqSection.title}
+        specialWord={content.faqSection.specialWord}
+        items={content.faqSection.items}
+      />
+      <LargeCardSection
+        title={content.largeCardSection2.title}
+        image={content.largeCardSection2.image}
+        imageAlt={content.largeCardSection2.imageAlt}
+        ctaText={content.largeCardSection2.ctaText}
+        ctaHref={content.largeCardSection2.ctaHref}
+      />
     </>
   );
 }

@@ -8,12 +8,16 @@ import { content } from "./page.content";
 import { ImageContainer } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
 import {
-  AndamanCalling,
   FAQ,
+  LargeCardSection,
   Partners,
   Testimonials,
 } from "@/components/sectionBlocks/common";
-import { TrustedFerries } from "@/components/sectionBlocks/ferry/trustedFerries/TrustedFerries";
+import {
+  TrustedFerries,
+  PlanInFourEasySteps,
+  Trivia,
+} from "@/components/sectionBlocks/ferry";
 
 export default function FerryPage() {
   return (
@@ -31,18 +35,31 @@ export default function FerryPage() {
           <BookingForm />
         </Column>
       </Section>
-      {/* Plan in 4 easy steps */}
-      {/* most trusted ferries */}
+      <PlanInFourEasySteps />
       <TrustedFerries />
       <Partners />
-      {/* Sea walking */}
+      <LargeCardSection
+        subtitle={content.largeCardSection.subtitle}
+        title={content.largeCardSection.title}
+        image={content.largeCardSection.image}
+        imageAlt={content.largeCardSection.imageAlt}
+        ctaText={content.largeCardSection.ctaText}
+        ctaHref={content.largeCardSection.ctaHref}
+      />
+      <Trivia />
       <Testimonials />
       <FAQ
-        title="Get Answers to all your Questions!"
-        specialWord="Answers"
-        items={content.faqs}
+        title={content.faqSection.title}
+        specialWord={content.faqSection.specialWord}
+        items={content.faqSection.items}
+      />{" "}
+      <LargeCardSection
+        title={content.largeCardSection2.title}
+        image={content.largeCardSection2.image}
+        imageAlt={content.largeCardSection2.imageAlt}
+        ctaText={content.largeCardSection2.ctaText}
+        ctaHref={content.largeCardSection2.ctaHref}
       />
-      <AndamanCalling />
     </main>
   );
 }

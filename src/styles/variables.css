@@ -1,11 +1,12 @@
 :root {
   /* ===== PRIMITIVE TOKENS ===== */
-  
+
   /* Color Palette - Base Colors */
   --color-blue-50: #e6f0ff;
   --color-blue-500: #3e8cff;
   --color-blue-600: #2a7ce6;
   --color-blue-700: #002cba;
+  --color-orange-100: #ffe6d4;
   --color-orange-500: #f36f0d;
   --color-orange-600: #d85c00;
   --color-gray-50: #f5f9ff;
@@ -20,7 +21,7 @@
   --color-gray-900: #000e0f;
   --color-white: #ffffff;
   --color-black: #000000;
-  
+
   /* Special Colors */
   --color-testimonial-blue: #89b9ff;
   --color-exclude-light: #d3d3d3;
@@ -28,7 +29,7 @@
   --color-border-alpha: #ffffff33;
 
   /* ===== SEMANTIC TOKENS ===== */
-  
+
   /* Brand Colors */
   --color-primary: var(--color-blue-500);
   --color-primary-hover: var(--color-blue-600);
@@ -36,25 +37,25 @@
   --color-secondary: var(--color-orange-500);
   --color-secondary-hover: var(--color-orange-600);
   --color-tertiary: var(--color-blue-700);
-  
+
   /* Text Colors */
   --color-text-primary: var(--color-gray-900);
   --color-text-secondary: var(--color-gray-700);
   --color-text-tertiary: var(--color-gray-800);
   --color-text-inverse: var(--color-white);
   --color-text-disabled: var(--color-gray-600);
-  
+
   /* Background Colors */
   --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-gray-50);
   --color-bg-tertiary: var(--color-gray-100);
-  
+
   /* Border Colors */
   --color-border-primary: var(--color-border-alpha);
   --color-border-secondary: var(--color-gray-300);
   --color-border-tertiary: var(--color-gray-500);
   --color-border-focus: var(--color-focus-blue);
-  
+
   /* Component-specific Colors */
   --color-divider: var(--color-gray-400);
   --color-testimonial-border: var(--color-testimonial-blue);
@@ -62,22 +63,22 @@
   --color-testimonial-divider: var(--color-gray-200);
 
   /* ===== TYPOGRAPHY TOKENS ===== */
-  
+
   /* Font Families */
   --font-family-primary: "Plus Jakarta Sans", sans-serif;
   --font-family-display: "Quick Beach", cursive, sans-serif;
-  
+
   /* Font Sizes - T-shirt sizing */
-  --font-size-xs: 0.875rem;   /* 14px */
-  --font-size-sm: 0.9375rem;  /* 15px */
-  --font-size-base: 1rem;     /* 16px */
-  --font-size-lg: 1.125rem;   /* 18px */
-  --font-size-xl: 1.25rem;    /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 2rem;      /* 32px */
-  --font-size-4xl: 2.5rem;    /* 40px */
-  --font-size-5xl: 3.375rem;  /* 54px */
-  
+  --font-size-xs: 0.875rem; /* 14px */
+  --font-size-sm: 0.9375rem; /* 15px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 2rem; /* 32px */
+  --font-size-4xl: 2.5rem; /* 40px */
+  --font-size-5xl: 3.375rem; /* 54px */
+
   /* Semantic Font Sizes */
   --font-size-heading-1: var(--font-size-5xl);
   --font-size-heading-2: var(--font-size-4xl);
@@ -90,42 +91,42 @@
   --font-size-button: var(--font-size-sm);
 
   /* ===== SPACING TOKENS ===== */
-  
+
   /* Base Unit */
   --space-unit: 0.5rem; /* 8px */
-  
+
   /* Spacing Scale */
   --space-0: 0;
-  --space-1: calc(var(--space-unit) * 0.5);  /* 4px */
-  --space-2: var(--space-unit);              /* 8px */
-  --space-3: calc(var(--space-unit) * 1.5);  /* 12px */
-  --space-4: calc(var(--space-unit) * 2);    /* 16px */
-  --space-5: calc(var(--space-unit) * 2.5);  /* 20px */
-  --space-6: calc(var(--space-unit) * 3);    /* 24px */
-  --space-8: calc(var(--space-unit) * 4);    /* 32px */
-  --space-10: calc(var(--space-unit) * 5);   /* 40px */
-  --space-12: calc(var(--space-unit) * 6);   /* 48px */
-  --space-14: calc(var(--space-unit) * 7);   /* 56px */
-  --space-16: calc(var(--space-unit) * 8);   /* 64px */
-  --space-18: calc(var(--space-unit) * 9);   /* 72px */
-  --space-20: calc(var(--space-unit) * 10);  /* 80px */
-  
+  --space-1: calc(var(--space-unit) * 0.5); /* 4px */
+  --space-2: var(--space-unit); /* 8px */
+  --space-3: calc(var(--space-unit) * 1.5); /* 12px */
+  --space-4: calc(var(--space-unit) * 2); /* 16px */
+  --space-5: calc(var(--space-unit) * 2.5); /* 20px */
+  --space-6: calc(var(--space-unit) * 3); /* 24px */
+  --space-8: calc(var(--space-unit) * 4); /* 32px */
+  --space-10: calc(var(--space-unit) * 5); /* 40px */
+  --space-12: calc(var(--space-unit) * 6); /* 48px */
+  --space-14: calc(var(--space-unit) * 7); /* 56px */
+  --space-16: calc(var(--space-unit) * 8); /* 64px */
+  --space-18: calc(var(--space-unit) * 9); /* 72px */
+  --space-20: calc(var(--space-unit) * 10); /* 80px */
+
   /* Semantic Spacing */
   --space-section: calc(var(--space-unit) * 18.5); /* 148px */
   --space-container-inline: calc(var(--space-unit) * 15); /* 120px */
 
   /* ===== BORDER RADIUS TOKENS ===== */
-  
+
   /* Base Radius Scale */
   --radius-none: 0;
-  --radius-sm: calc(var(--space-unit) * 1);    /* 8px */
+  --radius-sm: calc(var(--space-unit) * 1); /* 8px */
   --radius-base: calc(var(--space-unit) * 1.5); /* 12px */
-  --radius-md: calc(var(--space-unit) * 2);    /* 16px */
-  --radius-lg: calc(var(--space-unit) * 3);    /* 24px */
-  --radius-xl: calc(var(--space-unit) * 4);    /* 32px */
-  --radius-2xl: calc(var(--space-unit) * 5);   /* 40px */
-  --radius-3xl: calc(var(--space-unit) * 6);   /* 48px */
-  
+  --radius-md: calc(var(--space-unit) * 2); /* 16px */
+  --radius-lg: calc(var(--space-unit) * 3); /* 24px */
+  --radius-xl: calc(var(--space-unit) * 4); /* 32px */
+  --radius-2xl: calc(var(--space-unit) * 5); /* 40px */
+  --radius-3xl: calc(var(--space-unit) * 6); /* 48px */
+
   /* Semantic Radius */
   --radius-button: var(--radius-sm);
   --radius-card: var(--radius-md);
@@ -133,35 +134,35 @@
   --radius-image-medium: var(--radius-xl);
   --radius-image-large: var(--radius-2xl);
   --radius-image-xl: var(--radius-3xl);
-  
+
   /* Special Radius Combinations */
   --radius-image-asymmetric: var(--radius-lg) 0 0 var(--radius-lg);
 
   /* ===== SHADOW TOKENS ===== */
-  
+
   --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.01);
   --shadow-lg: 0 4px 22px rgba(0, 0, 0, 0.25);
   --shadow-card: var(--shadow-sm);
   --shadow-elevated: var(--shadow-lg);
 
   /* ===== LAYOUT TOKENS ===== */
-  
+
   --layout-container-max-width: 75rem; /* 1200px */
   --layout-container-padding: var(--space-container-inline);
-  
+
   /* Component Dimensions */
-  --size-form-field-min-width: 7.5rem;    /* 120px */
-  --size-form-field-height: 4.5rem;       /* 72px */
-  --size-floating-button: 2.8125rem;      /* 45px */
-  --size-divider-height: 5.375rem;        /* 86px */
-  
+  --size-form-field-min-width: 7.5rem; /* 120px */
+  --size-form-field-height: 4.5rem; /* 72px */
+  --size-floating-button: 2.8125rem; /* 45px */
+  --size-divider-height: 5.375rem; /* 86px */
+
   /* Testimonial Component */
-  --size-testimonial-card-width: 17.625rem;  /* 282px */
+  --size-testimonial-card-width: 17.625rem; /* 282px */
   --size-testimonial-card-height: 16.4375rem; /* 263px */
   --testimonial-rotation: 8deg;
 
   /* ===== ANIMATION TOKENS ===== */
-  
+
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 350ms;

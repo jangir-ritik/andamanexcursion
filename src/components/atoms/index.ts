@@ -11,3 +11,4 @@ export * from "./LocationSelect/LocationSelect";
 export * from "./PassengerCounter/PassengerCounter";
 export * from "./SectionTitle/SectionTitle";
 export * from "./SlotSelect/SlotSelect";
+export * from "./Step/Step";

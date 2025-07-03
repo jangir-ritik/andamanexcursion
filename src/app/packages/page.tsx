@@ -7,7 +7,6 @@ import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCar
 
 import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
-import { ScubaDiving } from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
 import { usePackageContext } from "@/context/PackageContext";
 
 import styles from "./page.module.css";
@@ -16,8 +15,10 @@ import {
   periodOptions,
   packageCategoriesContent,
   packagesPageFAQContent,
+  largeCardSectionContent,
 } from "./page.content";
 import { DescriptionText, SectionTitle } from "@/components/atoms";
+import { LargeCardSection } from "@/components/sectionBlocks/common";
 
 export default function PackagesPage() {
   const {
@@ -78,7 +79,14 @@ export default function PackagesPage() {
       </Section>
       <FAQ {...packagesPageFAQContent} />
       <Testimonials />
-      <ScubaDiving />
+      <LargeCardSection
+        subtitle={largeCardSectionContent.subtitle}
+        title={largeCardSectionContent.title}
+        image={largeCardSectionContent.image}
+        imageAlt={largeCardSectionContent.imageAlt}
+        ctaText={largeCardSectionContent.ctaText}
+        ctaHref={largeCardSectionContent.ctaHref}
+      />
     </main>
   );
 }

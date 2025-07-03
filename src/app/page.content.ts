@@ -1,20 +1,17 @@
-import heroImage from "@public/images/ferry/ferryBanner.png";
-import seaWalkingImage from "@public/images/ferry/seaWalking/seaWalking.png";
+import scubaDiving from "@public/images/homepage/scubaDivingCTA/diver.png";
 import andamanCallingImage from "@public/images/homepage/andamanCalling/image.png";
 
 export const content = {
-  image: heroImage.src,
-  imageAlt: "Ferry Banner",
   largeCardSection: {
-    subtitle: "Sea Walking",
-    title: "Walk the Ocean Floor, Touch the Wonders Below",
-    image: seaWalkingImage.src,
-    imageAlt: "Sea Walking",
+    subtitle: "Scuba Diving",
+    title: "Dive Beneath Waves, Discover Hidden Worlds",
+    image: scubaDiving.src,
+    imageAlt: "Scuba diver exploring coral reef in the Andaman Sea",
     ctaText: "View Details",
-    ctaHref: "/activities/sea-walking",
+    ctaHref: "/scuba-diving",
   },
   faqSection: {
-    title: "Get Answers to all your Questions!",
+    title: "Get Answers to all Your Questions!",
     specialWord: "Answers",
     items: [
       {
@@ -50,8 +47,6 @@ export const content = {
       "Beautiful beach view of Andaman Islands with crystal clear waters",
     title: "Andaman is Calling, Are You Ready?",
     ctaHref: "/packages",
-    ctaText: "Customize this package",
+    ctaText: "Explore Packages",
   },
 };
-
-export const andamanCallingContent = {};
