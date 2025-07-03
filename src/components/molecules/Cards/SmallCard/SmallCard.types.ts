@@ -5,7 +5,8 @@ export interface BaseCardProps {
 }
 
 export interface SmallCardProps extends BaseCardProps {
-  duration: string;
+  duration?: string;
   price: string;
   href?: string;
+  rating?: number;
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import type { SmallCardProps  } from "./SmallCard.types";
-import { MoveUpRight } from "lucide-react";
+import type { SmallCardProps } from "./SmallCard.types";
+import { MoveUpRight, Star } from "lucide-react";
 import Link from "next/link";
 import styles from "./SmallCard.module.css";
+import { Chip } from "@/components/atoms";
+import star from "@public/icons/misc/star.svg";
 
 export const SmallCard = ({
   image,
@@ -12,6 +14,7 @@ export const SmallCard = ({
   duration,
   price,
   href,
+  rating,
 }: SmallCardProps) => {
   const CardContent = () => (
     <>
@@ -23,10 +26,19 @@ export const SmallCard = ({
         />
         <div className={styles.imageOverlay} />
         <div className={styles.contentContainer}>
-          <div className={styles.durationBadge}>
-            <span className={styles.durationText}>{duration}</span>
-          </div>
+          {duration && (
+            <div className={styles.durationBadge}>
+              <span className={styles.durationText}>{duration}</span>
+            </div>
+          )}
           <div className={styles.cardInfo}>
+            {rating && (
+              <Chip
+                icon={star}
+                text={rating.toFixed(1).toString() + " Stars"}
+                className={styles.ratingBadge}
+              />
+            )}
             <h3 className={styles.cardTitle}>{title}</h3>
             <p className={styles.cardPrice}>{price}</p>
           </div>

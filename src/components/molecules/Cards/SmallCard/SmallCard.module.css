@@ -58,6 +58,14 @@
   padding: var(--space-10);
 }
 
+.contentContainer:has(.durationBadge) {
+  justify-content: space-between;
+}
+
+.contentContainer:has(.ratingBadge) {
+  justify-content: flex-end;
+}
+
 .durationBadge {
   display: flex;
   flex-direction: row;
@@ -78,6 +86,16 @@
   font-size: var(--font-size-base);
   line-height: 20px;
   color: var(--color-text-primary);
+}
+
+.ratingBadge {
+  margin-bottom: var(--space-3);
+  background: #ffffff20;
+  backdrop-filter: blur(4px);
+}
+
+.ratingBadge span {
+  color: var(--color-white) !important;
 }
 
 .cardInfo {

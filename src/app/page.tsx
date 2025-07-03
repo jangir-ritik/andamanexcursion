@@ -1,14 +1,16 @@
-import { AndamanCalling } from "@/components/sectionBlocks/common/andamanCalling/AndamanCalling";
-import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
-import { ScubaDiving } from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
-import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
+import {
+  AndamanCalling,
+  FAQ,
+  ScubaDiving,
+  Testimonials,
+  Partners,
+} from "@/components/sectionBlocks/common";
 import {
   Banner,
   HiddenGems,
   LovedAdventures,
   PackageCarousel,
   Packages,
-  Partners,
   Story,
   TrustStats,
   WhyChooseUs,
