@@ -73,16 +73,43 @@ Components follow a simplified structure:
 
 ### Importing Components
 
-Import components directly from their files:
+Import components directly from their files using named imports:
 
 ```tsx
 // Direct import (preferred)
 import { Button } from "@/components/atoms/Button/Button";
-import { ButtonProps } from "@/components/atoms/Button/Button.types";
+import type { ButtonProps } from "@/components/atoms/Button/Button.types";
 
-// Or import from index (exports both component and types)
-import { Button, ButtonProps } from "@/components/atoms/Button";
+// Or import from index
+import { Button } from "@/components/atoms/Button";
 ```
+
+All components use named exports and the `import type` syntax for importing types. Never use default exports or imports for components.
+
+### Export Patterns
+
+For regular components, always use named exports:
+
+```tsx
+// ✅ DO this for regular components
+export const ComponentName = () => { ... };
+
+// ❌ DON'T do this for regular components
+export default ComponentName;
+```
+
+For Next.js pages, use default exports with function declarations:
+
+```tsx
+// ✅ DO this for Next.js pages (in src/app)
+export default function PageName() { ... }
+
+// ❌ DON'T do this for Next.js pages
+export const PageName = () => { ... };
+export default PageName;
+```
+
+This ensures consistency across the codebase and prevents import errors.
 
 ### Code Quality Tools
 

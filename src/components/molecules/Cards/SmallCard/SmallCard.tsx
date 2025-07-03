@@ -1,6 +1,6 @@
 "use client";
 
-import { SmallCardProps } from "./SmallCard.types";
+import type { SmallCardProps  } from "./SmallCard.types";
 import { MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import styles from "./SmallCard.module.css";

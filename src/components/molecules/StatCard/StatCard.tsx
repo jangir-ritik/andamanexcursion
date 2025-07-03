@@ -6,7 +6,7 @@ import FerryIcon from "@icons/misc/ferry.svg";
 import IslandIcon from "@icons/misc/island.svg";
 import styles from "./StatCard.module.css";
 import Image from "next/image";
-import { StatCardProps } from "./StatCard.types";
+import type { StatCardProps } from "./StatCard.types";
 
 interface StatCardInternalProps extends StatCardProps {
   icon: "users" | "ferry" | "island";
@@ -51,5 +51,3 @@ export const StatCard = ({
     </div>
   );
 };
-
-export default StatCard;

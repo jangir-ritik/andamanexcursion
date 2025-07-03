@@ -5,9 +5,9 @@ import {
 } from "@radix-ui/react-navigation-menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CustomLinkProps } from "./CustomLink.types";
+import type { CustomLinkProps } from "./CustomLink.types";
 
-const CustomLink = ({
+export const CustomLink = ({
   children,
   href,
   external,
@@ -49,5 +49,3 @@ const CustomLink = ({
     </NavigationMenuLink>
   );
 };
-
-export default CustomLink;

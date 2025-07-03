@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { CarouselProps } from "./Carousel.types";
+import type { CarouselProps } from "./Carousel.types";
 import { ArrowLeft, ArrowRight, Star } from "lucide-react";
 import styles from "./Carousel.module.css";
 import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
@@ -142,5 +142,3 @@ export const Carousel = ({
     </div>
   );
 };
-
-export default Carousel;

@@ -9,10 +9,9 @@ import { PassengerCounter, PassengerCount } from "../../atoms/PassengerCounter";
 import { TAB_CONFIG } from "./config/formConfig";
 import { Button } from "../../atoms/Button/Button";
 import { ActivitySelect } from "../../atoms/ActivitySelect/ActivitySelect";
-import {
-  BookingFormProps,
+import type { BookingFormProps,
   FormState,
-} from "./BookingForm.types";
+ } from "./BookingForm.types";
 
 export function BookingForm({ className }: BookingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>("ferry");

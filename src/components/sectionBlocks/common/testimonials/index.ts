@@ -1,2 +1,2 @@
-export { default } from "./Testimonials";
+export * from "./Testimonials";
 export * from "./Testimonials.types";

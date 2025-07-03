@@ -7,9 +7,9 @@ import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { PackageSelector } from "@/components/molecules/PackageSelector";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
 import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
-import FAQ from "@/components/sectionBlocks/common/faq/FAQ";
-import Testimonials from "@/components/sectionBlocks/common/testimonials/Testimonials";
-import ScubaDiving from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
+import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
+import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
+import { ScubaDiving } from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
 import { usePackageContext } from "@/context/PackageContext";
 
 import styles from "./page.module.css";
@@ -20,7 +20,7 @@ import {
   packagesPageFAQContent,
 } from "./page.content";
 
-const PackagesPage = () => {
+export default function PackagesPage() {
   const {
     selectedPackage,
     selectedPeriod,
@@ -82,6 +82,4 @@ const PackagesPage = () => {
       <ScubaDiving />
     </main>
   );
-};
-
-export default PackagesPage;
+}

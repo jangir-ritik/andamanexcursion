@@ -3,7 +3,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./SlotSelect.module.css";
-import { SlotSelectProps } from "./SlotSelect.types";
+import type { SlotSelectProps  } from "./SlotSelect.types";
 
 export const SlotSelect = ({
   value,

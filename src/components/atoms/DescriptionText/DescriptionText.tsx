@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./DescriptionText.module.css";
-import { DescriptionTextProps } from "./DescriptionText.types";
+import type { DescriptionTextProps  } from "./DescriptionText.types";
 
 export const DescriptionText = ({
   text,

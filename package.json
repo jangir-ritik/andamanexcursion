@@ -11,6 +11,8 @@
     "check-components": "node ./scripts/component-checker.js --staged",
     "check-all-components": "node ./scripts/component-checker.js --all",
     "setup-hooks": "node ./scripts/setup-hooks.js",
+    "standardize-imports": "node ./scripts/standardize-imports.js",
+    "check-import-patterns": "node ./scripts/check-import-patterns.js",
     "postinstall": "npm run setup-hooks"
   },
   "dependencies": {

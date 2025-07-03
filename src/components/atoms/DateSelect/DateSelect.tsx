@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./DateSelect.module.css";
-import { DateSelectProps } from "./DateSelect.types";
+import type { DateSelectProps  } from "./DateSelect.types";
 
 export const DateSelect = ({
   selected,

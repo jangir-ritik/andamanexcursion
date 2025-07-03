@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import styles from "./Chip.module.css";
-import { ChipProps } from "./Chip.types";
+import type { ChipProps } from "./Chip.types";
 
 export const Chip = ({ icon, text, className = "" }: ChipProps) => {
   return (
@@ -15,5 +15,3 @@ export const Chip = ({ icon, text, className = "" }: ChipProps) => {
     </div>
   );
 };
-
-export default Chip;

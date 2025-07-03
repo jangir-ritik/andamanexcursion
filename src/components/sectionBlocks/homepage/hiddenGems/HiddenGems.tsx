@@ -9,7 +9,7 @@ import { hiddenGemsContent } from "./HiddenGems.content";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
 
-function HiddenGems() {
+export const HiddenGems = () => {
   const { title, specialWord, description, ctaText, ctaHref, images } =
     hiddenGemsContent;
 
@@ -64,6 +64,4 @@ function HiddenGems() {
       </Row>
     </Section>
   );
-}
-
-export default HiddenGems;
+};

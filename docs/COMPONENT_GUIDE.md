@@ -44,12 +44,59 @@ export interface ButtonProps {
 
 ```tsx
 // Button.tsx
-import { ButtonProps } from "./Button.types";
+import type { ButtonProps } from "./Button.types";
 
 export const Button = ({ variant, ...props }: ButtonProps) => {
   // Component implementation
 };
 ```
+
+All component files should use the `import type` syntax for importing types, and all components should use named exports rather than default exports.
+
+## Export and Import Patterns
+
+For consistency across the codebase, we follow these patterns:
+
+1. **For regular components, always use named exports**:
+
+   ```tsx
+   // ✅ DO this for regular components
+   export const ComponentName = () => { ... };
+
+   // ❌ DON'T do this for regular components
+   export default ComponentName;
+   ```
+
+2. **For Next.js pages, use default exports with function declarations**:
+
+   ```tsx
+   // ✅ DO this for Next.js pages (in src/app)
+   export default function PageName() { ... }
+
+   // ❌ DON'T do this for Next.js pages
+   export const PageName = () => { ... };
+   export default PageName;
+   ```
+
+3. **Always use named imports when importing components**:
+
+   ```tsx
+   // ✅ DO this
+   import { ComponentName } from "./path/to/ComponentName";
+
+   // ❌ DON'T do this
+   import ComponentName from "./path/to/ComponentName";
+   ```
+
+4. **Use the `import type` syntax for type imports**:
+
+   ```tsx
+   // ✅ DO this
+   import type { ComponentProps } from "./Component.types";
+
+   // ❌ DON'T do this
+   import { ComponentProps } from "./Component.types";
+   ```
 
 ## Content Separation
 

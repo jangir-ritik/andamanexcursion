@@ -10,7 +10,7 @@ import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer
 import { whyChooseUsContent } from "./WhyChooseUs.content";
 import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
 
-function WhyChooseUs() {
+export const WhyChooseUs = () => {
   return (
     <Section
       className={styles.whyChooseUsSection}
@@ -97,6 +97,4 @@ function WhyChooseUs() {
       </Column>
     </Section>
   );
-}
-
-export default WhyChooseUs;
+};

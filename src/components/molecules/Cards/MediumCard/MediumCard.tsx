@@ -1,6 +1,6 @@
 "use client";
 
-import { MediumCardProps } from "./MediumCard.types";
+import type { MediumCardProps  } from "./MediumCard.types";
 import { MoveUpRight } from "lucide-react";
 import styles from "./MediumCard.module.css";
 import Link from "next/link";

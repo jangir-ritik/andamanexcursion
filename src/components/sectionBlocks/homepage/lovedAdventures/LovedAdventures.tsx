@@ -9,7 +9,7 @@ import {
 import styles from "./LovedAdventures.module.css";
 import { Heart, Star } from "lucide-react";
 import { MediumCard } from "@/components/molecules/Cards/MediumCard";
-import { LovedAdventuresProps } from "./LovedAdventures.types";
+import type { LovedAdventuresProps  } from "./LovedAdventures.types";
 
 export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
   const { title, specialWord, adventures } = lovedAdventuresContent;

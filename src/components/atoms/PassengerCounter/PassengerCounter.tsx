@@ -2,10 +2,9 @@
 
 import React from "react";
 import styles from "./PassengerCounter.module.css";
-import {
-  PassengerCounterProps,
+import type { PassengerCounterProps,
   PassengerCount,
-} from "./PassengerCounter.types";
+ } from "./PassengerCounter.types";
 
 export type { PassengerCount };
 

@@ -2,12 +2,12 @@ import { Section } from "@/components/layout";
 import { LargeCard } from "@/components/molecules";
 import React from "react";
 import { scubaDivingContent } from "./ScubaDiving.content";
-import { ScubaDivingProps } from "./ScubaDiving.types";
+import type { ScubaDivingProps } from "./ScubaDiving.types";
 
-function ScubaDiving({
+export const ScubaDiving = ({
   className,
   id = "scuba-diving",
-}: ScubaDivingProps = {}) {
+}: ScubaDivingProps = {}) => {
   const { subtitle, title, image, imageAlt, ctaText, ctaHref } =
     scubaDivingContent;
 
@@ -23,6 +23,4 @@ function ScubaDiving({
       />
     </Section>
   );
-}
-
-export default ScubaDiving;
+};

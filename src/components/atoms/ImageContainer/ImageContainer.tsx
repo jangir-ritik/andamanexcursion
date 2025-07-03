@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import styles from "./ImageContainer.module.css";
-import { ImageContainerProps } from "./ImageContainer.types";
+import type { ImageContainerProps  } from "./ImageContainer.types";
 
 export const ImageContainer = ({
   src,

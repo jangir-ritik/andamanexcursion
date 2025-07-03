@@ -9,7 +9,7 @@ import {
 import styles from "./PackageCarousel.module.css";
 import React from "react";
 
-function PackageCarousel() {
+export const PackageCarousel = () => {
   return (
     <Section
       className={styles.packageCarouselSection}
@@ -31,6 +31,4 @@ function PackageCarousel() {
       </Column>
     </Section>
   );
-}
-
-export default PackageCarousel;
+};

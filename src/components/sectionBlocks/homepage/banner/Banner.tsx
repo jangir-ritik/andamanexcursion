@@ -7,7 +7,7 @@ import { BookingForm } from "@/components/organisms/BookingForm/BookingForm";
 import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
 import styles from "./Banner.module.css";
 import { content } from "./Banner.content";
-import { BannerProps } from "./Banner.types";
+import type { BannerProps  } from "./Banner.types";
 
 export const Banner = ({ className, id = "hero" }: BannerProps = {}) => {
   return (

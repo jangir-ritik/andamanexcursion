@@ -10,9 +10,9 @@ import {
 import { ChevronDown, MoveRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import CustomLink from "@/components/atoms/CustomLink/CustomLink";
-import { DesktopNavProps } from "./DesktopNav.types";
+import type { DesktopNavProps } from "./DesktopNav.types";
 import styles from "./DesktopNav.module.css";
+import { CustomLink } from "@/components/atoms/CustomLink";
 
 export const DesktopNav = React.memo(
   ({ items, className }: DesktopNavProps) => {

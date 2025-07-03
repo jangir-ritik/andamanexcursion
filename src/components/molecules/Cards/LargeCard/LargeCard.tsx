@@ -1,4 +1,4 @@
-import { LargeCardProps } from "./LargeCard.types";
+import type { LargeCardProps  } from "./LargeCard.types";
 import styles from "./LargeCard.module.css";
 import Image from "next/image";
 import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";

@@ -1,6 +1,6 @@
 "use client";
 
-import { PackageCardProps } from "./PackageCard.types";
+import type { PackageCardProps  } from "./PackageCard.types";
 import styles from "./PackageCard.module.css";
 import Link from "next/link";
 import Image from "next/image";

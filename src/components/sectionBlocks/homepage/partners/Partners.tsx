@@ -4,7 +4,7 @@ import Image from "next/image";
 import React from "react";
 import { partnersContent } from "./Partners.content";
 
-function Partners() {
+export const Partners = () => {
   return (
     <Section id="partners" aria-labelledby="partners-title">
       <Column fullWidth gap="var(--gap-6)" alignItems="center">
@@ -34,6 +34,4 @@ function Partners() {
       </Column>
     </Section>
   );
-}
-
-export default Partners;
+};

@@ -9,7 +9,7 @@ import Threads from "@icons/socials/threads.svg";
 import Youtube from "@icons/socials/youtube.svg";
 import Linkedin from "@icons/socials/linkedin.svg";
 import Link from "next/link";
-import { FooterProps } from "./Footer.types";
+import type { FooterProps  } from "./Footer.types";
 
 // Create a mapping object outside component to avoid recreation
 const socialIconMap = {

@@ -3,7 +3,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { ItineraryTab } from "./tabs/ItineraryTab";
 import { WhatsCoveredTab } from "./tabs/WhatsCoveredTab";
-import { PackageDetailTabsProps } from "./PackageDetailTabs.types";
+import type { PackageDetailTabsProps  } from "./PackageDetailTabs.types";
 
 import styles from "./PackageDetailTabs.module.css";
 

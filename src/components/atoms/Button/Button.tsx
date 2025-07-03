@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Button.module.css";
-import { ButtonProps } from "./Button.types";
+import type { ButtonProps } from "./Button.types";
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
 

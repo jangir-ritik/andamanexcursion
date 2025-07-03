@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import styles from "./InlineLink.module.css";
-import { InlineLinkProps } from "./InlineLink.types";
+import type { InlineLinkProps } from "./InlineLink.types";
 
 export const InlineLink: React.FC<InlineLinkProps> = ({
   href,
@@ -47,5 +47,3 @@ export const InlineLink: React.FC<InlineLinkProps> = ({
     </Link>
   );
 };
-
-export default InlineLink;

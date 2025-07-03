@@ -1,1 +1,1 @@
-export { default as HiddenGems } from './HiddenGems';
+export * from "./HiddenGems";

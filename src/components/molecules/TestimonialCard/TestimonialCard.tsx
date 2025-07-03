@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import styles from "./TestimonialCard.module.css";
 import quoteIcon from "@public/icons/misc/quote.svg";
-import { TestimonialCardProps } from "./TestimonialCard.types";
+import type { TestimonialCardProps } from "./TestimonialCard.types";
 
 interface TestimonialCardInternalProps {
   text: string;
@@ -11,7 +11,7 @@ interface TestimonialCardInternalProps {
   rotation?: number;
 }
 
-const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
+export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
   text,
   author,
   avatar,
@@ -57,5 +57,3 @@ const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
     </div>
   );
 };
-
-export default TestimonialCard;

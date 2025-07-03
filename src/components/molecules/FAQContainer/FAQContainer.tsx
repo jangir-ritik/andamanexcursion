@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { Plus, Minus } from "lucide-react";
 import styles from "./FAQContainer.module.css";
-import { FAQContainerProps } from "./FAQContainer.types";
+import type { FAQContainerProps } from "./FAQContainer.types";
 
-function FAQContainer({ items, className = "" }: FAQContainerProps) {
+export const FAQContainer = ({ items, className = "" }: FAQContainerProps) => {
   const [openItem, setOpenItem] = useState<string>("item-0");
 
   const handleValueChange = (value: string) => {
@@ -56,6 +56,4 @@ function FAQContainer({ items, className = "" }: FAQContainerProps) {
       </Accordion.Root>
     </div>
   );
-}
-
-export default FAQContainer;
+};

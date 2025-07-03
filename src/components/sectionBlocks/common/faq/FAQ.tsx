@@ -5,15 +5,15 @@ import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 
 import styles from "./FAQ.module.css";
-import FAQContainer from "@/components/molecules/FAQContainer";
-import { FAQProps } from "./FAQ.types";
+import { FAQContainer } from "@/components/molecules/FAQContainer/FAQContainer";
+import type { FAQProps } from "./FAQ.types";
 
 export interface FAQItem {
   question: string;
   answer: string;
 }
 
-function FAQ({ title, specialWord, items, className }: FAQProps) {
+export const FAQ = ({ title, specialWord, items, className }: FAQProps) => {
   return (
     <Section id="faq" aria-labelledby="faq-title" className={className}>
       <Row wrap fullWidth justifyContent="between">
@@ -29,6 +29,4 @@ function FAQ({ title, specialWord, items, className }: FAQProps) {
       </Row>
     </Section>
   );
-}
-
-export default FAQ;
+};

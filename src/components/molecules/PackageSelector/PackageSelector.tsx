@@ -3,11 +3,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./PackageSelector.module.css";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  PackageOption,
+import type { PackageOption,
   PeriodOption,
   PackageSelectorProps,
-} from "./PackageSelector.types";
+ } from "./PackageSelector.types";
 
 export const PackageSelector = ({
   packageOptions,

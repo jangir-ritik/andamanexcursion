@@ -1,1 +1,1 @@
-export { default } from "./PackageCarousel";
+export * from "./PackageCarousel";

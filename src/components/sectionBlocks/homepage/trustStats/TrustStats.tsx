@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Section } from "@/components/layout";
-import StatCard from "@/components/molecules/StatCard";
+import { StatCard } from "@/components/molecules/StatCard/StatCard";
 import { trustStatsContent } from "./TrustStats.content";
 import styles from "./TrustStats.module.css";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
@@ -60,5 +60,3 @@ export const TrustStats = () => {
     </Section>
   );
 };
-
-export default TrustStats;

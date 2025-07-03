@@ -9,15 +9,15 @@ import { getPackageById } from "@/data/packages";
 import { useParams } from "next/navigation";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 import { PackageDetailTabs } from "@/components/organisms/PackageDetailTabs";
-import FAQ from "@/components/sectionBlocks/common/faq";
+import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import styles from "../../page.module.css";
-import Testimonials from "@/components/sectionBlocks/common/testimonials";
-import ScubaDiving from "@/components/sectionBlocks/common/scubaDiving";
+import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
+import { ScubaDiving } from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
 import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
 import { Row } from "@/components/layout/Row";
 import { Button } from "@/components/atoms/Button/Button";
 
-const PackageDetailPage = () => {
+export default function PackageDetailPage() {
   const params = useParams();
   const packageId = params.id as string;
 
@@ -62,6 +62,4 @@ const PackageDetailPage = () => {
       <ScubaDiving />
     </main>
   );
-};
-
-export default PackageDetailPage;
+}

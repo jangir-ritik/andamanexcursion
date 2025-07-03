@@ -3,12 +3,12 @@ import { LargeCard } from "@/components/molecules";
 import React from "react";
 import styles from "./AndamanCalling.module.css";
 import { andamanCallingContent } from "./AndamanCalling.content";
-import { AndamanCallingProps } from "./AndamanCalling.types";
+import type { AndamanCallingProps } from "./AndamanCalling.types";
 
-function AndamanCalling({
+export const AndamanCalling = ({
   className,
   id = "andaman-calling",
-}: AndamanCallingProps = {}) {
+}: AndamanCallingProps = {}) => {
   const { image, imageAlt, title, ctaHref, ctaText } = andamanCallingContent;
 
   return (
@@ -26,6 +26,4 @@ function AndamanCalling({
       />
     </Section>
   );
-}
-
-export default AndamanCalling;
+};

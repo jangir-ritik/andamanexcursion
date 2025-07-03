@@ -6,7 +6,7 @@ import styles from "./Story.module.css";
 import React from "react";
 import { storyContent } from "./Story.content";
 
-function Story() {
+export const Story = () => {
   return (
     <Section
       fullBleed
@@ -34,6 +34,4 @@ function Story() {
       </Column>
     </Section>
   );
-}
-
-export default Story;
+};

@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Column.module.css";
-import { ColumnProps } from "./Column.types";
+import type { ColumnProps  } from "./Column.types";
 
 export const Column = ({
   children,

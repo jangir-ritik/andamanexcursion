@@ -6,9 +6,9 @@ import { testimonialsContent } from "./Testimonials.content";
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { TestimonialsProps } from "./Testimonials.types";
+import type { TestimonialsProps } from "./Testimonials.types";
 
-const Testimonials = ({
+export const Testimonials = ({
   className,
   id = "testimonials",
 }: TestimonialsProps = {}) => {
@@ -61,5 +61,3 @@ const Testimonials = ({
     </Section>
   );
 };
-
-export default Testimonials;

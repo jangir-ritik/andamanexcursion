@@ -12,7 +12,7 @@ import { usePackageCategoryPage } from "@/hooks/usePackageCategoryPage";
 import styles from "../page.module.css";
 import { packageOptions, periodOptions } from "../page.content";
 
-const CategoryPage = () => {
+export default function CategoryPage() {
   const {
     selectedPackage,
     selectedPeriod,
@@ -71,6 +71,4 @@ const CategoryPage = () => {
       </Section>
     </main>
   );
-};
-
-export default CategoryPage;
+}
