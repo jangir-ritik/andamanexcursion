@@ -1,8 +1,8 @@
 .container {
   width: 100%;
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
   margin: 0 auto;
-  padding: 0 var(--padding-2);
+  padding: 0 var(--space-4);
   box-sizing: border-box;
   /* overflow-x: hidden; */
 }
@@ -18,14 +18,14 @@
 /* Tablet Responsive Design */
 @media (max-width: 1024px) {
   .container {
-    padding: 0 var(--padding-2);
+    padding: 0 var(--space-4);
   }
 }
 
 /* Mobile Responsive Design */
 @media (max-width: 768px) {
   .container {
-    padding: 0 var(--padding-2);
+    padding: 0 var(--space-4);
   }
 }
 

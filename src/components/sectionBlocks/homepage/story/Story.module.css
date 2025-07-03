@@ -1,5 +1,5 @@
 .sectionContainer {
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
 }
 
 .image {

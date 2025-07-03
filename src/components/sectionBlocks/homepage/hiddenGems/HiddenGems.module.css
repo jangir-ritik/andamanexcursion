@@ -11,7 +11,7 @@
 }
 
 .hiddenGemsRow {
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
 }
 
 /* Grid Layout */
@@ -35,20 +35,20 @@
   grid-column: 2;
   grid-row: 1;
   height: 100%;
-  border-radius: var(--border-radius-2) !important;
+  border-radius: var(--radius-md) !important;
 }
 
 .gridImage3 {
   grid-column: 2;
   grid-row: 2;
   height: 100%;
-  border-radius: var(--border-radius-2) !important;
+  border-radius: var(--radius-md) !important;
 }
 
 @media (max-width: 1200px) {
   .hiddenGemsRow {
     flex-direction: column;
-    gap: var(--gap-5);
+    gap: var(--space-10);
   }
 
   .imagesGrid {

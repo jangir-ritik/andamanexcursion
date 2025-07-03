@@ -4,8 +4,8 @@
   margin: 0 auto;
   filter: drop-shadow(-1px 1px 7px rgba(0, 0, 0, 0.1));
   z-index: 1000;
-  padding: var(--padding-2);
-  margin-top: calc(var(--margin-1) * -14);
+  padding: var(--space-4);
+  margin-top: calc(var(--space-2) * -14);
 }
 
 /* Tabs */
@@ -22,7 +22,7 @@
   padding: 0;
   width: 337px;
   height: 48px;
-  border-radius: var(--border-radius-3) var(--border-radius-3) 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--color-white);
   overflow: hidden;
 }
@@ -33,24 +33,24 @@
   justify-content: center;
   align-items: center;
   height: 48px;
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 400;
   font-size: var(--font-size-sm);
   line-height: 18px;
   color: var(--color-text-secondary);
-  background: var(--color-foreground-light);
+  background: var(--color-bg-secondary);
   border: 1px solid #cccccc;
   cursor: pointer;
   flex: 1;
 }
 
 .tabsTrigger:first-child {
-  border-radius: var(--border-radius-3) 0 0 0;
+  border-radius: var(--radius-lg) 0 0 0;
   border-left: none;
 }
 
 .tabsTrigger:last-child {
-  border-radius: 0 var(--border-radius-3) 0 0;
+  border-radius: 0 var(--radius-lg) 0 0;
 }
 
 .tabsTrigger:hover {
@@ -68,10 +68,10 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: var(--padding-2);
-  gap: var(--gap-2);
+  padding: var(--space-4);
+  gap: var(--space-4);
   background: var(--color-white);
-  border-radius: 0 0 var(--border-radius-2) var(--border-radius-2);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 
 /* Form Grid */
@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   flex-wrap: nowrap;
 }
 
@@ -89,37 +89,37 @@
 .locationSelectors {
   display: flex;
   flex-direction: row;
-  gap: var(--gap-1);
+  gap: var(--space-2);
 }
 
 /* Date and Time Section */
 .dateTimeSection {
   display: flex;
-  gap: var(--gap-1);
+  gap: var(--space-2);
 }
 
 /* Passenger and Button Section */
 .passengerButtonSection {
   display: flex;
   align-items: center;
-  gap: var(--gap-1);
+  gap: var(--space-2);
 }
 
 /* View Details Button */
 .viewDetailsButton {
   white-space: nowrap;
-  margin-left: var(--margin-1);
+  margin-left: var(--space-2);
 }
 
 /* Desktop Responsive Design */
 @media (min-width: 1200px) {
   .tabsContent {
-    border-radius: 0 var(--border-radius-2) var(--border-radius-2)
-      var(--border-radius-2);
+    border-radius: 0 var(--radius-md) var(--radius-md)
+      var(--radius-md);
   }
 
   .formGrid {
-    height: var(--formfield-height);
+    height: var(--size-form-field-height);
   }
 }
 
@@ -129,8 +129,8 @@
     max-width: 60vw;
   }
   .tabsContent {
-    border-radius: 0 var(--border-radius-2) var(--border-radius-2)
-      var(--border-radius-2);
+    border-radius: 0 var(--radius-md) var(--radius-md)
+      var(--radius-md);
   }
 
   .formGrid {
@@ -178,7 +178,7 @@
   .bookingForm {
     max-width: unset;
     width: 100%;
-    padding: var(--padding-2);
+    padding: var(--space-4);
   }
 
   .tabsList {
@@ -200,7 +200,7 @@
 
   .passengerButtonSection {
     flex-direction: column;
-    /* gap: var(--gap-2); */
+    /* gap: var(--space-4); */
     align-items: stretch;
   }
 
@@ -213,11 +213,11 @@
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
   .tabsContent {
-    padding: var(--padding-1);
+    padding: var(--space-2);
   }
 
   .tabsTrigger {
     font-size: var(--font-size-xs);
-    padding: 0 var(--padding-1);
+    padding: 0 var(--space-2);
   }
 }

@@ -15,7 +15,7 @@ export const Story = () => {
       id="our-story"
       aria-labelledby="story-title"
     >
-      <Column gap="var(--gap-6)" fullWidth className={styles.sectionContainer}>
+      <Column gap="var(--space-12)" fullWidth className={styles.sectionContainer}>
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
             text={storyContent.title}

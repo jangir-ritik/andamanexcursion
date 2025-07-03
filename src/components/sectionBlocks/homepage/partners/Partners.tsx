@@ -7,7 +7,7 @@ import { partnersContent } from "./Partners.content";
 export const Partners = () => {
   return (
     <Section id="partners" aria-labelledby="partners-title">
-      <Column fullWidth gap="var(--gap-6)" alignItems="center">
+      <Column fullWidth gap="var(--space-12)" alignItems="center">
         <SectionTitle
           text={partnersContent.title}
           specialWord={partnersContent.specialWord}
@@ -17,7 +17,7 @@ export const Partners = () => {
           justifyContent="between"
           alignItems="center"
           fullWidth
-          gap="var(--gap-4)"
+          gap="var(--space-8)"
           wrap
         >
           {partnersContent.partners.map((partner, index) => (

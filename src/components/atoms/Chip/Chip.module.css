@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  padding: var(--padding-1) var(--padding-2);
-  gap: var(--gap-1);
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-2);
   background: var(--color-white);
-  box-shadow: var(--box-shadow-1);
-  border-radius: var(--border-radius-2);
+  box-shadow: var(--shadow-elevated);
+  border-radius: var(--radius-md);
   width: fit-content;
 }
 
@@ -17,10 +17,10 @@
 }
 
 .chipText {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   line-height: 20px;
   color: var(--color-black);
   max-width: 100px;

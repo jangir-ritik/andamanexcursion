@@ -86,7 +86,7 @@ export default function RootLayout({
         <PackageProvider>
           <Header />
           <Container>
-            <Column gap="var(--section-gap)" fullWidth>
+            <Column gap="var(--space-section)" fullWidth>
               {children}
             </Column>
           </Container>

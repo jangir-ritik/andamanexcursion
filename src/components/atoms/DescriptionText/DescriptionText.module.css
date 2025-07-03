@@ -1,6 +1,6 @@
 .description {
   width: 374px;
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-xl);
@@ -34,7 +34,7 @@
   .description {
     width: 100%;
     max-width: 374px;
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-base);
     line-height: 22px;
     text-align: left;
   }

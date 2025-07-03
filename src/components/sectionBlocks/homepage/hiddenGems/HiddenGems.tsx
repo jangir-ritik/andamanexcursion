@@ -26,9 +26,9 @@ export const HiddenGems = () => {
         justifyContent="between"
         fullWidth
         className={styles.hiddenGemsRow}
-        gap="var(--gap-10)"
+        gap="var(--space-20)"
       >
-        <Column gap="var(--gap-4)" alignItems="start">
+        <Column gap="var(--space-8)" alignItems="start">
           <SectionTitle
             text={title}
             specialWord={specialWord}

@@ -45,14 +45,14 @@ export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
       className={className}
     >
       <Row fullWidth>
-        <Column fullWidth gap="var(--gap-6)">
+        <Column fullWidth gap="var(--space-12)">
           <SectionTitle
             text={title}
             specialWord={specialWord}
             className={styles.sectionTitle}
             id="loved-adventures-title"
           />
-          <Row gap="var(--gap-3)" fullWidth>
+          <Row gap="var(--space-6)" fullWidth>
             {adventures.map((adventure, index) => (
               <MediumCard
                 key={index}

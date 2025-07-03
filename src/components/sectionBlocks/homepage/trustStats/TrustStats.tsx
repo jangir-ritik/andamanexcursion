@@ -36,7 +36,7 @@ export const TrustStats = () => {
         />
 
         <Row
-          gap="var(--gap-1)"
+          gap="var(--space-2)"
           justifyContent="between"
           alignItems="center"
           wrap

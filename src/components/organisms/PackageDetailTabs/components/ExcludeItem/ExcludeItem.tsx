@@ -13,8 +13,8 @@ export const ExcludeItem: React.FC<ExcludeItemProps> = ({ text }) => {
       <div className={styles.iconContainer}>
         <Circle
           size={12}
-          fill="var(--color-exclude-circle)"
-          color="var(--color-exclude-circle)"
+          fill="var(--color-exclude-light)"
+          color="var(--color-exclude-light)"
         />
       </div>
       <span className={styles.text}>{text}</span>

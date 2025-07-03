@@ -1,7 +1,7 @@
 .card {
   position: relative;
-  margin-bottom: var(--gap-3);
-  border-radius: var(--border-radius-2);
+  margin-bottom: var(--space-6);
+  border-radius: var(--radius-md);
   overflow: hidden;
   width: 100%;
   height: 356px;
@@ -13,7 +13,7 @@
 .card:hover {
   transform: scale(1.02);
   transition: transform 0.3s ease;
-  box-shadow: var(--box-shadow-2);
+  box-shadow: var(--shadow-card);
   background-color: var(--color-primary-light);
 }
 
@@ -21,8 +21,8 @@
   display: flex;
   width: 100%;
   height: 100%;
-  padding: var(--padding-7) var(--padding-3);
-  gap: var(--gap-5);
+  padding: var(--space-14) var(--space-6);
+  gap: var(--space-10);
 }
 
 .imageWrapper {
@@ -31,7 +31,7 @@
   position: relative;
   flex: 1;
   max-width: 427px;
-  background-color: var(--color-border-2);
+  background-color: var(--color-border-secondary);
   border-radius: 20px 60px 20px 60px !important;
   overflow: hidden;
 }
@@ -40,7 +40,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--gap-3);
+  gap: var(--space-6);
   height: 100%;
   position: relative;
   flex: 1;
@@ -50,18 +50,18 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--gap-2);
+  gap: var(--space-4);
 }
 
 .titleInfo {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   max-width: 350px;
 }
 
 .title {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: var(--font-size-3xl);
   line-height: 1;
@@ -70,7 +70,7 @@
 }
 
 .price {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 400;
   font-size: var(--font-size-xl);
   line-height: 1;
@@ -84,7 +84,7 @@
 
 .location,
 .duration {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: var(--font-size-xl);
   line-height: 1.25;
@@ -93,7 +93,7 @@
 }
 
 .description {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 400;
   font-size: var(--font-size-xl);
   line-height: 1.25;
@@ -106,16 +106,16 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--gap-half-unit);
+  gap: var(--space-1);
   text-decoration: none;
   width: fit-content;
-  margin-top: var(--margin-2);
+  margin-top: var(--space-4);
 }
 
 .viewDetailsText {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 400;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   line-height: 1.25;
   color: var(--color-primary);
 }

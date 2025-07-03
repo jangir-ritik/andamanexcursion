@@ -4,7 +4,7 @@
 
 .sectionContainer {
   width: 100%;
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
 }
 
 .headerRow {
@@ -13,7 +13,7 @@
 
 .sectionTitle {
   /* max-width: 300px; */
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-4xl);
@@ -32,7 +32,7 @@
 
 .headerDescription {
   width: 440px;
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-xl);
@@ -53,12 +53,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   width: 100%;
 }
 
 .pointTitle {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 500;
   font-size: var(--font-size-2xl);
@@ -68,10 +68,10 @@
 }
 
 .pointDescription {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   line-height: 20px;
   color: var(--color-black);
   margin: 0;
@@ -81,14 +81,14 @@
 .ctaLink {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   line-height: 20px;
   color: var(--color-primary);
   text-decoration: none;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   transition: transform 0.2s ease-in-out;
 }
 
@@ -147,7 +147,7 @@
   .headerRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--gap-3);
+    gap: var(--space-6);
   }
 
   .headerDescription {
@@ -157,7 +157,7 @@
 
   .contentRow {
     flex-direction: column;
-    gap: var(--gap-5);
+    gap: var(--space-10);
   }
 
   .pointsColumn {
@@ -210,6 +210,6 @@
 
   .featureImage {
     height: 200px;
-    border-radius: var(--border-radius-2) var(--border-radius-5);
+    border-radius: var(--radius-md) var(--radius-2xl);
   }
 }

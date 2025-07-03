@@ -7,7 +7,7 @@
 
 .content {
   width: 100%;
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
 }
 
 /* Full bleed section styles */
@@ -22,8 +22,8 @@
 .fullBleedContent {
   width: 100%;
   max-width: none;
-  padding-left: var(--padding-6);
-  padding-right: var(--padding-6);
+  padding-left: var(--space-12);
+  padding-right: var(--space-12);
 }
 
 /* Background colors */
@@ -32,7 +32,7 @@
 }
 
 .bg-light {
-  background-color: var(--color-foreground-light);
+  background-color: var(--color-bg-secondary);
 }
 
 .bg-primary {
@@ -46,21 +46,21 @@
 
 /* Spacing options */
 .spacing-4 {
-  padding: var(--padding-4);
-  /* padding-top: var(--padding-4);
-  padding-bottom: var(--padding-4); */
+  padding: var(--space-8);
+  /* padding-top: var(--space-8);
+  padding-bottom: var(--space-8); */
 }
 
 .spacing-5 {
-  padding: var(--padding-5);
-  /* padding-top: var(--padding-5);
-  padding-bottom: var(--padding-5); */
+  padding: var(--space-10);
+  /* padding-top: var(--space-10);
+  padding-bottom: var(--space-10); */
 }
 
 .spacing-10 {
-  padding: var(--padding-10);
-  /* padding-top: var(--padding-10);
-  padding-bottom: var(--padding-10); */
+  padding: var(--space-20);
+  /* padding-top: var(--space-20);
+  padding-bottom: var(--space-20); */
 }
 
 .noPadding {
@@ -71,36 +71,36 @@
 /* Responsive adjustments */
 @media (max-width: 1200px) {
   .content {
-    padding: var(--padding-4);
-    /* padding-left: var(--padding-4);
-    padding-right: var(--padding-4); */
+    padding: var(--space-8);
+    /* padding-left: var(--space-8);
+    padding-right: var(--space-8); */
   }
 }
 
 @media (max-width: 768px) {
   .spacing-4 {
-    padding: var(--padding-4);
-    /* padding-top: var(--padding-4);
-    padding-bottom: var(--padding-4); */
+    padding: var(--space-8);
+    /* padding-top: var(--space-8);
+    padding-bottom: var(--space-8); */
   }
 
   .spacing-5 {
-    padding: var(--padding-5);
-    /* padding-top: var(--padding-5);
-    padding-bottom: var(--padding-5); */
+    padding: var(--space-10);
+    /* padding-top: var(--space-10);
+    padding-bottom: var(--space-10); */
   }
 
   .content {
-    padding: var(--padding-3);
-    /* padding-left: var(--padding-3);
-    padding-right: var(--padding-3); */
+    padding: var(--space-6);
+    /* padding-left: var(--space-6);
+    padding-right: var(--space-6); */
   }
 }
 
 @media (max-width: 480px) {
   .content {
-    padding: var(--padding-2);
-    /* padding-left: var(--padding-2);
-    padding-right: var(--padding-2); */
+    padding: var(--space-4);
+    /* padding-left: var(--space-4);
+    padding-right: var(--space-4); */
   }
 }

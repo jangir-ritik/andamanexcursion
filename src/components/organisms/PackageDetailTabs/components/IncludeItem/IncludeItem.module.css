@@ -1,10 +1,10 @@
 .includeItem {
   display: flex;
   align-items: flex-start;
-  gap: var(--gap-2);
+  gap: var(--space-4);
   background-color: var(--color-white);
-  border-radius: var(--border-radius-1);
-  box-shadow: var(--box-shadow-2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
 }
 
 .iconContainer {
@@ -16,8 +16,8 @@
 }
 
 .text {
-  font-family: var(--font-family-jakarta);
-  font-size: var(--font-size-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
   color: var(--color-text-secondary);
   line-height: 1.5;
 }

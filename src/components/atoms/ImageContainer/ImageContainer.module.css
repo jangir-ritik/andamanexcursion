@@ -3,7 +3,7 @@
   width: 100%;
   height: auto;
   overflow: hidden;
-  border-radius: var(--border-radius-5);
+  border-radius: var(--radius-2xl);
   background-color: var(--gray-50, #f9fafb);
 }
 
@@ -129,7 +129,7 @@
 /* Responsive styles */
 @media (max-width: 768px) {
   .container {
-    border-radius: var(--border-radius-1);
+    border-radius: var(--radius-sm);
   }
 
   .banner {

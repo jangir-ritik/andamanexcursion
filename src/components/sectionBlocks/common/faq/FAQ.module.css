@@ -24,7 +24,7 @@
 @media (max-width: 1024px) {
   .titleColumn {
     max-width: 100%;
-    margin-bottom: var(--margin-4);
+    margin-bottom: var(--space-8);
   }
 
   .contentColumn {

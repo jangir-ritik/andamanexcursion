@@ -17,11 +17,11 @@ export const Banner = ({ className, id = "hero" }: BannerProps = {}) => {
       className={`${styles.sectionContainer} ${className || ""}`}
       aria-labelledby="hero-title"
     >
-      <Column gap="var(--gap-4)" fullWidth>
+      <Column gap="var(--space-8)" fullWidth>
         <Row
           justifyContent="between"
           alignItems="center"
-          gap="var(--gap-2)"
+          gap="var(--space-4)"
           fullWidth
           wrap
         >

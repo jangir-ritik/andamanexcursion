@@ -1,7 +1,7 @@
 .carouselContainer {
   position: relative;
   width: 100%;
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
   height: auto;
   min-height: 488px;
   margin: 0 auto;
@@ -12,7 +12,7 @@
   flex-direction: row;
   align-items: center;
   padding: 0;
-  gap: var(--gap-7);
+  gap: var(--space-14);
   width: 100%;
   height: auto;
   min-height: 392px;
@@ -23,8 +23,8 @@
   width: 100%;
   height: auto;
   min-height: 392px;
-  background: var(--color-foreground-dark);
-  border-radius: var(--border-radius-5);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-2xl);
   position: relative;
   overflow: hidden;
   background-image: url("/graphics/waveLight.svg");
@@ -52,8 +52,8 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--padding-8);
-  gap: var(--gap-4);
+  padding: 0 var(--space-16);
+  gap: var(--space-8);
   width: 100%;
   height: 100%;
   position: absolute;
@@ -72,7 +72,7 @@
 }
 
 .slideTitle {
-  font-family: var(--font-family-quick-beach);
+  font-family: var(--font-family-display);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-5xl);
@@ -82,25 +82,25 @@
 }
 
 .slidePrice {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 600;
   font-size: var(--font-size-2xl);
   line-height: 30px;
   color: var(--color-tertiary);
   margin: 0;
-  margin-top: var(--margin-1);
+  margin-top: var(--space-2);
 }
 
 .slideDescription {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-2xl);
   line-height: 1.3;
   color: var(--color-primary);
   margin: 0;
-  margin-top: var(--margin-4);
+  margin-top: var(--space-8);
   width: 100%;
   max-width: 460px;
 }
@@ -110,16 +110,16 @@
   flex-direction: row;
   align-items: center;
   padding: 0;
-  gap: var(--gap-1);
-  margin-top: var(--margin-4);
+  gap: var(--space-2);
+  margin-top: var(--space-8);
   cursor: pointer;
 }
 
 .viewMoreText {
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   line-height: 20px;
   text-decoration-line: underline;
   color: var(--color-primary);
@@ -168,7 +168,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--padding-half);
+  padding: var(--space-1);
   width: 32px;
   height: 32px;
   background: var(--color-white);
@@ -183,7 +183,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--padding-half);
+  padding: var(--space-1);
   width: 32px;
   height: 32px;
   background: var(--color-tertiary);
@@ -202,14 +202,14 @@
   padding: 0;
   width: 100%;
   height: 42px;
-  margin-top: var(--margin-5);
+  margin-top: var(--space-10);
 }
 
 .indicators {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--gap-half-unit);
+  gap: var(--space-1);
   width: fit-content;
   height: 8px;
 }
@@ -235,7 +235,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  gap: var(--gap-7);
+  gap: var(--space-14);
   width: 138px;
   height: 42px;
 }
@@ -263,7 +263,7 @@
 /* Responsive styles */
 @media (max-width: 1200px) {
   .contentWrapper {
-    padding: 0 var(--padding-6);
+    padding: 0 var(--space-12);
     max-width: 100%;
   }
 
@@ -278,7 +278,7 @@
 
 @media (max-width: 1024px) {
   .contentWrapper {
-    gap: var(--gap-3);
+    gap: var(--space-6);
   }
 
   .textContent {
@@ -317,7 +317,7 @@
   .slidesContainer {
     height: auto;
     min-height: auto;
-    padding: var(--padding-5) 0;
+    padding: var(--space-10) 0;
   }
 
   .contentWrapper {
@@ -327,8 +327,8 @@
     left: auto;
     top: auto;
     height: auto;
-    gap: var(--gap-6);
-    padding: var(--padding-5);
+    gap: var(--space-12);
+    padding: var(--space-10);
   }
 
   .textContent {
@@ -340,7 +340,7 @@
     width: 100%;
     height: 300px;
     order: 1;
-    margin-bottom: var(--margin-4);
+    margin-bottom: var(--space-8);
   }
 
   .slideImage {
@@ -370,9 +370,9 @@
 
   .carouselControls {
     flex-direction: column;
-    gap: var(--gap-4);
+    gap: var(--space-8);
     height: auto;
-    margin-top: var(--margin-3);
+    margin-top: var(--space-6);
   }
 
   .indicators {
@@ -387,7 +387,7 @@
 @media (max-width: 768px) {
   .slidesContainer {
     min-height: auto;
-    padding-bottom: var(--padding-4);
+    padding-bottom: var(--space-8);
   }
 
   .slideTitle {
@@ -402,11 +402,11 @@
   .slideDescription {
     font-size: var(--font-size-lg);
     line-height: 1.4;
-    margin-top: var(--margin-3);
+    margin-top: var(--space-6);
   }
 
   .viewMoreWrapper {
-    margin-top: var(--margin-3);
+    margin-top: var(--space-6);
   }
 
   .imageWrapper {
@@ -430,11 +430,11 @@
   }
 
   .slidesContainer {
-    border-radius: var(--border-radius-3);
+    border-radius: var(--radius-lg);
   }
 
   .contentWrapper {
-    padding: var(--padding-3);
+    padding: var(--space-6);
   }
 
   .slideTitle {
@@ -446,18 +446,18 @@
   }
 
   .slideDescription {
-    font-size: var(--font-size-md);
-    margin-top: var(--margin-2);
+    font-size: var(--font-size-base);
+    margin-top: var(--space-4);
     max-width: 100%;
   }
 
   .viewMoreWrapper {
-    margin-top: var(--margin-2);
+    margin-top: var(--space-4);
   }
 
   .imageWrapper {
     height: 180px;
-    margin-bottom: var(--margin-2);
+    margin-bottom: var(--space-4);
   }
 
   .slideImage {
@@ -466,7 +466,7 @@
 
   .navigationButtons {
     width: 100px;
-    gap: var(--gap-4);
+    gap: var(--space-8);
   }
 
   .indicator {
@@ -493,7 +493,7 @@
   }
 
   .slidePrice {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-base);
   }
 
   .slideDescription {

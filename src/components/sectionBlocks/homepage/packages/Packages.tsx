@@ -10,11 +10,11 @@ import { packages } from "./Packages.content";
 export const Packages = () => {
   return (
     <Section id="packages" aria-labelledby="packages-title">
-      <Column gap="var(--gap-5)" fullWidth>
+      <Column gap="var(--space-10)" fullWidth>
         <Row
           justifyContent="between"
           alignItems="center"
-          gap="var(--gap-2)"
+          gap="var(--space-4)"
           fullWidth
         >
           <SectionTitle
@@ -30,7 +30,7 @@ export const Packages = () => {
         </Row>
 
         {/* Package cards */}
-        <Row gap="var(--gap-4)" justifyContent="between" wrap>
+        <Row gap="var(--space-8)" justifyContent="between" wrap>
           {packages.map((item, index) => (
             <SmallCard
               key={index}

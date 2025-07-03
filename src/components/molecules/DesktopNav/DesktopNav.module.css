@@ -7,7 +7,7 @@
 
 .navigationMenuList {
   display: flex;
-  gap: var(--gap-0);
+  gap: var(--space-0);
   align-items: center;
   list-style: none;
   margin: 0;
@@ -16,23 +16,23 @@
 
 .navigationMenuItem {
   position: relative;
-  padding: var(--padding-1);
+  padding: var(--space-2);
 }
 
 .navigationMenuItem:hover {
-  background-color: var(--color-foreground-light);
-  border-radius: var(--border-radius-1);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 .navigationMenuLink {
   display: inline-flex;
   align-items: center;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   padding: 0;
   color: var(--color-text-primary);
   text-decoration: none;
   font-weight: 600;
-  font-size: var(--font-size-body-3);
+  font-size: var(--font-size-body-small);
   white-space: nowrap;
   transition: color 0.2s ease;
 }
@@ -44,7 +44,7 @@
 .navigationMenuLink:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: var(--border-radius-1);
+  border-radius: var(--radius-sm);
 }
 
 .active {
@@ -54,9 +54,9 @@
 .navigationMenuLinkUnique {
   background-color: var(--color-primary);
   color: var(--color-white);
-  border-radius: var(--border-radius-1);
-  padding: var(--padding-1) var(--padding-2);
-  margin-left: var(--margin-1);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  margin-left: var(--space-2);
   font-weight: 400;
 }
 
@@ -78,7 +78,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-1);
+  gap: var(--space-2);
 }
 
 .navigationMenuTrigger {
@@ -90,7 +90,7 @@
   border: none;
   display: inline-flex;
   align-items: center;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 0;
@@ -109,7 +109,7 @@
 .navigationMenuTrigger:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: var(--border-radius-1);
+  border-radius: var(--radius-sm);
 }
 
 .navigationMenuTrigger[data-state="open"] {
@@ -117,8 +117,8 @@
 }
 
 .navigationMenuItem:has(.navigationMenuTrigger[data-state="open"]) {
-  background-color: var(--color-foreground-light);
-  border-radius: var(--border-radius-1);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 .navigationMenuTriggerIcon {
@@ -137,9 +137,9 @@
   width: fit-content;
   min-width: max-content;
   background-color: var(--color-white);
-  border-radius: var(--border-radius-1);
-  box-shadow: var(--box-shadow-1);
-  padding: var(--padding-3);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-elevated);
+  padding: var(--space-6);
   z-index: 100;
 }
 
@@ -157,26 +157,26 @@
 .navigationMenuDropdown {
   display: flex;
   flex-direction: row;
-  gap: var(--gap-3);
+  gap: var(--space-6);
   align-items: center;
   white-space: nowrap;
 }
 
 .navigationMenuDropdown .navigationMenuLink {
-  padding: var(--padding-1);
+  padding: var(--space-2);
   font-weight: 600;
 }
 
 .navigationMenuDropdown .navigationMenuLink:hover {
-  background-color: var(--color-foreground-light);
-  border-radius: var(--border-radius-1);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
   color: var(--color-primary);
 }
 
 .clickableParentContainer {
   display: flex;
   align-items: center;
-  gap: var(--gap-1);
+  gap: var(--space-2);
   width: 100%;
 }
 

@@ -16,7 +16,7 @@ export const PackageCarousel = () => {
       id="package-carousel"
       aria-labelledby="package-carousel-title"
     >
-      <Column fullWidth gap="var(--gap-5)">
+      <Column fullWidth gap="var(--space-10)">
         <Row fullWidth justifyContent="between">
           <SectionTitle
             specialWord="Package"

@@ -17,7 +17,7 @@ export const WhyChooseUs = () => {
       id="why-choose-us"
       aria-labelledby="why-choose-us-title"
     >
-      <Column gap="var(--gap-5)" className={styles.sectionContainer}>
+      <Column gap="var(--space-10)" className={styles.sectionContainer}>
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
             className={styles.sectionTitle}
@@ -36,12 +36,12 @@ export const WhyChooseUs = () => {
           fullWidth
           alignItems="center"
           justifyContent="between"
-          gap="var(--gap-10)"
+          gap="var(--space-20)"
           className={styles.contentRow}
         >
           <Column
             alignItems="start"
-            gap="var(--gap-4)"
+            gap="var(--space-8)"
             className={styles.pointsColumn}
           >
             {whyChooseUsContent.points.map((item) => (
@@ -71,7 +71,7 @@ export const WhyChooseUs = () => {
           <Column
             className={styles.imageContainer}
             alignItems="end"
-            gap="var(--gap-4)"
+            gap="var(--space-8)"
           >
             <ImageContainer
               src={whyChooseUsContent.image}

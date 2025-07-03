@@ -9,7 +9,7 @@
 
 .mainRow {
   pointer-events: auto;
-  max-width: var(--container-max-width);
+  max-width: var(--layout-container-max-width);
   position: relative;
 }
 
@@ -30,20 +30,20 @@
 
 .divider {
   min-width: 1px;
-  height: var(--divider-height, 86px);
+  height: var(--size-divider-height, 86px);
   background-color: var(--color-divider, #d6d6d6);
-  margin: 0 var(--margin-1);
+  margin: 0 var(--space-2);
 }
 
 @media (max-width: 1200px) {
   .mainRow {
     flex-direction: column;
-    gap: var(--gap-6);
+    gap: var(--space-12);
     align-items: flex-start;
   }
 
   .titleColumn {
-    margin-bottom: var(--margin-4);
+    margin-bottom: var(--space-8);
     margin-right: 0;
   }
 
@@ -56,11 +56,11 @@
 
 @media (max-width: 992px) {
   .trustStatsSection {
-    /* padding: var(--padding-4) 0; */
+    /* padding: var(--space-8) 0; */
   }
 
   .statsContainer {
-    gap: var(--gap-2);
+    gap: var(--space-4);
   }
 }
 
@@ -73,25 +73,25 @@
   .divider {
     width: 100%;
     height: 1px;
-    margin: var(--margin-1) 0;
+    margin: var(--space-2) 0;
   }
 
   .titleColumn {
     max-width: 100%;
-    margin-bottom: var(--margin-3);
+    margin-bottom: var(--space-6);
   }
 }
 
 @media (max-width: 576px) {
   .trustStatsSection {
-    /* padding: var(--padding-3) 0; */
+    /* padding: var(--space-6) 0; */
   }
 
   .mainRow {
-    gap: var(--gap-3);
+    gap: var(--space-6);
   }
 
   .titleColumn {
-    margin-bottom: var(--margin-2);
+    margin-bottom: var(--space-4);
   }
 }

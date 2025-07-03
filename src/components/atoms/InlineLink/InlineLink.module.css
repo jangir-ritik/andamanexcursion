@@ -2,9 +2,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-family-jakarta);
+  font-family: var(--font-family-primary);
   font-weight: 500;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-base);
   line-height: 1.5;
   text-decoration: none;
   transition: all 0.2s ease-in-out;

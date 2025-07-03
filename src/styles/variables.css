@@ -1,141 +1,177 @@
 :root {
-  /* Colors */
-  --color-primary: #3e8cff;
-  --color-primary-dark: #2a7ce6;
-  --color-primary-light: #e6f0ff;
-  --color-secondary: #f36f0d;
-  --color-secondary-dark: #d85c00;
-  --color-tertiary: #002cba;
-  --color-disable: #9b9b9b;
-  --color-white: #ffffff; /* color for background */
-  --color-black: #000000; /* color for some title text */
-  --color-text-primary: #000e0f; /* color for text */
-  --color-text-secondary: #5f5f5f; /* color for text */
-  --color-foreground-dark: #ebf3ff; /* color for some sections foreground */
-  --color-foreground-light: #f5f9ff; /* color for some sections foreground */
-  --color-border: #ffffff33;
-  --color-border-2: #e0e0e0;
-  --color-border-3: #c0c0c0;
-  --color-focus: rgba(62, 140, 255, 0.1);
-  --color-divider: #d6d6d6;
-  --color-exclude-circle: #d3d3d3;
+  /* ===== PRIMITIVE TOKENS ===== */
+  
+  /* Color Palette - Base Colors */
+  --color-blue-50: #e6f0ff;
+  --color-blue-500: #3e8cff;
+  --color-blue-600: #2a7ce6;
+  --color-blue-700: #002cba;
+  --color-orange-500: #f36f0d;
+  --color-orange-600: #d85c00;
+  --color-gray-50: #f5f9ff;
+  --color-gray-100: #ebf3ff;
+  --color-gray-200: #ececec;
+  --color-gray-300: #e0e0e0;
+  --color-gray-400: #d6d6d6;
+  --color-gray-500: #c0c0c0;
+  --color-gray-600: #9b9b9b;
+  --color-gray-700: #5f5f5f;
+  --color-gray-800: #3e3e3e;
+  --color-gray-900: #000e0f;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  
+  /* Special Colors */
+  --color-testimonial-blue: #89b9ff;
+  --color-exclude-light: #d3d3d3;
+  --color-focus-blue: rgba(62, 140, 255, 0.1);
+  --color-border-alpha: #ffffff33;
 
-  /* Testimonial specific colors */
-  --color-testimonial-border: #89b9ff;
-  --color-testimonial-text: #3e3e3e;
-  --color-testimonial-divider: #ececec;
-  --testimonial-card-width: 282px;
-  --testimonial-card-height: 263px;
-  --testimonial-rotation-angle: 8deg;
+  /* ===== SEMANTIC TOKENS ===== */
+  
+  /* Brand Colors */
+  --color-primary: var(--color-blue-500);
+  --color-primary-hover: var(--color-blue-600);
+  --color-primary-light: var(--color-blue-50);
+  --color-secondary: var(--color-orange-500);
+  --color-secondary-hover: var(--color-orange-600);
+  --color-tertiary: var(--color-blue-700);
+  
+  /* Text Colors */
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-700);
+  --color-text-tertiary: var(--color-gray-800);
+  --color-text-inverse: var(--color-white);
+  --color-text-disabled: var(--color-gray-600);
+  
+  /* Background Colors */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-gray-50);
+  --color-bg-tertiary: var(--color-gray-100);
+  
+  /* Border Colors */
+  --color-border-primary: var(--color-border-alpha);
+  --color-border-secondary: var(--color-gray-300);
+  --color-border-tertiary: var(--color-gray-500);
+  --color-border-focus: var(--color-focus-blue);
+  
+  /* Component-specific Colors */
+  --color-divider: var(--color-gray-400);
+  --color-testimonial-border: var(--color-testimonial-blue);
+  --color-testimonial-text: var(--color-gray-800);
+  --color-testimonial-divider: var(--color-gray-200);
 
-  /* Typography - Standardized font sizes */
-  --font-size-xs: 14px;
-  --font-size-sm: 15px;
-  --font-size-md: 16px;
-  --font-size-lg: 18px;
-  --font-size-xl: 20px;
-  --font-size-2xl: 24px;
-  --font-size-3xl: 32px;
-  --font-size-4xl: 40px;
-  --font-size-5xl: 54px;
-
-  /* Legacy font size variables (mapped to new standardized sizes) */
-  --font-size-h1: var(--font-size-5xl);
-  --font-size-h2: var(--font-size-4xl);
-  --font-size-subheading-1: var(--font-size-xl);
-  --font-size-subheading-2: var(--font-size-2xl);
-  --font-size-body-1: var(--font-size-xl);
-  --font-size-body-2: var(--font-size-lg);
-  --font-size-body-3: var(--font-size-sm);
-  --font-size-body-4: var(--font-size-xs);
+  /* ===== TYPOGRAPHY TOKENS ===== */
+  
+  /* Font Families */
+  --font-family-primary: "Plus Jakarta Sans", sans-serif;
+  --font-family-display: "Quick Beach", cursive, sans-serif;
+  
+  /* Font Sizes - T-shirt sizing */
+  --font-size-xs: 0.875rem;   /* 14px */
+  --font-size-sm: 0.9375rem;  /* 15px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 2rem;      /* 32px */
+  --font-size-4xl: 2.5rem;    /* 40px */
+  --font-size-5xl: 3.375rem;  /* 54px */
+  
+  /* Semantic Font Sizes */
+  --font-size-heading-1: var(--font-size-5xl);
+  --font-size-heading-2: var(--font-size-4xl);
+  --font-size-heading-3: var(--font-size-3xl);
+  --font-size-heading-4: var(--font-size-2xl);
+  --font-size-body-large: var(--font-size-xl);
+  --font-size-body-base: var(--font-size-lg);
+  --font-size-body-small: var(--font-size-sm);
+  --font-size-caption: var(--font-size-xs);
   --font-size-button: var(--font-size-sm);
 
-  --font-family-jakarta: "Plus Jakarta Sans", sans-serif;
-  --font-family-quick-beach: "Quick Beach", cursive, sans-serif;
-  --font-quick-beach: "Quick Beach", cursive, sans-serif;
+  /* ===== SPACING TOKENS ===== */
+  
+  /* Base Unit */
+  --space-unit: 0.5rem; /* 8px */
+  
+  /* Spacing Scale */
+  --space-0: 0;
+  --space-1: calc(var(--space-unit) * 0.5);  /* 4px */
+  --space-2: var(--space-unit);              /* 8px */
+  --space-3: calc(var(--space-unit) * 1.5);  /* 12px */
+  --space-4: calc(var(--space-unit) * 2);    /* 16px */
+  --space-5: calc(var(--space-unit) * 2.5);  /* 20px */
+  --space-6: calc(var(--space-unit) * 3);    /* 24px */
+  --space-8: calc(var(--space-unit) * 4);    /* 32px */
+  --space-10: calc(var(--space-unit) * 5);   /* 40px */
+  --space-12: calc(var(--space-unit) * 6);   /* 48px */
+  --space-14: calc(var(--space-unit) * 7);   /* 56px */
+  --space-16: calc(var(--space-unit) * 8);   /* 64px */
+  --space-18: calc(var(--space-unit) * 9);   /* 72px */
+  --space-20: calc(var(--space-unit) * 10);  /* 80px */
+  
+  /* Semantic Spacing */
+  --space-section: calc(var(--space-unit) * 18.5); /* 148px */
+  --space-container-inline: calc(var(--space-unit) * 15); /* 120px */
 
-  /* Box Shadow */
-  --box-shadow-1: 0px 4px 22px 0px rgba(0, 0, 0, 0.25);
-  --box-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.01);
+  /* ===== BORDER RADIUS TOKENS ===== */
+  
+  /* Base Radius Scale */
+  --radius-none: 0;
+  --radius-sm: calc(var(--space-unit) * 1);    /* 8px */
+  --radius-base: calc(var(--space-unit) * 1.5); /* 12px */
+  --radius-md: calc(var(--space-unit) * 2);    /* 16px */
+  --radius-lg: calc(var(--space-unit) * 3);    /* 24px */
+  --radius-xl: calc(var(--space-unit) * 4);    /* 32px */
+  --radius-2xl: calc(var(--space-unit) * 5);   /* 40px */
+  --radius-3xl: calc(var(--space-unit) * 6);   /* 48px */
+  
+  /* Semantic Radius */
+  --radius-button: var(--radius-sm);
+  --radius-card: var(--radius-md);
+  --radius-image-small: var(--radius-lg);
+  --radius-image-medium: var(--radius-xl);
+  --radius-image-large: var(--radius-2xl);
+  --radius-image-xl: var(--radius-3xl);
+  
+  /* Special Radius Combinations */
+  --radius-image-asymmetric: var(--radius-lg) 0 0 var(--radius-lg);
 
-  /* Container */
-  --container-max-width: 1200px;
-  --container-padding: 0 120px;
+  /* ===== SHADOW TOKENS ===== */
+  
+  --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.01);
+  --shadow-lg: 0 4px 22px rgba(0, 0, 0, 0.25);
+  --shadow-card: var(--shadow-sm);
+  --shadow-elevated: var(--shadow-lg);
 
-  /* atomic unit */
-  --atomic-unit: 8px;
+  /* ===== LAYOUT TOKENS ===== */
+  
+  --layout-container-max-width: 75rem; /* 1200px */
+  --layout-container-padding: var(--space-container-inline);
+  
+  /* Component Dimensions */
+  --size-form-field-min-width: 7.5rem;    /* 120px */
+  --size-form-field-height: 4.5rem;       /* 72px */
+  --size-floating-button: 2.8125rem;      /* 45px */
+  --size-divider-height: 5.375rem;        /* 86px */
+  
+  /* Testimonial Component */
+  --size-testimonial-card-width: 17.625rem;  /* 282px */
+  --size-testimonial-card-height: 16.4375rem; /* 263px */
+  --testimonial-rotation: 8deg;
 
-  /* gap */
-  --section-gap: 148px;
-  --gap-0: 0;
-  --gap-half-unit: calc(var(--atomic-unit) / 2);
-  --gap-1: var(--atomic-unit);
-  --gap-1-half: calc(var(--atomic-unit) * 1.5);
-  --gap-2: calc(var(--atomic-unit) * 2);
-  --gap-2-half: calc(var(--atomic-unit) * 2.5);
-  --gap-3: calc(var(--atomic-unit) * 3);
-  --gap-4: calc(var(--atomic-unit) * 4);
-  --gap-5: calc(var(--atomic-unit) * 5);
-  --gap-6: calc(var(--atomic-unit) * 6);
-  --gap-7: calc(var(--atomic-unit) * 7);
-  --gap-8: calc(var(--atomic-unit) * 8);
-  --gap-9: calc(var(--atomic-unit) * 9);
-  --gap-10: calc(var(--atomic-unit) * 10);
-
-  /* padding */
-  --padding-0: 0;
-  --padding-half: calc(var(--atomic-unit) / 2);
-  --padding-1: var(--atomic-unit);
-  --padding-1-half: calc(var(--atomic-unit) * 1.5);
-  --padding-2: calc(var(--atomic-unit) * 2);
-  --padding-2-half: calc(var(--atomic-unit) * 2.5);
-  --padding-3: calc(var(--atomic-unit) * 3);
-  --padding-4: calc(var(--atomic-unit) * 4);
-  --padding-5: calc(var(--atomic-unit) * 5);
-  --padding-6: calc(var(--atomic-unit) * 6);
-  --padding-7: calc(var(--atomic-unit) * 7);
-  --padding-8: calc(var(--atomic-unit) * 8);
-  --padding-9: calc(var(--atomic-unit) * 9);
-  --padding-10: calc(var(--atomic-unit) * 10);
-
-  /* margin */
-  --margin-0: 0;
-  --margin-1: var(--atomic-unit);
-  --margin-2: calc(var(--atomic-unit) * 2);
-  --margin-3: calc(var(--atomic-unit) * 3);
-  --margin-4: calc(var(--atomic-unit) * 4);
-  --margin-5: calc(var(--atomic-unit) * 5);
-  --margin-6: calc(var(--atomic-unit) * 6);
-  --margin-7: calc(var(--atomic-unit) * 7);
-  --margin-8: calc(var(--atomic-unit) * 8);
-
-  /* border radius */
-  --border-radius-0: 0;
-  --border-radius-1: var(--atomic-unit);
-  --border-radius-1-half: calc(var(--atomic-unit) * 1.5);
-  --border-radius-2: calc(var(--atomic-unit) * 2);
-  --border-radius-3: calc(var(--atomic-unit) * 3);
-  --border-radius-4: calc(var(--atomic-unit) * 4);
-  --border-radius-5: calc(var(--atomic-unit) * 5);
-
-  /* image border radius - unique to the website */
-  --border-radius-image-small: 24px;
-  --border-radius-image-medium: 32px;
-  --border-radius-image-large: 40px;
-  --border-radius-image-xl: 48px;
-  --border-radius-image-top-left: 24px;
-  --border-radius-image-top-right: 0;
-  --border-radius-image-bottom-left: 0;
-  --border-radius-image-bottom-right: 24px;
-
-  /* magic values*/
-  --formfield-min-width: 120px;
-  --formfield-height: 72px;
-  --floating-button-size: 45px;
-  --divider-height: 86px;
+  /* ===== ANIMATION TOKENS ===== */
+  
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* Add explicit @font-face declarations for Safari compatibility with WOFF2 */
+/* ===== FONT LOADING ===== */
+
 @font-face {
   font-family: "Quick Beach";
   src: url("/fonts/quick-beach.woff2") format("woff2");
@@ -144,13 +180,33 @@
   font-display: swap;
 }
 
-/* Safari-specific font loading optimization */
+/* Safari-specific font optimization */
 @supports (-webkit-appearance: none) {
-  .quick-beach-text {
-    font-family: "Quick Beach", "Brush Script MT", cursive, fantasy, serif;
+  .display-text {
+    font-family: var(--font-family-display);
     -webkit-font-feature-settings: "kern" 1;
     font-feature-settings: "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.container {
+  max-width: var(--layout-container-max-width);
+  padding-inline: var(--layout-container-padding);
+  margin-inline: auto;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
