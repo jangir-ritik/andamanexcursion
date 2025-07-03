@@ -1,9 +1,9 @@
 import React from "react";
 import { Row, Section } from "@/components/layout";
-import { StatCard } from "@/components/molecules/StatCard/StatCard";
+import { StatCard } from "@/components/molecules/Cards";
 import { trustStatsContent } from "./TrustStats.content";
 import styles from "./TrustStats.module.css";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
+import { SectionTitle } from "@/components/atoms";
 import curlyArrow from "@public/graphics/curlyArrowOrange.svg";
 import Image from "next/image";
 

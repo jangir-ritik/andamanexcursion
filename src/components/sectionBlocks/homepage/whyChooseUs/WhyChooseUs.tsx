@@ -1,14 +1,16 @@
 "use client";
 
-import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Column, Row, Section } from "@/components/layout";
 import React from "react";
+import { Column, Row, Section } from "@/components/layout";
+import {
+  DescriptionText,
+  SectionTitle,
+  Chip,
+  ImageContainer,
+  InlineLink,
+} from "@/components/atoms";
 import styles from "./WhyChooseUs.module.css";
-import { Chip } from "@/components/atoms/Chip/Chip";
-import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
 import { whyChooseUsContent } from "./WhyChooseUs.content";
-import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
 
 export const WhyChooseUs = () => {
   return (

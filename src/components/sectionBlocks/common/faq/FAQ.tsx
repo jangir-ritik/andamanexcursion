@@ -1,17 +1,12 @@
 "use client";
 
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 
 import styles from "./FAQ.module.css";
 import { FAQContainer } from "@/components/molecules/FAQContainer/FAQContainer";
 import type { FAQProps } from "./FAQ.types";
-
-export interface FAQItem {
-  question: string;
-  answer: string;
-}
+import { SectionTitle } from "@/components/atoms";
 
 export const FAQ = ({ title, specialWord, items, className }: FAQProps) => {
   return (

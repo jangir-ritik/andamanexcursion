@@ -5,10 +5,10 @@ import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
-import { Header } from "@/components/organisms/Header/Header";
-import { Footer } from "@/components/organisms/Footer";
-import { Column, Container } from "@/components/layout";
+
 import { PackageProvider } from "@/context/PackageContext";
+import { Footer, Header } from "@/components/organisms";
+import { Column, Container } from "@/components/layout";
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",

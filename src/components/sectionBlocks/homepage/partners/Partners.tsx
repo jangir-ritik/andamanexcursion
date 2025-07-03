@@ -1,7 +1,7 @@
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Column, Row, Section } from "@/components/layout";
-import Image from "next/image";
 import React from "react";
+import Image from "next/image";
+import { Column, Row, Section } from "@/components/layout";
+import { SectionTitle } from "@/components/atoms";
 import { partnersContent } from "./Partners.content";
 
 export const Partners = () => {

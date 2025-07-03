@@ -2,16 +2,19 @@
 import React, { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import styles from "./BookingForm.module.css";
-import { LocationSelect } from "../../atoms/LocationSelect/LocationSelect";
-import { DateSelect } from "../../atoms/DateSelect/DateSelect";
-import { SlotSelect } from "../../atoms/SlotSelect/SlotSelect";
-import { PassengerCounter, PassengerCount } from "../../atoms/PassengerCounter";
 import { TAB_CONFIG } from "./config/formConfig";
-import { Button } from "../../atoms/Button/Button";
-import { ActivitySelect } from "../../atoms/ActivitySelect/ActivitySelect";
-import type { BookingFormProps,
-  FormState,
- } from "./BookingForm.types";
+
+import type { BookingFormProps, FormState } from "./BookingForm.types";
+
+import {
+  ActivitySelect,
+  Button,
+  DateSelect,
+  LocationSelect,
+  PassengerCount,
+  PassengerCounter,
+  SlotSelect,
+} from "@/components/atoms";
 
 export function BookingForm({ className }: BookingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>("ferry");

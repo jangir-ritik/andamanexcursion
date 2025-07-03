@@ -1,11 +1,12 @@
 import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
-import { OverviewTab } from "./tabs/OverviewTab";
-import { ItineraryTab } from "./tabs/ItineraryTab";
-import { WhatsCoveredTab } from "./tabs/WhatsCoveredTab";
+
 import type { PackageDetailTabsProps  } from "./PackageDetailTabs.types";
 
 import styles from "./PackageDetailTabs.module.css";
+import { OverviewTab } from "./tabs/OverviewTab/OverviewTab";
+import { ItineraryTab } from "./tabs/ItineraryTab/ItineraryTab";
+import { WhatsCoveredTab } from "./tabs/WhatsCoveredTab/WhatsCoveredTab";
 
 export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
   packageData,

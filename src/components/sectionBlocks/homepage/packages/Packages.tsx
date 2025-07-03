@@ -1,10 +1,7 @@
 import React from "react";
-import { Section } from "@/components/layout/Section/Section";
-import { Column } from "@/components/layout/Column/Column";
-import { Row } from "@/components/layout/Row/Row";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Button } from "@/components/atoms/Button/Button";
-import { SmallCard } from "@/components/molecules/Cards/SmallCard/SmallCard";
+import { Section, Column, Row } from "@/components/layout";
+import { SectionTitle, Button } from "@/components/atoms";
+import { SmallCard } from "@/components/molecules/Cards";
 import { packages } from "./Packages.content";
 
 export const Packages = () => {

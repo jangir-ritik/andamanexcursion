@@ -1,13 +1,11 @@
-import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Column, Row, Section } from "@/components/layout";
+
 import React from "react";
-import styles from "./HiddenGems.module.css";
-import { Button } from "@/components/atoms/Button/Button";
-import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
+import styles from "./HiddenGems.module.css"; 
+import { Button, DescriptionText, ImageContainer, SectionTitle } from "@/components/atoms";
 import { hiddenGemsContent } from "./HiddenGems.content";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
+import { Column, Row, Section } from "@/components/layout";
 
 export const HiddenGems = () => {
   const { title, specialWord, description, ctaText, ctaHref, images } =

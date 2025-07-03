@@ -1,9 +1,11 @@
 import React from "react";
-import { Column } from "@/components/layout/Column";
-import { ItineraryDay } from "../../components/ItineraryDay/ItineraryDay";
-import { ItineraryTabProps } from "../../PackageDetailTabs.types";
+
+import { Column } from "@/components/layout";
+
+import type { ItineraryTabProps } from "../../PackageDetailTabs.types";
 
 import styles from "./ItineraryTab.module.css";
+import { ItineraryDay } from "../../components/ItineraryDay/ItineraryDay";
 
 export const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
   return (

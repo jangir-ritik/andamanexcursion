@@ -1,7 +1,7 @@
 import type { LargeCardProps  } from "./LargeCard.types";
 import styles from "./LargeCard.module.css";
 import Image from "next/image";
-import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
+import { InlineLink } from "@/components/atoms";
 
 export const LargeCard = ({
   image,

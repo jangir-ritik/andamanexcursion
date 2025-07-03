@@ -1,13 +1,10 @@
-import { Section } from "@/components/layout/Section/Section";
-import { Column } from "@/components/layout/Column/Column";
-import { Row } from "@/components/layout/Row/Row";
-import { HeroTitle } from "@/components/atoms/HeroTitle/HeroTitle";
-import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
-import { BookingForm } from "@/components/organisms/BookingForm/BookingForm";
-import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
-import styles from "./Banner.module.css";
 import { content } from "./Banner.content";
-import type { BannerProps  } from "./Banner.types";
+import { Section, Column, Row } from "@/components/layout";
+import type { BannerProps } from "./Banner.types";
+import { HeroTitle, DescriptionText, ImageContainer } from "@/components/atoms";
+import { BookingForm } from "@/components/organisms";
+
+import styles from "./Banner.module.css";
 
 export const Banner = ({ className, id = "hero" }: BannerProps = {}) => {
   return (

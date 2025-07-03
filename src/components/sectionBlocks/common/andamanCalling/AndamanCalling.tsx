@@ -1,5 +1,5 @@
 import { Section } from "@/components/layout";
-import { LargeCard } from "@/components/molecules";
+import { LargeCard } from "@/components/molecules/Cards/LargeCard/LargeCard";
 import React from "react";
 import styles from "./AndamanCalling.module.css";
 import { andamanCallingContent } from "./AndamanCalling.content";

@@ -1,10 +1,13 @@
 "use client";
 
 import React from "react";
-import { Section } from "@/components/layout/Section";
-import { Column } from "@/components/layout/Column";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
+import { Section, Column, Row } from "@/components/layout";
+import {
+  SectionTitle,
+  DescriptionText,
+  InlineLink,
+  Button,
+} from "@/components/atoms";
 import { getPackageById } from "@/data/packages";
 import { useParams } from "next/navigation";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
@@ -13,9 +16,6 @@ import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import styles from "../../page.module.css";
 import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
 import { ScubaDiving } from "@/components/sectionBlocks/common/scubaDiving/ScubaDiving";
-import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
-import { Row } from "@/components/layout/Row";
-import { Button } from "@/components/atoms/Button/Button";
 
 export default function PackageDetailPage() {
   const params = useParams();

@@ -1,10 +1,12 @@
-import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
-import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Column, Row, Section } from "@/components/layout";
-import styles from "./Story.module.css";
 import React from "react";
+import { Column, Row, Section } from "@/components/layout";
+import {
+  DescriptionText,
+  ImageContainer,
+  SectionTitle,
+} from "@/components/atoms";
 import { storyContent } from "./Story.content";
+import styles from "./Story.module.css";
 
 export const Story = () => {
   return (
@@ -15,7 +17,11 @@ export const Story = () => {
       id="our-story"
       aria-labelledby="story-title"
     >
-      <Column gap="var(--space-12)" fullWidth className={styles.sectionContainer}>
+      <Column
+        gap="var(--space-12)"
+        fullWidth
+        className={styles.sectionContainer}
+      >
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
             text={storyContent.title}

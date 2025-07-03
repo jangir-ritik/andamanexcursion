@@ -1,6 +1,4 @@
-import { Column, Section } from "@/components/layout";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Row } from "@/components/layout";
+
 import React from "react";
 import {
   BadgeIconType,
@@ -8,8 +6,10 @@ import {
 } from "./LovedAdventures.content";
 import styles from "./LovedAdventures.module.css";
 import { Heart, Star } from "lucide-react";
-import { MediumCard } from "@/components/molecules/Cards/MediumCard";
 import type { LovedAdventuresProps  } from "./LovedAdventures.types";
+import { Column, Row, Section } from "@/components/layout";
+import { SectionTitle } from "@/components/atoms";
+import { MediumCard } from "@/components/molecules/Cards";
 
 export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
   const { title, specialWord, adventures } = lovedAdventuresContent;

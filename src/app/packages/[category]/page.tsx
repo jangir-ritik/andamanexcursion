@@ -1,16 +1,15 @@
 "use client";
 
 import React from "react";
-import { Section } from "@/components/layout/Section";
-import { Column } from "@/components/layout/Column";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { PackageSelector } from "@/components/molecules/PackageSelector";
-import { FeaturePackageCard } from "@/components/molecules/Cards/FeaturePackageCard";
+import { Section, Column } from "@/components/layout";
+import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
+import { FeaturePackageCard } from "@/components/molecules/Cards";
 
 import { usePackageCategoryPage } from "@/hooks/usePackageCategoryPage";
 
 import styles from "../page.module.css";
 import { packageOptions, periodOptions } from "../page.content";
+import { SectionTitle } from "@/components/atoms";
 
 export default function CategoryPage() {
   const {

@@ -1,12 +1,13 @@
 import React from "react";
 import Image from "next/image";
-import { TestimonialCard } from "@/components/molecules";
-import { Section, Container, Column } from "@/components/layout";
+
 import { testimonialsContent } from "./Testimonials.content";
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
+import { SectionTitle } from "@/components/atoms";
 import type { TestimonialsProps } from "./Testimonials.types";
+import { Column, Container, Section } from "@/components/layout";
+import { TestimonialCard } from "@/components/molecules/Cards";
 
 export const Testimonials = ({
   className,

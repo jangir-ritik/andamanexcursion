@@ -1,7 +1,10 @@
 import React from "react";
-import { Column } from "@/components/layout/Column";
+
+import { Column } from "@/components/layout";
+
+import type { OverviewTabProps } from "../../PackageDetailTabs.types";
+
 import { HighlightItem } from "../../components/HighlightItem/HighlightItem";
-import { OverviewTabProps } from "../../PackageDetailTabs.types";
 
 import styles from "./OverviewTab.module.css";
 

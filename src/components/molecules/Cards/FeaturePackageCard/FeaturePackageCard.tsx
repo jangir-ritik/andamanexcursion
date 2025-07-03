@@ -1,10 +1,10 @@
 import React from "react";
-import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
-import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
+
 import type { FeaturePackageCardProps  } from "./FeaturePackageCard.types";
 import clsx from "clsx";
 
 import styles from "./FeaturePackageCard.module.css";
+import { ImageContainer, InlineLink } from "@/components/atoms";
 
 export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
   title,

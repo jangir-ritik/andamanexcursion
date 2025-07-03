@@ -1,10 +1,8 @@
-import { ImageContainer } from "@/components/atoms/ImageContainer/ImageContainer";
-import { Column } from "@/components/layout/Column";
-import { Row } from "@/components/layout/Row";
 import React from "react";
-
+import { ImageContainer } from "@/components/atoms";
+import { Column, Row } from "@/components/layout";
 import styles from "./PackageDetailHeader.module.css";
-import type { PackageDetailHeaderProps  } from "./PackageDetailHeader.types";
+import type { PackageDetailHeaderProps } from "./PackageDetailHeader.types";
 
 export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
   packageData,

@@ -1,10 +1,13 @@
 import React from "react";
-import { Column } from "@/components/layout/Column";
-import { WhatsCoveredTabProps } from "../../PackageDetailTabs.types";
+
+import { Column } from "@/components/layout";
+
+import type { WhatsCoveredTabProps } from "../../PackageDetailTabs.types";
+
+import styles from "./WhatsCoveredTab.module.css";
 import { IncludeItem } from "../../components/IncludeItem/IncludeItem";
 import { ExcludeItem } from "../../components/ExcludeItem/ExcludeItem";
 
-import styles from "./WhatsCoveredTab.module.css";
 
 export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
   includes,

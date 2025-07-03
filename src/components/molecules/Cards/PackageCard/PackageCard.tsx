@@ -1,11 +1,11 @@
 "use client";
 
-import type { PackageCardProps  } from "./PackageCard.types";
+import type { PackageCardProps } from "./PackageCard.types";
 import styles from "./PackageCard.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";
-import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
+import { InlineLink } from "@/components/atoms";
 
 export const PackageCard = ({
   title,

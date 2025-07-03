@@ -12,7 +12,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import type { DesktopNavProps } from "./DesktopNav.types";
 import styles from "./DesktopNav.module.css";
-import { CustomLink } from "@/components/atoms/CustomLink";
+import { CustomLink } from "@/components/atoms";
 
 export const DesktopNav = React.memo(
   ({ items, className }: DesktopNavProps) => {

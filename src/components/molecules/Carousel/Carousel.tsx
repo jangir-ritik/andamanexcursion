@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import type { CarouselProps } from "./Carousel.types";
 import { ArrowLeft, ArrowRight, Star } from "lucide-react";
 import styles from "./Carousel.module.css";
-import { InlineLink } from "@/components/atoms/InlineLink/InlineLink";
+import { InlineLink } from "@/components/atoms";
 
 export const Carousel = ({
   slides,

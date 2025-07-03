@@ -1,13 +1,13 @@
-import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
-import { Column, Row, Section } from "@/components/layout";
-import { Carousel } from "@/components/molecules/Carousel";
+import { DescriptionText, SectionTitle } from "@/components/atoms";
+
 import {
   packageCarouselContent,
   sectionContent,
 } from "./PackageCarousel.content";
-import styles from "./PackageCarousel.module.css";
 import React from "react";
+import styles from "./PackageCarousel.module.css";
+import { Column, Row, Section } from "@/components/layout";
+import { Carousel } from "@/components/molecules/Carousel/Carousel";
 
 export const PackageCarousel = () => {
   return (
