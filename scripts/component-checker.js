@@ -116,11 +116,29 @@ const getAllComponents = () => {
 // Get staged components
 const getStagedComponents = () => {
   try {
+    // Get all staged files
     const gitOutput = execSync("git diff --cached --name-only").toString();
     const stagedFiles = gitOutput.split("\n").filter(Boolean);
-    return stagedFiles.filter(
+
+    // Filter for component files
+    const componentFiles = stagedFiles.filter(
       (file) => file.startsWith("src/components") && isComponent(file)
     );
+
+    // Filter out deleted files
+    const nonDeletedFiles = [];
+    for (const file of componentFiles) {
+      const gitStatus = execSync(`git status --porcelain "${file}"`)
+        .toString()
+        .trim();
+      if (!gitStatus.startsWith("D ") && !gitStatus.startsWith("AD ")) {
+        nonDeletedFiles.push(file);
+      } else {
+        console.log(`ℹ️ Skipping deleted file: ${file}`);
+      }
+    }
+
+    return nonDeletedFiles;
   } catch (error) {
     console.error("Error getting staged files:", error.message);
     return [];
@@ -130,6 +148,19 @@ const getStagedComponents = () => {
 // Check a single component
 const checkSingleComponent = (componentPath) => {
   if (!fs.existsSync(componentPath)) {
+    // Check if the file is being deleted (will be in git diff but not in filesystem)
+    try {
+      const gitStatus = execSync(`git status --porcelain "${componentPath}"`)
+        .toString()
+        .trim();
+      if (gitStatus.startsWith("D ") || gitStatus.startsWith("AD ")) {
+        console.log(`ℹ️ ${componentPath} is being deleted, skipping check.`);
+        return true;
+      }
+    } catch (error) {
+      // If there's an error checking git status, proceed with normal error
+    }
+
     console.error(`Component not found: ${componentPath}`);
     process.exit(1);
   }
