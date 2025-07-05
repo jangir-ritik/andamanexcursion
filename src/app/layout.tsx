@@ -7,7 +7,7 @@ import "./globals.css";
 import "@/styles/variables.css";
 
 import { PackageProvider } from "@/context/PackageContext";
-import { BookingProvider } from "@/context/BookingContext";
+import { BookingProviders } from "@/context/BookingProviders";
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
 
@@ -84,7 +84,7 @@ export default function RootLayout({
         />
       </head>
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
-        <BookingProvider>
+        <BookingProviders>
           <PackageProvider>
             <Header />
             <Container>
@@ -94,7 +94,7 @@ export default function RootLayout({
             </Container>
             <Footer />
           </PackageProvider>
-        </BookingProvider>
+        </BookingProviders>
       </body>
     </html>
   );

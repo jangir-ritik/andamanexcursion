@@ -6,26 +6,29 @@ import { SectionTitle } from "@/components/atoms";
 import { Partners } from "@/components/sectionBlocks/common";
 import { BookingForm } from "@/components/organisms";
 import useFerryBooking from "@/hooks/useFerryBooking";
+import { useFerryBookingContext } from "@/context/FerryBookingContext";
 import { SearchSummary, TimeFilters, FerryResults } from "./components";
 
 // Component that uses useSearchParams - this needs to be wrapped in Suspense
 const FerryBookingContent = () => {
-  const [state, actions] = useFerryBooking();
+  // Get basic booking parameters from useFerryBooking hook
+  const [bookingParams, bookingActions] = useFerryBooking();
+
+  // Get ferry-specific state from context
+  const { ferryState, setTimeFilter: setFerryTimeFilter } =
+    useFerryBookingContext();
 
   const {
     mainTimeGroup,
     otherTimeGroups,
     loading,
-    from,
-    to,
-    date,
-    time,
-    timeFilter,
     filteredFerries,
-    passengers,
-  } = state;
+    timeFilter,
+  } = ferryState;
 
-  const { handleChooseSeats, setTimeFilter } = actions;
+  const { from, to, date, time, passengers } = bookingParams;
+
+  const { handleChooseSeats } = bookingActions;
 
   return (
     <>
@@ -41,7 +44,10 @@ const FerryBookingContent = () => {
       />
 
       {!loading && (
-        <TimeFilters timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
+        <TimeFilters
+          timeFilter={timeFilter}
+          setTimeFilter={setFerryTimeFilter}
+        />
       )}
 
       <FerryResults

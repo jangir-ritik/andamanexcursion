@@ -2,110 +2,62 @@
 
 import React, {
   createContext,
-  useState,
   useContext,
   ReactNode,
   useCallback,
   useMemo,
+  useReducer,
 } from "react";
-import { formatTimeForDisplay, parseTimeFilter } from "@/utils/timeUtils";
 
-export interface BookingFormState {
-  from: string;
-  to: string;
-  date: string;
-  time: string;
-  adults: number;
-  children: number;
-  infants: number;
-}
+import {
+  BookingContextType,
+  BookingFormState,
+  BookingActionTypes,
+} from "./BookingContext.types";
 
-interface BookingContextType {
-  bookingState: BookingFormState;
-  updateBookingState: (newState: Partial<BookingFormState>) => void;
-  resetBookingState: () => void;
-  getTotalPassengers: () => number;
-  getTimeRange: () => { startTime: string; endTime: string } | null;
-}
+import { bookingReducer, defaultBookingState } from "./BookingReducer";
 
-// Use a function to get the current date to avoid stale dates on component remounts
-const getCurrentDate = () => new Date().toISOString().split("T")[0];
+import { calculateTotalPassengers, calculateTimeRange } from "./BookingUtils";
 
-const defaultBookingState: BookingFormState = {
-  from: "Port Blair",
-  to: "Havelock",
-  date: getCurrentDate(),
-  time: "11:00 AM",
-  adults: 2,
-  children: 0,
-  infants: 0,
-};
-
+// Create the context with undefined as default value
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export const BookingProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [bookingState, setBookingState] = useState<BookingFormState>(
-    () => defaultBookingState
+  // Use reducer instead of useState
+  const [bookingState, dispatch] = useReducer(
+    bookingReducer,
+    defaultBookingState
   );
 
-  // Optimize update function to use functional updates
+  // Update booking state using dispatch
   const updateBookingState = useCallback(
     (newState: Partial<BookingFormState>) => {
-      setBookingState((prevState) => {
-        // If time is being updated, format it consistently
-        const formattedState = { ...newState };
-        if (formattedState.time) {
-          formattedState.time = formatTimeForDisplay(formattedState.time);
-        }
-
-        return {
-          ...prevState,
-          ...formattedState,
-        };
+      dispatch({
+        type: BookingActionTypes.UPDATE_BOOKING,
+        payload: newState,
       });
     },
     []
   );
 
-  // Optimize reset function
+  // Reset booking state using dispatch
   const resetBookingState = useCallback(() => {
-    setBookingState({
-      ...defaultBookingState,
-      date: getCurrentDate(), // Ensure date is always current
-    });
+    dispatch({ type: BookingActionTypes.RESET_BOOKING });
   }, []);
 
-  // Simplified passenger count calculation - doesn't need memoization
+  // Calculate total passengers using utility function
   const getTotalPassengers = useCallback(() => {
-    return bookingState.adults + bookingState.children + bookingState.infants;
-  }, [bookingState.adults, bookingState.children, bookingState.infants]);
+    return calculateTotalPassengers(bookingState);
+  }, [bookingState]);
 
-  // Optimize time range calculation
+  // Calculate time range using utility function
   const getTimeRange = useCallback(() => {
-    if (!bookingState.time) return null;
+    return calculateTimeRange(bookingState.time);
+  }, [bookingState]);
 
-    // Parse the time string to get start and end times
-    const timeRange = parseTimeFilter(bookingState.time);
-    if (!timeRange) return null;
-
-    // Format the times for display
-    const formatTime = (time: number) => {
-      const hours = Math.floor(time / 100);
-      const minutes = time % 100;
-      const period = hours >= 12 ? "PM" : "AM";
-      const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-      return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
-    };
-
-    return {
-      startTime: formatTime(timeRange.start),
-      endTime: formatTime(timeRange.end),
-    };
-  }, [bookingState.time]);
-
-  // Create context value - still using useMemo to prevent unnecessary re-renders
+  // Create context value
   const contextValue = useMemo<BookingContextType>(
     () => ({
       bookingState,
@@ -137,3 +89,6 @@ export const useBooking = (): BookingContextType => {
   }
   return context;
 };
+
+// Re-export types for convenience
+export type { BookingFormState } from "./BookingContext.types";
