@@ -1,11 +1,13 @@
 "use client";
 
 import type { SmallCardProps } from "./SmallCard.types";
-import { MoveUpRight, Star } from "lucide-react";
+import { MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import styles from "./SmallCard.module.css";
 import { Chip } from "@/components/atoms";
 import star from "@public/icons/misc/star.svg";
+import heart from "@public/icons/misc/heart.svg";
+import { cn } from "@/utils/cn";
 
 export const SmallCard = ({
   image,
@@ -13,6 +15,7 @@ export const SmallCard = ({
   title,
   duration,
   price,
+  description,
   href,
   rating,
 }: SmallCardProps) => {
@@ -25,7 +28,12 @@ export const SmallCard = ({
           aria-label={imageAlt}
         />
         <div className={styles.imageOverlay} />
-        <div className={styles.contentContainer}>
+        <div
+          className={cn(
+            styles.contentContainer,
+            description && styles.contentContainerWithDescription
+          )}
+        >
           {duration && (
             <div className={styles.durationBadge}>
               <span className={styles.durationText}>{duration}</span>
@@ -39,11 +47,27 @@ export const SmallCard = ({
                 className={styles.ratingBadge}
               />
             )}
+            {description && (
+              <Chip
+                icon={heart}
+                text={"Customer's Favourite"}
+                className={styles.favouriteBadge}
+              />
+            )}
             <h3 className={styles.cardTitle}>{title}</h3>
-            <p className={styles.cardPrice}>{price}</p>
+            {description && (
+              <p className={styles.cardDescription}>{description}</p>
+            )}
+            {price && <p className={styles.cardPrice}>{price}</p>}
           </div>
         </div>
-        <div className={styles.arrowButton} aria-hidden="true">
+        <div
+          className={cn(
+            styles.arrowButton,
+            description && styles.arrowButtonWithDescription
+          )}
+          aria-hidden="true"
+        >
           <MoveUpRight size={20} color="var(--color-primary)" />
         </div>
       </div>
@@ -51,7 +75,12 @@ export const SmallCard = ({
   );
 
   return (
-    <div className={styles.cardContainer}>
+    <div
+      className={cn(
+        styles.cardContainer,
+        description && styles.cardContainerWithDescription
+      )}
+    >
       {href ? (
         <Link href={href} className={styles.cardLink}>
           <CardContent />

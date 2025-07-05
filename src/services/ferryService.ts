@@ -18,6 +18,12 @@ export async function fetchAvailableFerries(
   passengers: number
 ): Promise<FerryCardProps[]> {
   try {
+    // Validate that departure and arrival locations are different
+    if (departureLocation === arrivalLocation) {
+      console.warn("Departure and arrival locations cannot be the same");
+      return [];
+    }
+
     // Create a cache key based on search parameters
     const cacheKey = `${departureLocation}-${arrivalLocation}-${date}-${passengers}`;
 

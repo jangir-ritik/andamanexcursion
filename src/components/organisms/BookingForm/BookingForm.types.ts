@@ -6,7 +6,7 @@ import { PassengerCount } from "@/components/atoms/PassengerCounter/PassengerCou
 export interface BookingFormProps {
   className?: string;
   variant?: "default" | "compact" | "embedded";
-  initialTab?: "ferry" | "boat" | "activity";
+  initialTab?: "ferry" | "local-boat" | "activities";
 }
 
 export interface FormState {

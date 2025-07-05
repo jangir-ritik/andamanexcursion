@@ -6,7 +6,7 @@ import { Section, Column } from "@/components/layout";
 
 import styles from "./page.module.css";
 import { content } from "./page.content";
-import { ImageContainer, Button } from "@/components/atoms";
+import { ImageContainer } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
 import {
   FAQ,
@@ -48,13 +48,7 @@ export default function FerryPage() {
             fullWidth
           />
 
-          <BookingForm />
-
-          <div className={styles.bookingCta}>
-            <Button onClick={handleViewFerries} variant="primary" showArrow>
-              View Available Ferries
-            </Button>
-          </div>
+          <BookingForm initialTab="ferry" />
         </Column>
       </Section>
 

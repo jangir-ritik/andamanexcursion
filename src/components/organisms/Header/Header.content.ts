@@ -14,6 +14,7 @@ export const navItems = [
   {
     label: "Activities",
     href: "/activities",
+    isClickable: true,
     children: [
       {
         label: "Sub Item 1",

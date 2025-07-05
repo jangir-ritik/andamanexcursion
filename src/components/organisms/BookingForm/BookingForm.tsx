@@ -27,6 +27,13 @@ export function BookingForm({
   const router = useRouter();
   const { bookingState, updateBookingState } = useBooking();
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
+
+  // Get the tab config for the initial tab
+  const initialTabConfig = useMemo(
+    () => TAB_CONFIG.find((tab) => tab.id === initialTab) || TAB_CONFIG[0],
+    [initialTab]
+  );
+
   const [formState, setFormState] = useState<FormState>(() => ({
     fromLocation:
       bookingState.from === "Port Blair"
@@ -36,13 +43,19 @@ export function BookingForm({
       bookingState.to === "Havelock"
         ? "havelock"
         : bookingState.to.toLowerCase().replace(/\s+/g, "-"),
-    selectedActivity: "scuba-diving",
+    // Ensure we have a valid initial activity
+    selectedActivity: initialTab === "activities" ? "scuba-diving" : "",
     selectedDate: new Date(bookingState.date),
-    selectedSlot: timeStringToSlotId(bookingState.time),
+    // Use the first time slot from the initial tab if the current one isn't valid
+    selectedSlot: initialTabConfig?.timeSlots.some(
+      (slot) => slot.id === timeStringToSlotId(bookingState.time)
+    )
+      ? timeStringToSlotId(bookingState.time)
+      : initialTabConfig?.timeSlots[0]?.id || "",
     passengers: {
       adults: bookingState.adults,
       infants: bookingState.infants,
-      children: 0, // Default to 0 children
+      children: bookingState.children || 0,
     },
   }));
 

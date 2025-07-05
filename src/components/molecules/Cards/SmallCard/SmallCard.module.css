@@ -11,6 +11,11 @@
   transition: transform 0.2s ease-in-out;
 }
 
+.cardContainerWithDescription {
+  height: 360px;
+  max-width: unset;
+}
+
 .cardContainer:hover {
   transform: translateY(-5px);
 }
@@ -58,6 +63,10 @@
   padding: var(--space-10);
 }
 
+.contentContainerWithDescription {
+  justify-content: flex-end;
+}
+
 .contentContainer:has(.durationBadge) {
   justify-content: space-between;
 }
@@ -87,15 +96,20 @@
   line-height: 20px;
   color: var(--color-text-primary);
 }
-
-.ratingBadge {
+.ratingBadge,
+.favouriteBadge {
   margin-bottom: var(--space-3);
   background: #ffffff20;
   backdrop-filter: blur(4px);
 }
-
-.ratingBadge span {
+.ratingBadge span,
+.favouriteBadge span {
+  white-space: nowrap;
   color: var(--color-white) !important;
+}
+
+.favouriteBadge span {
+  font-size: 12px;
 }
 
 .cardInfo {
@@ -128,6 +142,14 @@
   margin: 0;
 }
 
+.cardDescription {
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-base);
+  line-height: 20px;
+}
+
 .arrowButton {
   position: absolute;
   display: flex;
@@ -145,6 +167,11 @@
   border: none;
   z-index: 4;
   opacity: 0;
+}
+
+.arrowButtonWithDescription {
+  bottom: unset;
+  top: var(--space-10);
 }
 
 .cardContainer:hover .arrowButton {
