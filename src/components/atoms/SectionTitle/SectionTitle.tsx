@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./SectionTitle.module.css";
-import type { SectionTitleProps  } from "./SectionTitle.types";
+import type { SectionTitleProps } from "./SectionTitle.types";
 import underlineGraphic from "@public/graphics/underline.svg";
 import Image from "next/image";
 
@@ -40,7 +40,7 @@ export const SectionTitle = ({
       setUnderlinePositions([
         {
           left,
-          top: top - 18,
+          top: top - 10,
           width: specialWordRect.width,
         },
       ]);

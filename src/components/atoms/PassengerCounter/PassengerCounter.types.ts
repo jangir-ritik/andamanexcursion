@@ -1,6 +1,7 @@
 export interface PassengerCount {
   adults: number;
   infants: number;
+  children: number; // Might need to remove this field
 }
 
 export interface PassengerCounterProps {

@@ -8,6 +8,45 @@
   margin-top: calc(var(--space-2) * -14);
 }
 
+/* Compact variant */
+.compact {
+  margin-top: 0;
+  border-radius: var(--radius-md-2);
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-gray-100);
+}
+
+.compact .tabsList {
+  width: 100%;
+  max-width: 337px;
+}
+
+.compact .tabsContent {
+  padding: var(--space-3);
+}
+
+.compact .formGrid {
+  gap: var(--space-2);
+}
+
+/* Embedded variant */
+.embedded {
+  margin-top: 0;
+  padding: 0;
+  filter: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.embedded .formGrid {
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--color-white);
+  border-radius: var(--radius-md);
+}
+
 /* Tabs */
 .tabsRoot {
   display: flex;
@@ -114,8 +153,7 @@
 /* Desktop Responsive Design */
 @media (min-width: 1200px) {
   .tabsContent {
-    border-radius: 0 var(--radius-md) var(--radius-md)
-      var(--radius-md);
+    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
   }
 
   .formGrid {
@@ -129,8 +167,7 @@
     max-width: 60vw;
   }
   .tabsContent {
-    border-radius: 0 var(--radius-md) var(--radius-md)
-      var(--radius-md);
+    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
   }
 
   .formGrid {

@@ -1,0 +1,597 @@
+.ferryCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  padding: var(--space-14) var(--space-6);
+  gap: var(--space-4);
+  width: 100%;
+  background: #ffffff;
+  border-radius: 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ferryCard:hover {
+  box-shadow: var(--shadow-card);
+  background-color: var(--color-focus-blue);
+}
+
+.clickableArea {
+  width: 100%;
+  cursor: pointer;
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.ferryInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-3);
+}
+
+.logoContainer {
+  width: var(--space-16);
+  height: var(--space-16);
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ferryLogo {
+  object-fit: contain;
+}
+
+.ferryDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+  gap: var(--space-1);
+}
+
+.ferryName {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-heading-3);
+  color: var(--color-black);
+  margin: 0;
+}
+
+.ferryNameLink {
+  color: var(--color-black);
+  text-decoration: none;
+}
+
+.ferryNameLink:hover {
+  color: var(--color-primary);
+}
+
+.ratingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-2);
+}
+
+.starIcon {
+  width: var(--space-6);
+  height: var(--space-6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ratingText {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-body-small);
+  color: var(--color-black);
+}
+
+.seatsInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-2);
+}
+
+.infoIcon {
+  width: var(--space-5);
+  height: var(--space-5);
+  color: var(--color-primary);
+}
+
+.seatsText {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-body-small);
+  text-align: center;
+  color: var(--color-primary);
+}
+
+.journeyRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-4);
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.journeyInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 725px;
+}
+
+.departureInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.timeText {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 600;
+  font-size: var(--font-size-heading-3);
+  color: var(--color-black);
+  margin: 0;
+  width: max-content;
+}
+
+.locationText {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-body-large);
+  color: var(--color-text-secondary);
+}
+
+.journeyLine {
+  position: relative;
+  width: 100%;
+  margin: 0 var(--space-5);
+  height: var(--space-6);
+  /* margin-top: auto;
+  margin-bottom: var(--space-3);
+  margin-left: var(--space-2);
+  margin-right: var(--space-2); */
+}
+
+.dottedLine {
+  position: absolute;
+  width: 100%;
+  height: 0;
+  top: 50%;
+  left: 0;
+  border: 1px dashed var(--color-primary);
+}
+
+.circleStart {
+  position: absolute;
+  width: var(--space-6);
+  height: var(--space-6);
+  left: -12px;
+  top: 0;
+}
+
+.circleEnd {
+  position: absolute;
+  width: var(--space-6);
+  height: var(--space-6);
+  right: -12px;
+  top: 0;
+}
+
+.ferryCard:hover .ferryIcon {
+  background-color: var(--color-gray-100);
+}
+
+.ferryIcon {
+  position: absolute;
+  width: var(--space-18);
+  height: var(--space-18);
+  top: calc(var(--space-14) / -2);
+  left: calc(50% - var(--space-18) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-white);
+}
+
+.priceInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0;
+  gap: var(--space-1);
+}
+
+.expandIcon {
+  margin-top: var(--space-1);
+}
+
+.pricePerAdult {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-body-large);
+  text-align: right;
+  color: var(--color-black);
+}
+
+.totalPrice {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 600;
+  font-size: var(--font-size-heading-4);
+  text-align: right;
+  color: var(--color-secondary);
+}
+
+.classesContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: var(--space-4) 0 0;
+  gap: var(--space-6);
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-4);
+}
+
+.classesWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 60%;
+}
+
+.classCard {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-4);
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  width: 100%;
+}
+
+.activeClass {
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary-light);
+  box-shadow: var(--shadow-card);
+}
+
+.inactiveClass {
+  border: 1px solid var(--color-border);
+}
+
+.inactiveClass:hover {
+  border: 1px solid var(--color-primary);
+}
+
+.classHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.classInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.className {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-heading-4);
+  color: var(--color-black);
+  margin: 0;
+}
+
+.seatsAlert {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-2);
+}
+
+.alertIcon {
+  color: var(--color-alert-error);
+}
+
+.alertText {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-body-small);
+  color: var(--color-alert-error);
+}
+
+.classPriceInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.amenitiesContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.amenitiesGroup {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 50%;
+}
+
+.amenityItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.amenityIcon {
+  width: var(--space-6);
+  height: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-black);
+}
+
+.amenityLabel {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-body-small);
+  color: var(--color-black);
+}
+
+.chooseSeatsButton {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-2);
+  background: var(--color-primary);
+  border-radius: var(--radius-button);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--easing-standard);
+}
+
+.chooseSeatsButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.chooseSeatsButton:active {
+  background-color: var(--color-primary-darker);
+}
+
+.buttonText {
+  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-body-small);
+  color: var(--color-white);
+}
+
+.arrowIcon {
+  color: var(--color-white);
+}
+
+.imageSliderContainer {
+  position: relative;
+  width: 38%;
+  height: auto;
+  background-color: red;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.ferryImage {
+  object-fit: cover;
+}
+
+.sliderButton {
+  position: absolute;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.sliderButtonPrev {
+  left: var(--space-2);
+}
+
+.sliderButtonNext {
+  right: var(--space-2);
+}
+
+.sliderButton svg {
+  color: var(--color-black);
+}
+
+@media (max-width: 1200px) {
+  .ferryCard {
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .journeyInfo {
+    width: auto;
+  }
+
+  .classesContainer {
+    flex-direction: column;
+  }
+
+  .classesWrapper {
+    width: 100%;
+  }
+
+  .classCard {
+    width: 100%;
+  }
+
+  .imageSliderContainer {
+    width: 100%;
+    max-width: 358px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .ferryCard {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .headerRow,
+  .journeyRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    height: auto;
+  }
+
+  .ferryInfo,
+  .seatsInfo {
+    width: 100%;
+    margin: 0;
+  }
+
+  .journeyInfo {
+    width: 100%;
+    justify-content: space-between;
+    margin: 0;
+    height: auto;
+  }
+
+  .journeyLine {
+    width: 120px;
+  }
+
+  .priceInfo {
+    width: 100%;
+    align-items: flex-start;
+    margin: 0;
+  }
+
+  .classHeader {
+    gap: var(--space-4);
+  }
+
+  .amenitiesContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .amenitiesList {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .chooseSeatsButton {
+    width: 100%;
+  }
+
+  .classCard {
+    padding: var(--space-3);
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .ferryCard {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .ferryName {
+    font-size: var(--font-size-heading-3);
+    line-height: var(--font-size-heading-3);
+    height: auto;
+  }
+
+  .timeText {
+    font-size: var(--font-size-heading-3);
+    line-height: var(--font-size-heading-3);
+    height: auto;
+  }
+
+  .journeyLine {
+    width: 80px;
+  }
+
+  .ferryIcon {
+    width: var(--space-10);
+    height: var(--space-10);
+  }
+}

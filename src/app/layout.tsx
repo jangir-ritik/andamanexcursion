@@ -7,6 +7,7 @@ import "./globals.css";
 import "@/styles/variables.css";
 
 import { PackageProvider } from "@/context/PackageContext";
+import { BookingProvider } from "@/context/BookingContext";
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
 
@@ -83,15 +84,17 @@ export default function RootLayout({
         />
       </head>
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
-        <PackageProvider>
-          <Header />
-          <Container>
-            <Column gap="var(--space-section)" fullWidth>
-              {children}
-            </Column>
-          </Container>
-          <Footer />
-        </PackageProvider>
+        <BookingProvider>
+          <PackageProvider>
+            <Header />
+            <Container>
+              <Column gap="var(--space-section)" fullWidth>
+                {children}
+              </Column>
+            </Container>
+            <Footer />
+          </PackageProvider>
+        </BookingProvider>
       </body>
     </html>
   );

@@ -1,15 +1,29 @@
 "use client";
-
-import React from "react";
+import React, { ReactNode } from "react";
 import Image from "next/image";
 import styles from "./Chip.module.css";
-import type { ChipProps } from "./Chip.types";
 
-export const Chip = ({ icon, text, className = "" }: ChipProps) => {
+export interface ChipProps {
+  icon?: string;
+  iconComponent?: ReactNode;
+  text: string;
+  className?: string;
+}
+
+export const Chip = ({
+  icon,
+  iconComponent,
+  text,
+  className = "",
+}: ChipProps) => {
   return (
     <div className={`${styles.chipContainer} ${className}`}>
       <div className={styles.iconWrapper}>
-        <Image src={icon} alt="" width={20} height={20} />
+        {iconComponent ? (
+          iconComponent
+        ) : icon ? (
+          <Image src={icon} alt="" width={20} height={20} />
+        ) : null}
       </div>
       <span className={styles.chipText}>{text}</span>
     </div>

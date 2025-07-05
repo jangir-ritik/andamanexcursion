@@ -1,7 +1,7 @@
-import partner1 from "@public/images/homepage/partners/dss.png";
-import partner2 from "@public/images/homepage/partners/greenOcean.png";
-import partner3 from "@public/images/homepage/partners/nautika.png";
-import partner4 from "@public/images/homepage/partners/makruzz.png";
+import partner1 from "@public/icons/partners/dss.svg";
+import partner2 from "@public/icons/partners/greenOcean.svg";
+import partner3 from "@public/icons/partners/nautika.svg";
+import partner4 from "@public/icons/partners/makruzz.svg";
 
 export const partnersContent = {
   title: "Our Trusted Partners",

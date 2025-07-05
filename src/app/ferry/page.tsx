@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 
 import styles from "./page.module.css";
 import { content } from "./page.content";
-import { ImageContainer } from "@/components/atoms";
+import { ImageContainer, Button } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
 import {
   FAQ,
@@ -18,8 +19,23 @@ import {
   PlanInFourEasySteps,
   Trivia,
 } from "@/components/sectionBlocks/ferry";
+import { useBooking } from "@/context/BookingContext";
 
 export default function FerryPage() {
+  const router = useRouter();
+  const { bookingState } = useBooking();
+
+  const handleViewFerries = () => {
+    // Navigate to booking page with current booking state
+    router.push(
+      `/ferry/booking?from=${bookingState.from}&to=${bookingState.to}&date=${
+        bookingState.date
+      }&time=${encodeURIComponent(bookingState.time)}&passengers=${
+        bookingState.adults + bookingState.children + bookingState.infants
+      }`
+    );
+  };
+
   return (
     <main className={styles.main}>
       <Section noPadding id="hero">
@@ -33,8 +49,15 @@ export default function FerryPage() {
           />
 
           <BookingForm />
+
+          <div className={styles.bookingCta}>
+            <Button onClick={handleViewFerries} variant="primary" showArrow>
+              View Available Ferries
+            </Button>
+          </div>
         </Column>
       </Section>
+
       <PlanInFourEasySteps />
       <TrustedFerries />
       <Partners />
@@ -52,7 +75,7 @@ export default function FerryPage() {
         title={content.faqSection.title}
         specialWord={content.faqSection.specialWord}
         items={content.faqSection.items}
-      />{" "}
+      />
       <LargeCardSection
         title={content.largeCardSection2.title}
         image={content.largeCardSection2.image}
