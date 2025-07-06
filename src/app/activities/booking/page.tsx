@@ -12,8 +12,9 @@ import {
   TimeFilters,
   ActivityResults,
 } from "@/components/molecules/BookingResults";
+import { ACTIVITIES } from "@/data/activities";
 
-// Component that uses useSearchParams - this needs to be wrapped in Suspense
+// Component that uses useSearchParams for the activity results
 const ActivitiesBookingContent = () => {
   // Get basic booking parameters from useActivityBooking hook
   const [bookingParams, bookingActions] = useActivityBooking();
@@ -65,12 +66,44 @@ const ActivitiesBookingContent = () => {
   );
 };
 
+// Component that uses useSearchParams for the title section
+const ActivityPageTitle = () => {
+  // Get booking parameters to access selected activity
+  const [bookingParams] = useActivityBooking();
+  const { activity: activityId } = bookingParams;
+
+  // Find the activity name from the ACTIVITIES array
+  const selectedActivity = ACTIVITIES.find((act) => act.id === activityId);
+  const activityName = selectedActivity ? selectedActivity.name : "activities";
+
+  // Determine the title based on whether an activity is selected
+  const titleText = `${activityName} in Andaman`;
+  const specialWord = `${activityName}`;
+
+  return (
+    <SectionTitle
+      specialWord={specialWord}
+      text={titleText}
+      id="available-activities-title"
+    />
+  );
+};
+
 // Loading component for Suspense fallback
 const ActivitiesBookingLoader = () => (
   <div className={styles.loader}>
     <div className={styles.spinner} />
     <p>Loading activity options...</p>
   </div>
+);
+
+// Simple title fallback for loading state
+const TitleLoader = () => (
+  <SectionTitle
+    specialWord="Activities"
+    text="Activities in Andaman"
+    id="available-activities-title"
+  />
 );
 
 export default function ActivitiesBookingPage() {
@@ -102,14 +135,13 @@ export default function ActivitiesBookingPage() {
             gap="var(--space-4)"
             fullWidth
           >
-            <SectionTitle
-              specialWord="activities!"
-              text="Choose your activities!"
-              id="available-activities-title"
-            />
+            {/* Wrap the title in Suspense since it uses useSearchParams */}
+            <Suspense fallback={<TitleLoader />}>
+              <ActivityPageTitle />
+            </Suspense>
           </Row>
 
-          {/* Suspense is needed because ActivitiesBookingContent uses useSearchParams */}
+          {/* Suspense for the activity content */}
           <Suspense fallback={<ActivitiesBookingLoader />}>
             <ActivitiesBookingContent />
           </Suspense>

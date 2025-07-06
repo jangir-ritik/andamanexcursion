@@ -1,10 +1,13 @@
 "use client";
 
 import React from "react";
-import { Section, Column } from "@/components/layout";
+import { Section, Column, Grid } from "@/components/layout";
 
 import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
-import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
+import {
+  Testimonials,
+  LargeCardSection,
+} from "@/components/sectionBlocks/common";
 
 import { content } from "./page.content";
 import styles from "./page.module.css";
@@ -14,15 +17,12 @@ import {
   ImageContainer,
   SectionTitle,
 } from "@/components/atoms";
-import { LargeCardSection } from "@/components/sectionBlocks/common";
 import { BookingForm } from "@/components/organisms";
-import { Grid } from "@/components/layout/Grid/Grid";
 import { SmallCard } from "@/components/molecules/Cards";
 
 export default function ActivitiesPage() {
   return (
     <main className={styles.main}>
-      {" "}
       <Section noPadding id="hero">
         <Column gap="var(--space-8)" fullWidth>
           <ImageContainer
