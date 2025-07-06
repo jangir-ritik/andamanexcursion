@@ -18,10 +18,10 @@
   cursor: pointer;
 }
 
-.interactive:hover {
+/* .interactive:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .interactive:hover .imagesContainer img {
   transform: scale(1.05);
@@ -134,8 +134,7 @@
   width: 576px;
   height: 173px;
   background: var(--color-border-secondary);
-  border-radius: var(--radius-md) var(--radius-md)
-    var(--radius-md) 60px;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 60px;
   overflow: hidden;
 }
 
