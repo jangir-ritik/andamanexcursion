@@ -1,24 +1,14 @@
-import { Location } from "@/components/atoms/LocationSelect/LocationSelect.types";
 import { TimeSlot } from "@/components/atoms/SlotSelect/SlotSelect.types";
 import { Activity } from "@/components/atoms/ActivitySelect/ActivitySelect.types";
-import { PassengerCount } from "@/components/atoms/PassengerCounter/PassengerCounter.types";
+import { Location } from "@/components/atoms/LocationSelect/LocationSelect.types";
 import { ACTIVITIES as ACTIVITIES_LIST } from "@/data/activities";
 import { FERRY_LOCATIONS } from "@/data/ferries";
-import { BOAT_LOCATIONS } from "@/data/boats";
 
 export interface BookingFormProps {
   className?: string;
   variant?: "default" | "compact" | "embedded";
   initialTab?: "ferry" | "local-boat" | "activities";
-}
-
-export interface FormState {
-  fromLocation: string;
-  toLocation: string;
-  selectedActivity: string;
-  selectedDate: Date;
-  selectedSlot: string;
-  passengers: PassengerCount;
+  hideTabs?: boolean;
 }
 
 export interface TabConfig {

@@ -86,6 +86,7 @@ export default function ActivitiesBookingPage() {
           variant="compact"
           initialTab="activities"
           className={styles.bookingForm}
+          hideTabs={true}
         />
       </Section>
 

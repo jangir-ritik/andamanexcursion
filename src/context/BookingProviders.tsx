@@ -3,6 +3,7 @@
 import React, { ReactNode } from "react";
 import { BookingProvider } from "./BookingContext";
 import { FerryBookingProvider } from "./FerryBookingContext";
+import { BoatBookingProvider } from "./BoatBookingContext";
 import { ActivityBookingProvider } from "./ActivityBookingContext";
 
 // Types for the combined provider
@@ -21,7 +22,9 @@ export const BookingProviders: React.FC<BookingProvidersProps> = ({
   return (
     <BookingProvider>
       <FerryBookingProvider>
-        <ActivityBookingProvider>{children}</ActivityBookingProvider>
+        <BoatBookingProvider>
+          <ActivityBookingProvider>{children}</ActivityBookingProvider>
+        </BoatBookingProvider>
       </FerryBookingProvider>
     </BookingProvider>
   );

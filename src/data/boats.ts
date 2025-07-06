@@ -24,6 +24,7 @@ export interface BoatRoute {
   from: string; // Location ID
   to: string; // Location ID
   durationMinutes: number;
+  availableSeats: number;
   description: string;
   price: number;
   boatTypeId: string;
@@ -98,6 +99,7 @@ export const BOAT_ROUTES: BoatRoute[] = [
     durationMinutes: 120,
     description: "Explore the vibrant marine life around Elephant Beach",
     price: 2500,
+    availableSeats: 6,
     boatTypeId: "glass-bottom",
     availableDays: [0, 1, 2, 3, 4, 5, 6], // All days
     highlights: ["Coral Reefs", "Colorful Fish", "Clear Waters"],
@@ -110,6 +112,7 @@ export const BOAT_ROUTES: BoatRoute[] = [
     durationMinutes: 30,
     description: "Quick trip to North Bay Island",
     price: 1000,
+    availableSeats: 6,
     boatTypeId: "speed-boat",
     availableDays: [0, 1, 2, 3, 4, 5, 6], // All days
     highlights: ["Lighthouse", "Coral Viewing", "Quick Transfer"],
@@ -122,6 +125,7 @@ export const BOAT_ROUTES: BoatRoute[] = [
     durationMinutes: 180,
     description: "Luxury cruise around Ross Island with historical tour",
     price: 8000,
+    availableSeats: 12,
     boatTypeId: "luxury-yacht",
     availableDays: [0, 5, 6], // Weekends and Sunday
     highlights: [
@@ -139,6 +143,7 @@ export const BOAT_ROUTES: BoatRoute[] = [
     durationMinutes: 240,
     description: "Half-day fishing trip from Havelock Island",
     price: 3500,
+    availableSeats: 4,
     boatTypeId: "fishing-boat",
     availableDays: [1, 3, 5], // Mon, Wed, Fri
     highlights: [
@@ -155,6 +160,7 @@ export const BOAT_ROUTES: BoatRoute[] = [
     durationMinutes: 150,
     description: "Explore the limestone caves and mangrove forests",
     price: 2200,
+    availableSeats: 6,
     boatTypeId: "speed-boat",
     availableDays: [0, 2, 4], // Sun, Tue, Thu
     highlights: ["Limestone Caves", "Mangrove Forests", "Mud Volcanoes"],

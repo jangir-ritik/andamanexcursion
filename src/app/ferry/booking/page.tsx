@@ -82,6 +82,7 @@ export default function FerryBookingPage() {
           variant="compact"
           initialTab="ferry"
           className={styles.bookingForm}
+          hideTabs={true}
         />
       </Section>
 
