@@ -1,8 +1,8 @@
 import { Location } from "@/components/atoms/LocationSelect/LocationSelect.types";
 import greenOceanLogo from "@public/images/ferry/trustedFerries/greenOcean.png";
 import goNauticaLogo from "@public/images/ferry/trustedFerries/goNautica.png";
-import iitMajesticLogo from "@public/images/ferry/trustedFerries/IITMajestic.png";
 import makruzzLogo from "@public/images/ferry/trustedFerries/makruzz.png";
+import iitMajesticLogo from "@public/images/ferry/trustedFerries/placeholder.png";
 
 /**
  * Ferry operator interface
