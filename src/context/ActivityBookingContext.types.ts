@@ -1,4 +1,4 @@
-import { ActivityCardProps } from "@/components/molecules/BookingResults/ActivityResults";
+import { ActivityCardProps } from "@/components/molecules/BookingResults";
 
 // Activity booking specific state
 export interface ActivityBookingState {

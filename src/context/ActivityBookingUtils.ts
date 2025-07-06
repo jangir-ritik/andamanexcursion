@@ -1,5 +1,4 @@
-import { ActivityCardProps } from "@/components/molecules/BookingResults/ActivityResults";
-import { convertTo24Hour, parseTimeFilter } from "@/utils/timeUtils";
+import { ActivityCardProps } from "@/components/molecules/Cards/ActivityCard/ActivityCard.types";
 
 /**
  * Filters activities by time range
@@ -20,23 +19,8 @@ export function filterActivitiesByTime(
     return activities;
   }
 
-  // Parse time filter
-  const timeRange = parseTimeFilter(filter);
-  if (!timeRange) {
-    return activities;
-  }
-
-  // Filter activities by time slot
-  return activities.filter((activity) => {
-    // Extract the time part from the duration field (e.g., "10:00 AM - 1 hr" -> "10:00 AM")
-    const timeMatch = activity.duration.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
-    if (!timeMatch) return false;
-
-    const activityTimeStr = timeMatch[1];
-    const activityTime = convertTo24Hour(activityTimeStr);
-
-    return activityTime >= timeRange.start && activityTime <= timeRange.end;
-  });
+  // For now, just return all activities since we've simplified the time format
+  return activities;
 }
 
 /**
@@ -48,30 +32,9 @@ export function groupActivitiesByTime(activities: ActivityCardProps[]): {
   mainTimeGroup: ActivityCardProps[];
   otherTimeGroups: ActivityCardProps[];
 } {
-  // Main time group: 10:00 AM to 11:59 AM
-  const mainTimeGroup = activities.filter((activity) => {
-    const timeMatch = activity.duration.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
-    if (!timeMatch) return false;
-
-    const activityTimeStr = timeMatch[1];
-    const activityTime = convertTo24Hour(activityTimeStr);
-
-    return activityTime >= 1000 && activityTime < 1200;
-  });
-
-  // Other time groups: before 10:00 AM or after 11:59 AM
-  const otherTimeGroups = activities.filter((activity) => {
-    const timeMatch = activity.duration.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
-    if (!timeMatch) return false;
-
-    const activityTimeStr = timeMatch[1];
-    const activityTime = convertTo24Hour(activityTimeStr);
-
-    return activityTime < 1000 || activityTime >= 1200;
-  });
-
+  // For simplicity, put all activities in the main time group
   return {
-    mainTimeGroup,
-    otherTimeGroups,
+    mainTimeGroup: activities,
+    otherTimeGroups: [],
   };
 }

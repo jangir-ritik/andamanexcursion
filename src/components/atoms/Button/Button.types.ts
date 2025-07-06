@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, ReactElement } from "react";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -14,4 +14,5 @@ export interface ButtonProps {
   href?: string;
   target?: "_blank" | "_self";
   ariaLabel?: string;
+  icon?: ReactNode;
 }

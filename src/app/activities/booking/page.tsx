@@ -60,7 +60,7 @@ const ActivitiesBookingContent = () => {
         mainTimeGroup={mainTimeGroup}
         otherTimeGroups={otherTimeGroups}
         filteredActivities={filteredActivities}
-        handleSelectActivity={handleSelectActivity}
+        onSelectActivity={handleSelectActivity}
       />
     </>
   );

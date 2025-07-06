@@ -16,6 +16,7 @@ export const Button = ({
   href,
   target = "_self",
   ariaLabel,
+  icon,
 }: ButtonProps) => {
   const buttonClasses = [
     styles.button,
@@ -35,6 +36,7 @@ export const Button = ({
           <MoveRight size={16} aria-hidden="true" />
         </span>
       )}
+      {icon && <span className={styles.icon}>{icon}</span>}
     </>
   );
 

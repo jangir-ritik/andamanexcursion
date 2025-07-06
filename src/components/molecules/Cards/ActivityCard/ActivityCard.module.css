@@ -1,0 +1,244 @@
+.card {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-14) var(--space-6);
+  width: 100%;
+  background-color: var(--color-white);
+  margin-bottom: var(--space-6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover .imageWrapper img {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.expanded {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.contentWrapper {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  position: relative;
+  margin-bottom: var(--space-6);
+}
+
+.imageWrapper {
+  width: 40%;
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px 20px 20px 60px;
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-6);
+  width: 60%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-family: var(--font-family-primary);
+  font-weight: 600;
+  font-size: var(--font-size-heading-3);
+  line-height: 1.2;
+  color: var(--color-black);
+  margin: 0;
+}
+
+.priceContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.pricePerAdult {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.totalPrice {
+  font-family: var(--font-family-primary);
+  font-weight: 600;
+  font-size: var(--font-size-xl);
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+.activityInfo {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.durationContainer,
+.typeContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.duration,
+.type {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  color: var(--color-secondary);
+}
+
+.description {
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+  font-size: var(--font-size-large);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-6) 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.viewDetailsButton {
+  align-self: flex-end;
+}
+
+/* Expanded content styles */
+.classesContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: var(--space-6);
+  gap: var(--space-6);
+  width: 100%;
+  border-top: 1px solid var(--color-border-secondary);
+}
+
+.classesWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 60%;
+}
+
+.galleryContainer {
+  margin-top: var(--space-6);
+}
+
+.galleryImages {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.galleryImage {
+  flex: 0 0 auto;
+  width: 250px;
+  height: 170px;
+  position: relative;
+}
+
+.galleryImageWrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.chevronIcon {
+  transition: transform 0.3s ease;
+}
+
+.chevronExpanded {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  .contentWrapper {
+    flex-direction: column;
+  }
+
+  .imageWrapper {
+    width: 100%;
+    height: 200px;
+  }
+
+  .textContent {
+    width: 100%;
+  }
+
+  .classesContainer {
+    flex-direction: column;
+  }
+
+  .classesWrapper {
+    width: 100%;
+  }
+}
+
+.amenitiesContainer {
+  margin-top: var(--space-4);
+}
+
+.amenitiesTitle {
+  font-family: var(--font-family-primary);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  color: var(--color-black);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.amenitiesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.amenityItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.amenityIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}

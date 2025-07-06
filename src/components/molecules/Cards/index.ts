@@ -6,3 +6,4 @@ export * from "./SmallCard/SmallCard";
 export * from "./StatCard/StatCard";
 export * from "./TestimonialCard/TestimonialCard";
 export * from "./FerryCard/FerryCard";
+export * from "./ActivityCard/ActivityCard";
