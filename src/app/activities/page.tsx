@@ -55,7 +55,7 @@ export default function ActivitiesPage() {
                 key={activity.id}
                 image={activity.image.src}
                 imageAlt={activity.imageAlt}
-                title={activity.title}
+                title={activity.name}
                 description={activity.description}
                 href={activity.href}
               />

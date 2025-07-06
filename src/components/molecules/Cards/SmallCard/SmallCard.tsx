@@ -58,7 +58,11 @@ export const SmallCard = ({
             {description && (
               <p className={styles.cardDescription}>{description}</p>
             )}
-            {price && <p className={styles.cardPrice}>{price}</p>}
+            {price && (
+              <p className={styles.cardPrice}>
+                ₹{typeof price === "number" ? price.toLocaleString() : price}
+              </p>
+            )}
           </div>
         </div>
         <div

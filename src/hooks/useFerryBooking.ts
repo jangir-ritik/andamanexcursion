@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useBooking } from "@/context/BookingContext";
 import { useFerryBookingContext } from "@/context/FerryBookingContext";
 
@@ -19,6 +19,7 @@ export interface FerryBookingHookActions {
 // Define the hook
 function useFerryBooking(): [FerryBookingHookState, FerryBookingHookActions] {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { bookingState } = useBooking();
   const {
     ferryState,
@@ -77,10 +78,10 @@ function useFerryBooking(): [FerryBookingHookState, FerryBookingHookActions] {
   const handleChooseSeats = useCallback(
     (classType: string, ferryIndex: number) => {
       selectFerry(ferryIndex.toString(), classType);
-      // Navigate to the ferry detail page
-      window.location.href = `/ferry/booking/${ferryIndex}`;
+      // Navigate to the ferry detail page using Next.js router
+      router.push(`/ferry/booking/${ferryIndex}`);
     },
-    [selectFerry]
+    [selectFerry, router]
   );
 
   // Memoized actions to prevent recreation on every render

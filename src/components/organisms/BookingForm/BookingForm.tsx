@@ -171,7 +171,7 @@ export function BookingForm({
         (act) => act.id === formState.selectedActivity
       )?.name;
       router.push(
-        `/activities/${formState.selectedActivity}?date=${
+        `/activities/booking?activity=${formState.selectedActivity}&date=${
           formState.selectedDate.toISOString().split("T")[0]
         }&time=${encodeURIComponent(standardizedTime)}&passengers=${
           formState.passengers.adults +

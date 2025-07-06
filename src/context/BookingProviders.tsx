@@ -3,6 +3,7 @@
 import React, { ReactNode } from "react";
 import { BookingProvider } from "./BookingContext";
 import { FerryBookingProvider } from "./FerryBookingContext";
+import { ActivityBookingProvider } from "./ActivityBookingContext";
 
 // Types for the combined provider
 interface BookingProvidersProps {
@@ -19,7 +20,9 @@ export const BookingProviders: React.FC<BookingProvidersProps> = ({
 }) => {
   return (
     <BookingProvider>
-      <FerryBookingProvider>{children}</FerryBookingProvider>
+      <FerryBookingProvider>
+        <ActivityBookingProvider>{children}</ActivityBookingProvider>
+      </FerryBookingProvider>
     </BookingProvider>
   );
 };

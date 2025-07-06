@@ -1,5 +1,5 @@
 import image1 from "@public/images/ferry/trustedFerries/goNautica.png";
-import image2 from "@public/images/ferry/trustedFerries/other.png";
+import image2 from "@public/images/ferry/trustedFerries/makruzz.png";
 import image3 from "@public/images/ferry/trustedFerries/greenOcean.png";
 
 export const ferries = [

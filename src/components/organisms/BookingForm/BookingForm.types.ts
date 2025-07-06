@@ -2,6 +2,9 @@ import { Location } from "@/components/atoms/LocationSelect/LocationSelect.types
 import { TimeSlot } from "@/components/atoms/SlotSelect/SlotSelect.types";
 import { Activity } from "@/components/atoms/ActivitySelect/ActivitySelect.types";
 import { PassengerCount } from "@/components/atoms/PassengerCounter/PassengerCounter.types";
+import { ACTIVITIES as ACTIVITIES_LIST } from "@/data/activities";
+import { FERRY_LOCATIONS } from "@/data/ferries";
+import { BOAT_LOCATIONS } from "@/data/boats";
 
 export interface BookingFormProps {
   className?: string;
@@ -27,23 +30,11 @@ export interface TabConfig {
   timeSlots: TimeSlot[];
 }
 
-// Constants previously in src/types/booking.ts
-export const LOCATIONS: Location[] = [
-  { id: "port-blair", name: "Port Blair" },
-  { id: "havelock", name: "Havelock" },
-  { id: "neil-island", name: "Neil Island" },
-  { id: "diglipur", name: "Diglipur" },
-  { id: "rangat", name: "Rangat" },
-];
+// Import locations from central data sources
+export const LOCATIONS: Location[] = FERRY_LOCATIONS;
 
-export const ACTIVITIES: Activity[] = [
-  { id: "scuba-diving", name: "Scuba Diving" },
-  { id: "snorkeling", name: "Snorkeling" },
-  { id: "sea-walk", name: "Sea Walk" },
-  { id: "glass-bottom-boat", name: "Glass Bottom Boat" },
-  { id: "jet-ski", name: "Jet Ski" },
-  { id: "parasailing", name: "Parasailing" },
-];
+// Import activities from central data source
+export const ACTIVITIES: Activity[] = ACTIVITIES_LIST;
 
 export const TIME_SLOTS: TimeSlot[] = [
   { id: "07-00", time: "7:00 AM" },

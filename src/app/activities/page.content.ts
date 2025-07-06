@@ -1,9 +1,6 @@
-import image1 from "@public/images/activities/activitiesList/1.png";
-import image2 from "@public/images/activities/activitiesList/2.png";
-import image3 from "@public/images/activities/activitiesList/3.png";
-import image4 from "@public/images/activities/activitiesList/4.png";
 import andamanCallingImage from "@public/images/homepage/andamanCalling/image.png";
 import activitiesHeroImage from "@public/images/activities/activities-hero.png";
+import { ACTIVITIES_DATA } from "@/data/activities";
 
 export const content = {
   image: activitiesHeroImage.src,
@@ -12,89 +9,10 @@ export const content = {
   title: "Explore the Best Water Activities in Andaman",
   description:
     "From snorkeling in coral gardens to jet skiing across blue horizons, your adventure begins here.",
-  activitiesData: [
-    {
-      id: "1",
-      image: image1,
-      imageAlt: "Snorkeling in coral gardens",
-      title: "Snorkeling in Coral Gardens",
-      description: "Explore the vibrant coral gardens and marine life",
-      href: "/activities/snorkeling",
-      rating: 4.8,
-    },
-    {
-      id: "2",
-      image: image2,
-      imageAlt: "Parasailing over blue waters",
-      title: "Parasailing over Blue Waters",
-      description: "Experience the thrill of flying over the ocean",
-      href: "/activities/parasailing",
-      rating: 4.9,
-    },
-    {
-      id: "3",
-      image: image3,
-      imageAlt: "Scuba diving in clear waters",
-      title: "Scuba Diving in Clear Waters",
-      description: "Discover the underwater world with professional guidance",
-      href: "/activities/scuba-diving",
-      rating: 4.7,
-    },
-    {
-      id: "4",
-      image: image4,
-      imageAlt: "Group snorkeling experience",
-      title: "Group Snorkeling Experience",
-      description: "Explore the coral gardens with a group of friends",
-      href: "/activities/group-snorkeling",
-      rating: 4.6,
-    },
-    {
-      id: "5",
-      image: image1,
-      imageAlt: "Advanced scuba diving",
-      title: "Advanced Scuba Diving",
-      description: "Experience the thrill of deep sea diving",
-      href: "/activities/advanced-scuba",
-      rating: 4.9,
-    },
-    {
-      id: "6",
-      image: image2,
-      imageAlt: "Tandem parasailing",
-      title: "Tandem Parasailing",
-      description: "Experience the thrill of flying over the ocean",
-      href: "/activities/tandem-parasailing",
-      rating: 4.8,
-    },
-    {
-      id: "7",
-      image: image3,
-      imageAlt: "Night snorkeling adventure",
-      title: "Night Snorkeling Adventure",
-      description: "Explore the underwater world at night",
-      href: "/activities/night-snorkeling",
-      rating: 4.5,
-    },
-    {
-      id: "8",
-      image: image4,
-      imageAlt: "Jet skiing across blue waters",
-      title: "Jet Skiing Across Blue Waters",
-      description: "Experience the thrill of riding on the ocean",
-      href: "/activities/jet-skiing",
-      rating: 4.7,
-    },
-    {
-      id: "9",
-      image: image1,
-      imageAlt: "Deep sea diving expedition",
-      title: "Deep Sea Diving Expedition",
-      description: "Experience the thrill of deep sea diving",
-      href: "/activities/deep-sea-diving",
-      rating: 4.9,
-    },
-  ],
+  activitiesData: ACTIVITIES_DATA.map((activity) => ({
+    ...activity,
+    href: `/activities/booking?activity=${activity.id}`,
+  })),
   faqSection: {
     title: "Get Answers to all Your Questions!",
     specialWord: "Answers",
