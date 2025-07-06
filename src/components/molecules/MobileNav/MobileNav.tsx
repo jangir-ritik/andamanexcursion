@@ -103,7 +103,12 @@ export const MobileNav = React.memo(({ items, className }: MobileNavProps) => {
                         />
                       </NavigationMenuTrigger>
                       <NavigationMenuContent className={styles.dropdownContent}>
-                        <div className={styles.dropdown}>
+                        <div
+                          className={clsx(
+                            styles.dropdown,
+                            item.children.length > 6 && styles.dropdownGrid
+                          )}
+                        >
                           {item.children.map((child) => (
                             <CustomLink
                               key={child.label}

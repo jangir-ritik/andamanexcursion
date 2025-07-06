@@ -1,5 +1,7 @@
 // Content for Header component
 
+import { ACTIVITIES } from "@/data/activities";
+
 // ferry, boat, activities(sub), packages(sub), special(sub), live volcanos, fishing, destination(sub), plan your trip, get in touch
 
 export const navItems = [
@@ -15,20 +17,10 @@ export const navItems = [
     label: "Activities",
     href: "/activities",
     isClickable: true,
-    children: [
-      {
-        label: "Sub Item 1",
-        href: "/sub-item-1",
-      },
-      {
-        label: "Sub Item 2",
-        href: "/sub-item-2",
-      },
-      {
-        label: "Sub Item 3",
-        href: "/sub-item-3",
-      },
-    ],
+    children: ACTIVITIES.map((activity) => ({
+      label: activity.name,
+      href: `/activities/booking?activity=${activity.id}`,
+    })),
   },
   {
     label: "Packages",

@@ -77,7 +77,13 @@ export const DesktopNav = React.memo(
                   <NavigationMenuContent
                     className={styles.navigationMenuContent}
                   >
-                    <div className={styles.navigationMenuDropdown}>
+                    <div
+                      className={clsx(
+                        styles.navigationMenuDropdown,
+                        item.children.length > 6 &&
+                          styles.navigationMenuDropdownGrid
+                      )}
+                    >
                       {item.children.map((child) => (
                         <CustomLink
                           className={clsx(
