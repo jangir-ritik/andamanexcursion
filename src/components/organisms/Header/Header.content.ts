@@ -68,12 +68,21 @@ export const navItems = [
     href: "/fishing",
   },
   {
-    label: "Destination",
-    href: "/destination",
+    label: "Destinations",
+    href: "/destinations",
+    isClickable: true,
     children: [
       {
-        label: "Sub Item 1",
-        href: "/sub-item-1",
+        label: "Jolly Buoy",
+        href: "/destinations/jolly-buoy",
+      },
+      {
+        label: "Turtle Island",
+        href: "/destinations/turtle-island-island",
+      },
+      {
+        label: "Makokou",
+        href: "/destinations/makokou",
       },
     ],
   },

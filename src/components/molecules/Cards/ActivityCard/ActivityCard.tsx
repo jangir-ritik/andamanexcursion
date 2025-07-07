@@ -9,7 +9,7 @@ import clockIcon from "@public/icons/misc/clock.svg";
 import snorkelingIcon from "@public/icons/misc/snorkeling.svg";
 import Image from "next/image";
 import { ImageSlider } from "../FerryCard/components/ImageSlider";
-import { ClassCard } from "../common/ClassCard";
+import { ClassCard } from "../ClassCard/ClassCard";
 import { ChevronDown } from "lucide-react";
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({

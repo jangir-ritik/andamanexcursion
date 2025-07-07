@@ -1,0 +1,39 @@
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-radius: var(--radius-md-2);
+  background-color: var(--color-white);
+  padding: var(--space-8) var(--space-4);
+  max-width: 360px;
+}
+
+.iconContainer {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-4);
+  font-weight: 400;
+  color: var(--color-secondary);
+}
+
+.description {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body-small);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}

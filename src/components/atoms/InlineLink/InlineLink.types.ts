@@ -8,6 +8,6 @@ export interface InlineLinkProps {
   icon?: "arrow-up-right" | "arrow-right" | "none";
   iconSize?: number;
   color?: "primary" | "secondary" | "white";
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   target?: "_blank" | "_self";
 }

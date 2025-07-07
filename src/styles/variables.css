@@ -7,7 +7,7 @@
   --color-blue-600: #2a7ce6;
   --color-blue-700: #002cba;
   --color-orange-100: #ffe6d4;
-  --color-orange-500: #f36f0d;
+  --color-orange-500: #ff8a34;
   --color-orange-600: #d85c00;
   --color-gray-50: #f5f9ff;
   --color-gray-100: #ebf3ff;
@@ -42,7 +42,7 @@
   --color-primary: var(--color-blue-500); /* #3e8cff */
   --color-primary-hover: var(--color-blue-600); /* #2a7ce6 */
   --color-primary-light: var(--color-blue-50); /* #e6f0ff */
-  --color-secondary: var(--color-orange-500); /* #f36f0d */
+  --color-secondary: var(--color-orange-500); /* #ff8a34 */
   --color-secondary-hover: var(--color-orange-600); /* #d85c00 */
   --color-tertiary: var(--color-blue-700); /* #002cba */
 
