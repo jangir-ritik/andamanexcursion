@@ -10,6 +10,13 @@ export const content = {
     image: heroImage.src,
     imageAlt: "Live Volcanos Banner",
   },
+  title: {
+    text: "Witness India's only",
+    specialWord: "Active Volcano",
+  },
+  description: {
+    text: "See smoke rise, feel the thrill, and witness raw nature in action.",
+  },
   feature: {
     title: "Explore the Lava Trail!",
     specialWord: "Lava Trail!",

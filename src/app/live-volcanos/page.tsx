@@ -19,18 +19,23 @@ export default async function LiveVolcanosPage() {
   return (
     <main className={styles.main}>
       <Section className={styles.section}>
-        <Row fullWidth gap="var(--space-8)" className={styles.contentContainer}>
+        <Row
+          fullWidth
+          gap="var(--space-8)"
+          className={styles.contentContainer}
+          alignItems="center"
+        >
           <Column fullWidth className={styles.titleContainer}>
             <h1 className={styles.title}>
-              Witness India's only <br />
-              <span className={styles.highlight}>Active Volcano</span>
+              {content.title.text} <br />
+              <span className={styles.highlight}>
+                {content.title.specialWord}
+              </span>
             </h1>
           </Column>
           <Column>
             <DescriptionText
-              text={
-                "See smoke rise, feel the thrill, and witness raw nature in action."
-              }
+              text={content.description.text}
               className={styles.description}
             />
           </Column>
@@ -47,17 +52,28 @@ export default async function LiveVolcanosPage() {
       </Section>
 
       <Section fullBleed className={styles.waveContainer}>
-        <Row fullWidth gap="var(--space-8)" className={styles.contentContainer}>
-          <Column
-            fullWidth
-            gap="var(--space-8)"
-            className={styles.content}
-            alignItems="start"
-          >
-            <SectionTitle
-              text={content.feature.title}
-              specialWord={content.feature.specialWord}
+        <Row
+          fullWidth
+          gap="var(--space-6)"
+          justifyContent="between"
+          className={styles.contentContainer}
+        >
+          <SectionTitle
+            className={styles.featureTitle}
+            text={content.feature.title}
+            specialWord={content.feature.specialWord}
+          />
+          <Column fullWidth className={styles.imageContainer}>
+            <ImageContainer
+              src={content.feature.image}
+              alt={content.feature.imageAlt}
+              aspectRatio="square"
+              priority
+              fullWidth
+              className={styles.image}
             />
+          </Column>
+          <Column gap={3} alignItems="start">
             <DescriptionText
               text={content.feature.description}
               className={styles.description}
@@ -65,16 +81,6 @@ export default async function LiveVolcanosPage() {
             <Button showArrow href={content.feature.ctaHref}>
               {content.feature.ctaText}
             </Button>
-          </Column>
-          <Column fullWidth className={styles.imageContainer}>
-            <ImageContainer
-              src={content.feature.image}
-              alt={content.feature.imageAlt}
-              aspectRatio="video"
-              priority
-              fullWidth
-              className={styles.image}
-            />
           </Column>
         </Row>
       </Section>

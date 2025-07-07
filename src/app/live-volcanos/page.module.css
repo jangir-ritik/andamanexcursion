@@ -27,6 +27,14 @@
   color: var(--color-black);
 }
 
+.featureTitle {
+  max-width: unset !important;
+  width: min(30%, 410px);
+}
+.featureTitle h2 {
+  font-size: calc(1rem * 4);
+  max-width: unset;
+}
 .highlight {
   font-family: var(--font-family-display);
   font-size: calc(1rem * 6);
@@ -42,7 +50,11 @@
 
 .imageContainer {
   z-index: 1;
-  border-radius: 20px 60px 20px 60px;
+  max-width: 350px;
+}
+
+.imageContainer .image {
+  border-radius: 20px 60px 20px 60px !important;
   overflow: hidden;
 }
 

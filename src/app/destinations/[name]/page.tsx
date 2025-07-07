@@ -9,6 +9,7 @@ import {
   HeroSection,
   HowToReachSection,
 } from "./components";
+import { Column } from "@/components/layout";
 
 interface PageProps {
   params: Promise<{ name: string }>;
@@ -20,16 +21,17 @@ export default async function DestinationPage({ params }: PageProps) {
 
   return (
     <main className={styles.main}>
-      <HeroSection
-        destinationName={destinationName}
-        description={content.hero.description}
-      />
+      <Column fullWidth gap={3}>
+        <HeroSection
+          destinationName={destinationName}
+          description={content.hero.description}
+        />
 
-      <BannerSection
-        image={content.banner.image}
-        imageAlt={content.banner.imageAlt}
-      />
-
+        <BannerSection
+          image={content.banner.image}
+          imageAlt={content.banner.imageAlt}
+        />
+      </Column>
       <FeatureSection {...content.feature} />
 
       <HowToReachSection cards={content.howToReach.cards} />
