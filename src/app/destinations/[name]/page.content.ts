@@ -83,8 +83,12 @@ export const content = {
   },
   trivia: {
     title: "Did you know?",
-    text: "Jolly Buoy is a No Plastic Island known for untouched coral reefs & eco-friendly snorkelling.",
-    highlightedPhrases: ["No Plastic Island", "eco-friendly snorkelling"],
+    text: "Jolly Buoy is a No Plastic Island known for untouched coral reefs & eco-friendly snorkelling. It's a paradise for nature lovers and underwater explorers.",
+    highlightedPhrases: [
+      "No Plastic Island",
+      "eco-friendly snorkelling",
+      "paradise for nature lovers",
+    ],
   },
   largeCardSection: {
     subtitle: "Rock Formation and Marine Life",

@@ -1,0 +1,255 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+  padding: 80px 0;
+}
+
+.contentContainer {
+  max-width: var(--layout-container-max-width);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.section {
+  align-items: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.title {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-heading-1);
+  font-weight: 500;
+  letter-spacing: 4%;
+  color: var(--color-black);
+}
+
+.highlight {
+  font-family: var(--font-family-display);
+  font-size: calc(1rem * 6);
+  font-weight: 400;
+  color: var(--color-secondary);
+  text-transform: capitalize;
+  letter-spacing: 2%;
+}
+
+.content {
+  z-index: 1;
+}
+
+.imageContainer {
+  z-index: 1;
+  border-radius: 20px 60px 20px 60px;
+  overflow: hidden;
+}
+
+.waveContainer {
+  position: relative;
+  padding: var(--space-14);
+}
+
+.waveContainer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/graphics/waveLight.svg");
+  background-size: 100% auto;
+  background-position: center;
+  pointer-events: none;
+}
+
+.howToReach {
+  background-color: var(--color-bg-secondary) !important;
+  padding: var(--space-14) var(--space-10);
+  position: relative;
+}
+
+.howToReachContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+  z-index: 1;
+}
+
+.dottedWave {
+  z-index: 0;
+}
+
+/* Explore Section Styles */
+.exploreSection {
+  padding: var(--space-16) 0;
+  background-color: var(--color-bg-light);
+}
+
+.exploreTitleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+
+.exploreTitle {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-2);
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.exploreDescription {
+  font-size: var(--font-size-body-lg);
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.exploreGrid {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  justify-content: center;
+  max-width: 1200px;
+}
+
+.exploreCard {
+  flex: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .contentContainer {
+    padding: 0 var(--space-6);
+  }
+
+  .waveContainer {
+    padding: var(--space-10);
+  }
+
+  .howToReach {
+    padding: var(--space-10) var(--space-6);
+  }
+
+  .exploreGrid {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .exploreCard {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 60px 0;
+  }
+
+  .title {
+    font-size: var(--font-size-heading-2);
+    text-align: center;
+  }
+
+  .highlight {
+    font-size: calc(1rem * 4);
+  }
+
+  .contentContainer {
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .waveContainer {
+    padding: var(--space-8);
+  }
+
+  .howToReach {
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .howToReachContainer {
+    gap: var(--space-8);
+  }
+
+  .exploreSection {
+    padding: var(--space-12) 0;
+  }
+
+  .exploreTitleContainer {
+    margin-bottom: var(--space-8);
+  }
+
+  .exploreTitle {
+    font-size: var(--font-size-heading-3);
+  }
+
+  .exploreDescription {
+    font-size: var(--font-size-body-md);
+  }
+
+  .exploreGrid {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .exploreCard {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 40px 0;
+  }
+
+  .title {
+    font-size: var(--font-size-heading-3);
+  }
+
+  .highlight {
+    font-size: calc(1rem * 3);
+  }
+
+  .waveContainer {
+    padding: var(--space-6);
+  }
+
+  .howToReach {
+    padding: var(--space-6) var(--space-3);
+  }
+
+  .exploreSection {
+    padding: var(--space-10) 0;
+  }
+
+  .exploreTitleContainer {
+    margin-bottom: var(--space-6);
+  }
+
+  .exploreTitle {
+    font-size: var(--font-size-heading-4);
+  }
+
+  .exploreCard {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Feature Cards Responsive */
+@media (max-width: 768px) {
+  .howToReachContainer [class*="Row"] {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+}

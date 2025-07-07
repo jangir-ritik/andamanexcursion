@@ -44,6 +44,7 @@
   position: relative;
   color: var(--color-secondary);
   font-family: var(--font-family-display);
+  white-space: nowrap;
 }
 
 .underlineWrapper {
