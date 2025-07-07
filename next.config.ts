@@ -20,6 +20,11 @@ const nextConfig = {
         destination: "/destinations/jolly-buoy",
         permanent: true,
       },
+      {
+        source: "/specials",
+        destination: "/specials/engagement",
+        permanent: true,
+      },
     ];
   },
 };

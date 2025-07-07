@@ -5,23 +5,23 @@ export const footerItems = {
     links: [
       {
         label: "Packages",
-        href: "#",
+        href: "/packages",
       },
       {
         label: "Ferry Booking",
-        href: "#",
+        href: "/ferry",
       },
       {
         label: "Boat Booking",
-        href: "#",
+        href: "/boat",
       },
       {
         label: "Fishing",
-        href: "#",
+        href: "/fishing",
       },
       {
         label: "Live Volcano",
-        href: "#",
+        href: "/live-volcano",
       },
     ],
   },
@@ -34,7 +34,7 @@ export const footerItems = {
       },
       {
         label: "Destinations",
-        href: "#",
+        href: "/destinations",
       },
       {
         label: "Sightseeing",

@@ -42,20 +42,21 @@ export const navItems = [
     ],
   },
   {
-    label: "Special",
-    href: "/special",
+    label: "Specials",
+    href: "/specials",
+    isClickable: true,
     children: [
       {
-        label: "Sub Item 1",
-        href: "/sub-item-1",
+        label: "Engagement",
+        href: "/specials/engagement",
       },
       {
-        label: "Sub Item 2",
-        href: "/sub-item-2",
+        label: "Marriage",
+        href: "/specials/marriage",
       },
       {
-        label: "Sub Item 3",
-        href: "/sub-item-3",
+        label: "Honeymoon",
+        href: "/specials/honeymoon",
       },
     ],
   },
