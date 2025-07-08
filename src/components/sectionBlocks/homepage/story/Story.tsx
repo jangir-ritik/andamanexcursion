@@ -5,10 +5,12 @@ import {
   ImageContainer,
   SectionTitle,
 } from "@/components/atoms";
-import { storyContent } from "./Story.content";
 import styles from "./Story.module.css";
+import { StoryProps } from "./Story.types";
 
-export const Story = () => {
+export const Story = ({ content }: StoryProps) => {
+  const { title, specialWord, description, image, imageAlt } = content;
+
   return (
     <Section
       fullBleed
@@ -24,16 +26,16 @@ export const Story = () => {
       >
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
-            text={storyContent.title}
-            specialWord={storyContent.specialWord}
+            text={title}
+            specialWord={specialWord}
             id="story-title"
           />
-          <DescriptionText text={storyContent.description} align="center" />
+          <DescriptionText text={description} align="center" />
         </Row>
         <Row fullWidth justifyContent="center" alignItems="center">
           <ImageContainer
-            src={storyContent.image}
-            alt="Scenic view of Andaman Islands coastline with pristine beaches and crystal clear waters"
+            src={image}
+            alt={imageAlt}
             className={styles.image}
           />
         </Row>

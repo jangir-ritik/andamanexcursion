@@ -10,9 +10,13 @@ import {
   InlineLink,
 } from "@/components/atoms";
 import styles from "./WhyChooseUs.module.css";
-import { whyChooseUsContent } from "./WhyChooseUs.content";
+import { WhyChooseUsProps } from "./WhyChooseUs.types";
 
-export const WhyChooseUs = () => {
+
+export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
+  const { title, specialWord, description, points, ctaHref, ctaText, image, imageAlt } =
+    content;
+
   return (
     <Section
       className={styles.whyChooseUsSection}
@@ -23,12 +27,12 @@ export const WhyChooseUs = () => {
         <Row fullWidth alignItems="center" justifyContent="between">
           <SectionTitle
             className={styles.sectionTitle}
-            text={whyChooseUsContent.title}
-            specialWord={whyChooseUsContent.specialWord}
+            text={title}
+            specialWord={specialWord}
             id="why-choose-us-title"
           />
           <DescriptionText
-            text={whyChooseUsContent.description}
+            text={description}
             align="right"
             className={styles.headerDescription}
           />
@@ -46,7 +50,7 @@ export const WhyChooseUs = () => {
             gap="var(--space-8)"
             className={styles.pointsColumn}
           >
-            {whyChooseUsContent.points.map((item) => (
+            {points.map((item) => (
               <div key={item.id} className={styles.pointItem}>
                 <h3 className={styles.pointTitle} id={`point-title-${item.id}`}>
                   {item.title}
@@ -60,13 +64,13 @@ export const WhyChooseUs = () => {
               </div>
             ))}
             <InlineLink
-              href={whyChooseUsContent.ctaHref}
-              ariaLabel={`${whyChooseUsContent.ctaText} about why choose Andaman Excursion`}
+              href={ctaHref}
+              ariaLabel={`${ctaText} about why choose Andaman Excursion`}
               icon="arrow-up-right"
               color="primary"
               className={styles.ctaLink}
             >
-              {whyChooseUsContent.ctaText}
+              {ctaText}
             </InlineLink>
           </Column>
 
@@ -76,8 +80,8 @@ export const WhyChooseUs = () => {
             gap="var(--space-8)"
           >
             <ImageContainer
-              src={whyChooseUsContent.image}
-              alt="Features of Andaman Excursion services showing beautiful beaches and activities"
+              src={image}
+              alt={imageAlt}
               className={styles.featureImage}
             />
             <div className={styles.customerSatisfactionChip} aria-hidden="true">

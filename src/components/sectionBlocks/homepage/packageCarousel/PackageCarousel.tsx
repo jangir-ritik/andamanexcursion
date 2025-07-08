@@ -1,15 +1,15 @@
 import { DescriptionText, SectionTitle } from "@/components/atoms";
 
-import {
-  packageCarouselContent,
-  sectionContent,
-} from "./PackageCarousel.content";
 import React from "react";
 import styles from "./PackageCarousel.module.css";
 import { Column, Row, Section } from "@/components/layout";
 import { Carousel } from "@/components/molecules/Carousel/Carousel";
+import { PackageCarouselProps } from "./PackageCarousel.types";
 
-export const PackageCarousel = () => {
+
+export const PackageCarousel = ({ content }: PackageCarouselProps) => {
+  const { title, description, slides } = content;
+
   return (
     <Section
       className={styles.packageCarouselSection}
@@ -20,13 +20,13 @@ export const PackageCarousel = () => {
         <Row fullWidth justifyContent="between">
           <SectionTitle
             specialWord="Package"
-            text={sectionContent.title}
+            text={title}
             id="package-carousel-title"
           />
-          <DescriptionText text={sectionContent.description} align="right" />
+          <DescriptionText text={description} align="right" />
         </Row>
         <Row fullWidth>
-          <Carousel slides={packageCarouselContent.slides} />
+          <Carousel slides={slides} />
         </Row>
       </Column>
     </Section>

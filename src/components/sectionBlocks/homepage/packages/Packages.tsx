@@ -2,9 +2,11 @@ import React from "react";
 import { Section, Column, Row } from "@/components/layout";
 import { SectionTitle, Button } from "@/components/atoms";
 import { SmallCard } from "@/components/molecules/Cards";
-import { packages } from "./Packages.content";
+import { PackagesProps, Package } from "./Packages.types";
 
-export const Packages = () => {
+export const Packages = ({ content }: PackagesProps) => {
+  const { title, packages } = content;
+
   return (
     <Section id="packages" aria-labelledby="packages-title">
       <Column gap="var(--space-10)" fullWidth>
@@ -16,7 +18,7 @@ export const Packages = () => {
         >
           <SectionTitle
             specialWord="Packages"
-            text="Our Perfectly Designed Packages for You!"
+            text={title}
             id="packages-title"
           />
           <Row justifyContent="end">
@@ -28,10 +30,10 @@ export const Packages = () => {
 
         {/* Package cards */}
         <Row gap="var(--space-8)" justifyContent="between" wrap>
-          {packages.map((item, index) => (
+          {packages.map((item: Package) => (
             <SmallCard
-              key={index}
-              image={item.image.src}
+              key={item.href}
+              image={item.image}
               imageAlt={item.imageAlt}
               title={item.title}
               duration={item.duration}

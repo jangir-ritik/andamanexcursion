@@ -11,6 +11,14 @@ import island1 from "@public/images/homepage/hiddenGems/hiddenGems1.png";
 import island2 from "@public/images/homepage/hiddenGems/hiddenGems2.png";
 import island3 from "@public/images/homepage/hiddenGems/hiddenGems3.png";
 
+import package1 from "@public/images/homepage/perfectlyDesignedPackages/honeymoonWhispers.png";
+import package2 from "@public/images/homepage/perfectlyDesignedPackages/familyFiesta.png";
+import package3 from "@public/images/homepage/perfectlyDesignedPackages/sereneShores.png";
+
+import storyImage from "@public/images/homepage/story/story.png";
+
+import whyChooseUsImage from "@public/images/homepage/whyChooseUs/points.png";
+
 export const content = {
   banner: {
     title: "Explore",
@@ -143,5 +151,135 @@ export const content = {
         alt: "Pristine white sand beach with turquoise waters",
       },
     },
+  },
+  packageCarousel: {
+    title: "Our Package Is All That You Need!",
+    description:
+      "From serene beaches and thrilling water sports to guided island tours, our packages are crafted for every kind of traveler.",
+    slides: [
+      {
+        id: 1,
+        title: "Our Best Sellers",
+        price: "Starting @₹1,520",
+        description:
+          "Escape to a romantic paradise where sunsets, beaches, and love stories begin.",
+        image:
+          "/images/homepage/perfectlyDesignedPackages/honeymoonWhispers.png",
+        imageAlt: "Romantic beach scene with a couple",
+      },
+      {
+        id: 2,
+        title: "Family Adventures",
+        price: "Starting @₹2,450",
+        description:
+          "Create unforgettable memories with your loved ones on our family-friendly excursions.",
+        image: "/images/homepage/perfectlyDesignedPackages/familyFiesta.png",
+        imageAlt: "Family enjoying beach activities",
+      },
+      {
+        id: 3,
+        title: "Island Exploration",
+        price: "Starting @₹1,850",
+        description:
+          "Discover hidden gems and breathtaking landscapes across the Andaman archipelago.",
+        image: "/images/homepage/perfectlyDesignedPackages/sereneShores.png",
+        imageAlt: "Beautiful island landscape",
+      },
+    ],
+  },
+  packages: {
+    title: "Our Perfectly Designed Packages for You!",
+    description:
+      "From serene beaches and thrilling water sports to guided island tours, our packages are crafted for every kind of traveler.",
+    packages: [
+      {
+        image: package1.src,
+        imageAlt: "Serene Shores",
+        title: "Serene Shores",
+        duration: "3 Days, 4 Nights",
+        price: "Starting @₹1,520",
+        href: "/packages/serene-shores",
+      },
+      {
+        image: package2.src,
+        imageAlt: "Family Fiesta",
+        title: "Family Fiesta",
+        duration: "4 Days, 3 Nights",
+        price: "Starting @₹1,520",
+        href: "/packages/family-fiesta",
+      },
+      {
+        image: package3.src,
+        imageAlt: "Honeymoon Whispers",
+        title: "Honeymoon Whispers",
+        duration: "5 Days, 4 Nights",
+        price: "Starting @₹1,520",
+        href: "/packages/honeymoon-whispers",
+      },
+    ],
+  },
+  story: {
+    title: "Where Every Wave Tells a  Story!",
+    specialWord: "Story!",
+    description: "Discover the soul of the Andamans, an unforgettable journey.",
+    image: storyImage.src,
+    imageAlt:
+      "Scenic view of Andaman Islands coastline with pristine beaches and crystal clear waters",
+  },
+  trustStats: {
+    title: {
+      text: "Your Trust Helps Us Grow Everyday",
+      specialWord: "Grow",
+    },
+    stats: [
+      {
+        value: "1,200+",
+        label: "Daily Visitors",
+        description: "Daily Visitors",
+        icon: "users",
+      },
+      {
+        value: "9,000+",
+        label: "Ferry Rides a year",
+        description: "Ferry Rides a year",
+        icon: "ferry",
+      },
+      {
+        value: "14.3 Years",
+        label: "Island Travel Expertise",
+        description: "Island Travel Expertise",
+        icon: "island",
+      },
+    ],
+  },
+  whyChooseUs: {
+    title: "Why Choose Andaman Excursion?",
+    specialWord: "Andaman Excursion?",
+    description:
+      "Whether it's watching a sunset from a private beach or island hopping by boat, Andaman is where unforgettable memories are made.",
+    points: [
+      {
+        id: 1,
+        title: "Seamless Travel, Curated Packages",
+        description:
+          "Curated packages for every budget, with smooth island hops via pre-booked ferries.",
+      },
+      {
+        id: 2,
+        title: "Adventure That Excites",
+        description:
+          "Water adventures, trek secret trails, or dive deep. Andaman thrills at every turn.",
+      },
+      {
+        id: 3,
+        title: "Untouched Nature, Crystal Waters",
+        description:
+          "From turquoise beaches to dense rainforests, Andaman is a sanctuary where nature thrives undisturbed and beauty flows in every wave.",
+      },
+    ],
+    image: whyChooseUsImage.src,
+    imageAlt: "Why Choose Andaman Excursion",
+    ctaText: "View Details",
+    ctaHref: "/why-choose-us",
   },
 };

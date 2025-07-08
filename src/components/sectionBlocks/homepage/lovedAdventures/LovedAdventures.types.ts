@@ -8,7 +8,7 @@ export interface BaseSectionProps {
 
 export interface LovedAdventuresProps extends BaseSectionProps {}
 
-export type BadgeIconType = "Star" | "Heart" | "Trophy" | "New";
+export type BadgeIconType = "Star" | "Heart";
 
 export interface Adventure {
   title: string;

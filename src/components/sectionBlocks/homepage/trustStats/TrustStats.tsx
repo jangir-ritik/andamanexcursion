@@ -1,13 +1,15 @@
 import React from "react";
 import { Row, Section } from "@/components/layout";
 import { StatCard } from "@/components/molecules/Cards";
-import { trustStatsContent } from "./TrustStats.content";
 import styles from "./TrustStats.module.css";
 import { SectionTitle } from "@/components/atoms";
 import curlyArrow from "@public/graphics/curlyArrowOrange.svg";
 import Image from "next/image";
+import { TrustStatsProps } from "./TrustStats.types";
 
-export const TrustStats = () => {
+export const TrustStats = ({ content }: TrustStatsProps) => {
+  const { title, stats } = content;
+
   return (
     <Section
       spacing="5"
@@ -24,8 +26,8 @@ export const TrustStats = () => {
         className={styles.mainRow}
       >
         <SectionTitle
-          specialWord={trustStatsContent.title.specialWord}
-          text={trustStatsContent.title.text}
+          specialWord={title.specialWord}
+          text={title.text}
           id="trust-stats-title"
         />
         <Image
@@ -42,7 +44,7 @@ export const TrustStats = () => {
           wrap
           className={styles.statsContainer}
         >
-          {trustStatsContent.stats.map((stat, index) => (
+          {stats.map((stat, index) => (
             <React.Fragment key={`stat-${index}`}>
               <StatCard
                 label={stat.label}
@@ -50,7 +52,7 @@ export const TrustStats = () => {
                 description={stat.description}
                 icon={stat.icon as "users" | "ferry" | "island"}
               />
-              {index !== trustStatsContent.stats.length - 1 && (
+              {index !== stats.length - 1 && (
                 <div className={styles.divider} aria-hidden="true" />
               )}
             </React.Fragment>
