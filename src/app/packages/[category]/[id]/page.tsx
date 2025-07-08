@@ -15,9 +15,13 @@ import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import styles from "../../page.module.css";
 import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
 import { LargeCardSection } from "@/components/sectionBlocks/common";
-import { largeCardSectionContent, testimonials } from "../../page.content";
 import { PackageDetailTabs } from "@/components/organisms";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
+import {
+  packagesPageFAQContent,
+  testimonials,
+  largeCardSectionContent,
+} from "../../page.content";
 
 export default function PackageDetailPage() {
   const params = useParams();
@@ -51,29 +55,9 @@ export default function PackageDetailPage() {
           </Row>
         </Column>
       </Section>
-      <FAQ
-        title="Frequently Asked Questions"
-        items={[
-          {
-            question: "What is the price of the package?",
-            answer: "The price of the package is 10000 INR per person.",
-          },
-        ]}
-      />
-      <Testimonials
-        title={testimonials.title}
-        specialWord={testimonials.specialWord}
-        subtitle={testimonials.subtitle}
-        testimonials={testimonials.testimonials}
-      />
-      <LargeCardSection
-        subtitle={largeCardSectionContent.subtitle}
-        title={largeCardSectionContent.title}
-        image={largeCardSectionContent.image}
-        imageAlt={largeCardSectionContent.imageAlt}
-        ctaText={largeCardSectionContent.ctaText}
-        ctaHref={largeCardSectionContent.ctaHref}
-      />
+      <FAQ content={packagesPageFAQContent} />
+      <Testimonials content={testimonials} />
+      <LargeCardSection content={largeCardSectionContent} />
     </main>
   );
 }
