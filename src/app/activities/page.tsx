@@ -3,15 +3,11 @@
 import React from "react";
 import { Section, Column, Grid } from "@/components/layout";
 
-import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import {
-  Testimonials,
+  FAQ,
   LargeCardSection,
+  Testimonials,
 } from "@/components/sectionBlocks/common";
-
-import { content } from "./page.content";
-import styles from "./page.module.css";
-
 import {
   DescriptionText,
   ImageContainer,
@@ -19,6 +15,11 @@ import {
 } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
 import { SmallCard } from "@/components/molecules/Cards";
+
+import styles from "./page.module.css";
+
+import { content } from "./page.content";
+
 
 export default function ActivitiesPage() {
   return (
@@ -64,7 +65,12 @@ export default function ActivitiesPage() {
         </Column>
       </Section>
       <FAQ {...content.faqSection} />
-      <Testimonials />
+      <Testimonials
+        title={content.testimonials.title}
+        specialWord={content.testimonials.specialWord}
+        subtitle={content.testimonials.subtitle}
+        testimonials={content.testimonials.testimonials}
+      />
       <LargeCardSection
         title={content.largeCardSection.title}
         image={content.largeCardSection.image}

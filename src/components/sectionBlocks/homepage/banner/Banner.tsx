@@ -1,4 +1,3 @@
-import { content } from "./Banner.content";
 import { Section, Column, Row } from "@/components/layout";
 import type { BannerProps } from "./Banner.types";
 import { HeroTitle, DescriptionText, ImageContainer } from "@/components/atoms";
@@ -6,7 +5,7 @@ import { BookingForm } from "@/components/organisms";
 
 import styles from "./Banner.module.css";
 
-export const Banner = ({ className, id = "hero" }: BannerProps = {}) => {
+export const Banner = ({ className, id = "hero", content }: BannerProps) => {
   return (
     <Section
       noPadding

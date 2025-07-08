@@ -6,14 +6,14 @@ export interface BaseSectionProps {
   id?: string;
 }
 
-export interface BannerProps extends BaseSectionProps {}
+export interface BannerProps extends BaseSectionProps {
+  content: BannerContent;
+}
 
 export interface BannerContent {
   title: string;
-  specialWord: string;
   subtitle: string;
-  image: {
-    src: string;
-  };
+  description: string;
+  image: string;
   imageAlt: string;
 }

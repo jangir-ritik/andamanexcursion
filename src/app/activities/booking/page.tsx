@@ -13,6 +13,7 @@ import {
   ActivityResults,
 } from "@/components/molecules/BookingResults";
 import { ACTIVITIES } from "@/data/activities";
+import { content } from "../page.content";
 
 // Component that uses useSearchParams for the activity results
 const ActivitiesBookingContent = () => {
@@ -148,7 +149,12 @@ export default function ActivitiesBookingPage() {
         </Column>
       </Section>
 
-      <Partners />
+      <Partners
+        title={content.partnersContent.title}
+        specialWord={content.partnersContent.specialWord}
+        partners={content.partnersContent.partners}
+        partnersAlt={content.partnersContent.partnersAlt}
+      />
     </main>
   );
 }

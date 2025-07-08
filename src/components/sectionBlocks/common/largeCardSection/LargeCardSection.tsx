@@ -3,19 +3,11 @@ import type { LargeCardSectionProps } from "./LargeCardSection.types";
 import { Section } from "@/components/layout";
 import { LargeCard } from "@/components/molecules/Cards";
 
-export const LargeCardSection = ({
-  className,
-  id = "large-card-section",
-  ariaLabel = "Large Card Section",
-  subtitle,
-  title,
-  image,
-  imageAlt,
-  ctaText,
-  ctaHref,
-}: LargeCardSectionProps) => {
+export const LargeCardSection = ({ content }: LargeCardSectionProps) => {
+  const { subtitle, title, image, imageAlt, ctaText, ctaHref } = content;
+
   return (
-    <Section id={id} aria-label={ariaLabel} className={className}>
+    <Section id="large-card-section" aria-label="Large Card Section">
       <LargeCard
         subtitle={subtitle}
         title={title}

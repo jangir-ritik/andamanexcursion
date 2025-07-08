@@ -1,15 +1,17 @@
-
 import React from "react";
-import styles from "./HiddenGems.module.css"; 
-import { Button, DescriptionText, ImageContainer, SectionTitle } from "@/components/atoms";
-import { hiddenGemsContent } from "./HiddenGems.content";
+import {
+  Button,
+  DescriptionText,
+  ImageContainer,
+  SectionTitle,
+} from "@/components/atoms";
+import { HiddenGemsProps } from "./HiddenGems.types";
 import Link from "next/link";
-import { cn } from "@/utils/cn";
 import { Column, Row, Section } from "@/components/layout";
+import styles from "./HiddenGems.module.css";
 
-export const HiddenGems = () => {
-  const { title, specialWord, description, ctaText, ctaHref, images } =
-    hiddenGemsContent;
+export const HiddenGems = ({ content }: HiddenGemsProps) => {
+  const { title, specialWord, description, ctaText, ctaHref, images } = content;
 
   return (
     <Section

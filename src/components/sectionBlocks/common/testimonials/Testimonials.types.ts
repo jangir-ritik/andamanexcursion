@@ -6,22 +6,21 @@ export interface BaseSectionProps {
   id?: string;
 }
 
-export interface TestimonialsProps extends BaseSectionProps {}
+export interface TestimonialsProps extends BaseSectionProps {
+  content: TestimonialsContent;
+}
 
 export interface TestimonialItem {
-  quote: string;
+  id: number;
+  text: string;
   author: string;
-  location: string;
-  avatar?: {
-    src: string;
-  };
-  avatarAlt?: string;
-  rating: number;
+  avatar: string;
+  rotation: number;
 }
 
 export interface TestimonialsContent {
   title: string;
   specialWord: string;
-  description: string;
+  subtitle: string;
   testimonials: TestimonialItem[];
 }

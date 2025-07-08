@@ -4,21 +4,25 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 
-import styles from "./page.module.css";
-import { content } from "./page.content";
 import { ImageContainer } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
+import {
+  TrustedFerries,
+  PlanInFourEasySteps,
+  Trivia,
+} from "@/components/sectionBlocks/ferry";
+
 import {
   FAQ,
   LargeCardSection,
   Partners,
   Testimonials,
 } from "@/components/sectionBlocks/common";
-import {
-  TrustedFerries,
-  PlanInFourEasySteps,
-  Trivia,
-} from "@/components/sectionBlocks/ferry";
+
+import { content } from "./page.content";
+
+import styles from "./page.module.css";
+
 import { useBooking } from "@/context/BookingContext";
 
 export default function FerryPage() {
@@ -54,7 +58,12 @@ export default function FerryPage() {
 
       <PlanInFourEasySteps />
       <TrustedFerries />
-      <Partners />
+      <Partners
+        title={content.partners.title}
+        specialWord={content.partners.specialWord}
+        partners={content.partners.partners}
+        partnersAlt={content.partners.partnersAlt}
+      />
       <LargeCardSection
         subtitle={content.largeCardSection.subtitle}
         title={content.largeCardSection.title}
@@ -64,7 +73,12 @@ export default function FerryPage() {
         ctaHref={content.largeCardSection.ctaHref}
       />
       <Trivia />
-      <Testimonials />
+      <Testimonials
+        title={content.testimonials.title}
+        specialWord={content.testimonials.specialWord}
+        subtitle={content.testimonials.subtitle}
+        testimonials={content.testimonials.testimonials}
+      />
       <FAQ
         title={content.faqSection.title}
         specialWord={content.faqSection.specialWord}

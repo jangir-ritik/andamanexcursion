@@ -16,6 +16,7 @@ import {
   packageCategoriesContent,
   packagesPageFAQContent,
   largeCardSectionContent,
+  testimonials,
 } from "./page.content";
 import { DescriptionText, SectionTitle } from "@/components/atoms";
 import { LargeCardSection } from "@/components/sectionBlocks/common";
@@ -78,7 +79,12 @@ export default function PackagesPage() {
         </Column>
       </Section>
       <FAQ {...packagesPageFAQContent} />
-      <Testimonials />
+      <Testimonials
+        title={testimonials.title}
+        specialWord={testimonials.specialWord}
+        subtitle={testimonials.subtitle}
+        testimonials={testimonials.testimonials}
+      />
       <LargeCardSection
         subtitle={largeCardSectionContent.subtitle}
         title={largeCardSectionContent.title}

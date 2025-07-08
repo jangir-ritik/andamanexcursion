@@ -8,9 +8,11 @@ import { FAQContainer } from "@/components/molecules/FAQContainer/FAQContainer";
 import type { FAQProps } from "./FAQ.types";
 import { SectionTitle } from "@/components/atoms";
 
-export const FAQ = ({ title, specialWord, items, className }: FAQProps) => {
+export const FAQ = ({ content }: FAQProps) => {
+  const { title, specialWord, items } = content;
+
   return (
-    <Section id="faq" aria-labelledby="faq-title" className={className}>
+    <Section id="faq" aria-labelledby="faq-title">
       <Row wrap fullWidth justifyContent="between">
         <Column className={styles.titleColumn}>
           <SectionTitle text={title} specialWord={specialWord} id="faq-title" />

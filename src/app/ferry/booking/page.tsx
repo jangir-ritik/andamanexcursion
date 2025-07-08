@@ -8,6 +8,7 @@ import { BookingForm } from "@/components/organisms";
 import useFerryBooking from "@/hooks/useFerryBooking";
 import { useFerryBookingContext } from "@/context/FerryBookingContext";
 import { SearchSummary, TimeFilters, FerryResults } from "./components";
+import { content } from "../page.content";
 
 // Component that uses useSearchParams - this needs to be wrapped in Suspense
 const FerryBookingContent = () => {
@@ -112,7 +113,12 @@ export default function FerryBookingPage() {
         </Column>
       </Section>
 
-      <Partners />
+      <Partners
+        title={content.partners.title}
+        specialWord={content.partners.specialWord}
+        partners={content.partners.partners}
+        partnersAlt={content.partners.partnersAlt}
+      />
     </main>
   );
 }

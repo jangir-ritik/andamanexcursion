@@ -15,7 +15,7 @@ import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import styles from "../../page.module.css";
 import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
 import { LargeCardSection } from "@/components/sectionBlocks/common";
-import { largeCardSectionContent } from "../../page.content";
+import { largeCardSectionContent, testimonials } from "../../page.content";
 import { PackageDetailTabs } from "@/components/organisms";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 
@@ -60,7 +60,12 @@ export default function PackageDetailPage() {
           },
         ]}
       />
-      <Testimonials />
+      <Testimonials
+        title={testimonials.title}
+        specialWord={testimonials.specialWord}
+        subtitle={testimonials.subtitle}
+        testimonials={testimonials.testimonials}
+      />
       <LargeCardSection
         subtitle={largeCardSectionContent.subtitle}
         title={largeCardSectionContent.title}

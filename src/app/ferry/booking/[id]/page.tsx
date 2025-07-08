@@ -9,6 +9,7 @@ import { FerryCard } from "@/components/molecules/Cards";
 import { Partners } from "@/components/sectionBlocks/common";
 import { fetchFerryDetails } from "@/services/ferryService";
 import { FerryCardProps } from "@/components/molecules/Cards/FerryCard/FerryCard.types";
+import { content } from "../../page.content";
 
 export default function FerryDetailPage() {
   const params = useParams();
@@ -103,7 +104,12 @@ export default function FerryDetailPage() {
         </Column>
       </Section>
 
-      <Partners />
+      <Partners
+        title={content.partners.title}
+        specialWord={content.partners.specialWord}
+        partners={content.partners.partners}
+        partnersAlt={content.partners.partnersAlt}
+      />
     </main>
   );
 }

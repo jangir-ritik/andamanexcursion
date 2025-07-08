@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 
-import { testimonialsContent } from "./Testimonials.content";
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
 import { SectionTitle } from "@/components/atoms";
@@ -9,20 +8,17 @@ import type { TestimonialsProps } from "./Testimonials.types";
 import { Column, Container, Section } from "@/components/layout";
 import { TestimonialCard } from "@/components/molecules/Cards";
 
-export const Testimonials = ({
-  className,
-  id = "testimonials",
-}: TestimonialsProps = {}) => {
-  const { title, subtitle, testimonials, specialWord } = testimonialsContent;
+export const Testimonials = ({ content }: TestimonialsProps) => {
+  const { title, subtitle, testimonials, specialWord } = content;
 
   // Create a duplicate set of testimonials for the infinite scroll effect
   const duplicatedTestimonials = [...testimonials, ...testimonials];
 
   return (
     <Section
-      className={`${styles.testimonialsSection} ${className || ""}`}
+      className={styles.testimonialsSection}
       fullBleed
-      id={id}
+      id="testimonials"
       aria-labelledby="testimonials-title"
     >
       <Column gap={6} fullWidth className={styles.testimonialsContainer}>
@@ -35,7 +31,13 @@ export const Testimonials = ({
             />
             <div className={styles.googleInfo}>
               <div className={styles.googleIcon}>
-                <Image src={googleIcon} alt="Google" width={20} height={20} />
+                <Image
+                  src={googleIcon}
+                  aria-label="Google"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                />
               </div>
               <p className={styles.subtitle}>{subtitle}</p>
             </div>
