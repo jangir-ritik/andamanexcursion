@@ -2,14 +2,13 @@ import heroImage from "@public/images/ferry/ferryBanner.png";
 import seaWalkingImage from "@public/images/ferry/seaWalking/seaWalking.png";
 import andamanCallingImage from "@public/images/homepage/andamanCalling/image.png";
 import { FerryCardProps } from "@/components/molecules/Cards/FerryCard/FerryCard.types";
-import { TestimonialsProps } from "@/components/sectionBlocks/common/testimonials/Testimonials.types";
+import { TestimonialsContent } from "@/components/sectionBlocks/common/testimonials/Testimonials.types";
 
 import partner1 from "@public/icons/partners/dss.svg";
 import partner2 from "@public/icons/partners/greenOcean.svg";
 import partner3 from "@public/icons/partners/nautika.svg";
 import partner4 from "@public/icons/partners/makruzz.svg";
-import { PartnersProps } from "@/components/sectionBlocks/common/partners/Partners.types";
-
+import { PartnersContent } from "@/components/sectionBlocks/common/partners/Partners.types";
 
 // Sample icons for amenities
 const premiumSeatingIcon = "/icons/misc/chair.svg";
@@ -44,8 +43,8 @@ export interface FerryPageContent {
   faqSection: FAQSectionContent;
   largeCardSection2: LargeCardSectionContent;
   ferryCards: FerryCardProps[];
-  testimonials: TestimonialsProps;
-  partners: PartnersProps;
+  testimonials: TestimonialsContent;
+  partners: PartnersContent;
 }
 
 export const content: FerryPageContent = {
