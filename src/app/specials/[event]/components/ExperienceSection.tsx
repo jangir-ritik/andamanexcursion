@@ -5,7 +5,17 @@ import { FeatureCard } from "@/components/molecules/Cards/FeatureCard/FeatureCar
 import styles from "../page.module.css";
 import Image from "next/image";
 import stepsWave from "@public/graphics/stepsWave.svg";
-import { content } from "../page.content";
+
+interface ExperienceSectionProps {
+  content: ExperienceSectionContent;
+}
+
+interface ExperienceSectionContent {
+  title: string;
+  specialWord: string;
+  description: string;
+  cards: HowToReachCard[];
+}
 
 interface HowToReachCard {
   title: string;
@@ -13,12 +23,8 @@ interface HowToReachCard {
   icon: string;
 }
 
-interface ExperienceSectionProps {
-  cards: HowToReachCard[];
-}
-
 export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
-  cards,
+  content,
 }) => {
   return (
     <Section
@@ -37,16 +43,13 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
       <Container className={styles.experienceContainer}>
         <Row fullWidth gap={3} alignItems="center" justifyContent="between">
           <SectionTitle
-            text={content.experience.title}
-            specialWord={content.experience.specialWord}
+            text={content.title}
+            specialWord={content.specialWord}
           />
-          <DescriptionText
-            align="right"
-            text={content.experience.description}
-          />
+          <DescriptionText align="right" text={content.description} />
         </Row>
         <Row gap="var(--space-4)" justifyContent="between">
-          {cards.map((card) => (
+          {content.cards.map((card) => (
             <FeatureCard
               key={card.title}
               className={styles.featureCard}

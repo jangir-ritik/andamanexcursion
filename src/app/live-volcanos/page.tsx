@@ -85,26 +85,11 @@ export default async function LiveVolcanosPage() {
         </Row>
       </Section>
 
-      <Trivia
-        title={content.trivia.title}
-        text={content.trivia.text}
-        highlightedPhrases={content.trivia.highlightedPhrases}
-      />
+      <Trivia content={content.trivia} />
 
-      <FAQ
-        title={content.faq.title}
-        specialWord={content.faq.specialWord}
-        items={content.faq.items}
-      />
+      <FAQ content={content.faq} />
 
-      <LargeCardSection
-        title={content.largeCardSection.title}
-        subtitle={content.largeCardSection.subtitle}
-        image={content.largeCardSection.image}
-        imageAlt={content.largeCardSection.imageAlt}
-        ctaText={content.largeCardSection.ctaText}
-        ctaHref={content.largeCardSection.ctaHref}
-      />
+      <LargeCardSection content={content.largeCardSection} />
     </main>
   );
 }

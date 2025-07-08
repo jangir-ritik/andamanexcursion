@@ -1,10 +1,5 @@
 import React from "react";
-import styles from "./page.module.css";
-import {
-  FAQ,
-  LargeCardSection,
-  Trivia,
-} from "@/components/sectionBlocks/common";
+import { FAQ, LargeCardSection } from "@/components/sectionBlocks/common";
 import { Column, Row } from "@/components/layout";
 import { Section } from "@/components/layout";
 import {
@@ -13,8 +8,10 @@ import {
   ImageContainer,
   SectionTitle,
 } from "@/components/atoms";
-import { content } from "./page.content";
 import { ExperienceSection } from "./components/ExperienceSection";
+
+import styles from "./page.module.css";
+import { content } from "./page.content";
 
 export default async function SpecialsPage() {
   return (
@@ -78,22 +75,11 @@ export default async function SpecialsPage() {
         </Row>
       </Section>
 
-      <ExperienceSection cards={content.experience.cards} />
+      <ExperienceSection content={content.experience} />
 
-      <FAQ
-        title={content.faq.title}
-        specialWord={content.faq.specialWord}
-        items={content.faq.items}
-      />
+      <FAQ content={content.faq} />
 
-      <LargeCardSection
-        title={content.largeCardSection.title}
-        subtitle={content.largeCardSection.subtitle}
-        image={content.largeCardSection.image}
-        imageAlt={content.largeCardSection.imageAlt}
-        ctaText={content.largeCardSection.ctaText}
-        ctaHref={content.largeCardSection.ctaHref}
-      />
+      <LargeCardSection content={content.largeCardSection} />
     </main>
   );
 }

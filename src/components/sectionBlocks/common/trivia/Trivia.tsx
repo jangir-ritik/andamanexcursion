@@ -5,21 +5,25 @@ import styles from "./Trivia.module.css";
 import Image from "next/image";
 import underlineGraphic from "@public/graphics/underline.svg";
 
-export interface TriviaProps {
+export interface TriviaContent {
   title?: string;
   text: string;
   highlightedPhrases: string[];
+}
+
+export interface TriviaProps {
+  content: TriviaContent;
   className?: string;
   id?: string;
 }
 
 export const Trivia: React.FC<TriviaProps> = ({
-  title = "Did you know?",
-  text,
-  highlightedPhrases,
+  content,
   className = "",
   id = "trivia",
 }) => {
+  const { title, text, highlightedPhrases } = content;
+
   const [underlinePositions, setUnderlinePositions] = useState<
     Array<{
       left: number;

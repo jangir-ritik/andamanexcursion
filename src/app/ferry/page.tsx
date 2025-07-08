@@ -9,8 +9,8 @@ import { BookingForm } from "@/components/organisms";
 import {
   TrustedFerries,
   PlanInFourEasySteps,
-  Trivia,
 } from "@/components/sectionBlocks/ferry";
+import { Trivia } from "@/components/sectionBlocks/common";
 
 import {
   FAQ,
@@ -56,11 +56,11 @@ export default function FerryPage() {
         </Column>
       </Section>
 
-      <PlanInFourEasySteps />
-      <TrustedFerries />
+      <PlanInFourEasySteps content={content.planInFourEasySteps} />
+      <TrustedFerries content={content.ferries} />
       <Partners content={content.partners} />
       <LargeCardSection content={content.largeCardSection} />
-      <Trivia />
+      <Trivia content={content.trivia} />
       <Testimonials content={content.testimonials} />
       <FAQ content={content.faqSection} />
       <LargeCardSection content={content.largeCardSection2} />

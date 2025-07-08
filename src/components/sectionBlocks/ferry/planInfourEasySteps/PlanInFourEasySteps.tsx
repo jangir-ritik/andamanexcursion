@@ -3,12 +3,16 @@ import { DescriptionText, SectionTitle } from "@/components/atoms";
 import React from "react";
 import styles from "./PlanInFourEasySteps.module.css";
 import { Column, Row, Section } from "@/components/layout";
-import { content } from "./PlanInFourEasySteps.content";
 import { Step } from "@/components/atoms";
 import Image from "next/image";
 import stepsWave from "@public/graphics/stepsWave.svg";
+import { PlanInFourEasyStepsContent } from "./PlanInFourEasySteps.types";
 
-export const PlanInFourEasySteps = () => {
+export const PlanInFourEasySteps = ({
+  content,
+}: {
+  content: PlanInFourEasyStepsContent;
+}) => {
   return (
     <Section
       className={styles.planInFourEasyStepsSection}

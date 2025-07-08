@@ -2,9 +2,20 @@ import React from "react";
 import { Section, Column, Row } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { SmallCard } from "@/components/molecules/Cards";
-import { ferries } from "./TrustedFerries.content";
 
-export const TrustedFerries = () => {
+export interface TrustedFerriesContent {
+  image: string;
+  imageAlt: string;
+  title: string;
+  price: string;
+  rating: number;
+  href: string;
+}
+export const TrustedFerries = ({
+  content,
+}: {
+  content: TrustedFerriesContent[];
+}) => {
   return (
     <Section id="trusted-ferries" aria-labelledby="trusted-ferries-title">
       <Column gap="var(--space-10)" fullWidth>
@@ -24,10 +35,10 @@ export const TrustedFerries = () => {
 
         {/* Package cards */}
         <Row gap="var(--space-8)" justifyContent="between" wrap>
-          {ferries.map((item, index) => (
+          {content.map((item, index) => (
             <SmallCard
               key={index}
-              image={item.image.src}
+              image={item.image}
               imageAlt={item.imageAlt}
               title={item.title}
               rating={item.rating}

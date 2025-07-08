@@ -4,12 +4,15 @@ import React from "react";
 import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
+import { DescriptionText, SectionTitle } from "@/components/atoms";
+import {
+  LargeCardSection,
+  FAQ,
+  Testimonials,
+} from "@/components/sectionBlocks/common";
 
-import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
-import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
 import { usePackageContext } from "@/context/PackageContext";
 
-import styles from "./page.module.css";
 import {
   packageOptions,
   periodOptions,
@@ -18,8 +21,8 @@ import {
   largeCardSectionContent,
   testimonials,
 } from "./page.content";
-import { DescriptionText, SectionTitle } from "@/components/atoms";
-import { LargeCardSection } from "@/components/sectionBlocks/common";
+
+import styles from "./page.module.css";
 
 export default function PackagesPage() {
   const {
@@ -78,21 +81,9 @@ export default function PackagesPage() {
           </Column>
         </Column>
       </Section>
-      <FAQ {...packagesPageFAQContent} />
-      <Testimonials
-        title={testimonials.title}
-        specialWord={testimonials.specialWord}
-        subtitle={testimonials.subtitle}
-        testimonials={testimonials.testimonials}
-      />
-      <LargeCardSection
-        subtitle={largeCardSectionContent.subtitle}
-        title={largeCardSectionContent.title}
-        image={largeCardSectionContent.image}
-        imageAlt={largeCardSectionContent.imageAlt}
-        ctaText={largeCardSectionContent.ctaText}
-        ctaHref={largeCardSectionContent.ctaHref}
-      />
+      <FAQ content={packagesPageFAQContent} />
+      <Testimonials content={testimonials} />
+      <LargeCardSection content={largeCardSectionContent} />
     </main>
   );
 }

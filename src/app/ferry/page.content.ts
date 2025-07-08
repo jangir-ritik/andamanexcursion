@@ -8,7 +8,21 @@ import partner1 from "@public/icons/partners/dss.svg";
 import partner2 from "@public/icons/partners/greenOcean.svg";
 import partner3 from "@public/icons/partners/nautika.svg";
 import partner4 from "@public/icons/partners/makruzz.svg";
+
+import image1 from "@public/images/ferry/trustedFerries/goNautica.png";
+import image2 from "@public/images/ferry/trustedFerries/makruzz.png";
+import image3 from "@public/images/ferry/trustedFerries/greenOcean.png";
+
+import step1 from "@public/icons/misc/location.svg";
+import step2 from "@public/icons/misc/ship.svg";
+import step3 from "@public/icons/misc/rupee.svg";
+import step4 from "@public/icons/misc/ticket.svg";
+
+import { TriviaContent } from "@/components/sectionBlocks/common";
 import { PartnersContent } from "@/components/sectionBlocks/common/partners/Partners.types";
+import { TrustedFerriesContent } from "@/components/sectionBlocks/ferry/trustedFerries/TrustedFerries";
+import { PlanInFourEasyStepsContent } from "@/components/sectionBlocks/ferry/planInfourEasySteps/PlanInFourEasySteps.types";
+
 
 // Sample icons for amenities
 const premiumSeatingIcon = "/icons/misc/chair.svg";
@@ -45,6 +59,9 @@ export interface FerryPageContent {
   ferryCards: FerryCardProps[];
   testimonials: TestimonialsContent;
   partners: PartnersContent;
+  trivia: TriviaContent;
+  ferries: TrustedFerriesContent[];
+  planInFourEasySteps: PlanInFourEasyStepsContent;
 }
 
 export const content: FerryPageContent = {
@@ -254,8 +271,64 @@ export const content: FerryPageContent = {
     partners: [partner1, partner2, partner3, partner4],
     partnersAlt: ["dss", "greenOcean", "nautika", "makruzz"],
   },
+  trivia: {
+    title: "Did you know?",
+    text: "Port Blair is home to the iconic Cellular Jail, a historic symbol of India's freedom struggle",
+    highlightedPhrases: ["Cellular Jail", "historic symbol"],
+  },
+  ferries: [
+    {
+      image: image1.src,
+      imageAlt: "Go Nautica",
+      title: "Go Nautica",
+      price: "Starting @₹1,520",
+      rating: 4.9,
+      href: "/ferry/go-nautica",
+    },
+    {
+      image: image2.src,
+      imageAlt: "IIT Majestic",
+      title: "IIT Majestic",
+      price: "Starting @₹1,520",
+      rating: 4.5,
+      href: "/packages/family-fiesta",
+    },
+    {
+      image: image3.src,
+      imageAlt: "Green Ocean",
+      title: "Green Ocean",
+      price: "Starting @₹1,520",
+      rating: 4.0,
+      href: "/packages/honeymoon-whispers",
+    },
+  ],
+  planInFourEasySteps: {
+  title: "Plan your Ride in 4 Easy Steps!",
+  specialWord: "4 Easy Steps!",
+  steps: [
+    {
+      title: "Select Your Route",
+      description: "Select your islands and travel date to get started.",
+      icon: step1,
+    },
+    {
+      title: "Compare Ferries",
+      description: "Add passenger info and confirm your booking.",
+      icon: step2,
+    },
+    {
+      title: "Book Seamlessly",
+      description: "Enter passenger details and book with secure payment.",
+      icon: step3,
+    },
+    {
+      title: "Board your Boat",
+      description:
+        "Get your e-ticket on email. Reach the terminal & sail away!",
+      icon: step4,
+    },
+  ],
+    description:
+      "From island-hopping to water adventures, book smooth ferry rides tailored to your travel plan.",
+  },
 };
-
-export interface AndamanCallingContent {}
-
-export const andamanCallingContent: AndamanCallingContent = {};
