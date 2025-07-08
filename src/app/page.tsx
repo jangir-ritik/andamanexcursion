@@ -25,7 +25,7 @@ export default function Home() {
       <PackageCarousel content={content.packageCarousel} />
       <TrustStats content={content.trustStats} />
       <HiddenGems content={content.hiddenGems} />
-      <LovedAdventures />
+      <LovedAdventures content={content.lovedAdventures} />
       <Partners content={content.partners} />
       <LargeCardSection content={content.largeCardSection} />
       <WhyChooseUs content={content.whyChooseUs} />

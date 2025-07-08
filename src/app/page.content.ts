@@ -19,6 +19,8 @@ import storyImage from "@public/images/homepage/story/story.png";
 
 import whyChooseUsImage from "@public/images/homepage/whyChooseUs/points.png";
 
+import { BadgeIconType } from "@/components/sectionBlocks/homepage/lovedAdventures/LovedAdventures.types";
+
 export const content = {
   banner: {
     title: "Explore",
@@ -281,5 +283,35 @@ export const content = {
     imageAlt: "Why Choose Andaman Excursion",
     ctaText: "View Details",
     ctaHref: "/why-choose-us",
+  },
+  lovedAdventures: {
+    title: "Our Most Loved Adventures",
+    specialWord: "Loved Adventures",
+    adventures: [
+      {
+        title: "Fishing",
+        description:
+          "Discover the thrill of deep-sea fishing in the crystal-clear waters of Andaman. Perfect for both beginners and experienced anglers.",
+        image: {
+          src: "/images/homepage/lovedAdventures/fishing.png",
+          alt: "Person fishing in the deep blue waters of Andaman",
+        },
+        badge: "Most Popular",
+        badgeIconType: "Star" as BadgeIconType,
+        href: "/adventures/fishing",
+      },
+      {
+        title: "Live Volcano",
+        description:
+          "Witness the natural wonder of Barren Island, home to the only active volcano in South Asia. A once-in-a-lifetime experience.",
+        image: {
+          src: "/images/homepage/lovedAdventures/liveVolcano.png",
+          alt: "Active volcano on Barren Island with smoke rising",
+        },
+        badge: "Customer Favorite",
+        badgeIconType: "Heart" as BadgeIconType,
+        href: "/adventures/volcano",
+      },
+    ],
   },
 };

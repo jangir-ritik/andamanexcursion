@@ -5,21 +5,8 @@ export interface BaseSectionProps {
   children?: ReactNode;
   id?: string;
 }
-
-export interface LovedAdventuresProps extends BaseSectionProps {}
-
-export type BadgeIconType = "Star" | "Heart";
-
-export interface Adventure {
-  title: string;
-  description: string;
-  image: {
-    src: string;
-  };
-  imageAlt: string;
-  badge?: string;
-  badgeIconType?: BadgeIconType;
-  href: string;
+export interface LovedAdventuresProps extends BaseSectionProps {
+  content: LovedAdventuresContent;
 }
 
 export interface LovedAdventuresContent {
@@ -27,3 +14,17 @@ export interface LovedAdventuresContent {
   specialWord: string;
   adventures: Adventure[];
 }
+
+export interface Adventure {
+  title: string;
+  description: string;
+  image: {
+    src: string;
+    alt: string;
+  };
+  badge?: string;
+  badgeIconType?: BadgeIconType;
+  href: string;
+}
+
+export type BadgeIconType = "Star" | "Heart";

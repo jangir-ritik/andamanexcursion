@@ -1,49 +1,16 @@
-
 import React from "react";
-import {
-  BadgeIconType,
-  lovedAdventuresContent,
-} from "./LovedAdventures.content";
+import { LovedAdventuresProps } from "./LovedAdventures.types";
 import styles from "./LovedAdventures.module.css";
 import { Heart, Star } from "lucide-react";
-import type { LovedAdventuresProps  } from "./LovedAdventures.types";
 import { Column, Row, Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { MediumCard } from "@/components/molecules/Cards";
 
-export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
-  const { title, specialWord, adventures } = lovedAdventuresContent;
-
-  // Render badge icons based on type
-  const getBadgeIcon = (iconType: BadgeIconType) => {
-    switch (iconType) {
-      case "Star":
-        return (
-          <Star
-            fill="var(--color-black)"
-            stroke="var(--color-black)"
-            aria-hidden="true"
-          />
-        );
-      case "Heart":
-        return (
-          <Heart
-            fill="var(--color-black)"
-            stroke="var(--color-black)"
-            aria-hidden="true"
-          />
-        );
-      default:
-        return null;
-    }
-  };
+export function LovedAdventures({ content }: LovedAdventuresProps) {
+  const { title, specialWord, adventures } = content;
 
   return (
-    <Section
-      id="loved-adventures"
-      aria-labelledby="loved-adventures-title"
-      className={className}
-    >
+    <Section id="loved-adventures" aria-labelledby="loved-adventures-title">
       <Row fullWidth>
         <Column fullWidth gap="var(--space-12)">
           <SectionTitle
@@ -57,13 +24,25 @@ export function LovedAdventures({ className }: LovedAdventuresProps = {}) {
               <MediumCard
                 key={index}
                 badge={adventure.badge}
-                badgeIcon={getBadgeIcon(
-                  adventure.badgeIconType as BadgeIconType
-                )}
+                badgeIcon={
+                  adventure.badgeIconType === "Star" ? (
+                    <Star
+                      fill="var(--color-black)"
+                      stroke="var(--color-black)"
+                      aria-hidden="true"
+                    />
+                  ) : adventure.badgeIconType === "Heart" ? (
+                    <Heart
+                      fill="var(--color-black)"
+                      stroke="var(--color-black)"
+                      aria-hidden="true"
+                    />
+                  ) : null
+                }
                 title={adventure.title}
                 description={adventure.description}
                 image={adventure.image.src}
-                imageAlt={adventure.imageAlt}
+                imageAlt={adventure.image.alt}
                 href={adventure.href}
               />
             ))}
