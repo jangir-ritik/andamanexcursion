@@ -24,6 +24,8 @@ export const content = {
     ctaHref: "/contact",
   },
   howToReach: {
+    title: "How to Reach?",
+    specialWord: "Reach?",
     cards: [
       {
         title: "From Port Blair",

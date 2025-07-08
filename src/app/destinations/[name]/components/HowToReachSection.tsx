@@ -12,13 +12,15 @@ interface HowToReachCard {
   icon: string;
 }
 
-interface HowToReachSectionProps {
+export interface HowToReachSectionContent {
+  title: string;
+  specialWord: string;
   cards: HowToReachCard[];
 }
 
-export const HowToReachSection: React.FC<HowToReachSectionProps> = ({
-  cards,
-}) => {
+export const HowToReachSection: React.FC<{
+  content: HowToReachSectionContent;
+}> = ({ content }) => {
   return (
     <Section
       fullBleed
@@ -35,10 +37,13 @@ export const HowToReachSection: React.FC<HowToReachSectionProps> = ({
       />
       <Container className={styles.howToReachContainer}>
         <Row fullWidth>
-          <SectionTitle text="How to Reach?" specialWord="Reach?" />
+          <SectionTitle
+            text={content.title}
+            specialWord={content.specialWord}
+          />
         </Row>
         <Row gap="var(--space-4)" justifyContent="between">
-          {cards.map((card) => (
+          {content.cards.map((card) => (
             <FeatureCard key={card.title} {...card} />
           ))}
         </Row>

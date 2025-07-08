@@ -104,12 +104,7 @@ export default function FerryDetailPage() {
         </Column>
       </Section>
 
-      <Partners
-        title={content.partners.title}
-        specialWord={content.partners.specialWord}
-        partners={content.partners.partners}
-        partnersAlt={content.partners.partnersAlt}
-      />
+      <Partners content={content.partners} />
     </main>
   );
 }

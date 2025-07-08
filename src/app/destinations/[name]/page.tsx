@@ -1,6 +1,4 @@
 import React from "react";
-import styles from "./page.module.css";
-import { content } from "./page.content";
 import { LargeCardSection, Trivia } from "@/components/sectionBlocks/common";
 import {
   BannerSection,
@@ -11,6 +9,8 @@ import {
 } from "./components";
 import { Column } from "@/components/layout";
 
+import styles from "./page.module.css";
+import { content } from "./page.content";
 interface PageProps {
   params: Promise<{ name: string }>;
 }
@@ -34,28 +34,13 @@ export default async function DestinationPage({ params }: PageProps) {
       </Column>
       <FeatureSection {...content.feature} />
 
-      <HowToReachSection cards={content.howToReach.cards} />
+      <HowToReachSection content={content.howToReach} />
 
-      <ExploreSection
-        title={content.explore.title}
-        specialWord={content.explore.specialWord}
-        description={content.explore.description}
-        activities={content.explore.activities}
-      />
+      <ExploreSection content={content.explore} />
 
-      <Trivia
-        title={content.trivia.title}
-        text={content.trivia.text}
-        highlightedPhrases={content.trivia.highlightedPhrases}
-      />
+      <Trivia content={content.trivia} />
 
-      <LargeCardSection
-        title={content.largeCardSection.title}
-        image={content.largeCardSection.image}
-        imageAlt={content.largeCardSection.imageAlt}
-        ctaText={content.largeCardSection.ctaText}
-        ctaHref={content.largeCardSection.ctaHref}
-      />
+      <LargeCardSection content={content.largeCardSection} />
     </main>
   );
 }

@@ -12,19 +12,16 @@ interface ExploreActivity {
   imageAlt: string;
 }
 
-interface ExploreSectionProps {
+export interface ExploreSectionContent {
   title: string;
   specialWord: string;
   description: string;
   activities: ExploreActivity[];
 }
 
-export const ExploreSection: React.FC<ExploreSectionProps> = ({
-  title,
-  specialWord,
-  description,
-  activities,
-}) => {
+export const ExploreSection: React.FC<{
+  content: ExploreSectionContent;
+}> = ({ content }) => {
   const [expandedCardIndex, setExpandedCardIndex] = useState(0);
 
   const handleCardClick = (index: number) => {
@@ -36,17 +33,17 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
       <Container>
         <Row fullWidth className={styles.exploreTitleContainer}>
           <SectionTitle
-            text={title}
-            specialWord={specialWord}
+            text={content.title}
+            specialWord={content.specialWord}
             className={styles.exploreTitle}
           />
           <DescriptionText
-            text={description}
+            text={content.description}
             className={styles.exploreDescription}
           />
         </Row>
         <Row gap="var(--space-6)" className={styles.exploreGrid}>
-          {activities.map((activity, index) => (
+          {content.activities.map((activity, index) => (
             <HoverExpandCard
               key={activity.title}
               {...activity}
