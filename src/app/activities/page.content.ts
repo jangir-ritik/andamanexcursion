@@ -2,11 +2,6 @@ import andamanCallingImage from "@public/images/homepage/andamanCalling/image.pn
 import activitiesHeroImage from "@public/images/activities/activities-hero.png";
 import { ACTIVITIES_DATA } from "@/data/activities";
 
-import partner1 from "@public/icons/partners/dss.svg";
-import partner2 from "@public/icons/partners/greenOcean.svg";
-import partner3 from "@public/icons/partners/nautika.svg";
-import partner4 from "@public/icons/partners/makruzz.svg";
-
 export const content = {
   image: activitiesHeroImage.src,
   imageAlt: "Activities Hero",
@@ -105,11 +100,5 @@ export const content = {
         rotation: 4,
       },
     ],
-  },
-  partnersContent: {
-    title: "Our Trusted Partners",
-    specialWord: "Partners",
-    partners: [partner1, partner2, partner3, partner4],
-    partnersAlt: ["dss", "greenOcean", "nautika", "makruzz"],
   },
 };

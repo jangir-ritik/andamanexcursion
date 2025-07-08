@@ -3,7 +3,6 @@ import React, { Suspense } from "react";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
 import { SectionTitle } from "@/components/atoms";
-import { Partners } from "@/components/sectionBlocks/common";
 import { BookingForm } from "@/components/organisms";
 import useActivityBooking from "@/hooks/useActivityBooking";
 import { useActivityBookingContext } from "@/context/ActivityBookingContext";
@@ -13,7 +12,6 @@ import {
   ActivityResults,
 } from "@/components/molecules/BookingResults";
 import { ACTIVITIES } from "@/data/activities";
-import { content } from "../page.content";
 
 // Component that uses useSearchParams for the activity results
 const ActivitiesBookingContent = () => {
@@ -148,13 +146,6 @@ export default function ActivitiesBookingPage() {
           </Suspense>
         </Column>
       </Section>
-
-      <Partners
-        title={content.partnersContent.title}
-        specialWord={content.partnersContent.specialWord}
-        partners={content.partnersContent.partners}
-        partnersAlt={content.partnersContent.partnersAlt}
-      />
     </main>
   );
 }

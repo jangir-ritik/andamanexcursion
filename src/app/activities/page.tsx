@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Section, Column, Grid } from "@/components/layout";
 
@@ -19,7 +17,6 @@ import { SmallCard } from "@/components/molecules/Cards";
 import styles from "./page.module.css";
 
 import { content } from "./page.content";
-
 
 export default function ActivitiesPage() {
   return (
@@ -64,20 +61,9 @@ export default function ActivitiesPage() {
           </Grid>
         </Column>
       </Section>
-      <FAQ {...content.faqSection} />
-      <Testimonials
-        title={content.testimonials.title}
-        specialWord={content.testimonials.specialWord}
-        subtitle={content.testimonials.subtitle}
-        testimonials={content.testimonials.testimonials}
-      />
-      <LargeCardSection
-        title={content.largeCardSection.title}
-        image={content.largeCardSection.image}
-        imageAlt={content.largeCardSection.imageAlt}
-        ctaText={content.largeCardSection.ctaText}
-        ctaHref={content.largeCardSection.ctaHref}
-      />
+      <FAQ content={content.faqSection} />
+      <Testimonials content={content.testimonials} />
+      <LargeCardSection content={content.largeCardSection} />
     </main>
   );
 }
