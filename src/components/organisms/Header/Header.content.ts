@@ -1,5 +1,3 @@
-// Content for Header component
-
 import { ACTIVITIES } from "@/data/activities";
 
 // ferry, boat, activities(sub), packages(sub), special(sub), live volcanos, fishing, destination(sub), plan your trip, get in touch
@@ -93,7 +91,7 @@ export const navItems = [
   },
   {
     label: "Get in Touch",
-    href: "/get-in-touch",
+    href: "/contact",
     unique: true,
   },
 ];

@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
 import clsx from "clsx";
 import Image from "next/image";
-import logo from "@icons/logo.svg";
-import { navItems } from "./Header.content";
+import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 import { DesktopNav } from "@/components/molecules/DesktopNav/DesktopNav";
 import { MobileNav } from "@/components/molecules/MobileNav/MobileNav";
 import styles from "./Header.module.css";
-import Link from "next/link";
+import logo from "@icons/logo.svg";
 import type { HeaderProps } from "./Header.types";
+import { navItems } from "./Header.content";
 
 // Throttle function to limit how often a function runs
 const throttle = (callback: Function, delay = 250) => {

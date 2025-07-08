@@ -1,3 +1,4 @@
+// These are specific for UI and not for the backend
 export const ferryCardContent = {
   seatsLeft: "Seats Left",
   chooseSeats: "Choose Seats",

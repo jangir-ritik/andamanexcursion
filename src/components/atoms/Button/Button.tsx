@@ -17,6 +17,7 @@ export const Button = ({
   target = "_self",
   ariaLabel,
   icon,
+  loading = false,
 }: ButtonProps) => {
   const buttonClasses = [
     styles.button,
@@ -37,6 +38,7 @@ export const Button = ({
         </span>
       )}
       {icon && <span className={styles.icon}>{icon}</span>}
+      {loading && <span className={styles.loading}>Loading...</span>}
     </>
   );
 
@@ -60,8 +62,8 @@ export const Button = ({
       type={type}
       className={buttonClasses}
       onClick={onClick}
-      disabled={disabled}
       aria-label={ariaLabel}
+      disabled={disabled || loading}
     >
       {content}
     </button>

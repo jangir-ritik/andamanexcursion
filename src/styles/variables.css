@@ -78,12 +78,6 @@
   --color-surface-overlay: rgba(255, 255, 255, 0.95);
   --color-surface-tooltip: var(--color-gray-900); /* #000e0f */
 
-  /* Status Colors */
-  --color-status-online: #00c851;
-  --color-status-offline: var(--color-gray-500); /* #c0c0c0 */
-  --color-status-busy: #ff4444;
-  --color-status-away: #ff9500;
-
   /* Component-specific Colors */
   --color-divider: var(--color-gray-400); /* #d6d6d6 */
   --color-testimonial-border: var(--color-testimonial-blue); /* #89b9ff */
@@ -117,27 +111,6 @@
   --font-size-body-small: var(--font-size-sm); /* 15px */
   --font-size-caption: var(--font-size-xs); /* 14px */
   --font-size-button: var(--font-size-sm); /* 15px */
-
-  /* Enhanced Typography */
-  --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-
-  /* Line Heights */
-  --line-height-tight: 1.1;
-  --line-height-snug: 1.2;
-  --line-height-normal: 1.25;
-  --line-height-relaxed: 1.4;
-  --line-height-loose: 1.6;
-
-  /* Letter Spacing */
-  --letter-spacing-tight: -0.025em;
-  --letter-spacing-normal: 0;
-  --letter-spacing-wide: 0.025em;
-  --letter-spacing-wider: 0.05em;
 
   /* ===== SPACING TOKENS ===== */
 
@@ -191,8 +164,6 @@
   --radius-image-medium: var(--radius-xl); /* 32px */
   --radius-image-large: var(--radius-2xl); /* 40px */
   --radius-image-xl: var(--radius-3xl); /* 48px */
-
-  /* Special Radius Combinations */
   --radius-image-asymmetric: var(--radius-lg) 0 0 var(--radius-lg); /* 24px 0 0 24px */
 
   /* ===== SHADOW TOKENS ===== */
@@ -202,11 +173,7 @@
   --shadow-card: var(--shadow-sm); /* 0 4px 8px rgba(0, 0, 0, 0.1) */
   --shadow-elevated: var(--shadow-lg); /* 0 4px 22px rgba(0, 0, 0, 0.25) */
   --shadow-chip: 0 2px 2px rgba(0, 0, 0, 0.05);
-
-  /* Additional Shadows */
   --shadow-focus: 0 0 0 3px var(--color-focus-ring); /* 0 0 0 3px rgba(62, 140, 255, 0.3) */
-  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-outline: 0 0 0 2px var(--color-focus-outline); /* 0 0 0 2px #3e8cff */
 
   /* ===== LAYOUT TOKENS ===== */
 
@@ -231,7 +198,6 @@
   --z-index-dropdown: 20;
   --z-index-sticky: 30;
   --z-index-modal: 40;
-  --z-index-notification: 50;
 
   /* ===== ANIMATION TOKENS ===== */
 
@@ -240,16 +206,11 @@
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 350ms;
-  --duration-slow-enter: 200ms;
-  --duration-slow-exit: 150ms;
 
   /* Easing Functions */
   --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
   --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
-  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --easing-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --easing-sharp: cubic-bezier(0.55, 0.055, 0.675, 0.19);
 }
 
 /* ===== QUICK REFERENCE GUIDE ===== */

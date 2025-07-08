@@ -1,0 +1,30 @@
+.section {
+  /* background: var(--color-bg-secondary);
+  border-radius: var(--radius-card);
+  padding: var(--space-6); */
+  font-family: var(--font-family-primary);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-body-large);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-6) 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-5);
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

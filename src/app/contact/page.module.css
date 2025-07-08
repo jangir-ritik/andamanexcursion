@@ -1,0 +1,53 @@
+.contactPage {
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 100%
+  );
+  padding: var(--space-14);
+  margin-top: var(--space-20);
+  border-radius: var(--radius-md-2);
+}
+
+.container {
+  max-width: var(--layout-container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  gap: var(--space-14);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-16);
+  padding: var(--space-12) 0;
+}
+
+.title {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-heading-2);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.highlight {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-secondary);
+  text-underline-offset: var(--space-1);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: var(--font-size-heading-3);
+  }
+
+  .contactPage {
+    padding: var(--space-4) var(--space-1);
+    margin-top: var(--space-10);
+  }
+}

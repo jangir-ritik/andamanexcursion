@@ -1,0 +1,20 @@
+.section {
+  /* background: var(--color-bg-secondary);
+  border-radius: var(--radius-card);
+  padding: var(--space-6); */
+  font-family: var(--font-family-primary);
+}
+
+.sectionTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body-large);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-6) 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
