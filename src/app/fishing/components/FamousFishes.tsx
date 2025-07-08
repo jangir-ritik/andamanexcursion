@@ -12,18 +12,15 @@ interface FamousFish {
   imageAlt: string;
 }
 
-interface FamousFishesProps {
+export interface FamousFishesProps {
   title: string;
   specialWord: string;
   description: string;
   fishes: FamousFish[];
 }
 
-export const FamousFishes: React.FC<FamousFishesProps> = ({
-  title,
-  specialWord,
-  description,
-  fishes,
+export const FamousFishes: React.FC<{ content: FamousFishesProps }> = ({
+  content,
 }) => {
   const [expandedCardIndex, setExpandedCardIndex] = useState(0);
 
@@ -36,17 +33,17 @@ export const FamousFishes: React.FC<FamousFishesProps> = ({
       <Container>
         <Row fullWidth className={styles.famousFishesTitleContainer}>
           <SectionTitle
-            text={title}
-            specialWord={specialWord}
+            text={content.title}
+            specialWord={content.specialWord}
             className={styles.famousFishesTitle}
           />
           <DescriptionText
-            text={description}
+            text={content.description}
             className={styles.famousFishesDescription}
           />
         </Row>
         <Row gap="var(--space-6)" className={styles.famousFishesGrid}>
-          {fishes.map((fish, index) => (
+          {content.fishes.map((fish, index) => (
             <HoverExpandCard
               key={fish.title}
               {...fish}

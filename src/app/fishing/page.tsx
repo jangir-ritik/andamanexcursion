@@ -79,35 +79,15 @@ export default async function FishingPage() {
         </Row>
       </Section>
 
-      <ExperienceSection cards={content.experience.cards} />
+      <ExperienceSection content={content.experience} />
 
-      <Trivia
-        title={content.trivia.title}
-        text={content.trivia.text}
-        highlightedPhrases={content.trivia.highlightedPhrases}
-      />
+      <Trivia content={content.trivia} />
 
-      <FamousFishes
-        title={content.famousFishes.title}
-        specialWord={content.famousFishes.specialWord}
-        description={content.famousFishes.description}
-        fishes={content.famousFishes.fishes}
-      />
+      <FamousFishes content={content.famousFishes} />
 
-      <FAQ
-        title={content.faq.title}
-        specialWord={content.faq.specialWord}
-        items={content.faq.items}
-      />
+      <FAQ content={content.faq} />
 
-      <LargeCardSection
-        title={content.largeCardSection.title}
-        subtitle={content.largeCardSection.subtitle}
-        image={content.largeCardSection.image}
-        imageAlt={content.largeCardSection.imageAlt}
-        ctaText={content.largeCardSection.ctaText}
-        ctaHref={content.largeCardSection.ctaHref}
-      />
+      <LargeCardSection content={content.largeCardSection} />
     </main>
   );
 }
