@@ -1,21 +1,27 @@
 "use client";
-import React, { useState, useCallback, useMemo } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
+import { Controller } from "react-hook-form";
 import styles from "../BookingForm.module.css";
 import { useBooking } from "@/context/BookingContext";
-import { formatTimeForDisplay, timeStringToSlotId } from "@/utils/timeUtils";
+import { formatTimeForDisplay } from "@/utils/timeUtils";
 
 import {
-  ActivitySelect,
+  Button,
   DateSelect,
-  PassengerCount,
+  ActivitySelect,
   PassengerCounter,
   SlotSelect,
-  Button,
 } from "@/components/atoms";
 
 import { ACTIVITIES } from "@/data/activities";
 import { TIME_SLOTS } from "../BookingForm.types";
+import {
+  activityFormSchema,
+  ActivityFormValues,
+  getActivityNameById,
+} from "../schemas/formSchemas";
+import { useBookingForm } from "../hooks/useBookingForm";
 
 // Filter time slots for activities
 const ACTIVITY_TIME_SLOTS = TIME_SLOTS.filter((slot) =>
@@ -40,13 +46,6 @@ interface ActivityBookingFormProps {
   variant?: "default" | "compact" | "embedded";
 }
 
-interface ActivityFormState {
-  selectedActivity: string;
-  selectedDate: Date;
-  selectedSlot: string;
-  passengers: PassengerCount;
-}
-
 export function ActivityBookingForm({
   className,
   variant = "default",
@@ -54,52 +53,28 @@ export function ActivityBookingForm({
   const router = useRouter();
   const { bookingState, updateBookingState } = useBooking();
 
-  const [formState, setFormState] = useState<ActivityFormState>(() => ({
+  // Initialize form with our custom hook
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useBookingForm<typeof activityFormSchema>(activityFormSchema, {
     selectedActivity: "scuba-diving",
     selectedDate: new Date(bookingState.date),
-    selectedSlot:
-      timeStringToSlotId(bookingState.time) || ACTIVITY_TIME_SLOTS[0]?.id || "",
+    selectedSlot: ACTIVITY_TIME_SLOTS[0]?.id || "",
     passengers: {
       adults: bookingState.adults,
       infants: bookingState.infants,
       children: bookingState.children || 0,
     },
-  }));
+  });
 
-  const handlePassengerChange = useCallback(
-    (type: keyof PassengerCount, value: number) => {
-      setFormState((prev) => ({
-        ...prev,
-        passengers: {
-          ...prev.passengers,
-          [type]: Math.max(0, type === "adults" ? 1 : 0, value),
-        },
-      }));
-    },
-    []
-  );
-
-  const handleFormChange = useCallback(
-    <K extends keyof ActivityFormState>(
-      field: K,
-      value: ActivityFormState[K]
-    ) => {
-      setFormState((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    },
-    []
-  );
-
-  const handleSubmit = useCallback(() => {
-    const activityName = ACTIVITIES.find(
-      (act) => act.id === formState.selectedActivity
-    )?.name;
+  const onSubmit = (data: ActivityFormValues) => {
+    const activityName = getActivityNameById(data.selectedActivity);
 
     const timeSlot =
-      ACTIVITY_TIME_SLOTS.find((slot) => slot.id === formState.selectedSlot)
-        ?.time || "11:00 AM";
+      ACTIVITY_TIME_SLOTS.find((slot) => slot.id === data.selectedSlot)?.time ||
+      "11:00 AM";
 
     // Standardize the time format
     const standardizedTime = formatTimeForDisplay(timeSlot);
@@ -107,73 +82,133 @@ export function ActivityBookingForm({
     updateBookingState({
       from: bookingState.from,
       to: bookingState.to,
-      date: formState.selectedDate.toISOString().split("T")[0],
+      date: data.selectedDate.toISOString().split("T")[0],
       time: standardizedTime,
-      adults: formState.passengers.adults,
-      children: formState.passengers.children,
-      infants: formState.passengers.infants,
+      adults: data.passengers.adults,
+      children: data.passengers.children,
+      infants: data.passengers.infants,
     });
 
     router.push(
-      `/activities/booking?activity=${formState.selectedActivity}&date=${
-        formState.selectedDate.toISOString().split("T")[0]
+      `/activities/booking?activity=${data.selectedActivity}&date=${
+        data.selectedDate.toISOString().split("T")[0]
       }&time=${encodeURIComponent(standardizedTime)}&passengers=${
-        formState.passengers.adults +
-        formState.passengers.children +
-        formState.passengers.infants
+        data.passengers.adults +
+        data.passengers.children +
+        data.passengers.infants
       }`
     );
-  }, [
-    formState,
-    router,
-    updateBookingState,
-    bookingState.from,
-    bookingState.to,
-  ]);
+  };
 
   // Create button text based on variant
-  const buttonText = useMemo(() => {
-    if (variant === "compact") return "Search";
-    return "View Details";
-  }, [variant]);
+  const buttonText = variant === "compact" ? "Search" : "View Details";
 
   return (
-    <div className={`${styles.formGrid} ${className || ""}`}>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      aria-label="Activity Booking Form"
+      role="form"
+      aria-describedby="activity-booking-form-description"
+      aria-required="true"
+      aria-invalid={errors.selectedActivity ? "true" : "false"}
+      aria-busy={isSubmitting ? "true" : "false"}
+      aria-live="polite"
+      className={`${styles.formGrid} ${className || ""}`}
+    >
       <div className={styles.activityContainer}>
-        <ActivitySelect
-          value={formState.selectedActivity}
-          onChange={(value) => handleFormChange("selectedActivity", value)}
-          options={ACTIVITIES || []}
-        />
+        <div className={styles.formFieldContainer}>
+          <Controller
+            control={control}
+            name="selectedActivity"
+            render={({ field }) => (
+              <ActivitySelect
+                value={field.value}
+                onChange={field.onChange}
+                options={ACTIVITIES || []}
+              />
+            )}
+          />
+          {errors.selectedActivity && (
+            <div className={styles.errorMessage}>
+              {errors.selectedActivity.message}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.dateTimeSection}>
-        <DateSelect
-          selected={formState.selectedDate}
-          onChange={(date) => date && handleFormChange("selectedDate", date)}
-        />
+        <div className={styles.formFieldContainer}>
+          <Controller
+            control={control}
+            name="selectedDate"
+            render={({ field }) => (
+              <DateSelect
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+              />
+            )}
+          />
+          {errors.selectedDate && (
+            <div className={styles.errorMessage}>
+              {errors.selectedDate.message}
+            </div>
+          )}
+        </div>
 
-        <SlotSelect
-          value={formState.selectedSlot}
-          onChange={(value) => handleFormChange("selectedSlot", value)}
-          options={ACTIVITY_TIME_SLOTS || []}
-        />
+        <div className={styles.formFieldContainer}>
+          <Controller
+            control={control}
+            name="selectedSlot"
+            render={({ field }) => (
+              <SlotSelect
+                value={field.value}
+                onChange={field.onChange}
+                options={ACTIVITY_TIME_SLOTS || []}
+              />
+            )}
+          />
+          {errors.selectedSlot && (
+            <div className={styles.errorMessage}>
+              {errors.selectedSlot.message}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.passengerButtonSection}>
-        <PassengerCounter
-          value={formState.passengers}
-          onChange={handlePassengerChange}
-        />
+        <div className={styles.formFieldContainer}>
+          <Controller
+            control={control}
+            name="passengers"
+            render={({ field }) => (
+              <PassengerCounter
+                value={field.value}
+                onChange={(type, value) => {
+                  field.onChange({
+                    ...field.value,
+                    [type]: value,
+                  });
+                }}
+              />
+            )}
+          />
+          {errors.passengers && (
+            <div className={styles.errorMessage}>
+              {errors.passengers.message}
+            </div>
+          )}
+        </div>
+
         <Button
           variant="primary"
           className={styles.viewDetailsButton}
           showArrow
-          onClick={handleSubmit}
+          type="submit"
+          disabled={isSubmitting}
         >
-          {buttonText}
+          {isSubmitting ? "Loading..." : buttonText}
         </Button>
       </div>
-    </div>
+    </form>
   );
 }

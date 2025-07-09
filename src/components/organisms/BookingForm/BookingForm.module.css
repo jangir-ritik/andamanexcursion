@@ -123,7 +123,7 @@
 .formGrid {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start */
   justify-content: space-between;
   width: 100%;
   gap: var(--space-2);
@@ -137,6 +137,21 @@
   gap: var(--space-2);
 }
 
+/* Activity Container */
+.activityContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Form Field Container - New style */
+.formFieldContainer {
+  position: relative;
+  min-height: calc(
+    var(--size-form-field-height) + 1.5rem
+  ); /* Reserve space for error message */
+}
+
 /* Date and Time Section */
 .dateTimeSection {
   display: flex;
@@ -146,7 +161,7 @@
 /* Passenger and Button Section */
 .passengerButtonSection {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start */
   gap: var(--space-2);
 }
 
@@ -154,6 +169,19 @@
 .viewDetailsButton {
   white-space: nowrap;
   margin-left: var(--space-2);
+  margin-top: 1rem; /* Add top margin to align with form fields */
+}
+
+/* Error Messages */
+.errorMessage {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  text-align: left;
+  height: 1.25rem; /* Fixed height for error message */
 }
 
 /* Desktop Responsive Design */

@@ -2,9 +2,10 @@
 
 import React from "react";
 import styles from "./PassengerCounter.module.css";
-import type { PassengerCounterProps,
+import type {
+  PassengerCounterProps,
   PassengerCount,
- } from "./PassengerCounter.types";
+} from "./PassengerCounter.types";
 
 export type { PassengerCount };
 
@@ -15,7 +16,7 @@ export const PassengerCounter = ({
 }: PassengerCounterProps) => {
   return (
     <div className={`${styles.passengerCounter} ${className || ""}`}>
-      <div className={styles.counterGroup}>
+      <div className={styles.counterWrapper}>
         <label>Adults (2+ yrs)</label>
         <div className={styles.counter}>
           <button
@@ -35,7 +36,7 @@ export const PassengerCounter = ({
         </div>
       </div>
 
-      <div className={styles.counterGroup}>
+      <div className={styles.counterWrapper}>
         <label>Infants/Kids</label>
         <div className={styles.counter}>
           <button
