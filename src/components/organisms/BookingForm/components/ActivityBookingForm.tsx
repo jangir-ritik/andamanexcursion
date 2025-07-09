@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Controller } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import styles from "../BookingForm.module.css";
 import { useBooking } from "@/context/BookingContext";
 import { formatTimeForDisplay } from "@/utils/timeUtils";
+import { buildBookingUrlParams } from "@/utils/urlUtils";
 
 import {
   Button,
@@ -12,14 +13,17 @@ import {
   ActivitySelect,
   PassengerCounter,
   SlotSelect,
+  LocationSelect,
 } from "@/components/atoms";
 
 import { ACTIVITIES } from "@/data/activities";
+import { FERRY_LOCATIONS } from "@/data/ferries";
 import { TIME_SLOTS } from "../BookingForm.types";
 import {
   activityFormSchema,
   ActivityFormValues,
   getActivityNameById,
+  getLocationNameById,
 } from "../schemas/formSchemas";
 import { useBookingForm } from "../hooks/useBookingForm";
 import { cn } from "@/utils/cn";
@@ -61,6 +65,7 @@ export function ActivityBookingForm({
     formState: { errors, isSubmitting },
   } = useBookingForm<typeof activityFormSchema>(activityFormSchema, {
     selectedActivity: "scuba-diving",
+    activityLocation: FERRY_LOCATIONS[0]?.id || "",
     selectedDate: new Date(bookingState.date),
     selectedSlot: ACTIVITY_TIME_SLOTS[0]?.id || "",
     passengers: {
@@ -72,6 +77,7 @@ export function ActivityBookingForm({
 
   const onSubmit = (data: ActivityFormValues) => {
     const activityName = getActivityNameById(data.selectedActivity);
+    const locationName = getLocationNameById(data.activityLocation, "activity");
 
     const timeSlot =
       ACTIVITY_TIME_SLOTS.find((slot) => slot.id === data.selectedSlot)?.time ||
@@ -90,15 +96,20 @@ export function ActivityBookingForm({
       infants: data.passengers.infants,
     });
 
-    router.push(
-      `/activities/booking?activity=${data.selectedActivity}&date=${
-        data.selectedDate.toISOString().split("T")[0]
-      }&time=${encodeURIComponent(standardizedTime)}&passengers=${
+    // Build URL parameters
+    const urlParams = buildBookingUrlParams({
+      activity: data.selectedActivity,
+      location: data.activityLocation,
+      date: data.selectedDate.toISOString().split("T")[0],
+      time: standardizedTime,
+      passengers:
         data.passengers.adults +
         data.passengers.children +
-        data.passengers.infants
-      }`
-    );
+        data.passengers.infants,
+      type: "activity",
+    });
+
+    router.push(`/activities/booking?${urlParams}`);
   };
 
   // Create button text based on variant
@@ -114,7 +125,7 @@ export function ActivityBookingForm({
       aria-invalid={errors.selectedActivity ? "true" : "false"}
       aria-busy={isSubmitting ? "true" : "false"}
       aria-live="polite"
-      className={`${styles.formGrid} ${className || ""}`}
+      className={cn(styles.formGrid, className)}
     >
       <div className={styles.activityContainer}>
         <div className={styles.formFieldContainer}>
@@ -126,6 +137,7 @@ export function ActivityBookingForm({
                 value={field.value}
                 onChange={field.onChange}
                 options={ACTIVITIES || []}
+                placeholder="Select Activity"
                 hasError={!!errors.selectedActivity}
               />
             )}
@@ -133,6 +145,28 @@ export function ActivityBookingForm({
           {errors.selectedActivity && (
             <div className={styles.errorMessage}>
               {errors.selectedActivity.message}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.formFieldContainer}>
+          <Controller
+            control={control}
+            name="activityLocation"
+            render={({ field }) => (
+              <LocationSelect
+                value={field.value}
+                onChange={field.onChange}
+                options={FERRY_LOCATIONS || []}
+                placeholder="Select Location"
+                label="Location"
+                hasError={!!errors.activityLocation}
+              />
+            )}
+          />
+          {errors.activityLocation && (
+            <div className={styles.errorMessage}>
+              {errors.activityLocation.message}
             </div>
           )}
         </div>

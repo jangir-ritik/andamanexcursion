@@ -13,6 +13,13 @@ export const DateSelect = ({
   className,
   hasError,
 }: DateSelectProps) => {
+  // Prevent form submission when selecting a date
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      onChange(date);
+    }
+  };
+
   return (
     <div
       aria-label="Date Select"
@@ -25,6 +32,7 @@ export const DateSelect = ({
       </span>
       <div aria-label="Date Picker" className={styles.datePickerInner}>
         <button
+          type="button"
           aria-label="Previous Day"
           className={styles.dateNavButton}
           onClick={() => {
@@ -37,12 +45,19 @@ export const DateSelect = ({
         </button>
         <DatePicker
           selected={selected}
-          onChange={onChange}
+          onChange={handleDateChange}
           dateFormat="EEE, dd MMM yyyy"
           minDate={new Date()}
           className={styles.datePicker}
+          onKeyDown={(e) => {
+            // Prevent Enter key from submitting the form
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          }}
         />
         <button
+          type="button"
           aria-label="Next Day"
           className={styles.dateNavButton}
           onClick={() => {

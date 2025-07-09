@@ -39,21 +39,21 @@ export const SlotSelect = ({
       <span className={styles.selectLabel}>Slot</span>
       <div className={styles.slotPickerInner}>
         <button
+          type="button"
           aria-label="Previous Slot"
           className={styles.slotNavButton}
           onClick={handlePrevious}
           disabled={currentIndex <= 0}
-          type="button"
         >
           <ChevronLeft size={20} />
         </button>
         <span className={styles.selectValue}>{currentSlot?.time}</span>
         <button
+          type="button"
           aria-label="Next Slot"
           className={styles.slotNavButton}
           onClick={handleNext}
           disabled={currentIndex >= options.length - 1}
-          type="button"
         >
           <ChevronRight size={20} />
         </button>

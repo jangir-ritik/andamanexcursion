@@ -20,6 +20,10 @@
   border-color: var(--color-primary);
 }
 
+.selectWrapper:hover .selectIcon {
+  color: var(--color-primary);
+}
+
 .selectWrapper:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-border-focus);
@@ -52,20 +56,31 @@
   color: var(--color-text-secondary);
 }
 
-/* FIX 1: Properly position the chevron icon */
+/* Chevron icon styling */
 .selectIcon {
   position: absolute;
   right: 0.5em;
   top: 3em;
   transform: translateY(-50%);
   pointer-events: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+/* Text primary color for default state */
+.textPrimary {
+  color: var(--color-text-primary);
+}
+
+/* Primary color for selected state */
+.primary {
   color: var(--color-primary);
-  transition: transform 0.2s ease;
 }
 
 /* Rotate icon when select is open */
 .selectWrapper[data-state="open"] .selectIcon {
   transform: translateY(-50%) rotate(180deg);
+  color: var(--color-primary);
 }
 
 /* FIX 2: Proper dropdown positioning to prevent form shifting */

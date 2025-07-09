@@ -10,4 +10,5 @@ export interface LocationSelectProps {
   options: Location[];
   className?: string;
   hasError?: boolean;
+  placeholder?: string;
 }

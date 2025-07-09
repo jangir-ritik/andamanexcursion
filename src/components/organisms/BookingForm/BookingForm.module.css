@@ -123,7 +123,7 @@
 .formGrid {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   width: 100%;
   gap: var(--space-2);
@@ -135,21 +135,25 @@
   display: flex;
   flex-direction: row;
   gap: var(--space-2);
+  height: 100%;
 }
 
 /* Activity Container */
 .activityContainer {
   display: flex;
-  flex-direction: column;
   gap: var(--space-2);
+  height: 100%;
+  align-items: center;
+}
+
+/* Location Container for Activity Form */
+.locationContainer {
+  margin-top: var(--space-2);
 }
 
 /* Form Field Container */
 .formFieldContainer {
   position: relative;
-  min-height: calc(
-    var(--size-form-field-height) + 1.5rem
-  ); /* Reserve space for error message */
   max-width: 50%;
   width: 100%;
 }
@@ -162,6 +166,7 @@
 .dateTimeSection {
   display: flex;
   gap: var(--space-2);
+  height: 100%;
 }
 
 /* Passenger and Button Section */
@@ -169,13 +174,15 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
+  height: 100%;
 }
 
 /* View Details Button */
 .viewDetailsButton {
   white-space: nowrap;
-  margin-left: var(--space-2);
-  margin-top: 1.5rem; /* Align with form fields */
+  /* margin-left: var(--space-2);
+  margin-top: 1.5rem; */
+  margin: auto;
 }
 
 /* Error Messages */

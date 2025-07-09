@@ -25,6 +25,7 @@ export const PassengerCounter = ({
         <label>Adults (2+ yrs)</label>
         <div className={styles.counter}>
           <button
+            type="button"
             aria-label="Decrease Adults"
             onClick={() => onChange("adults", value.adults - 1)}
             disabled={value.adults <= 1}
@@ -33,6 +34,7 @@ export const PassengerCounter = ({
           </button>
           <span>{value.adults}</span>
           <button
+            type="button"
             aria-label="Increase Adults"
             onClick={() => onChange("adults", value.adults + 1)}
           >
@@ -45,6 +47,7 @@ export const PassengerCounter = ({
         <label>Infants/Kids</label>
         <div className={styles.counter}>
           <button
+            type="button"
             aria-label="Decrease Infants"
             onClick={() => onChange("infants", value.infants - 1)}
             disabled={value.infants <= 0}
@@ -53,6 +56,7 @@ export const PassengerCounter = ({
           </button>
           <span>{value.infants}</span>
           <button
+            type="button"
             aria-label="Increase Infants"
             onClick={() => onChange("infants", value.infants + 1)}
           >

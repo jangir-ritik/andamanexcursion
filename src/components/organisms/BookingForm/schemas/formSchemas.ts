@@ -35,6 +35,9 @@ const ferryLocationIds = FERRY_LOCATIONS.map((loc) => loc.id);
 const boatLocationIds = BOAT_LOCATIONS.map((loc) => loc.id);
 const activityIds = ACTIVITIES.map((act) => act.id);
 
+// Activity locations - using ferry locations for now as a base
+const activityLocationIds = ferryLocationIds;
+
 // Ferry booking form schema
 export const ferryFormSchema = z
   .object({
@@ -110,6 +113,13 @@ export const activityFormSchema = z.object({
       (val) => activityIds.includes(val),
       "Please select a valid activity"
     ),
+  activityLocation: z
+    .string()
+    .min(1, "Please select a location")
+    .refine(
+      (val) => activityLocationIds.includes(val),
+      "Please select a valid location"
+    ),
   selectedDate: z
     .date({
       required_error: "Please select a date",
@@ -130,9 +140,14 @@ export type ActivityFormValues = z.infer<typeof activityFormSchema>;
 // Helper function to get location name from ID
 export const getLocationNameById = (
   id: string,
-  locationType: "ferry" | "boat"
+  locationType: "ferry" | "boat" | "activity"
 ) => {
-  const locations = locationType === "ferry" ? FERRY_LOCATIONS : BOAT_LOCATIONS;
+  const locations =
+    locationType === "ferry"
+      ? FERRY_LOCATIONS
+      : locationType === "boat"
+      ? BOAT_LOCATIONS
+      : FERRY_LOCATIONS; // Use ferry locations for activities for now
   return locations.find((loc) => loc.id === id)?.name || "";
 };
 

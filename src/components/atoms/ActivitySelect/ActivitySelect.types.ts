@@ -9,4 +9,5 @@ export interface ActivitySelectProps {
   options: Activity[];
   className?: string;
   hasError?: boolean;
+  placeholder?: string;
 }

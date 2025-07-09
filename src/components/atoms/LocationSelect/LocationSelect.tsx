@@ -4,6 +4,7 @@ import * as Select from "@radix-ui/react-select";
 import styles from "./LocationSelect.module.css";
 import type { LocationSelectProps } from "./LocationSelect.types";
 import { ChevronDown } from "lucide-react";
+import { cn } from "@/utils/cn";
 
 export const LocationSelect = ({
   value,
@@ -12,27 +13,32 @@ export const LocationSelect = ({
   options,
   className,
   hasError,
+  placeholder,
 }: LocationSelectProps) => {
   // Find the selected location name
   const selectedLocation = options.find((loc) => loc.id === value)?.name || "";
+  const displayText = selectedLocation || placeholder || "Select location";
 
   return (
     <Select.Root value={value} onValueChange={onChange}>
       <Select.Trigger
-        className={`${styles.selectWrapper} ${className || ""} ${
-          hasError ? styles.error : ""
-        }`}
+        className={cn(
+          styles.selectWrapper,
+          className,
+          hasError && styles.error
+        )}
       >
         <span className={styles.selectLabel}>{label}</span>
         <Select.Value
-          placeholder={selectedLocation}
+          placeholder={displayText}
           className={styles.selectValue}
         />
-        {/* FIX 1: Move ChevronDown outside of Select.Value for proper positioning */}
-        <ChevronDown size={20} className={styles.selectIcon} />
+        <ChevronDown
+          size={20}
+          className={cn(styles.selectIcon, styles.textPrimary)}
+        />
       </Select.Trigger>
 
-      {/* FIX 2: Use proper portal positioning */}
       <Select.Portal>
         <Select.Content
           className={styles.selectContent}

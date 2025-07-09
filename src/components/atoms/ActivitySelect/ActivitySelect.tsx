@@ -4,6 +4,8 @@ import React from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./ActivitySelect.module.css";
 import type { ActivitySelectProps } from "./ActivitySelect.types";
+import { cn } from "@/utils/cn";
+import { ChevronDown } from "lucide-react";
 
 export const ActivitySelect = ({
   value,
@@ -11,26 +13,40 @@ export const ActivitySelect = ({
   options,
   className,
   hasError,
+  placeholder,
 }: ActivitySelectProps) => {
   // Find the selected activity name
   const selectedActivity =
     options.find((activity) => activity.id === value)?.name || "";
+  const displayText = selectedActivity || placeholder || "Select activity";
 
   return (
     <Select.Root value={value} onValueChange={onChange}>
       <Select.Trigger
-        className={`${styles.selectWrapper} ${className || ""} ${
-          hasError ? styles.error : ""
-        }`}
+        className={cn(
+          styles.selectWrapper,
+          className,
+          hasError && styles.error
+        )}
       >
-        <span className={styles.selectLabel}>Select Activity</span>
+        <span className={styles.selectLabel}>Activity</span>
         <Select.Value
-          placeholder={selectedActivity}
+          placeholder={displayText}
           className={styles.selectValue}
+        />
+        <ChevronDown
+          size={20}
+          className={cn(styles.selectIcon, styles.textPrimary)}
         />
       </Select.Trigger>
       <Select.Portal>
-        <Select.Content className={styles.selectContent} position="popper">
+        <Select.Content
+          className={styles.selectContent}
+          position="popper"
+          sideOffset={8}
+          avoidCollisions={true}
+          collisionPadding={16}
+        >
           <Select.Viewport>
             {options.map((activity) => (
               <Select.Item

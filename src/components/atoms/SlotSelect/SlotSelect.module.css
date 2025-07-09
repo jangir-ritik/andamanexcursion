@@ -50,6 +50,7 @@
   line-height: 20px;
   color: var(--color-text-primary);
   padding: 0 var(--space-2);
+  white-space: nowrap;
 }
 
 .slotPickerInner {

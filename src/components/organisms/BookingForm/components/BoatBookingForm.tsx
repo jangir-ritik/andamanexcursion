@@ -5,6 +5,7 @@ import { Controller } from "react-hook-form";
 import styles from "../BookingForm.module.css";
 import { useBooking } from "@/context/BookingContext";
 import { formatTimeForDisplay } from "@/utils/timeUtils";
+import { buildBookingUrlParams } from "@/utils/urlUtils";
 
 import {
   Button,
@@ -97,16 +98,21 @@ export function BoatBookingForm({
       infants: data.passengers.infants,
     });
 
-    // Navigate to booking page with search params
-    router.push(
-      `/boat/booking?from=${fromLocationName}&to=${toLocationName}&date=${
-        data.selectedDate.toISOString().split("T")[0]
-      }&time=${encodeURIComponent(standardizedTime)}&passengers=${
+    // Build URL parameters
+    const urlParams = buildBookingUrlParams({
+      from: fromLocationName,
+      to: toLocationName,
+      date: data.selectedDate.toISOString().split("T")[0],
+      time: standardizedTime,
+      passengers:
         data.passengers.adults +
         data.passengers.children +
-        data.passengers.infants
-      }`
-    );
+        data.passengers.infants,
+      type: "boat",
+    });
+
+    // Navigate to booking page with search params
+    router.push(`/boat/booking?${urlParams}`);
   };
 
   // Create button text based on variant
@@ -122,7 +128,7 @@ export function BoatBookingForm({
       aria-invalid={errors.fromLocation ? "true" : "false"}
       aria-busy={isSubmitting ? "true" : "false"}
       aria-live="polite"
-      className={`${styles.formGrid} ${className || ""}`}
+      className={cn(styles.formGrid, className)}
     >
       <div className={styles.locationSelectors}>
         <div className={styles.formFieldContainer}>
