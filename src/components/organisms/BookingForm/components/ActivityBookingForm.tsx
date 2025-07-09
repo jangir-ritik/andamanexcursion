@@ -22,6 +22,7 @@ import {
   getActivityNameById,
 } from "../schemas/formSchemas";
 import { useBookingForm } from "../hooks/useBookingForm";
+import { cn } from "@/utils/cn";
 
 // Filter time slots for activities
 const ACTIVITY_TIME_SLOTS = TIME_SLOTS.filter((slot) =>
@@ -125,6 +126,7 @@ export function ActivityBookingForm({
                 value={field.value}
                 onChange={field.onChange}
                 options={ACTIVITIES || []}
+                hasError={!!errors.selectedActivity}
               />
             )}
           />
@@ -145,6 +147,7 @@ export function ActivityBookingForm({
               <DateSelect
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
+                hasError={!!errors.selectedDate}
               />
             )}
           />
@@ -164,6 +167,7 @@ export function ActivityBookingForm({
                 value={field.value}
                 onChange={field.onChange}
                 options={ACTIVITY_TIME_SLOTS || []}
+                hasError={!!errors.selectedSlot}
               />
             )}
           />
@@ -176,7 +180,12 @@ export function ActivityBookingForm({
       </div>
 
       <div className={styles.passengerButtonSection}>
-        <div className={styles.formFieldContainer}>
+        <div
+          className={cn(
+            styles.formFieldContainer,
+            styles.passengerCounterContainer
+          )}
+        >
           <Controller
             control={control}
             name="passengers"
@@ -189,6 +198,7 @@ export function ActivityBookingForm({
                     [type]: value,
                   });
                 }}
+                hasError={!!errors.passengers}
               />
             )}
           />

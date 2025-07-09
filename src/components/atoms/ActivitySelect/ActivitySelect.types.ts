@@ -5,8 +5,8 @@ export interface Activity {
 
 export interface ActivitySelectProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (...event: any[]) => void;
   options: Activity[];
   className?: string;
-  label?: string;
+  hasError?: boolean;
 }

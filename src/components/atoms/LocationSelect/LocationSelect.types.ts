@@ -5,8 +5,9 @@ export interface Location {
 
 export interface LocationSelectProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (...event: any[]) => void;
   label: string;
   options: Location[];
   className?: string;
+  hasError?: boolean;
 }

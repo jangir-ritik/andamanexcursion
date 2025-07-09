@@ -10,7 +10,7 @@ export const ActivitySelect = ({
   onChange,
   options,
   className,
-  label = "Select Activity",
+  hasError,
 }: ActivitySelectProps) => {
   // Find the selected activity name
   const selectedActivity =
@@ -18,8 +18,12 @@ export const ActivitySelect = ({
 
   return (
     <Select.Root value={value} onValueChange={onChange}>
-      <Select.Trigger className={`${styles.selectWrapper} ${className || ""}`}>
-        <span className={styles.selectLabel}>{label}</span>
+      <Select.Trigger
+        className={`${styles.selectWrapper} ${className || ""} ${
+          hasError ? styles.error : ""
+        }`}
+      >
+        <span className={styles.selectLabel}>Select Activity</span>
         <Select.Value
           placeholder={selectedActivity}
           className={styles.selectValue}

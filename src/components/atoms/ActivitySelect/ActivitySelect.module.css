@@ -26,6 +26,17 @@
   box-shadow: 0 0 0 2px var(--color-border-focus);
 }
 
+/* Error state */
+.error {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error:hover,
+.error:focus {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
 .selectWrapper > span:last-of-type {
   font-size: var(--font-size-base);
   font-weight: 500;
@@ -89,7 +100,7 @@
 }
 
 .errorMessage {
-  color: #e53e3e;
+  color: var(--color-alert-error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   text-align: left;

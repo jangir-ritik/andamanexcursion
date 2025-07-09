@@ -22,6 +22,7 @@ import {
   getLocationNameById,
 } from "../schemas/formSchemas";
 import { useBookingForm } from "../hooks/useBookingForm";
+import { cn } from "@/utils/cn";
 
 interface FerryBookingFormProps {
   className?: string;
@@ -118,6 +119,7 @@ export function FerryBookingForm({
                 onChange={field.onChange}
                 label="From"
                 options={FERRY_LOCATIONS || []}
+                hasError={!!errors.fromLocation}
               />
             )}
           />
@@ -138,6 +140,7 @@ export function FerryBookingForm({
                 onChange={field.onChange}
                 label="To"
                 options={FERRY_LOCATIONS || []}
+                hasError={!!errors.toLocation}
               />
             )}
           />
@@ -158,6 +161,7 @@ export function FerryBookingForm({
               <DateSelect
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
+                hasError={!!errors.selectedDate}
               />
             )}
           />
@@ -177,6 +181,7 @@ export function FerryBookingForm({
                 value={field.value}
                 onChange={field.onChange}
                 options={TIME_SLOTS || []}
+                hasError={!!errors.selectedSlot}
               />
             )}
           />
@@ -189,7 +194,12 @@ export function FerryBookingForm({
       </div>
 
       <div className={styles.passengerButtonSection}>
-        <div className={styles.formFieldContainer}>
+        <div
+          className={cn(
+            styles.formFieldContainer,
+            styles.passengerCounterContainer
+          )}
+        >
           <Controller
             control={control}
             name="passengers"
@@ -202,6 +212,7 @@ export function FerryBookingForm({
                     [type]: value,
                   });
                 }}
+                hasError={!!errors.passengers}
               />
             )}
           />

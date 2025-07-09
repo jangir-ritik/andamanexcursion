@@ -13,7 +13,7 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   width: 100%;
-  position: relative; /* Added position relative */
+  position: relative;
 }
 
 .selectWrapper:hover {
@@ -25,12 +25,24 @@
   box-shadow: 0 0 0 2px var(--color-border-focus);
 }
 
+/* Error state */
+.error {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error:hover,
+.error:focus {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
 .selectWrapper > span:last-of-type {
   font-size: var(--font-size-base);
   font-weight: 500;
   font-family: var(--font-family-primary);
   color: var(--color-black);
   white-space: nowrap;
+  margin-right: 1em;
 }
 
 .selectLabel {
@@ -40,14 +52,23 @@
   color: var(--color-text-secondary);
 }
 
-.selectValue {
-  font-family: var(--font-family-primary);
-  font-weight: 500;
-  font-size: var(--font-size-base);
-  line-height: 20px;
-  color: var(--color-text-primary);
+/* FIX 1: Properly position the chevron icon */
+.selectIcon {
+  position: absolute;
+  right: 0.5em;
+  top: 3em;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-primary);
+  transition: transform 0.2s ease;
 }
 
+/* Rotate icon when select is open */
+.selectWrapper[data-state="open"] .selectIcon {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* FIX 2: Proper dropdown positioning to prevent form shifting */
 .selectContent {
   overflow: hidden;
   background: var(--color-white);
@@ -56,8 +77,10 @@
   min-width: var(--min-width, 180px);
   animation: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 20000;
-  position: absolute; /* Ensure dropdown is absolutely positioned */
-  width: var(--radix-select-trigger-width); /* Match width of trigger */
+  /* Remove position absolute - let Radix handle positioning */
+  /* width: var(--radix-select-trigger-width); */
+  max-height: 200px; /* Prevent dropdown from being too tall */
+  border: 1px solid var(--color-border-secondary);
 }
 
 .selectItem {
@@ -69,11 +92,17 @@
   cursor: pointer;
   user-select: none;
   outline: none;
+  position: relative;
 }
 
 .selectItem[data-highlighted] {
   background: var(--color-bg-secondary);
   color: var(--color-primary);
+}
+
+.selectItem[data-state="checked"] {
+  background: var(--color-primary);
+  color: var(--color-white);
 }
 
 @keyframes slideDownAndFade {
@@ -92,11 +121,8 @@
   .selectWrapper {
     width: 100%;
   }
-}
 
-.errorMessage {
-  color: #e53e3e;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  text-align: left;
+  .selectContent {
+    max-height: 150px; /* Smaller on mobile */
+  }
 }

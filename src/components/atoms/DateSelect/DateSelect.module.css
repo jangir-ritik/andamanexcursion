@@ -16,6 +16,33 @@
   position: relative; /* Add position relative */
 }
 
+.dateSelectWrapper:hover {
+  border-color: var(--color-primary);
+}
+
+.dateSelectWrapper:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-border-focus);
+}
+
+/* Error state */
+.error {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error:hover,
+.error:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
+.dateSelectLabel {
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
 /* Add styles for the date picker to ensure it doesn't shift layout */
 .react-datepicker-wrapper {
   width: 100%;
@@ -39,11 +66,14 @@
   align-items: flex-start;
   padding: var(--space-4);
   gap: var(--space-1);
-  width: 100%;
+  min-width: var(--size-form-field-min-width);
   height: var(--size-form-field-height);
   background: var(--color-white);
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  width: 100%;
+  position: relative; /* Add position relative */
 }
 
 .datePickerWrapper:hover {
@@ -55,6 +85,17 @@
   box-shadow: 0 0 0 2px var(--color-border-focus);
 }
 
+/* Error state */
+.error {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error:hover,
+.error:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
 .selectLabel {
   font-family: var(--font-family-primary);
   font-weight: 400;
@@ -64,43 +105,28 @@
 
 .datePickerInner {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  padding: 0;
-  gap: var(--space-2);
+  justify-content: space-between;
   width: 100%;
-  height: 24px;
-}
-
-.datePicker {
-  width: 100%;
-  border: none;
-  font-family: var(--font-family-primary);
-  font-weight: 500;
-  font-size: var(--font-size-base);
-  line-height: 20px;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  background: transparent;
-  text-align: center;
-}
-
-.datePicker:focus-visible {
-  outline: none;
+  margin-top: var(--space-1);
 }
 
 .dateNavButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-primary);
+  color: var(--color-text-primary);
   padding: 0;
-  width: 20px;
-  height: 20px;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.dateNavButton:hover {
+  color: var(--color-primary);
 }
 
 .dateNavButton:disabled {
@@ -108,8 +134,20 @@
   cursor: not-allowed;
 }
 
-.dateNavButton:hover:not(:disabled) {
-  color: var(--color-primary-hover);
+.datePicker {
+  border: none;
+  background: transparent;
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.datePicker:focus {
+  outline: none;
 }
 
 /* calendar styles */
@@ -138,7 +176,7 @@
 }
 
 .errorMessage {
-  color: #e53e3e;
+  color: var(--color-alert-error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   text-align: left;

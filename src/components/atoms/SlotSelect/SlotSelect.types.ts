@@ -5,7 +5,8 @@ export interface TimeSlot {
 
 export interface SlotSelectProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (...event: any[]) => void;
   options: TimeSlot[];
   className?: string;
+  hasError?: boolean;
 }

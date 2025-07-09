@@ -13,9 +13,14 @@ export const PassengerCounter = ({
   value,
   onChange,
   className,
+  hasError,
 }: PassengerCounterProps) => {
   return (
-    <div className={`${styles.passengerCounter} ${className || ""}`}>
+    <div
+      className={`${styles.passengerCounter} ${className || ""} ${
+        hasError ? styles.error : ""
+      }`}
+    >
       <div className={styles.counterWrapper}>
         <label>Adults (2+ yrs)</label>
         <div className={styles.counter}>

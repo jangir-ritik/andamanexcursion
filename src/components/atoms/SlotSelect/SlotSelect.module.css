@@ -1,56 +1,3 @@
-.slotSelectContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  font-weight: 500;
-}
-
-.selectTrigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  background-color: var(--color-white);
-  cursor: pointer;
-  font-size: var(--font-size-base);
-  min-width: 180px;
-}
-
-.selectContent {
-  overflow: hidden;
-  background: var(--color-white);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-elevated);
-  min-width: var(--min-width, 180px);
-  animation: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 20000;
-  position: absolute; /* Ensure dropdown is absolutely positioned */
-  width: var(--radix-select-trigger-width); /* Match width of trigger */
-}
-
-.selectItem {
-  padding: 10px 16px;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.2s;
-}
-
-.selectItem:hover {
-  background-color: var(--color-bg-secondary);
-}
-
-.selectItem[data-highlighted] {
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-primary);
-}
-
 .selectWrapper {
   box-sizing: border-box;
   display: flex;
@@ -73,9 +20,20 @@
   border-color: var(--color-primary);
 }
 
-.selectWrapper:focus {
+.selectWrapper:focus-within {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-border-focus);
+}
+
+/* Error state */
+.error {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error:hover,
+.error:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
 }
 
 .selectLabel {
@@ -85,52 +43,44 @@
   color: var(--color-text-secondary);
 }
 
-.slotPickerInner {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0;
-  gap: var(--space-2);
-  width: 100%;
-  height: 24px;
-}
-
 .selectValue {
   font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: var(--font-size-base);
   line-height: 20px;
   color: var(--color-text-primary);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  text-align: center;
-  min-width: 0;
-  flex: 1;
+  padding: 0 var(--space-2);
+}
+
+.slotPickerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: var(--space-1);
 }
 
 .slotNavButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-primary);
+  color: var(--color-text-primary);
   padding: 0;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.slotNavButton:hover:not(:disabled) {
+  color: var(--color-primary);
 }
 
 .slotNavButton:disabled {
   color: var(--color-text-disabled);
   cursor: not-allowed;
-}
-
-.slotNavButton:hover:not(:disabled) {
-  color: var(--color-primary-hover);
 }
 
 @keyframes slideDownAndFade {
@@ -159,7 +109,7 @@
 }
 
 .errorMessage {
-  color: #e53e3e;
+  color: var(--color-alert-error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   text-align: left;

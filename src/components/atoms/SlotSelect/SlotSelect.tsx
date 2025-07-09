@@ -3,13 +3,14 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./SlotSelect.module.css";
-import type { SlotSelectProps  } from "./SlotSelect.types";
+import type { SlotSelectProps } from "./SlotSelect.types";
 
 export const SlotSelect = ({
   value,
   onChange,
   options,
   className,
+  hasError,
 }: SlotSelectProps) => {
   // Find the current slot index
   const currentIndex = options.findIndex((slot) => slot.id === value);
@@ -30,7 +31,11 @@ export const SlotSelect = ({
   const currentSlot = options.find((slot) => slot.id === value);
 
   return (
-    <div className={`${styles.selectWrapper} ${className || ""}`}>
+    <div
+      className={`${styles.selectWrapper} ${className || ""} ${
+        hasError ? styles.error : ""
+      }`}
+    >
       <span className={styles.selectLabel}>Slot</span>
       <div className={styles.slotPickerInner}>
         <button

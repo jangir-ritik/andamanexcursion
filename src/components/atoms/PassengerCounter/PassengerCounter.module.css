@@ -30,6 +30,17 @@
   box-shadow: 0 0 0 2px var(--color-border-focus);
 }
 
+/* Error state */
+.error .counterWrapper {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error .counterWrapper:hover,
+.error .counterWrapper:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
 .counterWrapper label {
   white-space: nowrap;
   font-family: var(--font-family-primary);
@@ -56,7 +67,7 @@
   font-weight: 500;
   font-size: var(--font-size-xl);
   line-height: 16px;
-  color: var(--color-primary);
+  color: var(--color-text-primary);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -89,7 +100,7 @@
 }
 
 .errorMessage {
-  color: #e53e3e;
+  color: var(--color-alert-error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   text-align: left;

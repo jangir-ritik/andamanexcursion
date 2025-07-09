@@ -22,6 +22,7 @@ import {
   getLocationNameById,
 } from "../schemas/formSchemas";
 import { useBookingForm } from "../hooks/useBookingForm";
+import { cn } from "@/utils/cn";
 
 // Filter time slots for local boats
 const LOCAL_BOAT_TIME_SLOTS = TIME_SLOTS.filter((slot) =>
@@ -134,6 +135,7 @@ export function BoatBookingForm({
                 onChange={field.onChange}
                 label="From"
                 options={BOAT_LOCATIONS || []}
+                hasError={!!errors.fromLocation}
               />
             )}
           />
@@ -154,6 +156,7 @@ export function BoatBookingForm({
                 onChange={field.onChange}
                 label="To"
                 options={BOAT_LOCATIONS || []}
+                hasError={!!errors.toLocation}
               />
             )}
           />
@@ -174,6 +177,7 @@ export function BoatBookingForm({
               <DateSelect
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
+                hasError={!!errors.selectedDate}
               />
             )}
           />
@@ -192,7 +196,8 @@ export function BoatBookingForm({
               <SlotSelect
                 value={field.value}
                 onChange={field.onChange}
-                options={TIME_SLOTS || []}
+                options={LOCAL_BOAT_TIME_SLOTS || []}
+                hasError={!!errors.selectedSlot}
               />
             )}
           />
@@ -205,7 +210,12 @@ export function BoatBookingForm({
       </div>
 
       <div className={styles.passengerButtonSection}>
-        <div className={styles.formFieldContainer}>
+        <div
+          className={cn(
+            styles.formFieldContainer,
+            styles.passengerCounterContainer
+          )}
+        >
           <Controller
             control={control}
             name="passengers"
@@ -218,6 +228,7 @@ export function BoatBookingForm({
                     [type]: value,
                   });
                 }}
+                hasError={!!errors.passengers}
               />
             )}
           />
