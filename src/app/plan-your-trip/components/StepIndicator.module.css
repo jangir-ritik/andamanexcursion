@@ -1,0 +1,87 @@
+/* StepIndicator.module.css */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #64748b;
+}
+
+.step:hover {
+  background-color: #f1f5f9;
+}
+
+.step.active {
+  color: #f97316;
+  background-color: #fff7ed;
+}
+
+.step.completed {
+  color: #059669;
+}
+
+.step:not(.accessible) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stepNumber {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.step.active .stepNumber {
+  background-color: #f97316;
+  color: white;
+}
+
+.step.completed .stepNumber {
+  background-color: #059669;
+  color: white;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stepTitle {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.stepDescription {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.separator {
+  height: 1px;
+  background-color: #e2e8f0;
+  flex: 1;
+  margin: 0 1rem;
+}
+
+.completedSeparator {
+  background-color: #059669;
+}
