@@ -2,7 +2,7 @@
 import { useEffect, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { debounce } from "lodash";
-import { ContactFormData } from "../page";
+import { ContactFormData } from "../components/ContactForm/ContactForm.types";
 
 const FORM_KEY = "andaman_excursion_form";
 

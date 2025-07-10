@@ -2,15 +2,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { ContactForm } from "./components/ContactForm/ContactForm";
 import { useFormPersistence } from "./hooks/useFormPersistence";
 import styles from "./page.module.css";
-import { contactFormSchema } from "./page.schema";
+import {
+  contactFormSchema,
+  ContactFormData,
+} from "./components/ContactForm/ContactForm.types";
 import { SectionTitle } from "@/components/atoms";
 import { Container } from "@/components/layout";
-
-export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,10 +21,10 @@ export default function ContactPage() {
     mode: "onChange",
     defaultValues: {
       booking: {
-        package: "",
-        duration: "",
+        package: "beach-front-romance-port-blair",
+        duration: "4-nights-5-days",
         checkIn: new Date(),
-        checkOut: new Date(),
+        checkOut: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days later
         adults: 2,
         children: 0,
       },
@@ -38,6 +38,7 @@ export default function ContactPage() {
         tags: [],
         message: "",
       },
+      additionalMessage: "",
     },
   });
 

@@ -22,4 +22,7 @@ export const contactFormSchema = z.object({
     tags: z.array(z.string()).default([]),
     message: z.string().optional(),
   }),
+  additionalMessage: z.string().optional(),
 });
+
+export type ContactFormData = z.infer<typeof contactFormSchema>;

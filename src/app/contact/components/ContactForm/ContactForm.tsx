@@ -1,9 +1,9 @@
+import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import { ContactFormData } from "../../page";
+import { ContactFormData } from "./ContactForm.types";
 import { BookingDetails } from "../BookingDetails/BookingDetails";
 import { PersonalDetails } from "../PersonalDetails/PersonalDetails";
 import { AdditionalMessage } from "../AdditionalMessage/AdditionalMessage";
-
 import styles from "./ContactForm.module.css";
 import { Button } from "@/components/atoms";
 
@@ -20,8 +20,13 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   isSubmitting,
   submitSuccess,
 }) => {
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    form.handleSubmit(onSubmit)();
+  };
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className={styles.form}>
+    <form onSubmit={handleFormSubmit} className={styles.form}>
       <div className={styles.sections}>
         <BookingDetails form={form} />
         <div className={styles.separator} />
@@ -32,17 +37,14 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 
       <div className={styles.submitSection}>
         <div className={styles.recaptcha}>
-          {/* reCAPTCHA would go here */}
-          <div className={styles.recaptchaPlaceholder}>I'm not a robot ✓</div>
+          <div className={styles.recaptchaPlaceholder}>
+            <div className={styles.recaptchaCheckbox}></div>
+            <span className={styles.recaptchaText}>I'm not a robot</span>
+          </div>
+          <div className={styles.recaptchaLogo}></div>
         </div>
 
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          loading={isSubmitting}
-          className={styles.submitButton}
-          showArrow
-        >
+        <Button showArrow disabled={isSubmitting} type="submit">
           {isSubmitting ? "Submitting..." : "Enquire"}
         </Button>
       </div>

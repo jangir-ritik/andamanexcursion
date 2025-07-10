@@ -12,12 +12,31 @@ export const DateSelect = ({
   onChange,
   className,
   hasError,
+  label = "Date",
 }: DateSelectProps) => {
+  // Ensure selected is a valid Date object
+  const selectedDate =
+    selected instanceof Date ? selected : new Date(selected || new Date());
+
   // Prevent form submission when selecting a date
   const handleDateChange = (date: Date | null) => {
     if (date) {
       onChange(date);
     }
+  };
+
+  // Handle navigation to previous day
+  const handlePreviousDay = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() - 1);
+    onChange(newDate);
+  };
+
+  // Handle navigation to next day
+  const handleNextDay = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + 1);
+    onChange(newDate);
   };
 
   return (
@@ -28,23 +47,19 @@ export const DateSelect = ({
       }`}
     >
       <span aria-label="Date Select" className={styles.selectLabel}>
-        Date
+        {label}
       </span>
       <div aria-label="Date Picker" className={styles.datePickerInner}>
         <button
           type="button"
           aria-label="Previous Day"
           className={styles.dateNavButton}
-          onClick={() => {
-            const newDate = new Date(selected);
-            newDate.setDate(selected.getDate() - 1);
-            onChange(newDate);
-          }}
+          onClick={handlePreviousDay}
         >
           <ChevronLeft size={20} />
         </button>
         <DatePicker
-          selected={selected}
+          selected={selectedDate}
           onChange={handleDateChange}
           dateFormat="EEE, dd MMM yyyy"
           minDate={new Date()}
@@ -60,11 +75,7 @@ export const DateSelect = ({
           type="button"
           aria-label="Next Day"
           className={styles.dateNavButton}
-          onClick={() => {
-            const newDate = new Date(selected);
-            newDate.setDate(selected.getDate() + 1);
-            onChange(newDate);
-          }}
+          onClick={handleNextDay}
         >
           <ChevronRight size={20} />
         </button>
