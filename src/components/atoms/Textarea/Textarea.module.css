@@ -56,7 +56,6 @@
   color: var(--color-text-primary);
   outline: none;
   resize: vertical;
-  min-height: 100px;
   font-family: var(--font-family-primary);
 }
 
