@@ -45,3 +45,20 @@
 .errorItem:last-child {
   margin-bottom: 0;
 }
+
+.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  color: var(--color-alert-error, #e53e3e);
+  transition: color 0.2s ease;
+}
+
+.clickable:hover {
+  color: var(--color-alert-error-dark, #c53030);
+}
+
+.clickable:focus {
+  outline: 2px solid var(--color-alert-error, #e53e3e);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

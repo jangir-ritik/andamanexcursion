@@ -1,5 +1,5 @@
 // hooks/useFormPersistence.ts
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { debounce } from "lodash";
 import { TripFormData } from "../TripFormSchema";
@@ -16,8 +16,10 @@ const saveFormData = (data: TripFormData) => {
         expiresAt: Date.now() + 60 * 60 * 1000, // 60 minutes
       })
     );
+    return true;
   } catch (error) {
     console.warn("Failed to save form data:", error);
+    return false;
   }
 };
 
@@ -41,8 +43,11 @@ const loadFormData = (): Partial<TripFormData> | null => {
   }
 };
 
+export type SaveStatus = "idle" | "saving" | "saved" | "error";
+
 export const useFormPersistence = (form: UseFormReturn<TripFormData>) => {
   const { watch, setValue, getValues } = form;
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
   // Load on mount
   useEffect(() => {
@@ -72,7 +77,15 @@ export const useFormPersistence = (form: UseFormReturn<TripFormData>) => {
   const debouncedSave = useMemo(
     () =>
       debounce(() => {
-        saveFormData(formData);
+        setSaveStatus("saving");
+        const success = saveFormData(formData);
+        setTimeout(() => {
+          setSaveStatus(success ? "saved" : "error");
+          // Reset to idle after 2 seconds
+          setTimeout(() => {
+            setSaveStatus("idle");
+          }, 2000);
+        }, 500);
       }, 500),
     [formData]
   );
@@ -84,7 +97,8 @@ export const useFormPersistence = (form: UseFormReturn<TripFormData>) => {
   // Clear on successful submission
   const clearSavedData = () => {
     sessionStorage.removeItem(FORM_KEY);
+    setSaveStatus("idle");
   };
 
-  return { clearSavedData };
+  return { clearSavedData, saveStatus };
 };

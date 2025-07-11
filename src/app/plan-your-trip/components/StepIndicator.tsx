@@ -25,7 +25,11 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   isStepAccessible,
 }) => {
   return (
-    <div className={styles.stepIndicator}>
+    <div
+      className={styles.stepIndicator}
+      role="navigation"
+      aria-label="Form Steps"
+    >
       {/* Top row: circles and separators */}
       <div className={styles.circleRow}>
         {steps.map((step, index) => (
@@ -42,9 +46,24 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                   onStepClick(step.id);
                 }
               }}
+              role={isStepAccessible(step.id) ? "button" : "presentation"}
+              aria-current={currentStep === step.id ? "step" : undefined}
+              aria-label={`Step ${step.id}: ${step.title}${
+                isStepCompleted(step.id) ? " (completed)" : ""
+              }`}
+              tabIndex={isStepAccessible(step.id) ? 0 : -1}
+              onKeyDown={(e) => {
+                if (
+                  isStepAccessible(step.id) &&
+                  (e.key === "Enter" || e.key === " ")
+                ) {
+                  e.preventDefault();
+                  onStepClick(step.id);
+                }
+              }}
             >
               {isStepCompleted(step.id) ? (
-                <Check size={16} />
+                <Check size={16} aria-hidden="true" />
               ) : (
                 <span>{step.id}</span>
               )}
@@ -60,6 +79,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                   ),
                   [styles.lastSeparator]: index === steps.length - 1,
                 })}
+                aria-hidden="true"
               />
             }
           </React.Fragment>
@@ -78,6 +98,17 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
             })}
             onClick={() => {
               if (isStepAccessible(step.id)) {
+                onStepClick(step.id);
+              }
+            }}
+            role={isStepAccessible(step.id) ? "button" : "presentation"}
+            tabIndex={isStepAccessible(step.id) ? 0 : -1}
+            onKeyDown={(e) => {
+              if (
+                isStepAccessible(step.id) &&
+                (e.key === "Enter" || e.key === " ")
+              ) {
+                e.preventDefault();
                 onStepClick(step.id);
               }
             }}

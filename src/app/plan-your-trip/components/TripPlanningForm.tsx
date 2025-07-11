@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, DescriptionText, SectionTitle } from "@/components/atoms";
@@ -20,7 +20,8 @@ import { Step3Component } from "./Step3Component";
 import { ErrorSummary } from "./ErrorSummary";
 import styles from "./TripPlanningForm.module.css";
 import { StepIndicator } from "./StepIndicator";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { SaveIndicator } from "./SaveIndicator";
 
 const TOTAL_STEPS = 3;
 const STEP_SCHEMAS = [step1Schema, step2Schema, step3Schema];
@@ -31,8 +32,11 @@ const STEPS_CONFIG = [
   { id: 3, title: "Preferences", description: "Hotel & Travel Preferences" },
 ];
 
+type SubmitStatus = "idle" | "submitting" | "success" | "error";
+
 export const TripPlanningForm: React.FC = () => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
 
   const form = useForm<TripFormData>({
     resolver: zodResolver(tripFormSchema),
@@ -72,7 +76,7 @@ export const TripPlanningForm: React.FC = () => {
   });
 
   // Initialize form persistence
-  const { clearSavedData } = useFormPersistence(form);
+  const { clearSavedData, saveStatus } = useFormPersistence(form);
 
   // Initialize form error handling
   const { errorSummary, accordionErrorIndices, validateStep, hasErrors } =
@@ -114,16 +118,37 @@ export const TripPlanningForm: React.FC = () => {
     }
   }, [currentStep]);
 
+  // Reset form if user clicks "Cancel" on first step
+  const handleCancel = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to cancel? All progress will be lost."
+      )
+    ) {
+      form.reset();
+      clearSavedData();
+      // Optionally navigate away or show a different UI
+    }
+  };
+
   const handleSubmit = async (data: TripFormData) => {
     try {
+      setSubmitStatus("submitting");
       // Here you would typically send the data to your API
       console.log("Form submitted:", data);
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       // Clear saved data on successful submission
       clearSavedData();
-      // Show success message or redirect
+      setSubmitStatus("success");
+
+      // Reset form after successful submission (optional)
+      // form.reset();
     } catch (error) {
       console.error("Submission error:", error);
-      // Handle error
+      setSubmitStatus("error");
     }
   };
 
@@ -157,18 +182,61 @@ export const TripPlanningForm: React.FC = () => {
     }
   };
 
+  // Show success/error message if form was submitted
+  if (submitStatus === "success") {
+    return (
+      <Container className={styles.container}>
+        <Section
+          className={`${styles.messageContainer} ${styles.success}`}
+          role="alert"
+          aria-live="assertive"
+        >
+          <CheckCircle size={48} />
+          <SectionTitle text="Thank You!" className={styles.messageTitle} />
+          <DescriptionText text="Your trip planning request has been submitted successfully. Our team will get back to you within 24 hours with your personalized itinerary." />
+          <Button
+            onClick={() => setSubmitStatus("idle")}
+            className={styles.messageButton}
+            aria-label="Start a new trip plan"
+          >
+            Plan Another Trip
+          </Button>
+        </Section>
+      </Container>
+    );
+  }
+
   return (
     <Container className={styles.container}>
-      {isValidating && (
-        <div className={styles.loadingOverlay}>
+      {(isValidating || submitStatus === "submitting") && (
+        <div className={styles.loadingOverlay} aria-live="polite" role="status">
           <Loader2 className={styles.spinner} size={32} />
-          <span>Processing...</span>
+          <span>
+            {submitStatus === "submitting" ? "Submitting..." : "Processing..."}
+          </span>
         </div>
       )}
+
+      {submitStatus === "error" && (
+        <div className={`${styles.errorBanner}`} role="alert">
+          <AlertCircle size={20} />
+          <span>Something went wrong. Please try again.</span>
+          <Button
+            variant="text"
+            onClick={() => setSubmitStatus("idle")}
+            aria-label="Close error message"
+            className={styles.closeButton}
+          >
+            ✕
+          </Button>
+        </div>
+      )}
+
       <form
         ref={formRef}
         onSubmit={form.handleSubmit(handleSubmit)}
         className={styles.form}
+        aria-label="Trip Planning Form"
       >
         {/* Step Indicator */}
         <Section id="form-header" className={styles.header}>
@@ -198,13 +266,25 @@ export const TripPlanningForm: React.FC = () => {
 
         {/* Error Summary - show only if there are errors and validation has been triggered */}
         {errorSummary.length > 0 && (
-          <Section className={styles.errorSection}>
-            <ErrorSummary errors={errorSummary} />
+          <Section className={styles.errorSection} aria-live="polite">
+            <ErrorSummary
+              errors={errorSummary}
+              onErrorClick={(fieldId) => {
+                form.setFocus(fieldId as any);
+              }}
+            />
           </Section>
         )}
 
         {/* Step Content */}
-        <Section className={styles.stepContent}>{renderStepContent()}</Section>
+        <Section
+          className={styles.stepContent}
+          aria-label={`Step ${currentStep}: ${
+            STEPS_CONFIG[currentStep - 1]?.title
+          }`}
+        >
+          {renderStepContent()}
+        </Section>
 
         {/* Navigation Footer */}
         <Section id="form-footer" className={styles.footer}>
@@ -212,8 +292,11 @@ export const TripPlanningForm: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={prevStep}
-              disabled={isFirstStep || isValidating}
+              onClick={isFirstStep ? handleCancel : prevStep}
+              disabled={isValidating || submitStatus === "submitting"}
+              aria-label={
+                isFirstStep ? "Cancel form" : "Go back to previous step"
+              }
             >
               {isFirstStep ? "Cancel" : "Go Back"}
             </Button>
@@ -221,12 +304,19 @@ export const TripPlanningForm: React.FC = () => {
               type={isLastStep ? "submit" : "button"}
               showArrow={!isLastStep}
               onClick={handleNext}
-              disabled={form.formState.isSubmitting || isValidating}
+              disabled={
+                form.formState.isSubmitting ||
+                isValidating ||
+                submitStatus === "submitting"
+              }
+              aria-label={isLastStep ? "Submit form" : "Go to next step"}
             >
-              {isValidating ? (
+              {isValidating || submitStatus === "submitting" ? (
                 <>
                   <Loader2 className={styles.buttonSpinner} size={16} />
-                  Processing...
+                  {submitStatus === "submitting"
+                    ? "Submitting..."
+                    : "Processing..."}
                 </>
               ) : isLastStep ? (
                 "Submit"
@@ -237,6 +327,9 @@ export const TripPlanningForm: React.FC = () => {
           </Row>
         </Section>
       </form>
+
+      {/* Auto-save indicator */}
+      <SaveIndicator status={saveStatus} />
     </Container>
   );
 };
