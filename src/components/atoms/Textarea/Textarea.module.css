@@ -4,10 +4,9 @@
   width: 100%;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
-  background-color: var(--color-bg-primary);
   transition: all var(--duration-fast) var(--easing-standard);
   position: relative;
-  padding: 12px;
+  padding: var(--space-4);
 }
 
 .textareaWrapper:hover {
@@ -29,7 +28,7 @@
 }
 
 .label {
-  font-size: var(--font-size-base);
+  font-size: 14px;
   font-weight: 400;
   color: var(--color-text-secondary);
   margin-bottom: 4px;

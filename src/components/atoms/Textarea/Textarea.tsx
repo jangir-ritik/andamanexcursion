@@ -16,7 +16,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       required = false,
       disabled = false,
       className = "",
-      rows = 3,
+      rows = 1,
       hasError = false,
     },
     ref

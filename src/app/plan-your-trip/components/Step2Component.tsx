@@ -137,124 +137,122 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({ form }) => {
 
   return (
     <div className={styles.step2Container}>
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Plan Your Daily Itinerary</h3>
+      {/* <div className={styles.section}> */}
+      {showWarning && (
+        <div className={styles.warningMessage}>
+          <AlertCircle size={16} />
+          <span>
+            You've selected a large date range ({daysDifference} days). For
+            better performance, only the first {MAX_DAYS} days have been
+            generated.
+          </span>
+        </div>
+      )}
 
-        {showWarning && (
-          <div className={styles.warningMessage}>
-            <AlertCircle size={16} />
-            <span>
-              You've selected a large date range ({daysDifference} days). For
-              better performance, only the first {MAX_DAYS} days have been
-              generated.
-            </span>
-          </div>
-        )}
-
-        {fields.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>
-              Please complete your travel dates in Step 1 to plan your daily
-              itinerary.
-            </p>
-          </div>
-        ) : (
-          <div className={styles.itineraryContainer}>
-            {fields.map((field, index) => (
-              <Accordion.Root
-                key={field.id}
-                type="single"
-                collapsible
-                defaultValue={index === 0 ? `day-${index}` : undefined}
-                className={styles.accordion}
+      {fields.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p>
+            Please complete your travel dates in Step 1 to plan your daily
+            itinerary.
+          </p>
+        </div>
+      ) : (
+        <div className={styles.itineraryContainer}>
+          {fields.map((field, index) => (
+            <Accordion.Root
+              key={field.id}
+              type="single"
+              collapsible
+              defaultValue={index === 0 ? `day-${index}` : undefined}
+              className={styles.accordion}
+            >
+              <Accordion.Item
+                value={`day-${index}`}
+                className={styles.accordionItem}
               >
-                <Accordion.Item
-                  value={`day-${index}`}
-                  className={styles.accordionItem}
-                >
-                  <Accordion.Trigger className={styles.accordionTrigger}>
-                    <div className={styles.dayTitle}>
-                      Day {field.day} {formatDateForDisplay(field.date)}
-                    </div>
-                    <ChevronDown className={styles.chevron} />
-                  </Accordion.Trigger>
-                  <Accordion.Content className={styles.accordionContent}>
-                    <div className={styles.formRow}>
-                      <div className={styles.formField}>
-                        <Controller
-                          name={`itinerary.${index}.destination`}
-                          control={control}
-                          render={({ field }) => (
-                            <LocationSelect
-                              value={field.value}
-                              onChange={field.onChange}
-                              label="Add Destination"
-                              options={DESTINATIONS}
-                              hasError={
-                                !!errors.itinerary?.[index]?.destination
-                              }
-                              className={styles.selectComponent}
-                            />
-                          )}
-                        />
-                        {errors.itinerary?.[index]?.destination && (
-                          <div className={styles.error}>
-                            {errors.itinerary[index].destination?.message}
-                          </div>
+                <Accordion.Trigger className={styles.accordionTrigger}>
+                  <div className={styles.dayTitle}>
+                    <span className={styles.day}>Day {field.day} </span>
+                    <span className={styles.date}>
+                      {formatDateForDisplay(field.date)}
+                    </span>
+                  </div>
+                  <ChevronDown className={styles.chevron} />
+                </Accordion.Trigger>
+                <Accordion.Content className={styles.accordionContent}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <Controller
+                        name={`itinerary.${index}.destination`}
+                        control={control}
+                        render={({ field }) => (
+                          <LocationSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            label="Add Destination"
+                            options={DESTINATIONS}
+                            hasError={!!errors.itinerary?.[index]?.destination}
+                            className={styles.selectComponent}
+                          />
                         )}
-                      </div>
-
-                      <div className={styles.formField}>
-                        <Controller
-                          name={`itinerary.${index}.activity`}
-                          control={control}
-                          render={({ field }) => (
-                            <ActivitySelect
-                              value={field.value}
-                              onChange={field.onChange}
-                              options={ACTIVITIES}
-                              hasError={!!errors.itinerary?.[index]?.activity}
-                              className={styles.selectComponent}
-                              placeholder="Select your activity"
-                            />
-                          )}
-                        />
-                        {errors.itinerary?.[index]?.activity && (
-                          <div className={styles.error}>
-                            {errors.itinerary[index].activity?.message}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className={styles.formField}>
-                        <Controller
-                          name={`itinerary.${index}.notes`}
-                          control={control}
-                          render={({ field }) => (
-                            <Textarea
-                              {...field}
-                              name={`itinerary.${index}.notes`}
-                              control={control}
-                              label="Add Note (Optional)"
-                              placeholder="Add custom notes for the day"
-                              rows={3}
-                              className={styles.notesTextarea}
-                            />
-                          )}
-                        />
-                      </div>
+                      />
+                      {errors.itinerary?.[index]?.destination && (
+                        <div className={styles.error}>
+                          {errors.itinerary[index].destination?.message}
+                        </div>
+                      )}
                     </div>
-                  </Accordion.Content>
-                </Accordion.Item>
-              </Accordion.Root>
-            ))}
-          </div>
-        )}
 
-        {errors.itinerary && (
-          <div className={styles.error}>{errors.itinerary.message}</div>
-        )}
-      </div>
+                    <div className={styles.formField}>
+                      <Controller
+                        name={`itinerary.${index}.activity`}
+                        control={control}
+                        render={({ field }) => (
+                          <ActivitySelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={ACTIVITIES}
+                            hasError={!!errors.itinerary?.[index]?.activity}
+                            className={styles.selectComponent}
+                            placeholder="Select your activity"
+                          />
+                        )}
+                      />
+                      {errors.itinerary?.[index]?.activity && (
+                        <div className={styles.error}>
+                          {errors.itinerary[index].activity?.message}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.formField}>
+                      <Controller
+                        name={`itinerary.${index}.notes`}
+                        control={control}
+                        render={({ field }) => (
+                          <Textarea
+                            {...field}
+                            name={`itinerary.${index}.notes`}
+                            control={control}
+                            rows={1}
+                            label="Add Note (Optional)"
+                            placeholder="Add custom notes for the day"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion.Root>
+          ))}
+        </div>
+      )}
+
+      {errors.itinerary && (
+        <div className={styles.error}>{errors.itinerary.message}</div>
+      )}
     </div>
+    // </div>
   );
 };
