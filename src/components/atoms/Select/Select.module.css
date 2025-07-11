@@ -1,0 +1,125 @@
+.selectWrapper {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--space-4);
+  gap: var(--space-1);
+  min-width: var(--size-form-field-min-width);
+  height: var(--size-form-field-height);
+  background: var(--color-white);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  width: 100%;
+  position: relative;
+}
+
+.selectWrapper:hover {
+  border-color: var(--color-primary);
+}
+
+.selectWrapper:hover .selectIcon {
+  color: var(--color-primary);
+}
+
+.selectWrapper:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-border-focus);
+}
+
+/* Error state */
+.error {
+  border-color: var(--color-alert-error) !important;
+}
+
+.error:hover,
+.error:focus {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
+.selectWrapper > span:last-of-type {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  font-family: var(--font-family-primary);
+  color: var(--color-black);
+  white-space: nowrap;
+  margin-right: 1em;
+}
+
+.selectLabel {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: #64748b;
+}
+
+.selectValue {
+  color: #1e293b;
+}
+
+/* Chevron icon styling */
+.selectIcon {
+  position: absolute;
+  right: 0.5em;
+  top: 3em;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+/* Text primary color for default state */
+.textPrimary {
+  color: var(--color-text-primary);
+}
+
+/* Primary color for selected state */
+.primary {
+  color: var(--color-primary);
+}
+
+/* Rotate icon when select is open */
+.selectWrapper[data-state="open"] .selectIcon {
+  transform: translateY(-50%) rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* Select content styling */
+.selectContent {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-sm);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 1000;
+  min-width: 180px;
+}
+
+.selectItem {
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.selectItem:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.selectItem[data-state="checked"] {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .selectWrapper {
+    padding: var(--space-3);
+  }
+}

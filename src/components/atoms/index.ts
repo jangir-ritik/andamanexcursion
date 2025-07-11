@@ -12,6 +12,7 @@ export * from "./LocationSelect/LocationSelect";
 export * from "./PassengerCounter/PassengerCounter";
 export * from "./PhoneInput/PhoneInput";
 export * from "./SectionTitle/SectionTitle";
+export * from "./Select/Select";
 export * from "./SlotSelect/SlotSelect";
 export * from "./Step/Step";
 export * from "./TagInput/TagInput";

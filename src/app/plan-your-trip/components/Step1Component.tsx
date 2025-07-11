@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import * as Checkbox from "@radix-ui/react-checkbox";
-import { Check, Info } from "lucide-react";
+import { Check } from "lucide-react";
 import { TripFormData } from "../TripFormSchema";
 import styles from "./Step1Component.module.css";
 import { DateSelect, Input } from "@/components/atoms";
