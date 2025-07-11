@@ -1,5 +1,5 @@
-/* Step3Component.module.css */
-.step3Container {
+/* Common styles for all step components */
+.stepContainer {
   display: flex;
   flex-direction: column;
   gap: var(--space-6); /* 24px */
@@ -53,7 +53,7 @@
 .sectionContent {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   padding: var(--space-6) var(--space-5); /* 24px 21px */
   gap: var(--space-6); /* 24px */
   width: 100%;
@@ -71,13 +71,6 @@
 
 .formField {
   flex: 1;
-}
-
-.switchField {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2); /* 8px */
 }
 
 .label {
@@ -108,10 +101,16 @@
   color: var(--color-alert-error);
   font-size: var(--font-size-xs);
   margin-top: var(--space-1);
-  font-family: var(--font-family-primary);
 }
 
 /* Switch styles */
+.switchField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2); /* 8px */
+}
+
 .switch {
   width: var(--space-12); /* 48px */
   height: var(--space-6); /* 24px */

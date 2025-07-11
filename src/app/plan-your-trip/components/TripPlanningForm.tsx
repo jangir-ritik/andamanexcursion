@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, DescriptionText, SectionTitle } from "@/components/atoms";
@@ -29,6 +29,8 @@ const STEPS_CONFIG = [
 ];
 
 export const TripPlanningForm: React.FC = () => {
+  const formRef = useRef<HTMLFormElement>(null);
+
   const form = useForm<TripFormData>({
     resolver: zodResolver(tripFormSchema),
     mode: "onChange",
@@ -82,6 +84,26 @@ export const TripPlanningForm: React.FC = () => {
     stepsSchemas: STEP_SCHEMAS,
   });
 
+  // Add effect to ensure form is in view when step changes
+  useEffect(() => {
+    if (formRef.current) {
+      // Scroll to top of form with a small offset for better UX
+      const yOffset = -150;
+      const y =
+        formRef.current.getBoundingClientRect().top +
+        window.pageYOffset +
+        yOffset;
+
+      // Only scroll if form is not already visible
+      if (
+        y < window.pageYOffset ||
+        y > window.pageYOffset + window.innerHeight
+      ) {
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }
+  }, [currentStep]);
+
   const handleSubmit = async (data: TripFormData) => {
     try {
       // Here you would typically send the data to your API
@@ -122,7 +144,11 @@ export const TripPlanningForm: React.FC = () => {
           <span>Processing...</span>
         </div>
       )}
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={styles.form}>
+      <form
+        ref={formRef}
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className={styles.form}
+      >
         {/* Step Indicator */}
         <Section id="form-header" className={styles.header}>
           <StepIndicator

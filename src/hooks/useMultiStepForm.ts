@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 interface UseMultiStepFormProps {
@@ -17,6 +17,31 @@ export const useMultiStepForm = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isValidating, setIsValidating] = useState(false);
+  const scrollPositions = useRef<Record<number, number>>({});
+
+  // Save the current scroll position for the current step
+  const saveScrollPosition = useCallback(() => {
+    scrollPositions.current[currentStep] = window.scrollY;
+  }, [currentStep]);
+
+  // Restore the saved scroll position for a step
+  const restoreScrollPosition = useCallback((step: number) => {
+    setTimeout(() => {
+      const savedPosition = scrollPositions.current[step];
+      if (savedPosition !== undefined) {
+        window.scrollTo({
+          top: savedPosition,
+          behavior: "auto", // Use "auto" for immediate scroll without animation
+        });
+      } else {
+        // If no saved position, scroll to top of form
+        const formElement = document.querySelector("form");
+        if (formElement) {
+          formElement.scrollIntoView({ behavior: "auto", block: "start" });
+        }
+      }
+    }, 0);
+  }, []);
 
   const validateCurrentStep = useCallback(async () => {
     if (isValidating) return false;
@@ -58,16 +83,33 @@ export const useMultiStepForm = ({
 
     const isValid = await validateCurrentStep();
     if (isValid && currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
+      saveScrollPosition();
+      setCurrentStep((prev) => {
+        const nextStepNum = prev + 1;
+        setTimeout(() => restoreScrollPosition(nextStepNum), 0);
+        return nextStepNum;
+      });
     }
     return isValid;
-  }, [currentStep, totalSteps, validateCurrentStep, isValidating]);
+  }, [
+    currentStep,
+    totalSteps,
+    validateCurrentStep,
+    isValidating,
+    saveScrollPosition,
+    restoreScrollPosition,
+  ]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      saveScrollPosition();
+      setCurrentStep((prev) => {
+        const prevStepNum = prev - 1;
+        setTimeout(() => restoreScrollPosition(prevStepNum), 0);
+        return prevStepNum;
+      });
     }
-  }, [currentStep]);
+  }, [currentStep, saveScrollPosition, restoreScrollPosition]);
 
   const goToStep = useCallback(
     async (step: number) => {
@@ -76,18 +118,29 @@ export const useMultiStepForm = ({
       if (step >= 1 && step <= totalSteps) {
         // Always allow going to previous steps without validation
         if (step < currentStep) {
+          saveScrollPosition();
           setCurrentStep(step);
+          setTimeout(() => restoreScrollPosition(step), 0);
         }
         // For next steps, require validation
         else if (step > currentStep) {
           const isValid = await validateCurrentStep();
           if (isValid) {
+            saveScrollPosition();
             setCurrentStep(step);
+            setTimeout(() => restoreScrollPosition(step), 0);
           }
         }
       }
     },
-    [currentStep, totalSteps, validateCurrentStep, isValidating]
+    [
+      currentStep,
+      totalSteps,
+      validateCurrentStep,
+      isValidating,
+      saveScrollPosition,
+      restoreScrollPosition,
+    ]
   );
 
   const isStepCompleted = useCallback(
@@ -115,5 +168,7 @@ export const useMultiStepForm = ({
     isFirstStep: currentStep === 1,
     isLastStep: currentStep === totalSteps,
     isValidating,
+    saveScrollPosition,
+    restoreScrollPosition,
   };
 };

@@ -60,11 +60,13 @@
   color: var(--color-alert-error);
   font-size: var(--font-size-xs);
   margin-top: var(--space-1);
+  font-family: var(--font-family-primary);
 }
 
 /* Styled section containers */
 .sectionContainer {
   width: 100%;
+  margin-bottom: var(--space-6);
 }
 
 .sectionHeader {

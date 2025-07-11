@@ -1,37 +1,56 @@
+/* Step2Component.module.css */
 .step2Container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8); /* 32px instead of 2rem */
+  gap: var(--space-6); /* 24px */
   width: 100%;
   font-family: var(--font-family-primary);
 }
 
 .section {
-  background: var(--color-bg-primary); /* #ffffff */
-  border-radius: var(--radius-button); /* 8px */
-  padding: var(--space-6); /* 24px instead of 1.5rem */
-  box-shadow: var(--shadow-card); /* 0 4px 8px rgba(0, 0, 0, 0.1) */
+  width: 100%;
 }
 
 .sectionTitle {
-  font-size: var(--font-size-heading-4); /* 24px instead of 1.5rem */
-  font-weight: 700;
-  color: var(--color-text-primary); /* #000e0f */
-  margin-bottom: var(--space-6); /* 24px instead of 1.5rem */
-  text-align: center;
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-xl); /* 20px */
+  line-height: 25px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-6); /* 24px */
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-6); /* 24px */
+  width: 100%;
+}
+
+.formField {
+  flex: 1;
+}
+
+.error {
+  color: var(--color-alert-error);
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-1);
+  font-family: var(--font-family-primary);
 }
 
 .warningMessage {
   display: flex;
   align-items: center;
-  gap: var(--space-2); /* 8px instead of 0.5rem */
-  padding: var(--space-3) var(--space-4); /* 12px 16px instead of 0.75rem 1rem */
-  margin-bottom: var(--space-4); /* 16px instead of 1rem */
+  gap: var(--space-2); /* 8px */
+  padding: var(--space-3) var(--space-4); /* 12px 16px */
+  margin-bottom: var(--space-4); /* 16px */
   background-color: var(--color-orange-100); /* #ffe6d4 */
   border: 1px solid var(--color-orange-100); /* #ffe6d4 */
-  border-radius: var(--radius-sm); /* 8px instead of 6px */
+  border-radius: var(--radius-sm); /* 8px */
   color: var(--color-orange-600); /* #d85c00 */
-  font-size: var(--font-size-caption); /* 14px instead of 0.875rem */
+  font-size: var(--font-size-caption); /* 14px */
 }
 
 .warningMessage svg {
@@ -41,7 +60,7 @@
 
 .emptyState {
   text-align: center;
-  padding: var(--space-8); /* 32px instead of 2rem */
+  padding: var(--space-8); /* 32px */
   color: var(--color-text-secondary); /* #5f5f5f */
 }
 
@@ -49,12 +68,12 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: var(--space-4); /* 16px instead of 1rem */
+  gap: var(--space-4); /* 16px */
 }
 
 .accordion {
   width: 100%;
-  margin-bottom: var(--space-4); /* 16px instead of 1rem */
+  margin-bottom: var(--space-4); /* 16px */
   border: 1px solid var(--color-border-secondary); /* #e0e0e0 */
   border-radius: var(--radius-button); /* 8px */
   overflow: hidden;
@@ -66,7 +85,7 @@
 
 .accordionTrigger {
   width: 100%;
-  padding: var(--space-4); /* 16px instead of 1rem */
+  padding: var(--space-4); /* 16px */
   background: var(--color-bg-primary); /* #ffffff */
   border: none;
   display: flex;
@@ -87,7 +106,7 @@
 }
 
 .dayTitle {
-  font-size: var(--font-size-body-large); /* 20px instead of 1.25rem */
+  font-size: var(--font-size-body-large); /* 20px */
   font-weight: 400;
   color: var(--color-text-primary); /* #000e0f */
 }
@@ -110,7 +129,7 @@
 }
 
 .accordionContent {
-  padding: var(--space-6); /* 24px instead of 1.5rem */
+  padding: var(--space-6); /* 24px */
   background: var(--color-bg-primary); /* #ffffff */
   border-top: 1px solid var(--color-border-secondary); /* #e0e0e0 */
 }
@@ -118,24 +137,12 @@
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-4); /* 16px instead of 1rem */
-}
-
-.formField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2); /* 8px instead of 0.5rem */
+  gap: var(--space-4); /* 16px */
 }
 
 /* Updated styles for the new component layout */
 .selectComponent {
   width: 100%;
-}
-
-.error {
-  color: var(--color-alert-error); /* #e53e3e */
-  font-size: var(--font-size-xs); /* 14px instead of 0.75rem */
-  margin-top: var(--space-1); /* 4px instead of 0.25rem */
 }
 
 /* Responsive adjustments */
