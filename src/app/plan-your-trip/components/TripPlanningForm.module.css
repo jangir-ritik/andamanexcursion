@@ -97,7 +97,7 @@
 
 .description {
   max-width: unset;
-  width: 100%;
+  width: 100% !important;
 }
 
 .errorBanner {

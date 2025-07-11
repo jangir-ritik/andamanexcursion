@@ -188,7 +188,6 @@ export const TripPlanningForm: React.FC = () => {
       <Container className={styles.container}>
         <Section
           className={`${styles.messageContainer} ${styles.success}`}
-          role="alert"
           aria-live="assertive"
         >
           <CheckCircle size={48} />
@@ -222,7 +221,7 @@ export const TripPlanningForm: React.FC = () => {
           <AlertCircle size={20} />
           <span>Something went wrong. Please try again.</span>
           <Button
-            variant="text"
+            variant="outline"
             onClick={() => setSubmitStatus("idle")}
             aria-label="Close error message"
             className={styles.closeButton}
