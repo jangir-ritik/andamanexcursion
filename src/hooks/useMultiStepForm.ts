@@ -54,6 +54,9 @@ export const useMultiStepForm = ({
       // Use a more targeted validation approach
       const formData = form.getValues();
 
+      // Trigger validation for all fields in the current step
+      await form.trigger();
+
       // For step 1, only validate the specific fields needed
       if (currentStep === 1) {
         const { personalDetails, tripDetails, travelGoals } = formData;
@@ -64,7 +67,6 @@ export const useMultiStepForm = ({
           specialOccasion: formData.specialOccasion || [],
         });
       } else {
-        await form.trigger();
         await schema.parseAsync(formData);
       }
 
@@ -72,6 +74,13 @@ export const useMultiStepForm = ({
       return true;
     } catch (error) {
       console.error("Validation error:", error);
+
+      // Scroll to top of form to show errors
+      const formElement = document.querySelector("form");
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
       return false;
     } finally {
       setIsValidating(false);

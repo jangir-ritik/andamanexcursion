@@ -11,10 +11,13 @@ import {
   step3Schema,
 } from "../TripFormSchema";
 import { useMultiStepForm } from "@/hooks/useMultiStepForm";
+import { useFormPersistence } from "../hooks/useFormPersistence";
+import { useFormErrors } from "../hooks/useFormErrors";
 
 import { Step1Component } from "./Step1Component";
 import { Step2Component } from "./Step2Component";
 import { Step3Component } from "./Step3Component";
+import { ErrorSummary } from "./ErrorSummary";
 import styles from "./TripPlanningForm.module.css";
 import { StepIndicator } from "./StepIndicator";
 import { Loader2 } from "lucide-react";
@@ -68,6 +71,13 @@ export const TripPlanningForm: React.FC = () => {
     },
   });
 
+  // Initialize form persistence
+  const { clearSavedData } = useFormPersistence(form);
+
+  // Initialize form error handling
+  const { errorSummary, accordionErrorIndices, validateStep, hasErrors } =
+    useFormErrors(form);
+
   const {
     currentStep,
     nextStep,
@@ -88,7 +98,7 @@ export const TripPlanningForm: React.FC = () => {
   useEffect(() => {
     if (formRef.current) {
       // Scroll to top of form with a small offset for better UX
-      const yOffset = -150;
+      const yOffset = -50;
       const y =
         formRef.current.getBoundingClientRect().top +
         window.pageYOffset +
@@ -108,6 +118,8 @@ export const TripPlanningForm: React.FC = () => {
     try {
       // Here you would typically send the data to your API
       console.log("Form submitted:", data);
+      // Clear saved data on successful submission
+      clearSavedData();
       // Show success message or redirect
     } catch (error) {
       console.error("Submission error:", error);
@@ -117,7 +129,11 @@ export const TripPlanningForm: React.FC = () => {
 
   const handleNext = async () => {
     if (isLastStep) {
-      await form.handleSubmit(handleSubmit)();
+      // Validate before final submission
+      const isValid = await validateStep();
+      if (isValid) {
+        await form.handleSubmit(handleSubmit)();
+      }
     } else {
       await nextStep();
     }
@@ -128,7 +144,12 @@ export const TripPlanningForm: React.FC = () => {
       case 1:
         return <Step1Component form={form} />;
       case 2:
-        return <Step2Component form={form} />;
+        return (
+          <Step2Component
+            form={form}
+            accordionErrorIndices={accordionErrorIndices}
+          />
+        );
       case 3:
         return <Step3Component form={form} />;
       default:
@@ -174,6 +195,13 @@ export const TripPlanningForm: React.FC = () => {
             />
           </Column>
         </Section>
+
+        {/* Error Summary - show only if there are errors and validation has been triggered */}
+        {errorSummary.length > 0 && (
+          <Section className={styles.errorSection}>
+            <ErrorSummary errors={errorSummary} />
+          </Section>
+        )}
 
         {/* Step Content */}
         <Section className={styles.stepContent}>{renderStepContent()}</Section>

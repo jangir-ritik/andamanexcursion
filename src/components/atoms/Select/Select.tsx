@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/utils/cn";
 import styles from "./Select.module.css";
-import type { SelectProps } from "./Select.types";
+import { SelectProps } from "./Select.types";
 
 export const Select = ({
   value,

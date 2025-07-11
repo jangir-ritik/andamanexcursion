@@ -186,7 +186,7 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                 control={control}
                 render={({ field }) => (
                   <Select
-                    value={field.value}
+                    value={field.value || ""}
                     onChange={field.onChange}
                     label="Preferred Ferry (Optional)"
                     options={FERRY_COMPANIES}

@@ -69,3 +69,7 @@ button {
   all: unset;
   cursor: pointer;
 }
+
+body {
+  font-family: var(--font-family-primary) !important;
+}

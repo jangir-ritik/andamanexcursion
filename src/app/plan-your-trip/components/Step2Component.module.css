@@ -27,6 +27,7 @@
   align-items: flex-start;
   gap: var(--space-6); /* 24px */
   width: 100%;
+  font-family: var(--font-family-primary);
 }
 
 .formField {
@@ -71,15 +72,27 @@
   gap: var(--space-4); /* 16px */
 }
 
-.accordion {
+.accordionRoot {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.accordionItem {
   width: 100%;
   margin-bottom: var(--space-4); /* 16px */
   border: 1px solid var(--color-border-secondary); /* #e0e0e0 */
   border-radius: var(--radius-button); /* 8px */
   overflow: hidden;
+  transition: border-color 0.2s ease;
 }
 
-.accordionItem {
+.accordionItemError {
+  border-color: var(--color-alert-error);
+}
+
+.accordionHeader {
   width: 100%;
 }
 
@@ -101,8 +114,22 @@
   box-sizing: border-box;
 }
 
+.accordionTriggerError {
+  background-color: rgba(229, 62, 62, 0.05);
+}
+
 .accordionTrigger:hover {
   background: var(--color-bg-secondary); /* #f5f9ff */
+}
+
+.triggerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.errorIcon {
+  color: var(--color-alert-error);
 }
 
 .dayTitle {
