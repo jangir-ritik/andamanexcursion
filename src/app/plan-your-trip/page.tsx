@@ -4,10 +4,11 @@ import { LargeCardSection } from "@/components/sectionBlocks/common";
 import { TripPlanningForm } from "./components/TripPlanningForm";
 import { Container } from "@/components/layout";
 import andamanCallingImage from "@public/images/homepage/andamanCalling/image.png";
+import styles from "./page.module.css";
 
 function page() {
   return (
-    <Container>
+    <Container noPadding className={styles.container}>
       <TripPlanningForm />
       <LargeCardSection
         content={{

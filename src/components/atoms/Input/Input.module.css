@@ -33,7 +33,7 @@
   font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
-  font-size: var(--font-size-base);
+  font-size: 14px;
   line-height: 20px;
   color: var(--color-text-secondary);
   cursor: pointer;

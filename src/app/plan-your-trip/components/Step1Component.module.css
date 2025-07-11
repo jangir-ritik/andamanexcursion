@@ -1,99 +1,208 @@
-
 /* Step1Component.module.css */
 .step1Container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-6); /* 24px */
+  width: 100%;
 }
 
 .section {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .sectionTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 1rem;
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-xl); /* 20px */
+  line-height: 25px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-6); /* 24px */
 }
 
 .formGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-6); /* 24px */
+  width: 100%;
+}
+
+.formField {
+  flex: 1;
 }
 
 .label {
   display: block;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-base); /* 16px */
+  line-height: 20px;
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-1); /* 4px */
 }
 
 .input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  transition: border-color 0.2s ease;
-}
-
-.input:focus {
-  outline: none;
-  border-color: #f97316;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  padding: var(--space-3) var(--space-8); /* 12px 32px */
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-sm); /* 8px */
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-xl); /* 20px */
+  line-height: 25px;
+  color: var(--color-text-primary);
 }
 
 .error {
-  color: #dc2626;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
+  color: var(--color-alert-error);
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-1);
 }
 
+/* Styled section containers */
+.sectionContainer {
+  width: 100%;
+}
+
+.sectionHeader {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-5); /* 8px 20px */
+  gap: var(--space-16); /* 64px */
+  width: 100%;
+  height: 55px;
+  background: var(--color-bg-quaternary); /* #F7FAFF */
+  border-bottom: 1px solid #cde1ff;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0; /* 8px 8px 0 0 */
+}
+
+.sectionHeaderTitle {
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-xl); /* 20px */
+  line-height: 25px;
+  color: var(--color-gray-900);
+}
+
+.sectionContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: var(--space-6) var(--space-5); /* 24px 21px */
+  gap: var(--space-6); /* 24px */
+  width: 100%;
+  background: var(--color-bg-quaternary); /* #F7FAFF */
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm); /* 0 0 8px 8px */
+}
+
+/* Checkbox styles */
 .checkboxGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-6); /* 24px */
+  width: 100%;
 }
 
 .checkboxItem {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
+  padding: 0;
+  gap: var(--space-2); /* 8px */
 }
 
 .checkbox {
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-primary);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.checkbox:hover {
-  border-color: #f97316;
 }
 
 .checkbox[data-state="checked"] {
-  background-color: #f97316;
-  border-color: #f97316;
+  background-color: var(--color-primary);
+  border-color: var(--color-white);
 }
 
 .checkboxIndicator {
-  color: white;
+  color: var(--color-white);
+  display: flex;
 }
 
 .checkboxLabel {
-  font-size: 0.875rem;
-  color: #374151;
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-base); /* 16px */
+  line-height: 20px;
+  color: var(--color-text-primary);
+}
+
+/* Passenger counter styles */
+.counterContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  gap: var(--space-1); /* 4px */
+  width: 100%;
+}
+
+.counterButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 21px;
+  font-size: 20px;
+  line-height: 16px;
+  color: var(--color-primary);
   cursor: pointer;
+}
+
+.counterValue {
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-base); /* 16px */
+  line-height: 20px;
+  color: var(--color-text-primary);
+}
+
+/* PassengerCounter component styles */
+.passengerCounter {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* Responsive adjustments for the form fields */
+@media (max-width: 768px) {
+  .formGrid,
+  .sectionContent {
+    flex-direction: column;
+  }
+
+  .checkboxGrid {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .checkboxItem {
+    flex-basis: 45%;
+    margin-bottom: var(--space-3);
+  }
 }

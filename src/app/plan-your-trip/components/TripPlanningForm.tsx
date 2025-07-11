@@ -17,13 +17,14 @@ import { Step2Component } from "./Step2Component";
 import { Step3Component } from "./Step3Component";
 import styles from "./TripPlanningForm.module.css";
 import { StepIndicator } from "./StepIndicator";
+import { Loader2 } from "lucide-react";
 
 const TOTAL_STEPS = 3;
 const STEP_SCHEMAS = [step1Schema, step2Schema, step3Schema];
 
 const STEPS_CONFIG = [
   { id: 1, title: "About Yourself", description: "Personal & Trip Details" },
-  { id: 2, title: "Dining Itinerary", description: "Daily Planning" },
+  { id: 2, title: "Dreamy Itinerary", description: "Daily Planning" },
   { id: 3, title: "Preferences", description: "Hotel & Travel Preferences" },
 ];
 
@@ -74,6 +75,7 @@ export const TripPlanningForm: React.FC = () => {
     isStepAccessible,
     isFirstStep,
     isLastStep,
+    isValidating,
   } = useMultiStepForm({
     totalSteps: TOTAL_STEPS,
     form,
@@ -114,6 +116,12 @@ export const TripPlanningForm: React.FC = () => {
 
   return (
     <Container className={styles.container}>
+      {isValidating && (
+        <div className={styles.loadingOverlay}>
+          <Loader2 className={styles.spinner} size={32} />
+          <span>Processing...</span>
+        </div>
+      )}
       <form onSubmit={form.handleSubmit(handleSubmit)} className={styles.form}>
         {/* Step Indicator */}
         <Section id="form-header" className={styles.header}>
@@ -128,9 +136,16 @@ export const TripPlanningForm: React.FC = () => {
 
         {/* Form Title */}
         <Section className={styles.titleSection}>
-          <Column>
-            <SectionTitle text="Plan your Andaman Trip!" specialWord="Plan" />
-            <DescriptionText text="Fill in the form below to help us understand your ideal Andaman getaway. We'll use your preferences to create a customised itinerary just for you - no stress, no guesswork." />
+          <Column className={styles.titleColumn}>
+            <SectionTitle
+              text="Plan your Andaman Trip!"
+              specialWord="Plan"
+              className={styles.title}
+            />
+            <DescriptionText
+              className={styles.description}
+              text="Fill in the form below to help us understand your ideal Andaman getaway. We'll use your preferences to create a customised itinerary just for you - no stress, no guesswork."
+            />
           </Column>
         </Section>
 
@@ -144,7 +159,7 @@ export const TripPlanningForm: React.FC = () => {
               type="button"
               variant="outline"
               onClick={prevStep}
-              disabled={isFirstStep}
+              disabled={isFirstStep || isValidating}
             >
               {isFirstStep ? "Cancel" : "Go Back"}
             </Button>
@@ -152,9 +167,18 @@ export const TripPlanningForm: React.FC = () => {
               type={isLastStep ? "submit" : "button"}
               showArrow={!isLastStep}
               onClick={handleNext}
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || isValidating}
             >
-              {isLastStep ? "Submit" : "Next"}
+              {isValidating ? (
+                <>
+                  <Loader2 className={styles.buttonSpinner} size={16} />
+                  Processing...
+                </>
+              ) : isLastStep ? (
+                "Submit"
+              ) : (
+                "Next"
+              )}
             </Button>
           </Row>
         </Section>

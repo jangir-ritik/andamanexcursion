@@ -1,36 +1,43 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Controller, UseFormReturn, useFieldArray } from "react-hook-form";
 import * as Accordion from "@radix-ui/react-accordion";
-import * as Select from "@radix-ui/react-select";
-import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, ChevronDown } from "lucide-react";
 import { TripFormData } from "../TripFormSchema";
-import { addDays, format } from "date-fns";
+import { addDays, format, differenceInDays } from "date-fns";
 import styles from "./Step2Component.module.css";
+import { LocationSelect } from "@/components/atoms/LocationSelect/LocationSelect";
+import { ActivitySelect } from "@/components/atoms/ActivitySelect/ActivitySelect";
+import { Activity } from "@/components/atoms/ActivitySelect/ActivitySelect.types";
+import { Location } from "@/components/atoms/LocationSelect/LocationSelect.types";
+import { Textarea } from "@/components/atoms/Textarea/Textarea";
 
 interface Step2ComponentProps {
   form: UseFormReturn<TripFormData>;
 }
 
-const DESTINATIONS = [
-  { value: "havelock", label: "Havelock Island" },
-  { value: "neil", label: "Neil Island" },
-  { value: "port-blair", label: "Port Blair" },
-  { value: "ross", label: "Ross Island" },
-  { value: "baratang", label: "Baratang Island" },
-  { value: "rangat", label: "Rangat" },
-  { value: "diglipur", label: "Diglipur" },
+const DESTINATIONS: Location[] = [
+  { id: "havelock", name: "Havelock Island" },
+  { id: "neil", name: "Neil Island" },
+  { id: "port-blair", name: "Port Blair" },
+  { id: "ross", name: "Ross Island" },
+  { id: "baratang", name: "Baratang Island" },
+  { id: "rangat", name: "Rangat" },
+  { id: "diglipur", name: "Diglipur" },
 ];
 
-const ACTIVITIES = [
-  { value: "scuba-diving", label: "Scuba Diving" },
-  { value: "snorkeling", label: "Snorkeling" },
-  { value: "beach-relaxation", label: "Beach Relaxation" },
-  { value: "sightseeing", label: "Sightseeing" },
-  { value: "water-sports", label: "Water Sports" },
-  { value: "mangrove-tour", label: "Mangrove Tour" },
-  { value: "historical-sites", label: "Historical Sites" },
-  { value: "fishing", label: "Fishing" },
+const ACTIVITIES: Activity[] = [
+  { id: "scuba-diving", name: "Scuba Diving" },
+  { id: "snorkeling", name: "Snorkeling" },
+  { id: "beach-relaxation", name: "Beach Relaxation" },
+  { id: "sightseeing", name: "Sightseeing" },
+  { id: "water-sports", name: "Water Sports" },
+  { id: "mangrove-tour", name: "Mangrove Tour" },
+  { id: "historical-sites", name: "Historical Sites" },
+  { id: "fishing", name: "Fishing" },
 ];
+
+// Maximum reasonable number of days to generate
+const MAX_DAYS = 30;
 
 export const Step2Component: React.FC<Step2ComponentProps> = ({ form }) => {
   const {
@@ -47,38 +54,102 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({ form }) => {
   const arrivalDate = watch("tripDetails.arrivalDate");
   const departureDate = watch("tripDetails.departureDate");
 
-  // Auto-generate itinerary days based on dates
-  useEffect(() => {
-    if (arrivalDate && departureDate) {
+  // Calculate days difference with memoization to avoid recalculation
+  const daysDifference = useMemo(() => {
+    if (!arrivalDate || !departureDate) return 0;
+
+    try {
       const start = new Date(arrivalDate);
       const end = new Date(departureDate);
-      const days = Math.ceil(
-        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+
+      // Validate dates
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+
+      // Use date-fns for more accurate calculation
+      return differenceInDays(end, start) + 1;
+    } catch (error) {
+      console.error("Error calculating days difference:", error);
+      return 0;
+    }
+  }, [arrivalDate, departureDate]);
+
+  // Warning message for large date ranges
+  const showWarning = daysDifference > MAX_DAYS;
+
+  // Auto-generate itinerary days based on dates - optimized
+  useEffect(() => {
+    if (!arrivalDate || !departureDate) return;
+
+    try {
+      const start = new Date(arrivalDate);
+      const end = new Date(departureDate);
+
+      // Validate dates
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
+
+      // Calculate days, but cap at MAX_DAYS to prevent performance issues
+      const days = Math.min(
+        Math.max(1, differenceInDays(end, start) + 1),
+        MAX_DAYS
       );
 
+      // Only update if the number of days has changed
       if (days > 0 && days !== fields.length) {
-        // Clear existing fields
-        fields.forEach((_, index) => remove(index));
-
-        // Add new fields for each day
-        for (let i = 0; i < days; i++) {
+        // Use a more efficient approach for large arrays
+        const newFields = Array.from({ length: days }, (_, i) => {
           const dayDate = addDays(start, i);
-          append({
+          return {
             day: i + 1,
-            date: format(dayDate, "dd/MM/yyyy"),
+            date: format(dayDate, "yyyy-MM-dd"),
             destination: "",
             activity: "",
             notes: "",
-          });
-        }
+          };
+        });
+
+        // Remove all existing fields at once
+        remove();
+
+        // Batch append all fields at once
+        append(newFields);
       }
+    } catch (error) {
+      console.error("Error generating itinerary:", error);
     }
-  }, [arrivalDate, departureDate, fields.length, append, remove]);
+  }, [
+    daysDifference,
+    arrivalDate,
+    departureDate,
+    fields.length,
+    append,
+    remove,
+  ]);
+
+  // Format date for display in the day header
+  const formatDateForDisplay = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return `(${format(date, "do MMMM yyyy")})`;
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   return (
     <div className={styles.step2Container}>
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Plan Your Daily Itinerary</h3>
+
+        {showWarning && (
+          <div className={styles.warningMessage}>
+            <AlertCircle size={16} />
+            <span>
+              You've selected a large date range ({daysDifference} days). For
+              better performance, only the first {MAX_DAYS} days have been
+              generated.
+            </span>
+          </div>
+        )}
 
         {fields.length === 0 ? (
           <div className={styles.emptyState}>
@@ -88,62 +159,42 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({ form }) => {
             </p>
           </div>
         ) : (
-          <Accordion.Root type="multiple" className={styles.accordion}>
+          <div className={styles.itineraryContainer}>
             {fields.map((field, index) => (
-              <Accordion.Item
+              <Accordion.Root
                 key={field.id}
-                value={`day-${index}`}
-                className={styles.accordionItem}
+                type="single"
+                collapsible
+                defaultValue={index === 0 ? `day-${index}` : undefined}
+                className={styles.accordion}
               >
-                <Accordion.Header className={styles.accordionHeader}>
+                <Accordion.Item
+                  value={`day-${index}`}
+                  className={styles.accordionItem}
+                >
                   <Accordion.Trigger className={styles.accordionTrigger}>
-                    <div className={styles.dayHeader}>
-                      <span className={styles.dayNumber}>Day {field.day}</span>
-                      <span className={styles.dayDate}>({field.date})</span>
+                    <div className={styles.dayTitle}>
+                      Day {field.day} {formatDateForDisplay(field.date)}
                     </div>
                     <ChevronDown className={styles.chevron} />
                   </Accordion.Trigger>
-                </Accordion.Header>
-
-                <Accordion.Content className={styles.accordionContent}>
-                  <div className={styles.dayContent}>
+                  <Accordion.Content className={styles.accordionContent}>
                     <div className={styles.formRow}>
                       <div className={styles.formField}>
-                        <label className={styles.label}>Destination</label>
                         <Controller
                           name={`itinerary.${index}.destination`}
                           control={control}
                           render={({ field }) => (
-                            <Select.Root
+                            <LocationSelect
                               value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Select.Trigger className={styles.selectTrigger}>
-                                <Select.Value placeholder="Select destination" />
-                                <Select.Icon>
-                                  <ChevronDown size={16} />
-                                </Select.Icon>
-                              </Select.Trigger>
-                              <Select.Portal>
-                                <Select.Content
-                                  className={styles.selectContent}
-                                >
-                                  <Select.Viewport>
-                                    {DESTINATIONS.map((dest) => (
-                                      <Select.Item
-                                        key={dest.value}
-                                        value={dest.value}
-                                        className={styles.selectItem}
-                                      >
-                                        <Select.ItemText>
-                                          {dest.label}
-                                        </Select.ItemText>
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Viewport>
-                                </Select.Content>
-                              </Select.Portal>
-                            </Select.Root>
+                              onChange={field.onChange}
+                              label="Add Destination"
+                              options={DESTINATIONS}
+                              hasError={
+                                !!errors.itinerary?.[index]?.destination
+                              }
+                              className={styles.selectComponent}
+                            />
                           )}
                         />
                         {errors.itinerary?.[index]?.destination && (
@@ -154,41 +205,18 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({ form }) => {
                       </div>
 
                       <div className={styles.formField}>
-                        <label className={styles.label}>Activity</label>
                         <Controller
                           name={`itinerary.${index}.activity`}
                           control={control}
                           render={({ field }) => (
-                            <Select.Root
+                            <ActivitySelect
                               value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Select.Trigger className={styles.selectTrigger}>
-                                <Select.Value placeholder="Select activity" />
-                                <Select.Icon>
-                                  <ChevronDown size={16} />
-                                </Select.Icon>
-                              </Select.Trigger>
-                              <Select.Portal>
-                                <Select.Content
-                                  className={styles.selectContent}
-                                >
-                                  <Select.Viewport>
-                                    {ACTIVITIES.map((activity) => (
-                                      <Select.Item
-                                        key={activity.value}
-                                        value={activity.value}
-                                        className={styles.selectItem}
-                                      >
-                                        <Select.ItemText>
-                                          {activity.label}
-                                        </Select.ItemText>
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Viewport>
-                                </Select.Content>
-                              </Select.Portal>
-                            </Select.Root>
+                              onChange={field.onChange}
+                              options={ACTIVITIES}
+                              hasError={!!errors.itinerary?.[index]?.activity}
+                              className={styles.selectComponent}
+                              placeholder="Select your activity"
+                            />
                           )}
                         />
                         {errors.itinerary?.[index]?.activity && (
@@ -199,26 +227,28 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({ form }) => {
                       </div>
 
                       <div className={styles.formField}>
-                        <label className={styles.label}>Notes (Optional)</label>
                         <Controller
                           name={`itinerary.${index}.notes`}
                           control={control}
                           render={({ field }) => (
-                            <textarea
+                            <Textarea
                               {...field}
-                              className={styles.textarea}
+                              name={`itinerary.${index}.notes`}
+                              control={control}
+                              label="Add Note (Optional)"
                               placeholder="Add custom notes for the day"
                               rows={3}
+                              className={styles.notesTextarea}
                             />
                           )}
                         />
                       </div>
                     </div>
-                  </div>
-                </Accordion.Content>
-              </Accordion.Item>
+                  </Accordion.Content>
+                </Accordion.Item>
+              </Accordion.Root>
             ))}
-          </Accordion.Root>
+          </div>
         )}
 
         {errors.itinerary && (

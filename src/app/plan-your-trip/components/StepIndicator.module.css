@@ -1,87 +1,227 @@
-/* StepIndicator.module.css */
 .stepIndicator {
   display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Top row with circles and separators */
+.circleRow {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px 1fr 42px 1fr;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1rem 0;
+  width: 100%;
+  margin-bottom: var(--space-4);
 }
 
-.step {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #64748b;
-}
-
-.step:hover {
-  background-color: #f1f5f9;
-}
-
-.step.active {
-  color: #f97316;
-  background-color: #fff7ed;
-}
-
-.step.completed {
-  color: #059669;
-}
-
-.step:not(.accessible) {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.stepNumber {
-  width: 2rem;
-  height: 2rem;
+/* Step circles */
+.stepCircle {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-  background-color: #e2e8f0;
-  color: #475569;
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  background-color: var(--color-white);
+  border: 2px solid var(--color-gray-600);
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-self: center;
 }
 
-.step.active .stepNumber {
-  background-color: #f97316;
-  color: white;
+.stepCircle:hover.accessible {
+  transform: scale(1.05);
 }
 
-.step.completed .stepNumber {
-  background-color: #059669;
-  color: white;
+.stepCircle.active {
+  background-color: var(--color-secondary);
+  border: none;
+  color: var(--color-white);
+}
+
+.stepCircle.completed {
+  background-color: var(--color-secondary);
+  border: none;
+  color: var(--color-white);
+}
+
+.stepCircle:not(.accessible) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Separators */
+.separator {
+  height: 2px;
+  background-color: var(--color-gray-600);
+  width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.lastSeparator {
+  visibility: hidden;
+}
+
+.completedSeparator {
+  background-color: var(--color-secondary);
+}
+
+/* Bottom row with content */
+.contentRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  width: 100%;
 }
 
 .stepContent {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--space-2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-gray-700);
+  /* max-width: 330px; */
+  /* text-align: center; */
+}
+
+.stepContent:hover.accessibleContent {
+  background-color: #f1f5f9;
+}
+
+/* .stepContent.activeContent {
+  color: #f97316;
+  background-color: #fff7ed;
+} */
+
+.stepContent.completedContent {
+  color: var(--color-secondary);
+}
+
+.stepContent:not(.accessibleContent) {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .stepTitle {
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  line-height: 1.25;
+  color: inherit;
 }
 
 .stepDescription {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-body-large);
+  line-height: 1.25;
+  color: inherit;
 }
 
-.separator {
-  height: 1px;
-  background-color: #e2e8f0;
-  flex: 1;
-  margin: 0 1rem;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .circleRow {
+    grid-template-columns: 36px 1fr 36px 1fr 36px 1fr;
+    margin-bottom: var(--space-3);
+  }
+
+  .stepCircle {
+    width: 36px;
+    height: 36px;
+    font-size: var(--font-size-sm);
+  }
+
+  .contentRow {
+    gap: var(--space-2);
+  }
+
+  .stepTitle,
+  .stepDescription {
+    font-size: var(--font-size-sm);
+  }
 }
 
-.completedSeparator {
-  background-color: #059669;
+@media (max-width: 480px) {
+  .stepIndicator {
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .circleRow {
+    display: none; /* Hide the horizontal layout */
+  }
+
+  .contentRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .stepContent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: var(--space-3);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--space-2);
+    position: relative;
+  }
+
+  .stepContent::before {
+    content: "";
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    border: 2px solid var(--color-gray-600);
+    color: var(--color-gray-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    margin-right: var(--space-3);
+    flex-shrink: 0;
+  }
+
+  .stepContent.activeContent::before {
+    background-color: var(--color-secondary);
+    border: none;
+    color: var(--color-white);
+  }
+
+  .stepContent.completedContent::before {
+    background-color: var(--color-secondary);
+    border: none;
+    color: var(--color-white);
+  }
+
+  /* Add step numbers using CSS counter or data attributes */
+  .stepContent:nth-child(1)::before {
+    content: "1";
+  }
+  .stepContent:nth-child(2)::before {
+    content: "2";
+  }
+  .stepContent:nth-child(3)::before {
+    content: "3";
+  }
+  .stepContent.completedContent:nth-child(1)::before,
+  .stepContent.completedContent:nth-child(2)::before,
+  .stepContent.completedContent:nth-child(3)::before {
+    content: "✓";
+  }
+
+  .stepTitle,
+  .stepDescription {
+    font-size: var(--font-size-sm);
+  }
 }

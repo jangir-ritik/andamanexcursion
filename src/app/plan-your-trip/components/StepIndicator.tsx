@@ -1,7 +1,7 @@
 import React from "react";
-import * as Separator from "@radix-ui/react-separator";
 import { Check } from "lucide-react";
 import styles from "./StepIndicator.module.css";
+import { cn } from "@/utils/cn";
 
 interface Step {
   id: number;
@@ -26,38 +26,67 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
 }) => {
   return (
     <div className={styles.stepIndicator}>
-      {steps.map((step, index) => (
-        <React.Fragment key={step.id}>
-          <div
-            className={`${styles.step} ${
-              currentStep === step.id ? styles.active : ""
-            } ${isStepCompleted(step.id) ? styles.completed : ""} ${
-              isStepAccessible(step.id) ? styles.accessible : ""
-            }`}
-            onClick={() => isStepAccessible(step.id) && onStepClick(step.id)}
-          >
-            <div className={styles.stepNumber}>
+      {/* Top row: circles and separators */}
+      <div className={styles.circleRow}>
+        {steps.map((step, index) => (
+          <React.Fragment key={step.id}>
+            {/* Circle */}
+            <div
+              className={cn(styles.stepCircle, {
+                [styles.active]: currentStep === step.id,
+                [styles.completed]: isStepCompleted(step.id),
+                [styles.accessible]: isStepAccessible(step.id),
+              })}
+              onClick={() => {
+                if (isStepAccessible(step.id)) {
+                  onStepClick(step.id);
+                }
+              }}
+            >
               {isStepCompleted(step.id) ? (
                 <Check size={16} />
               ) : (
                 <span>{step.id}</span>
               )}
             </div>
-            <div className={styles.stepContent}>
-              <div className={styles.stepTitle}>{step.title}</div>
-              <div className={styles.stepDescription}>{step.description}</div>
-            </div>
+
+            {/* Separator - only if not the last step */}
+            {
+              // index < steps.length - 1 &&
+              <div
+                className={cn(styles.separator, {
+                  [styles.completedSeparator]: isStepCompleted(
+                    steps[index + 1]?.id
+                  ),
+                  [styles.lastSeparator]: index === steps.length - 1,
+                })}
+              />
+            }
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Bottom row: content */}
+      <div className={styles.contentRow}>
+        {steps.map((step) => (
+          <div
+            key={`content-${step.id}`}
+            className={cn(styles.stepContent, {
+              [styles.activeContent]: currentStep === step.id,
+              [styles.completedContent]: isStepCompleted(step.id),
+              [styles.accessibleContent]: isStepAccessible(step.id),
+            })}
+            onClick={() => {
+              if (isStepAccessible(step.id)) {
+                onStepClick(step.id);
+              }
+            }}
+          >
+            <div className={styles.stepTitle}>Step {step.id}</div>
+            <div className={styles.stepDescription}>{step.title}</div>
           </div>
-          {index < steps.length - 1 && (
-            <Separator.Root
-              className={`${styles.separator} ${
-                isStepCompleted(step.id) ? styles.completedSeparator : ""
-              }`}
-              orientation="horizontal"
-            />
-          )}
-        </React.Fragment>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

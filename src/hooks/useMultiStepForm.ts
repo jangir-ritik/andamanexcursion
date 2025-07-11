@@ -16,29 +16,52 @@ export const useMultiStepForm = ({
 }: UseMultiStepFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [isValidating, setIsValidating] = useState(false);
 
   const validateCurrentStep = useCallback(async () => {
+    if (isValidating) return false;
+
     const schema = stepsSchemas[currentStep - 1];
-    if (!schema) return;
+    if (!schema) return true;
 
     try {
-      await form.trigger();
+      setIsValidating(true);
+      // Use a more targeted validation approach
       const formData = form.getValues();
-      await schema.parseAsync(formData);
+
+      // For step 1, only validate the specific fields needed
+      if (currentStep === 1) {
+        const { personalDetails, tripDetails, travelGoals } = formData;
+        await schema.parseAsync({
+          personalDetails,
+          tripDetails,
+          travelGoals,
+          specialOccasion: formData.specialOccasion || [],
+        });
+      } else {
+        await form.trigger();
+        await schema.parseAsync(formData);
+      }
+
       setCompletedSteps((prev) => new Set(prev).add(currentStep));
       return true;
     } catch (error) {
+      console.error("Validation error:", error);
       return false;
+    } finally {
+      setIsValidating(false);
     }
-  }, [currentStep, form, stepsSchemas]);
+  }, [currentStep, form, stepsSchemas, isValidating]);
 
   const nextStep = useCallback(async () => {
+    if (isValidating) return false;
+
     const isValid = await validateCurrentStep();
     if (isValid && currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     }
     return isValid;
-  }, [currentStep, totalSteps, validateCurrentStep]);
+  }, [currentStep, totalSteps, validateCurrentStep, isValidating]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
@@ -48,21 +71,23 @@ export const useMultiStepForm = ({
 
   const goToStep = useCallback(
     async (step: number) => {
+      if (isValidating) return;
+
       if (step >= 1 && step <= totalSteps) {
-        // Only allow going to completed steps or the next step
-        if (completedSteps.has(step) || step === currentStep + 1) {
-          if (step > currentStep) {
-            const isValid = await validateCurrentStep();
-            if (isValid) {
-              setCurrentStep(step);
-            }
-          } else {
+        // Always allow going to previous steps without validation
+        if (step < currentStep) {
+          setCurrentStep(step);
+        }
+        // For next steps, require validation
+        else if (step > currentStep) {
+          const isValid = await validateCurrentStep();
+          if (isValid) {
             setCurrentStep(step);
           }
         }
       }
     },
-    [currentStep, totalSteps, completedSteps, validateCurrentStep]
+    [currentStep, totalSteps, validateCurrentStep, isValidating]
   );
 
   const isStepCompleted = useCallback(
@@ -74,6 +99,7 @@ export const useMultiStepForm = ({
 
   const isStepAccessible = useCallback(
     (step: number) => {
+      // Allow access to current step, completed steps, and previous steps
       return step <= currentStep || completedSteps.has(step);
     },
     [currentStep, completedSteps]
@@ -88,5 +114,6 @@ export const useMultiStepForm = ({
     isStepAccessible,
     isFirstStep: currentStep === 1,
     isLastStep: currentStep === totalSteps,
+    isValidating,
   };
 };

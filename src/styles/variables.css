@@ -57,6 +57,7 @@
   --color-bg-primary: var(--color-white); /* #ffffff */
   --color-bg-secondary: var(--color-gray-50); /* #f5f9ff */
   --color-bg-tertiary: var(--color-gray-100); /* #ebf3ff */
+  --color-bg-quaternary: #f7faff; /* #f7faff */
 
   /* Border Colors */
   --color-border-primary: var(--color-border-alpha); /* #ffffff33 */
