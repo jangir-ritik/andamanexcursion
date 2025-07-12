@@ -39,7 +39,8 @@ body {
   min-height: 100vh;
   margin: 0 !important;
   padding: 0 !important;
-  margin-top: 80px !important; /* Account for fixed header */
+  font-family: var(--font-family-primary) !important;
+
 }
 
 * {
@@ -68,8 +69,4 @@ a {
 button {
   all: unset;
   cursor: pointer;
-}
-
-body {
-  font-family: var(--font-family-primary) !important;
 }
