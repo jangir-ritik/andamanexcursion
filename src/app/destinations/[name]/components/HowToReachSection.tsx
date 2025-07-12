@@ -4,7 +4,7 @@ import { SectionTitle } from "@/components/atoms";
 import { FeatureCard } from "@/components/molecules/Cards/FeatureCard/FeatureCard";
 import styles from "../page.module.css";
 import Image from "next/image";
-import stepsWave from "@public/graphics/stepsWave.svg";
+// import stepsWave from "@public/graphics/stepsWave.svg";
 
 interface HowToReachCard {
   title: string;
@@ -28,13 +28,13 @@ export const HowToReachSection: React.FC<{
       className={styles.howToReach}
       aria-labelledby="how-to-reach-title"
     >
-      <Image
+      {/* <Image
         src={stepsWave}
         alt="dotted decorative wave"
         fill
         aria-hidden="true"
         className={styles.dottedWave}
-      />
+      /> */}
       <Container className={styles.howToReachContainer}>
         <Row fullWidth>
           <SectionTitle

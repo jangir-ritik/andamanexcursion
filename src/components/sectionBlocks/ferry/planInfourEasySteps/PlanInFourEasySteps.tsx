@@ -5,7 +5,7 @@ import styles from "./PlanInFourEasySteps.module.css";
 import { Column, Row, Section } from "@/components/layout";
 import { Step } from "@/components/atoms";
 import Image from "next/image";
-import stepsWave from "@public/graphics/stepsWave.svg";
+// import stepsWave from "@public/graphics/stepsWave.svg";
 import { PlanInFourEasyStepsContent } from "./PlanInFourEasySteps.types";
 
 export const PlanInFourEasySteps = ({
@@ -20,12 +20,12 @@ export const PlanInFourEasySteps = ({
       aria-labelledby="plan-in-four-easy-steps-title"
       fullBleed
     >
-      <Image
+      {/* <Image
         src={stepsWave}
         alt="steps wave"
         fill
         className={styles.stepsWave}
-      />
+      /> */}
       <Column
         fullWidth
         gap="var(--space-10)"

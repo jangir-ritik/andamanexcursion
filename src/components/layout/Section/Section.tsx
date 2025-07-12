@@ -5,7 +5,7 @@ interface SectionProps {
   children: React.ReactNode;
   className?: string;
   id?: string;
-  backgroundColor?: "white" | "light" | "primary" | "secondary";
+  backgroundColor?: "white" | "light" | "primary" | "secondary" | "transparent";
   spacing?: "0" | "4" | "5" | "10";
   noPadding?: boolean;
   fullBleed?: boolean;
@@ -16,7 +16,7 @@ export const Section = ({
   children,
   className = "",
   id,
-  backgroundColor = "white",
+  backgroundColor = "transparent",
   spacing = "0",
   noPadding = false,
   fullBleed = false,

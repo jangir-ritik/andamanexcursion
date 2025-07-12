@@ -4,7 +4,7 @@ import { DescriptionText, SectionTitle } from "@/components/atoms";
 import { FeatureCard } from "@/components/molecules/Cards/FeatureCard/FeatureCard";
 import styles from "../page.module.css";
 import Image from "next/image";
-import stepsWave from "@public/graphics/stepsWave.svg";
+// import stepsWave from "@public/graphics/stepsWave.svg";
 
 interface ExperienceSectionProps {
   content: ExperienceSectionContent;
@@ -33,13 +33,13 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
       className={styles.experience}
       aria-labelledby="experience-title"
     >
-      <Image
+      {/* <Image
         src={stepsWave}
         alt="dotted decorative wave"
         fill
         aria-hidden="true"
         className={styles.dottedWave}
-      />
+      /> */}
       <Container className={styles.experienceContainer}>
         <Row fullWidth gap={3} alignItems="center" justifyContent="between">
           <SectionTitle

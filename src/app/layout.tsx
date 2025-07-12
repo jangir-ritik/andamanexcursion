@@ -5,11 +5,11 @@ import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
-
 import { PackageProvider } from "@/context/PackageContext";
 import { BookingProviders } from "@/context/BookingProviders";
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
+import { SvgBackground } from "./SvgBackground"; // Import the new component
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
@@ -77,17 +77,31 @@ export default function RootLayout({
         />
       </head>
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
-        <BookingProviders>
-          <PackageProvider>
-            <Header />
-            <Container>
-              <Column gap="var(--space-section)" fullWidth>
-                {children}
-              </Column>
-            </Container>
-            <Footer />
-          </PackageProvider>
-        </BookingProviders>
+        <div style={{ position: "relative", width: "100%" }}>
+          <BookingProviders>
+            <PackageProvider>
+              {/* SVG Background - positioned globally */}
+              <SvgBackground />
+
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  // opacity: 0,
+                  // pointerEvents: "none",
+                }}
+              >
+                <Header />
+                <Container>
+                  <Column gap="var(--space-section)" fullWidth>
+                    {children}
+                  </Column>
+                </Container>
+                <Footer />
+              </div>
+            </PackageProvider>
+          </BookingProviders>
+        </div>
       </body>
     </html>
   );
