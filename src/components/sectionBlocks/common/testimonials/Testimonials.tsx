@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
-import { SectionTitle } from "@/components/atoms";
+import { SectionTitle, DecorativeCurlyArrow } from "@/components/atoms";
 import type { TestimonialsProps } from "./Testimonials.types";
 import { Column, Container, Section } from "@/components/layout";
 import { TestimonialCard } from "@/components/molecules/Cards";
@@ -28,6 +28,12 @@ export const Testimonials = ({ content }: TestimonialsProps) => {
               text={title}
               specialWord={specialWord}
               id="testimonials-title"
+            />
+            <DecorativeCurlyArrow
+              top="10%"
+              left="45%"
+              scale={2}
+              rotation={30}
             />
             <div className={styles.googleInfo}>
               <div className={styles.googleIcon}>

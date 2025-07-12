@@ -9,6 +9,7 @@ import { HiddenGemsProps } from "./HiddenGems.types";
 import Link from "next/link";
 import { Column, Row, Section } from "@/components/layout";
 import styles from "./HiddenGems.module.css";
+import DecorativeCurlyArrow from "@/components/atoms/DecorativeCurlyArrow/DecorativeCurlyArrow";
 
 export const HiddenGems = ({ content }: HiddenGemsProps) => {
   const { title, specialWord, description, ctaText, ctaHref, images } = content;
@@ -28,13 +29,18 @@ export const HiddenGems = ({ content }: HiddenGemsProps) => {
         className={styles.hiddenGemsRow}
         gap="var(--space-20)"
       >
-        <Column gap="var(--space-8)" alignItems="start">
+        <Column
+          gap="var(--space-8)"
+          alignItems="start"
+          className={styles.column}
+        >
           <SectionTitle
             text={title}
             specialWord={specialWord}
             className={styles.sectionTitle}
             id="hidden-gems-title"
           />
+          <DecorativeCurlyArrow top="20%" left="75%" />
           <DescriptionText text={description} />
           <Link href={ctaHref}>
             <Button showArrow>{ctaText}</Button>

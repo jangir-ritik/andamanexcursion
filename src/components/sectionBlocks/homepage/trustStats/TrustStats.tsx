@@ -6,6 +6,7 @@ import { SectionTitle } from "@/components/atoms";
 import curlyArrow from "@public/graphics/curlyArrowOrange.svg";
 import Image from "next/image";
 import { TrustStatsProps } from "./TrustStats.types";
+import DecorativeCurlyArrow from "@/components/atoms/DecorativeCurlyArrow/DecorativeCurlyArrow";
 
 export const TrustStats = ({ content }: TrustStatsProps) => {
   const { title, stats } = content;
@@ -30,12 +31,7 @@ export const TrustStats = ({ content }: TrustStatsProps) => {
           text={title.text}
           id="trust-stats-title"
         />
-        <Image
-          src={curlyArrow}
-          alt=""
-          className={styles.curlyArrow}
-          aria-hidden="true"
-        />
+        <DecorativeCurlyArrow top="20%" left="30%" />
 
         <Row
           gap="var(--space-2)"

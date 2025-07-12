@@ -17,3 +17,4 @@ export * from "./SlotSelect/SlotSelect";
 export * from "./Step/Step";
 export * from "./TagInput/TagInput";
 export * from "./Textarea/Textarea";
+export * from "./DecorativeCurlyArrow/DecorativeCurlyArrow";

@@ -6,6 +6,10 @@
   background-position: center;
 }
 
+.column {
+  position: relative;
+}
+
 .sectionTitle {
   max-width: 400px;
 }

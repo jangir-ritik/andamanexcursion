@@ -12,17 +12,6 @@
   max-width: var(--layout-container-max-width);
   position: relative;
 }
-
-.curlyArrow {
-  position: absolute;
-  top: 15%;
-  left: 32%;
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  object-position: center;
-}
-
 .statsContainer {
   flex: 1;
   max-width: 700px;
