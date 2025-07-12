@@ -2,6 +2,7 @@ import React from "react";
 import { Column, Row, Section } from "@/components/layout";
 import {
   Button,
+  DecorativeCurlyArrow,
   DescriptionText,
   ImageContainer,
   SectionTitle,
@@ -37,6 +38,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({
           alignItems="start"
         >
           <SectionTitle text={title} specialWord={specialWord} />
+          <DecorativeCurlyArrow top="30%" left="40%" scale={1.5} />
           <DescriptionText text={description} className={styles.description} />
           <Button showArrow href={ctaHref}>
             {ctaText}

@@ -4,7 +4,11 @@ import React from "react";
 import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
-import { DescriptionText, SectionTitle } from "@/components/atoms";
+import {
+  DecorativeCurlyArrow,
+  DescriptionText,
+  SectionTitle,
+} from "@/components/atoms";
 import {
   LargeCardSection,
   FAQ,
@@ -67,6 +71,12 @@ export default function PackagesPage() {
           <Column gap={3} alignItems="start" justifyContent="start">
             <SectionTitle text="Our Packages" specialWord="Packages" />
             <DescriptionText text="Crafted Just For You!" />
+            <DecorativeCurlyArrow
+              top="50%"
+              left="33%"
+              scale={1.5}
+              rotation={30}
+            />
           </Column>
           <Column>
             {packageCategoriesContent.map((category) => (

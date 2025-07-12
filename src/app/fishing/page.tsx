@@ -9,6 +9,7 @@ import { Column, Row } from "@/components/layout";
 import { Section } from "@/components/layout";
 import {
   Button,
+  DecorativeCurlyArrow,
   DescriptionText,
   ImageContainer,
   SectionTitle,
@@ -56,6 +57,13 @@ export default async function FishingPage() {
             className={styles.featureTitle}
             text={content.feature.title}
             specialWord={content.feature.specialWord}
+          />
+          <DecorativeCurlyArrow
+            top="50%"
+            left="20%"
+            flip
+            rotation={210}
+            scale={1.5}
           />
           <Column fullWidth className={styles.imageContainer}>
             <ImageContainer
