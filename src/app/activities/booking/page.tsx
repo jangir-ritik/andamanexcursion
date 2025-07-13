@@ -127,7 +127,13 @@ export default function ActivitiesBookingPage() {
         aria-labelledby="available-activities-title"
         className={styles.availableActivities}
       >
-        <Column gap="var(--space-10)" fullWidth>
+        <Column
+          gap="var(--space-10)"
+          fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <Row
             justifyContent="between"
             alignItems="center"

@@ -86,9 +86,9 @@
 
 .chipContainer {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--space-3);
   align-items: center;
+  flex-shrink: 0; /* Prevent chips from shrinking */
 }
 
 .clickableChip {
@@ -98,6 +98,7 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--color-gray-100);
+  flex-shrink: 0; /* Prevent chips from shrinking */
 }
 
 .clickableChip:hover {
@@ -164,6 +165,15 @@
 
   .chipContainer {
     gap: var(--space-2);
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding-bottom: var(--space-2);
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .chipContainer::-webkit-scrollbar {
+    display: none;
   }
 
   .filterLabel {

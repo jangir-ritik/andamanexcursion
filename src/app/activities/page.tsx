@@ -35,7 +35,15 @@ export default function ActivitiesPage() {
         </Column>
       </Section>
       <Section id="activities" noPadding>
-        <Column gap={3} alignItems="start" justifyContent="start" fullWidth>
+        <Column
+          gap={3}
+          alignItems="start"
+          justifyContent="start"
+          fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <SectionTitle
             text={content.title}
             specialWord={content.subtitle}

@@ -6,6 +6,8 @@
   background-color: var(--color-white);
   margin-bottom: var(--space-6);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
 }
 
 .card:hover {
@@ -28,7 +30,6 @@
   width: 100%;
   padding: 0;
   position: relative;
-  margin-bottom: var(--space-6);
 }
 
 .imageWrapper {
@@ -141,6 +142,7 @@
   gap: var(--space-6);
   width: 100%;
   border-top: 1px solid var(--color-border-secondary);
+  margin-top: var(--space-6);
 }
 
 .classesWrapper {
@@ -183,29 +185,6 @@
   transform: rotate(180deg);
 }
 
-@media (max-width: 768px) {
-  .contentWrapper {
-    flex-direction: column;
-  }
-
-  .imageWrapper {
-    width: 100%;
-    height: 200px;
-  }
-
-  .textContent {
-    width: 100%;
-  }
-
-  .classesContainer {
-    flex-direction: column;
-  }
-
-  .classesWrapper {
-    width: 100%;
-  }
-}
-
 .amenitiesContainer {
   margin-top: var(--space-4);
 }
@@ -241,4 +220,217 @@
   width: 16px;
   height: 16px;
   object-fit: contain;
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border-radius: var(--radius-md);
+  }
+
+  .contentWrapper {
+    flex-direction: column;
+  }
+
+  .imageWrapper {
+    width: 100%;
+    height: 200px;
+    min-height: 200px;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+  }
+
+  .textContent {
+    width: 100%;
+    padding: 0;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: stretch;
+    margin-bottom: var(--space-3);
+  }
+
+  .titleContainer {
+    order: 1;
+  }
+
+  .priceContainer {
+    order: 2;
+    align-items: flex-start;
+    padding: var(--space-3);
+    background-color: var(--color-background-light, #f8f9fa);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-light, #e9ecef);
+  }
+
+  .title {
+    font-size: var(--font-size-heading-4);
+    line-height: 1.3;
+  }
+
+  .pricePerAdult {
+    font-size: var(--font-size-lg);
+  }
+
+  .totalPrice {
+    font-size: var(--font-size-lg);
+  }
+
+  .activityInfo {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .durationContainer,
+  .typeContainer {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .typeContainer {
+    justify-content: flex-end;
+  }
+
+  .description {
+    font-size: var(--font-size-base);
+    margin: var(--space-3) 0 var(--space-4) 0;
+    -webkit-line-clamp: 3;
+  }
+
+  .viewDetailsButton {
+    align-self: stretch;
+    width: 100%;
+    min-height: 48px;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+  }
+
+  .classesContainer {
+    flex-direction: column;
+    padding: 0;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .classesWrapper {
+    width: 100%;
+    order: 2;
+  }
+
+  .galleryImages {
+    order: 1;
+    margin-bottom: var(--space-4);
+  }
+
+  .amenitiesList {
+    gap: var(--space-2);
+  }
+
+  .amenityItem {
+    font-size: var(--font-size-xs);
+    min-width: calc(50% - var(--space-1));
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .imageWrapper {
+    height: 180px;
+    min-height: 180px;
+  }
+
+  .header {
+    gap: var(--space-2);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+
+  .pricePerAdult,
+  .totalPrice {
+    font-size: var(--font-size-base);
+  }
+
+  .priceContainer {
+    padding: var(--space-2);
+  }
+
+  .activityInfo {
+    gap: var(--space-2);
+  }
+
+  .durationContainer,
+  .typeContainer {
+    min-width: 100px;
+  }
+
+  .duration,
+  .type {
+    font-size: var(--font-size-sm);
+  }
+
+  .description {
+    font-size: var(--font-size-sm);
+    margin: var(--space-2) 0 var(--space-3) 0;
+  }
+
+  .viewDetailsButton {
+    min-height: 44px;
+    font-size: var(--font-size-sm);
+  }
+
+  .classesContainer {
+    gap: var(--space-3);
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .card:hover .imageWrapper img {
+    transform: none;
+  }
+
+  .card:active {
+    transform: scale(0.98);
+  }
+
+  .viewDetailsButton {
+    min-height: 48px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover .imageWrapper img,
+  .chevronIcon {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid var(--color-border-primary);
+  }
+
+  .priceContainer {
+    border: 2px solid var(--color-border-primary);
+  }
 }

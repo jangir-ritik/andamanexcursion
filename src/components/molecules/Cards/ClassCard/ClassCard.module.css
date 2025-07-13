@@ -146,4 +146,8 @@
   .amenitiesGroup {
     gap: var(--space-3);
   }
+
+  .contentContainer {
+    flex-direction: column;
+  }
 }
