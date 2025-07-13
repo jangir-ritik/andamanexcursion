@@ -1,13 +1,13 @@
-// layout.tsx - Updated font configuration for Safari compatibility
+// layout.tsx - Simplified with automatic loading bar
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
-
 import { PackageProvider } from "@/context/PackageContext";
 import { BookingProviders } from "@/context/BookingProviders";
+import { TopLoadingBarProvider } from "@/components/layout/TopLoadingBarProvider/TopLoadingBarProvider";
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
 import { PageBackgroundProvider } from "@/components/atoms/PageBackgroundProvider/PageBackgroundProvider";
@@ -42,7 +42,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   preload: true,
 });
 
-// Updated Quick Beach font configuration with WOFF2 for Safari compatibility
 const quickBeach = localFont({
   src: [
     {
@@ -51,10 +50,10 @@ const quickBeach = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-quick-beach", // Add CSS variable
+  variable: "--font-quick-beach",
   display: "swap",
-  preload: true, // Ensure font is preloaded
-  fallback: ["cursive", "fantasy", "serif"], // Better fallback chain
+  preload: true,
+  fallback: ["cursive", "fantasy", "serif"],
 });
 
 export default function RootLayout({
@@ -78,22 +77,21 @@ export default function RootLayout({
         />
       </head>
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
-        <BookingProviders>
-          <PackageProvider>
-            <Header />
-            <PageBackgroundProvider>
-              <Container>
-                <Column
-                  gap="var(--space-section)"
-                  fullWidth
-                >
-                  {children}
-                </Column>
-              </Container>
-            </PageBackgroundProvider>
-            <Footer />
-          </PackageProvider>
-        </BookingProviders>
+        <TopLoadingBarProvider>
+          <BookingProviders>
+            <PackageProvider>
+              <Header />
+              <PageBackgroundProvider>
+                <Container>
+                  <Column gap="var(--space-section)" fullWidth>
+                    {children}
+                  </Column>
+                </Container>
+              </PageBackgroundProvider>
+              <Footer />
+            </PackageProvider>
+          </BookingProviders>
+        </TopLoadingBarProvider>
       </body>
     </html>
   );
