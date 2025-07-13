@@ -3,8 +3,6 @@
   align-items: flex-start;
   gap: var(--space-4);
   background-color: var(--color-white);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-card);
 }
 
 .iconContainer {

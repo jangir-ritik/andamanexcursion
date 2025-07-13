@@ -33,7 +33,7 @@ export default function PackageDetailPage() {
     return (
       <main className={styles.main}>
         <Section>
-          <Column gap={3}>
+          <Column gap={3} responsive responsiveGap="var(--space-4)">
             <SectionTitle text="Package Not Found" />
             <DescriptionText text="The package you're looking for does not exist." />
           </Column>
@@ -45,13 +45,19 @@ export default function PackageDetailPage() {
   return (
     <main className={styles.main}>
       <Section className={styles.packageDetailSection}>
-        <Column fullWidth gap={5}>
+        <Column
+          fullWidth
+          gap={5}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <PackageDetailHeader packageData={packageData} />
           {/* Package Detail Tabs */}
           <PackageDetailTabs packageData={packageData} />
-          <Row gap={3}>
+          <Row gap={3} responsive responsiveGap="var(--space-4)">
             <InlineLink href="/customise">Customise this package</InlineLink>
-            <Button>Enquire</Button>
+            <Button showArrow>Enquire</Button>
           </Row>
         </Column>
       </Section>

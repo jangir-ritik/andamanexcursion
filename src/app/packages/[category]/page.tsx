@@ -46,8 +46,21 @@ export default function CategoryPage() {
         </Column>
       </Section>
       <Section>
-        <Column gap={7} fullWidth>
-          <Column alignItems="start" justifyContent="start" fullWidth>
+        <Column
+          gap={7}
+          fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
+          <Column
+            alignItems="start"
+            justifyContent="start"
+            gap={3}
+            fullWidth
+            responsive
+            responsiveGap="var(--space-4)"
+          >
             <SectionTitle
               text={getCategoryTitle(category) + " Packages"}
               specialWord={getCategoryTitle(category)}

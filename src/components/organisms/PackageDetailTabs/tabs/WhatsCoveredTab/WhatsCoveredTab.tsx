@@ -8,7 +8,6 @@ import styles from "./WhatsCoveredTab.module.css";
 import { IncludeItem } from "../../components/IncludeItem/IncludeItem";
 import { ExcludeItem } from "../../components/ExcludeItem/ExcludeItem";
 
-
 export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
   includes,
   excludes,
@@ -21,7 +20,11 @@ export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
     >
       <div className={styles.sectionsWrapper}>
         {includes && includes.length > 0 && (
-          <Column className={styles.section}>
+          <Column
+            className={styles.section}
+            responsive
+            responsiveGap="var(--space-4)"
+          >
             <h3 id="included-title" className={styles.sectionTitle}>
               Included
             </h3>
@@ -34,7 +37,11 @@ export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
         )}
 
         {excludes && excludes.length > 0 && (
-          <Column className={styles.section}>
+          <Column
+            className={styles.section}
+            responsive
+            responsiveGap="var(--space-4)"
+          >
             <h3 id="excluded-title" className={styles.sectionTitle}>
               Not Included
             </h3>

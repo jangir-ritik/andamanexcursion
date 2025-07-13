@@ -27,7 +27,12 @@
 }
 
 @media (max-width: 768px) {
+  .sectionTitle {
+    margin-bottom: 0;
+  }
+
   .itemsGrid {
     grid-template-columns: 1fr;
+    gap: var(--space-4);
   }
 }

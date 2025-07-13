@@ -9,21 +9,34 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
 }) => {
   return (
     <React.Fragment>
-      <Row fullWidth>
+      <Row fullWidth responsive responsiveGap="var(--space-4)">
         <ImageContainer
           src={packageData.images[1]}
           alt={packageData.title}
           className={styles.imageContainer}
         />
       </Row>
-      <Row fullWidth justifyContent="between" alignItems="center">
+      <Row
+        fullWidth
+        justifyContent="between"
+        alignItems="start"
+        responsive
+        responsiveGap="var(--space-4)"
+      >
         <h3
           aria-label={`Package: ${packageData.title}`}
           className={styles.sectionTitle}
         >
           {packageData.title}
         </h3>
-        <Column gap={1} alignItems="end" className={styles.infoContainer}>
+        <Column
+          gap={1}
+          alignItems="end"
+          className={styles.infoContainer}
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-2)"
+        >
           <p
             className={styles.price}
             aria-label={`Price: ${packageData.price} rupees per adult`}

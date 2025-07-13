@@ -67,8 +67,19 @@ export default function PackagesPage() {
         </Column>
       </Section>
       <Section>
-        <Column gap={7}>
-          <Column gap={3} alignItems="start" justifyContent="start">
+        <Column
+          gap={7}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
+          <Column
+            gap={3}
+            alignItems="start"
+            justifyContent="start"
+            responsive
+            responsiveGap="var(--space-4)"
+          >
             <SectionTitle text="Our Packages" specialWord="Packages" />
             <DescriptionText text="Crafted Just For You!" />
             <DecorativeCurlyArrow
