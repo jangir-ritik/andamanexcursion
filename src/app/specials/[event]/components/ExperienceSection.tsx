@@ -41,14 +41,33 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
         className={styles.dottedWave}
       />
       <Container className={styles.experienceContainer}>
-        <Row fullWidth gap={3} alignItems="center" justifyContent="between">
+        <Row
+          fullWidth
+          gap={3}
+          alignItems="start"
+          justifyContent="between"
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <SectionTitle
             text={content.title}
             specialWord={content.specialWord}
           />
-          <DescriptionText align="right" text={content.description} />
+          <DescriptionText
+            align="right"
+            text={content.description}
+            className={styles.description}
+          />
         </Row>
-        <Row gap="var(--space-4)" justifyContent="between">
+        <Row
+          gap="var(--space-4)"
+          justifyContent="between"
+          alignItems="start"
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           {content.cards.map((card) => (
             <FeatureCard
               key={card.title}

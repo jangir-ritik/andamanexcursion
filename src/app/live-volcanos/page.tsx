@@ -25,6 +25,9 @@ export default async function LiveVolcanosPage() {
           gap="var(--space-8)"
           className={styles.contentContainer}
           alignItems="center"
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="center"
         >
           <Column fullWidth className={styles.titleContainer}>
             <h1 className={styles.title}>
@@ -34,7 +37,11 @@ export default async function LiveVolcanosPage() {
               </span>
             </h1>
           </Column>
-          <Column>
+          <Column
+            responsive
+            responsiveGap="var(--space-4)"
+            responsiveAlignItems="center"
+          >
             <DescriptionText
               text={content.description.text}
               className={styles.description}
@@ -57,7 +64,11 @@ export default async function LiveVolcanosPage() {
           fullWidth
           gap="var(--space-6)"
           justifyContent="between"
+          alignItems="start"
           className={styles.contentContainer}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
         >
           <SectionTitle
             className={styles.featureTitle}
@@ -81,7 +92,13 @@ export default async function LiveVolcanosPage() {
               className={styles.image}
             />
           </Column>
-          <Column gap={3} alignItems="start">
+          <Column
+            gap={3}
+            alignItems="start"
+            responsive
+            responsiveGap="var(--space-4)"
+            responsiveAlignItems="start"
+          >
             <DescriptionText
               text={content.feature.description}
               className={styles.description}

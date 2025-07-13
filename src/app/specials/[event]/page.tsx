@@ -22,7 +22,10 @@ export default async function SpecialsPage() {
           fullWidth
           gap="var(--space-8)"
           className={styles.contentContainer}
-          alignItems="center"
+          alignItems="start"
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
         >
           <Column fullWidth className={styles.titleContainer}>
             <h1 className={styles.highlight}>
@@ -31,7 +34,14 @@ export default async function SpecialsPage() {
             </h1>
           </Column>
         </Row>
-        <Row gap="var(--space-8)" fullWidth>
+        <Row
+          gap="var(--space-8)"
+          fullWidth
+          responsive
+          alignItems="start"
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <ImageContainer
             src={content.banner.image}
             alt={content.banner.imageAlt}
@@ -47,7 +57,11 @@ export default async function SpecialsPage() {
           fullWidth
           gap="var(--space-6)"
           justifyContent="between"
+          alignItems="start"
           className={styles.contentContainer}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
         >
           <SectionTitle
             className={styles.featureTitle}
@@ -71,7 +85,13 @@ export default async function SpecialsPage() {
               className={styles.image}
             />
           </Column>
-          <Column gap={3} alignItems="start">
+          <Column
+            gap={3}
+            alignItems="start"
+            responsive
+            responsiveGap="var(--space-4)"
+            responsiveAlignItems="start"
+          >
             <DescriptionText
               text={content.feature.description}
               className={styles.description}

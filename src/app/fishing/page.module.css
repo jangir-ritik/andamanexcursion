@@ -11,6 +11,7 @@
   align-items: center;
   gap: var(--space-6);
   position: relative;
+  padding: 0 var(--space-4);
 }
 
 .section {
@@ -142,13 +143,13 @@
     padding: 60px 0;
   }
 
+  .featureTitle h2 {
+    font-size: var(--font-size-heading-2);
+  }
+
   .title {
     font-size: var(--font-size-heading-2);
     text-align: center;
-  }
-
-  .highlight {
-    font-size: calc(1rem * 4);
   }
 
   .contentContainer {
@@ -162,6 +163,15 @@
 
   .experienceContainer {
     gap: var(--space-8);
+  }
+
+  .description {
+    max-width: unset;
+  }
+
+  .imageContainer {
+    max-width: 100%;
+    border-radius: var(--radius-card);
   }
 
   .famousFishes {

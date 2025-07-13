@@ -31,7 +31,13 @@ export const FamousFishes: React.FC<{ content: FamousFishesProps }> = ({
   return (
     <Section className={styles.famousFishes}>
       <Container>
-        <Row fullWidth className={styles.famousFishesTitleContainer}>
+        <Row
+          fullWidth
+          className={styles.famousFishesTitleContainer}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <SectionTitle
             text={content.title}
             specialWord={content.specialWord}
@@ -42,7 +48,13 @@ export const FamousFishes: React.FC<{ content: FamousFishesProps }> = ({
             className={styles.famousFishesDescription}
           />
         </Row>
-        <Row gap="var(--space-6)" className={styles.famousFishesGrid}>
+        <Row
+          gap="var(--space-6)"
+          className={styles.famousFishesGrid}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="center"
+        >
           {content.fishes.map((fish, index) => (
             <HoverExpandCard
               key={fish.title}

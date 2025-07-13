@@ -66,7 +66,7 @@ export const content = {
       },
       {
         title: "Book In Advance",
-        description: "Reserve venue & stay 3-4 months in advance.",
+        description: "Reserve venue & stay 3-4 months in advance for real.",
         icon: flowerIcon.src,
       },
     ],
