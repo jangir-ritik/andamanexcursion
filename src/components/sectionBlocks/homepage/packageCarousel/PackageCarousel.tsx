@@ -6,7 +6,6 @@ import { Column, Row, Section } from "@/components/layout";
 import { Carousel } from "@/components/molecules/Carousel/Carousel";
 import { PackageCarouselProps } from "./PackageCarousel.types";
 
-
 export const PackageCarousel = ({ content }: PackageCarouselProps) => {
   const { title, description, slides } = content;
 
@@ -16,8 +15,21 @@ export const PackageCarousel = ({ content }: PackageCarouselProps) => {
       id="package-carousel"
       aria-labelledby="package-carousel-title"
     >
-      <Column fullWidth gap="var(--space-10)">
-        <Row fullWidth justifyContent="between">
+      <Column
+        fullWidth
+        gap="var(--space-10)"
+        responsive
+        responsiveAlignItems="start"
+        responsiveGap="var(--space-4)"
+      >
+        <Row
+          fullWidth
+          justifyContent="between"
+          gap={2}
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
+        >
           <SectionTitle
             specialWord="Package"
             text={title}

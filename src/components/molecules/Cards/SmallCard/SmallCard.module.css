@@ -201,4 +201,8 @@
     height: 380px;
     max-width: 100%;
   }
+
+  .contentContainer {
+    padding: var(--space-6) var(--space-4);
+  }
 }

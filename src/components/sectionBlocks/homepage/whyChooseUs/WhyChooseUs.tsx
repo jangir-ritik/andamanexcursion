@@ -12,10 +12,17 @@ import {
 import styles from "./WhyChooseUs.module.css";
 import { WhyChooseUsProps } from "./WhyChooseUs.types";
 
-
 export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
-  const { title, specialWord, description, points, ctaHref, ctaText, image, imageAlt } =
-    content;
+  const {
+    title,
+    specialWord,
+    description,
+    points,
+    ctaHref,
+    ctaText,
+    image,
+    imageAlt,
+  } = content;
 
   return (
     <Section
@@ -23,8 +30,20 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
       id="why-choose-us"
       aria-labelledby="why-choose-us-title"
     >
-      <Column gap="var(--space-10)" className={styles.sectionContainer}>
-        <Row fullWidth alignItems="center" justifyContent="between">
+      <Column
+        gap="var(--space-10)"
+        className={styles.sectionContainer}
+        responsive
+        responsiveAlignItems="start"
+        responsiveGap="var(--space-4)"
+      >
+        <Row
+          fullWidth
+          alignItems="center"
+          justifyContent="between"
+          responsive
+          responsiveAlignItems="start"
+        >
           <SectionTitle
             className={styles.sectionTitle}
             text={title}
@@ -44,11 +63,17 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
           justifyContent="between"
           gap="var(--space-20)"
           className={styles.contentRow}
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
         >
           <Column
             alignItems="start"
             gap="var(--space-8)"
             className={styles.pointsColumn}
+            responsive
+            responsiveAlignItems="start"
+            responsiveGap="var(--space-4)"
           >
             {points.map((item) => (
               <div key={item.id} className={styles.pointItem}>
@@ -78,6 +103,9 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
             className={styles.imageContainer}
             alignItems="end"
             gap="var(--space-8)"
+            responsive
+            responsiveAlignItems="end"
+            responsiveGap="var(--space-4)"
           >
             <ImageContainer
               src={image}

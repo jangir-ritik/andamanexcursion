@@ -30,7 +30,6 @@ export const TrustedFerries = ({
             text="Our Most Trusted Ferries"
             id="trusted-ferries-title"
           />
-          <Row justifyContent="end"></Row>
         </Row>
 
         {/* Package cards */}

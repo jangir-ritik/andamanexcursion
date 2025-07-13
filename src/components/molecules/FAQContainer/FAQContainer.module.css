@@ -89,6 +89,10 @@
   .accordionContent {
     padding: 0 8px 16px 16px;
   }
+
+  .accordionContentText {
+    font-size: var(--font-size-body-small);
+  }
 }
 
 @media (max-width: 480px) {

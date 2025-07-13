@@ -14,4 +14,7 @@ export interface ColumnProps {
   ariaLabel?: string;
   ariaLabelledBy?: string;
   ariaDescribedBy?: string;
+  responsive?: boolean;
+  responsiveAlignItems?: "start" | "end" | "center" | "baseline" | "stretch";
+  responsiveGap?: number | string;
 }

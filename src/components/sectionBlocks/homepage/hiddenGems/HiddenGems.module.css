@@ -4,6 +4,7 @@
   background-image: url("/graphics/waveLight.svg");
   background-size: 100% auto;
   background-position: center;
+  padding: var(--space-10);
 }
 
 .column {
@@ -23,7 +24,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-6);
   max-height: 528px;
   width: 100%;
 }
@@ -62,6 +63,10 @@
 }
 
 @media (max-width: 768px) {
+  .hiddenGemsSection {
+    padding: var(--space-6);
+  }
+
   .imagesGrid {
     grid-template-columns: 1fr;
     grid-template-rows: repeat(3, 1fr);
@@ -81,5 +86,15 @@
   .gridImage3 {
     grid-column: 1;
     grid-row: 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .hiddenGemsSection {
+    padding: var(--space-4);
+  }
+
+  .imagesGrid {
+    gap: var(--space-4);
   }
 }

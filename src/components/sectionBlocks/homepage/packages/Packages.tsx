@@ -9,12 +9,21 @@ export const Packages = ({ content }: PackagesProps) => {
 
   return (
     <Section id="packages" aria-labelledby="packages-title">
-      <Column gap="var(--space-10)" fullWidth>
+      <Column
+        gap="var(--space-10)"
+        fullWidth
+        responsive
+        responsiveAlignItems="start"
+        responsiveGap="var(--space-4)"
+      >
         <Row
           justifyContent="between"
           alignItems="center"
           gap="var(--space-4)"
           fullWidth
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
         >
           <SectionTitle
             specialWord="Packages"
@@ -29,7 +38,15 @@ export const Packages = ({ content }: PackagesProps) => {
         </Row>
 
         {/* Package cards */}
-        <Row gap="var(--space-8)" justifyContent="between" wrap>
+        <Row
+          gap="var(--space-8)"
+          justifyContent="between"
+          wrap
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
+          fullWidth
+        >
           {packages.map((item: Package) => (
             <SmallCard
               key={item.href}

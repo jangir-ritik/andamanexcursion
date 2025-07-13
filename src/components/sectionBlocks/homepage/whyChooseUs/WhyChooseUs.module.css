@@ -156,7 +156,7 @@
   }
 
   .contentRow {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: var(--space-10);
   }
 
@@ -191,10 +191,34 @@
 
   .imageContainer {
     height: 300px;
+    margin: var(--space-10) 0;
   }
 
   .featureImage {
     height: 250px;
+  }
+
+  .headerDescription {
+    width: 100%;
+    font-size: var(--font-size-body-small);
+  }
+
+  .pointDescription {
+    font-size: var(--font-size-body-small);
+  }
+
+  .customerSatisfactionChip {
+    left: 0px;
+  }
+
+  .personalizedServiceChip {
+    left: 100px;
+    bottom: 0px;
+  }
+
+  .localExpertsChip {
+    right: -10px;
+    top: 100px;
   }
 }
 

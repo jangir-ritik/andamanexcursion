@@ -17,7 +17,6 @@ export const HiddenGems = ({ content }: HiddenGemsProps) => {
   return (
     <Section
       backgroundColor="light"
-      spacing="5"
       fullBleed
       className={styles.hiddenGemsSection}
       id="hidden-gems"
@@ -28,11 +27,17 @@ export const HiddenGems = ({ content }: HiddenGemsProps) => {
         fullWidth
         className={styles.hiddenGemsRow}
         gap="var(--space-20)"
+        responsive
+        responsiveAlignItems="start"
+        responsiveGap="var(--space-4)"
       >
         <Column
           gap="var(--space-8)"
           alignItems="start"
           className={styles.column}
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
         >
           <SectionTitle
             text={title}

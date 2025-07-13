@@ -230,6 +230,9 @@
 
 /* Tablets */
 @media (max-width: 768px) {
+  .footer {
+    margin-top: var(--space-10);
+  }
   .container {
     padding: 40px 20px;
   }
@@ -244,13 +247,13 @@
   }
 
   .navigationSection {
-    flex-direction: column;
     gap: 32px;
     width: 100%;
   }
 
   .navColumn {
     width: 100%;
+    gap: var(--space-4);
   }
 
   .bottomSection {

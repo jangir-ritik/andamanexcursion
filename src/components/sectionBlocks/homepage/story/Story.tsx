@@ -15,16 +15,25 @@ export const Story = ({ content }: StoryProps) => {
     <Section
       fullBleed
       backgroundColor="light"
-      spacing="5"
       id="our-story"
       aria-labelledby="story-title"
+      className={styles.storySectionContainer}
     >
       <Column
         gap="var(--space-12)"
         fullWidth
         className={styles.sectionContainer}
+        responsive
+        responsiveAlignItems="start"
+        responsiveGap="var(--space-4)"
       >
-        <Row fullWidth alignItems="center" justifyContent="between">
+        <Row
+          fullWidth
+          alignItems="center"
+          justifyContent="between"
+          responsive
+          responsiveAlignItems="start"
+        >
           <SectionTitle
             text={title}
             specialWord={specialWord}
@@ -33,11 +42,7 @@ export const Story = ({ content }: StoryProps) => {
           <DescriptionText text={description} align="center" />
         </Row>
         <Row fullWidth justifyContent="center" alignItems="center">
-          <ImageContainer
-            src={image}
-            alt={imageAlt}
-            className={styles.image}
-          />
+          <ImageContainer src={image} alt={imageAlt} className={styles.image} />
         </Row>
       </Column>
     </Section>

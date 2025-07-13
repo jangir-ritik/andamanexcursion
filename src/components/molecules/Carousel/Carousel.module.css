@@ -369,10 +369,10 @@
   }
 
   .carouselControls {
-    flex-direction: column;
+    flex-direction: row-reverse;
     gap: var(--space-8);
     height: auto;
-    margin-top: var(--space-6);
+    margin-top: var(--space-4);
   }
 
   .indicators {
@@ -431,28 +431,30 @@
 
   .slidesContainer {
     border-radius: var(--radius-lg);
+    padding: 0;
   }
 
   .contentWrapper {
-    padding: var(--space-6);
+    padding: var(--space-4);
+    gap: var(--space-2);
   }
-
   .slideTitle {
     font-size: var(--font-size-2xl);
   }
 
   .slidePrice {
     font-size: var(--font-size-lg);
+    margin-top: 0;
   }
 
   .slideDescription {
     font-size: var(--font-size-base);
-    margin-top: var(--space-4);
+    margin-top: 0;
     max-width: 100%;
   }
 
   .viewMoreWrapper {
-    margin-top: var(--space-4);
+    margin-top: var(--space-2);
   }
 
   .imageWrapper {

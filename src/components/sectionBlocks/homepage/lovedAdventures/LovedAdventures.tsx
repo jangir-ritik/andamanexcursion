@@ -12,14 +12,26 @@ export function LovedAdventures({ content }: LovedAdventuresProps) {
   return (
     <Section id="loved-adventures" aria-labelledby="loved-adventures-title">
       <Row fullWidth>
-        <Column fullWidth gap="var(--space-12)">
+        <Column
+          fullWidth
+          gap="var(--space-12)"
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
+        >
           <SectionTitle
             text={title}
             specialWord={specialWord}
             className={styles.sectionTitle}
             id="loved-adventures-title"
           />
-          <Row gap="var(--space-6)" fullWidth>
+          <Row
+            gap="var(--space-6)"
+            fullWidth
+            responsive
+            responsiveAlignItems="start"
+            responsiveGap="var(--space-4)"
+          >
             {adventures.map((adventure, index) => (
               <MediumCard
                 key={index}

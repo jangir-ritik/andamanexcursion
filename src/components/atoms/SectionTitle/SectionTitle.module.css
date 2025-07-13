@@ -64,8 +64,12 @@
 
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
+  .sectionTitle {
+    max-width: 100%;
+  }
+
   .title {
-    font-size: 20px;
+    font-size: var(--font-size-heading-3);
     line-height: 110%;
   }
 }

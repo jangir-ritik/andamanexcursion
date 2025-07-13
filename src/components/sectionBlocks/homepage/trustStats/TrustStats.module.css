@@ -5,6 +5,7 @@
   background-size: 100% auto;
   background-position: center;
   pointer-events: none;
+  padding: var(--space-10);
 }
 
 .mainRow {
@@ -45,7 +46,7 @@
 
 @media (max-width: 992px) {
   .trustStatsSection {
-    /* padding: var(--space-8) 0; */
+    padding: var(--space-6);
   }
 
   .statsContainer {
@@ -73,11 +74,11 @@
 
 @media (max-width: 576px) {
   .trustStatsSection {
-    /* padding: var(--space-6) 0; */
+    padding: 0 var(--space-4);
   }
 
   .mainRow {
-    gap: var(--space-6);
+    gap: var(--space-4);
   }
 
   .titleColumn {

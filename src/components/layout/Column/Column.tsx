@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Column.module.css";
-import type { ColumnProps  } from "./Column.types";
+import type { ColumnProps } from "./Column.types";
 
 export const Column = ({
   children,
@@ -11,11 +11,13 @@ export const Column = ({
   fullHeight = false,
   justifyContent,
   alignItems,
-  style = {},
   role,
   ariaLabel,
   ariaLabelledBy,
   ariaDescribedBy,
+  responsive,
+  responsiveAlignItems,
+  responsiveGap,
 }: ColumnProps) => {
   const columnClasses = [
     styles.column,
@@ -24,24 +26,53 @@ export const Column = ({
     fullHeight && styles.fullHeight,
     justifyContent && styles[`justify-${justifyContent}`],
     alignItems && styles[`align-${alignItems}`],
-    className || "",
+    responsive && styles.responsive,
+    responsive &&
+      responsiveAlignItems &&
+      styles[`responsive-align-${responsiveAlignItems}`],
+    className,
   ]
     .filter(Boolean)
     .join(" ")
     .trim();
 
-  // Merge gap style with any custom styles
-  const combinedStyle = {
-    ...(gap !== undefined
-      ? { gap: typeof gap === "number" ? `${gap * 8}px` : gap }
-      : {}),
-    ...style,
+  const normalizeGap = (gapValue: string | number | undefined) => {
+    if (gapValue === undefined) return undefined;
+    if (typeof gapValue === "string" && gapValue.startsWith("var(")) {
+      return gapValue; // Return CSS variables as-is
+    }
+    return typeof gapValue === "number" ? `${gapValue * 8}px` : gapValue;
   };
+
+  const style: React.CSSProperties & { [key: `--${string}`]: string } = {};
+
+  if (gap !== undefined) {
+    style.gap = normalizeGap(gap);
+  }
+
+  if (responsive && responsiveGap !== undefined) {
+    style["--responsive-gap"] = normalizeGap(responsiveGap) || "";
+  }
+
+  if (responsive && responsiveAlignItems) {
+    style["--responsive-align"] =
+      responsiveAlignItems === "start"
+        ? "flex-start"
+        : responsiveAlignItems === "end"
+        ? "flex-end"
+        : responsiveAlignItems === "center"
+        ? "center"
+        : responsiveAlignItems === "baseline"
+        ? "baseline"
+        : responsiveAlignItems === "stretch"
+        ? "stretch"
+        : "flex-start";
+  }
 
   return (
     <div
       className={columnClasses}
-      style={combinedStyle}
+      style={style}
       role={role}
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}

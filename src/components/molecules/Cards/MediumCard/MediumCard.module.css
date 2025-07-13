@@ -164,6 +164,10 @@
     height: 320px;
   }
 
+  .contentContainer {
+    padding: var(--space-6);
+  }
+
   .imageContainer {
     height: 100%;
     top: 0;
@@ -177,6 +181,18 @@
 
   .cardDescription {
     font-size: var(--font-size-sm);
-    max-width: 220px;
+    max-width: unset;
+  }
+
+  .arrowButton {
+    opacity: 1;
+    top: var(--space-4);
+    right: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .contentContainer {
+    padding: var(--space-6) var(--space-4);
   }
 }

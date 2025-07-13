@@ -13,7 +13,13 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
       className={`${styles.sectionContainer} ${className || ""}`}
       aria-labelledby="hero-title"
     >
-      <Column gap="var(--space-8)" fullWidth>
+      <Column
+        gap="var(--space-8)"
+        fullWidth
+        responsive
+        responsiveAlignItems="start"
+        responsiveGap="var(--space-4)"
+      >
         <Row
           justifyContent="between"
           alignItems="center"

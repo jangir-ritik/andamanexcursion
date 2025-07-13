@@ -3,8 +3,6 @@ import { Row, Section } from "@/components/layout";
 import { StatCard } from "@/components/molecules/Cards";
 import styles from "./TrustStats.module.css";
 import { SectionTitle } from "@/components/atoms";
-import curlyArrow from "@public/graphics/curlyArrowOrange.svg";
-import Image from "next/image";
 import { TrustStatsProps } from "./TrustStats.types";
 import DecorativeCurlyArrow from "@/components/atoms/DecorativeCurlyArrow/DecorativeCurlyArrow";
 
@@ -13,7 +11,6 @@ export const TrustStats = ({ content }: TrustStatsProps) => {
 
   return (
     <Section
-      spacing="5"
       className={styles.trustStatsSection}
       aria-labelledby="trust-stats-title"
       id="trust-stats"
