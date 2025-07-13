@@ -99,9 +99,6 @@
   justify-content: center;
   margin-top: var(--space-6);
 }
-
-/* Replace your existing timeFilters styles with these */
-
 .timeFilters {
   display: flex;
   flex-direction: column;
@@ -121,7 +118,6 @@
 
 .chipContainer {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--space-3);
   align-items: center;
 }
@@ -133,6 +129,7 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--color-gray-100);
+  flex-shrink: 0; /* Prevent chips from shrinking */
 }
 
 .clickableChip:hover {
@@ -189,31 +186,10 @@
   display: none; /* This will hide any remaining button styles */
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  .timeFilters {
-    padding: var(--space-4);
-    margin-bottom: var(--space-4);
-  }
-
-  .chipContainer {
-    gap: var(--space-2);
-  }
-
-  .filterLabel {
-    font-size: var(--font-size-xs);
-  }
-}
-
 /* Focus styles for accessibility */
 .clickableChip:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-}
-
-.clickableChip {
-  /* Make it keyboard navigable */
-  /* tabindex: 0; */
 }
 
 .clickableChip:focus {
@@ -243,5 +219,26 @@
 
   .searchSummary h2 {
     font-size: var(--font-size-base);
+  }
+
+  .chipContainer {
+    gap: var(--space-2);
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding-bottom: var(--space-2);
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .chipContainer::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filterLabel {
+    font-size: var(--font-size-xs);
+  }
+
+  .timeFilters {
+    margin-bottom: 0;
   }
 }

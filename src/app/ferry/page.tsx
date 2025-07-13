@@ -43,7 +43,13 @@ export default function FerryPage() {
   return (
     <main className={styles.main}>
       <Section noPadding id="hero">
-        <Column gap="var(--space-8)" fullWidth>
+        <Column
+          gap="var(--space-8)"
+          fullWidth
+          responsive
+          responsiveAlignItems="start"
+          responsiveGap="var(--space-4)"
+        >
           <ImageContainer
             src={content.image}
             alt={content.imageAlt}

@@ -92,7 +92,13 @@ export default function FerryBookingPage() {
         aria-labelledby="available-ferries-title"
         className={styles.availableFerries}
       >
-        <Column gap="var(--space-10)" fullWidth>
+        <Column
+          gap="var(--space-10)"
+          fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
           <Row
             justifyContent="between"
             alignItems="center"

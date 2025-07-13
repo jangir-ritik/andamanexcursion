@@ -18,12 +18,21 @@ export const TrustedFerries = ({
 }) => {
   return (
     <Section id="trusted-ferries" aria-labelledby="trusted-ferries-title">
-      <Column gap="var(--space-10)" fullWidth>
+      <Column
+        gap="var(--space-10)"
+        fullWidth
+        responsive
+        responsiveGap="var(--space-4)"
+        responsiveAlignItems="start"
+      >
         <Row
           justifyContent="between"
           alignItems="center"
           gap="var(--space-4)"
           fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
         >
           <SectionTitle
             specialWord="Trusted Ferries"
@@ -33,7 +42,14 @@ export const TrustedFerries = ({
         </Row>
 
         {/* Package cards */}
-        <Row gap="var(--space-8)" justifyContent="between" wrap>
+        <Row
+          gap="var(--space-8)"
+          justifyContent="between"
+          wrap
+          fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+        >
           {content.map((item, index) => (
             <SmallCard
               key={index}

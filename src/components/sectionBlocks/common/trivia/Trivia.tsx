@@ -134,6 +134,9 @@ export const Trivia: React.FC<TriviaProps> = ({
         fullWidth
         gap="var(--space-6)"
         className={styles.contentContainer}
+        responsive
+        responsiveGap="var(--space-4)"
+        responsiveAlignItems="start"
       >
         <h2 id={`${id}-title`} className={styles.triviaTitle}>
           {title}

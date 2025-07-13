@@ -30,11 +30,17 @@ export const PlanInFourEasySteps = ({
         fullWidth
         gap="var(--space-10)"
         className={styles.contentContainer}
+        responsive
+        responsiveGap="var(--space-4)"
+        responsiveAlignItems="start"
       >
         <Row
           fullWidth
           justifyContent="between"
           className={styles.titleContainer}
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
         >
           <SectionTitle
             specialWord={content.specialWord}

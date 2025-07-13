@@ -218,9 +218,6 @@
 
 /* Tablet Responsive Design */
 @media (min-width: 851px) and (max-width: 1199px) {
-  .bookingForm {
-    max-width: 60vw;
-  }
   .tabsContent {
     border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
   }

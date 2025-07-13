@@ -27,7 +27,7 @@ export const PriceInfo = memo<PriceInfoProps>(
           {ferryCardContent.total}
         </span>
         <div className={styles.expandIcon} aria-hidden="true">
-          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
         </div>
       </div>
     );

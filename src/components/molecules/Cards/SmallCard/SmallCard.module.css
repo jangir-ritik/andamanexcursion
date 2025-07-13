@@ -205,4 +205,8 @@
   .contentContainer {
     padding: var(--space-6) var(--space-4);
   }
+
+  .arrowButton {
+    opacity: 1;
+  }
 }

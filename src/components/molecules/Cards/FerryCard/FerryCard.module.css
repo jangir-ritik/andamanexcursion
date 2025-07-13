@@ -11,6 +11,9 @@
   border-radius: 0;
   cursor: pointer;
   border-bottom: 1px solid var(--color-border);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
 }
 
 .ferryCard:hover {
@@ -221,6 +224,10 @@
 
 .ferryCard:hover .ferryIcon {
   background-color: var(--color-gray-100);
+}
+
+.ferryCard:hover .priceInfo .expandIcon {
+  color: var(--color-primary);
 }
 
 .ferryIcon {
@@ -484,10 +491,6 @@
     padding: var(--space-8) var(--space-4);
   }
 
-  .journeyInfo {
-    width: auto;
-  }
-
   .classesContainer {
     flex-direction: column;
   }
@@ -510,41 +513,141 @@
 @media (max-width: 768px) {
   .ferryCard {
     padding: var(--space-6) var(--space-4);
+    gap: var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
   }
 
-  .headerRow,
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+
+  .ferryInfo {
+    width: 100%;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .logoContainer {
+    width: var(--space-12);
+    height: var(--space-12);
+    flex-shrink: 0;
+  }
+
+  .ferryDetails {
+    flex: 1;
+    gap: var(--space-2);
+  }
+
+  .ferryName {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .ratingContainer {
+    gap: var(--space-3);
+  }
+
+  .ratingText {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  .seatsInfo {
+    width: 100%;
+    justify-content: flex-start;
+    background-color: var(--color-blue-50);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-1);
+  }
+
+  .seatsText {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+  }
+
   .journeyRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-3);
-    height: auto;
-  }
-
-  .ferryInfo,
-  .seatsInfo {
-    width: 100%;
-    margin: 0;
+    gap: var(--space-5);
+    margin-top: var(--space-2);
   }
 
   .journeyInfo {
     width: 100%;
     justify-content: space-between;
+    align-items: flex-start;
     margin: 0;
-    height: auto;
+    gap: var(--space-4);
+  }
+
+  .departureInfo {
+    gap: var(--space-1);
+    min-width: 0;
+    flex: 1;
+  }
+
+  .timeText {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .locationText {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-gray-600);
+    line-height: 1.2;
   }
 
   .journeyLine {
-    width: 120px;
+    display: none;
   }
 
   .priceInfo {
     width: 100%;
     align-items: flex-start;
+    background-color: var(--color-gray-50);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
     margin: 0;
+    gap: var(--space-1);
+  }
+
+  .expandIcon {
+    display: none;
+  }
+
+  .pricePerAdult {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-gray-600);
+    text-align: left;
+  }
+
+  .totalPrice {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    text-align: left;
+    color: var(--color-secondary);
   }
 
   .classHeader {
     gap: var(--space-4);
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .className {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
   }
 
   .amenitiesContainer {
@@ -553,45 +656,134 @@
     gap: var(--space-4);
   }
 
-  .amenitiesList {
+  .amenitiesGroup {
     width: 100%;
+    max-width: 100%;
     grid-template-columns: 1fr;
     gap: var(--space-3);
   }
 
+  .amenityItem {
+    gap: var(--space-3);
+  }
+
+  .amenityIcon {
+    width: var(--space-5);
+    height: var(--space-5);
+  }
+
+  .amenityLabel {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
   .chooseSeatsButton {
     width: 100%;
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-2);
+  }
+
+  .buttonText {
+    font-size: var(--font-size-base);
+    font-weight: 600;
   }
 
   .classCard {
-    padding: var(--space-3);
-    height: auto;
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .classPriceInfo {
+    width: 100%;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .classesContainer {
+    margin-top: 0;
   }
 }
 
 @media (max-width: 480px) {
   .ferryCard {
     padding: var(--space-4) var(--space-3);
+    gap: var(--space-4);
+  }
+
+  .headerRow {
+    gap: var(--space-3);
+  }
+
+  .ferryInfo {
+    gap: var(--space-3);
+  }
+
+  .logoContainer {
+    width: var(--space-10);
+    height: var(--space-10);
   }
 
   .ferryName {
-    font-size: var(--font-size-heading-3);
-    line-height: var(--font-size-heading-3);
-    height: auto;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+
+  .ratingText {
+    font-size: var(--font-size-xs);
+  }
+
+  .seatsInfo {
+    padding: var(--space-2);
+  }
+
+  .seatsText {
+    font-size: var(--font-size-xs);
+  }
+
+  .journeyInfo {
+    gap: var(--space-3);
   }
 
   .timeText {
-    font-size: var(--font-size-heading-3);
-    line-height: var(--font-size-heading-3);
-    height: auto;
+    font-size: var(--font-size-xl);
+    font-weight: 700;
   }
 
-  .journeyLine {
-    width: 80px;
+  .locationText {
+    font-size: var(--font-size-sm);
+  }
+
+  .priceInfo {
+    padding: var(--space-3);
+  }
+
+  .pricePerAdult {
+    font-size: var(--font-size-xs);
+  }
+
+  .totalPrice {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+  }
+
+  .classCard {
+    padding: var(--space-3);
+  }
+
+  .className {
+    font-size: var(--font-size-base);
+  }
+
+  .amenityLabel {
+    font-size: var(--font-size-xs);
+  }
+
+  .buttonText {
+    font-size: var(--font-size-sm);
   }
 
   .ferryIcon {
-    width: var(--space-10);
-    height: var(--space-10);
+    width: var(--space-8);
+    height: var(--space-8);
   }
 }
