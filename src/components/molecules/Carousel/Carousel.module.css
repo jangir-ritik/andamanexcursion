@@ -387,7 +387,12 @@
 @media (max-width: 768px) {
   .slidesContainer {
     min-height: auto;
-    padding-bottom: var(--space-8);
+    padding: 0;
+  }
+
+  .contentWrapper {
+    padding: var(--space-4);
+    gap: var(--space-6);
   }
 
   .slideTitle {
@@ -410,7 +415,8 @@
   }
 
   .imageWrapper {
-    height: 220px;
+    margin-bottom: 0;
+    height: 320px;
   }
 
   .starIconTop {
@@ -421,6 +427,10 @@
   .starIconBottom {
     width: 28px;
     height: 28px;
+  }
+
+  .textContent {
+    width: 100%;
   }
 }
 
