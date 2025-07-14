@@ -309,11 +309,6 @@ a {
   text-decoration: none;
   transition: color var(--duration-fast) var(--easing-standard);
 }
-
-a:hover {
-  color: var(--color-primary);
-}
-
 /* Improved list styles */
 ul,
 ol {
