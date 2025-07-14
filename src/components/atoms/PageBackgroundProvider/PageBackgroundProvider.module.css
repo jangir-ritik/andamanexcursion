@@ -21,6 +21,30 @@
   background-size: 100% auto;
 }
 
+.page-packages {
+  background-image: url("/pageBackgrounds/path_packages.svg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
+.page-contact {
+  background-image: url("/pageBackgrounds/path_contact.svg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
+.page-specials,
+.page-fishing,
+.page-live-volcanos,
+.page-destinations {
+  background-image: url("/pageBackgrounds/path_specials.svg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
 /* 
 .page-about {
   background-image: url("/images/decorative-path-about.svg");
@@ -29,19 +53,9 @@
   background-size: 100% auto;
 }
 
-.page-packages {
-  background-image: url("/images/decorative-path-packages.svg");
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: 100% auto;
-}
 
-.page-contact {
-  background-image: url("/images/decorative-path-contact.svg");
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: 100% auto;
-}
+
+
 
 .page-default {
   background-image: url("/images/decorative-path-default.svg");

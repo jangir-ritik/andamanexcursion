@@ -10,22 +10,30 @@ export function PageBackgroundProvider({
 }) {
   const pathname = usePathname();
 
-  // Generate CSS class based on pathname
+  // Generate CSS class based on pathname, including subpages
   const getPageClass = (path: string) => {
-    switch (path) {
-      case "/":
-        return "page-home";
-      case "/about":
-        return "page-about";
-      case "/packages":
-        return "page-packages";
-      case "/contact":
-        return "page-contact";
-      case "/plan-your-trip":
-        return "page-plan-your-trip";
-      default:
-        return "page-default";
-    }
+    // Check exact matches first
+    if (path === "/") return "page-home";
+
+    // Check if path starts with main routes (for subpages)
+    if (path.startsWith("/about")) return "page-about";
+    if (
+      path.startsWith("/packages") ||
+      path.startsWith("/boat") ||
+      path.startsWith("/activities")
+    )
+      return "page-packages";
+    if (path.startsWith("/contact")) return "page-contact";
+    if (path.startsWith("/plan-your-trip")) return "page-plan-your-trip";
+    if (
+      path.startsWith("/specials") ||
+      path.startsWith("/destinations/") ||
+      path.startsWith("/live-volcanos") ||
+      path.startsWith("/fishing")
+    )
+      return "page-specials";
+
+    return "page-default";
   };
 
   return (
