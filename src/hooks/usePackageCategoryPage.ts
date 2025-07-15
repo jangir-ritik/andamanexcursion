@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   categoryToPackageMap,
   packageToCategoryMap,
-} from "@/app/packages/page.content";
+} from "@/app/(frontend)/packages/page.content";
 import {
   getPackagesByCategory,
   getFilteredPackages,

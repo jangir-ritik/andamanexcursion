@@ -45,7 +45,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 const quickBeach = localFont({
   src: [
     {
-      path: "../../public/fonts/quick-beach.woff2",
+      path: "../../../public/fonts/quick-beach.woff2",
       weight: "400",
       style: "normal",
     },
