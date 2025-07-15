@@ -9,9 +9,9 @@
  * 3. Updates index files to use consistent export patterns
  */
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
 
 // Configuration
 const COMPONENTS_DIR = path.join("src", "components");

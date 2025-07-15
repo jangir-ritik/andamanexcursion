@@ -5,8 +5,8 @@
  * This script helps migrate from old token names to new ones across your codebase
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 // Complete mapping of old tokens to new tokens
 const TOKEN_MAPPINGS = {
@@ -275,7 +275,7 @@ function migrateTokens(rootDir = ".") {
 }
 
 // Run the migration if this script is called directly
-if (require.main === module) {
+if (import.meta.main === module) {
   const rootDir = process.argv[2] || ".";
   migrateTokens(rootDir);
 }

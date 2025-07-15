@@ -8,10 +8,10 @@
  * The hooks are optional and can be skipped if the user chooses.
  */
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
-const readline = require("readline");
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+import readline from "readline";
 
 const HOOKS_DIR = path.join(".git", "hooks");
 const PRE_COMMIT_HOOK = path.join(HOOKS_DIR, "pre-commit");
