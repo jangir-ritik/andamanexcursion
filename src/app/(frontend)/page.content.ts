@@ -221,7 +221,7 @@ export const content = {
     ],
   },
   story: {
-    title: "Where Every Wave Tells a  Story!",
+    title: "Where Every Wave Tells a Story!",
     specialWord: "Story!",
     description: "Discover the soul of the Andamans, an unforgettable journey.",
     image: storyImage.src,
