@@ -188,7 +188,6 @@
 /* PassengerCounter component styles */
 .passengerCounter {
   width: 100%;
-  margin-top: var(--space-2);
 }
 
 /* Responsive adjustments for the form fields */
