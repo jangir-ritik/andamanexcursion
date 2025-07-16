@@ -68,6 +68,8 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    media: Media;
+    pages: Page;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -75,6 +77,8 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -138,14 +142,312 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  alt: string;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    tablet?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    desktop?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: string;
+  title: string;
+  /**
+   * URL path for this page
+   */
+  slug: string;
+  pageType: 'home' | 'activities' | 'fishing' | 'live-volcanos' | 'specials' | 'packages' | 'how-to-reach';
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    metaImage?: (string | null) | Media;
+  };
+  content?:
+    | (
+        | {
+            title: string;
+            subtitle?: string | null;
+            description?: string | null;
+            image?: (string | null) | Media;
+            imageAlt?: string | null;
+            ctaText?: string | null;
+            ctaHref?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            title: string;
+            /**
+             * Word to highlight in the title
+             */
+            specialWord?: string | null;
+            description?: string | null;
+            image?: (string | null) | Media;
+            imageAlt?: string | null;
+            ctaText?: string | null;
+            ctaHref?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'feature';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            items?:
+              | {
+                  question: string;
+                  answer: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            subtitle?: string | null;
+            title: string;
+            image?: (string | null) | Media;
+            imageAlt?: string | null;
+            ctaText?: string | null;
+            ctaHref?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'largeCard';
+          }
+        | {
+            title: string;
+            text: string;
+            highlightedPhrases?:
+              | {
+                  phrase?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'trivia';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            description?: string | null;
+            cards?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  icon?: (string | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'experience';
+          }
+        | {
+            title?: {
+              text?: string | null;
+              specialWord?: string | null;
+            };
+            stats?:
+              | {
+                  value: string;
+                  label: string;
+                  description?: string | null;
+                  /**
+                   * Icon identifier or class name
+                   */
+                  icon?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'trustStats';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            description?: string | null;
+            points?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            image?: (string | null) | Media;
+            imageAlt?: string | null;
+            ctaText?: string | null;
+            ctaHref?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'whyChooseUs';
+          }
+        | {
+            title: string;
+            description?: string | null;
+            slides?:
+              | {
+                  title: string;
+                  price?: string | null;
+                  description?: string | null;
+                  image?: (string | null) | Media;
+                  imageAlt?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'packageCarousel';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            description?: string | null;
+            ctaText?: string | null;
+            ctaHref?: string | null;
+            images?: {
+              island1?: {
+                src?: (string | null) | Media;
+                alt?: string | null;
+              };
+              island2?: {
+                src?: (string | null) | Media;
+                alt?: string | null;
+              };
+              island3?: {
+                src?: (string | null) | Media;
+                alt?: string | null;
+              };
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hiddenGems';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            description?: string | null;
+            activities?:
+              | {
+                  subtitle?: string | null;
+                  title: string;
+                  image?: (string | null) | Media;
+                  imageAlt?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'explore';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            description?: string | null;
+            fishes?:
+              | {
+                  title: string;
+                  subtitle?: string | null;
+                  image?: (string | null) | Media;
+                  imageAlt?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'famousFishes';
+          }
+        | {
+            title: string;
+            specialWord?: string | null;
+            cards?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  icon?: (string | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'howToReach';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: string;
-  document?: {
-    relationTo: 'users';
-    value: string | User;
-  } | null;
+  document?:
+    | ({
+        relationTo: 'users';
+        value: string | User;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: string | Page;
+      } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
@@ -210,6 +512,319 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        tablet?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        desktop?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  pageType?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        metaImage?: T;
+      };
+  content?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              description?: T;
+              image?: T;
+              imageAlt?: T;
+              ctaText?: T;
+              ctaHref?: T;
+              id?: T;
+              blockName?: T;
+            };
+        feature?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              image?: T;
+              imageAlt?: T;
+              ctaText?: T;
+              ctaHref?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        largeCard?:
+          | T
+          | {
+              subtitle?: T;
+              title?: T;
+              image?: T;
+              imageAlt?: T;
+              ctaText?: T;
+              ctaHref?: T;
+              id?: T;
+              blockName?: T;
+            };
+        trivia?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              highlightedPhrases?:
+                | T
+                | {
+                    phrase?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        experience?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        trustStats?:
+          | T
+          | {
+              title?:
+                | T
+                | {
+                    text?: T;
+                    specialWord?: T;
+                  };
+              stats?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    description?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        whyChooseUs?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              points?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              image?: T;
+              imageAlt?: T;
+              ctaText?: T;
+              ctaHref?: T;
+              id?: T;
+              blockName?: T;
+            };
+        packageCarousel?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              slides?:
+                | T
+                | {
+                    title?: T;
+                    price?: T;
+                    description?: T;
+                    image?: T;
+                    imageAlt?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        hiddenGems?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              ctaText?: T;
+              ctaHref?: T;
+              images?:
+                | T
+                | {
+                    island1?:
+                      | T
+                      | {
+                          src?: T;
+                          alt?: T;
+                        };
+                    island2?:
+                      | T
+                      | {
+                          src?: T;
+                          alt?: T;
+                        };
+                    island3?:
+                      | T
+                      | {
+                          src?: T;
+                          alt?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        explore?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              activities?:
+                | T
+                | {
+                    subtitle?: T;
+                    title?: T;
+                    image?: T;
+                    imageAlt?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        famousFishes?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              fishes?:
+                | T
+                | {
+                    title?: T;
+                    subtitle?: T;
+                    image?: T;
+                    imageAlt?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        howToReach?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

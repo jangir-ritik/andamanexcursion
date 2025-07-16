@@ -8,9 +8,11 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 import Users from "./app/(payload)/collections/Users";
+import Media from "./app/(payload)/collections/Media";
+import Pages from "./app/(payload)/collections/Pages";
 
 export default buildConfig({
-  collections: [Users],
+  collections: [Users, Media, Pages],
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || "",
