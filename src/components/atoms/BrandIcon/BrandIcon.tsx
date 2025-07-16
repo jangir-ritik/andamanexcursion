@@ -1,6 +1,6 @@
 import React from "react";
 
-const CustomIcon: React.FC = () => {
+const BrandIcon: React.FC = () => {
   return (
     <img
       src="/favicon.ico"
@@ -10,4 +10,4 @@ const CustomIcon: React.FC = () => {
   );
 };
 
-export default CustomIcon;
+export default BrandIcon;

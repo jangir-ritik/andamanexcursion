@@ -42,7 +42,8 @@ export default buildConfig({
     avatar: "default",
     components: {
       graphics: {
-        Icon: "/atoms/CustomIcon/CustomIcon",
+        Icon: "/atoms/BrandIcon/BrandIcon",
+        Logo: "/atoms/BrandLogo/BrandLogo",
       },
     },
   },
