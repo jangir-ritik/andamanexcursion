@@ -11,7 +11,6 @@ import { TopLoadingBarProvider } from "@/components/layout/TopLoadingBarProvider
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
 import { PageBackgroundProvider } from "@/components/atoms/PageBackgroundProvider/PageBackgroundProvider";
-import { QueryProvider } from "@/providers/query-provider";
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
@@ -81,17 +80,15 @@ export default function RootLayout({
         <TopLoadingBarProvider>
           <BookingProviders>
             <PackageProvider>
-              <QueryProvider>
-                <Header />
-                <PageBackgroundProvider>
-                  <Container>
-                    <Column gap="var(--space-section)" fullWidth>
-                      {children}
-                    </Column>
-                  </Container>
-                </PageBackgroundProvider>
-                <Footer />
-              </QueryProvider>
+              <Header />
+              <PageBackgroundProvider>
+                <Container>
+                  <Column gap="var(--space-section)" fullWidth>
+                    {children}
+                  </Column>
+                </Container>
+              </PageBackgroundProvider>
+              <Footer />
             </PackageProvider>
           </BookingProviders>
         </TopLoadingBarProvider>
