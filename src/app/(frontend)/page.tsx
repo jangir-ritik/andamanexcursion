@@ -1,38 +1,12 @@
-import {
-  FAQ,
-  Testimonials,
-  Partners,
-  LargeCardSection,
-} from "@/components/sectionBlocks/common";
-import {
-  Banner,
-  HiddenGems,
-  LovedAdventures,
-  PackageCarousel,
-  Packages,
-  Story,
-  TrustStats,
-  WhyChooseUs,
-} from "@/components/sectionBlocks/homepage";
+import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
+import { getPageBySlug } from "@/lib/payload";
+import { notFound } from "next/navigation";
 
-import { content } from "./page.content";
+export default async function Home() {
+  const page = await getPageBySlug("home");
 
-export default function Home() {
-  return (
-    <>
-      <Banner content={content.banner} />
-      <Packages content={content.packages} />
-      <PackageCarousel content={content.packageCarousel} />
-      <TrustStats content={content.trustStats} />
-      <HiddenGems content={content.hiddenGems} />
-      <LovedAdventures content={content.lovedAdventures} />
-      <Partners content={content.partners} />
-      <LargeCardSection content={content.largeCardSection} />
-      <WhyChooseUs content={content.whyChooseUs} />
-      <Story content={content.story} />
-      <Testimonials content={content.testimonials} />
-      <FAQ content={content.faqSection} />
-      <LargeCardSection content={content.largeCardSection2} />
-    </>
-  );
+  if (!page) {
+    notFound();
+  }
+  return <BlockRenderer blocks={page.content} />;
 }
