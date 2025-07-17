@@ -437,6 +437,22 @@ export interface Page {
             blockName?: string | null;
             blockType: 'partners';
           }
+        | {
+            title: string;
+            specialWord: string;
+            description: string;
+            /**
+             * Upload a video file; should be a .mp4 file; size should be less than 10MB
+             */
+            video: string | Media;
+            /**
+             * Alt text for the video
+             */
+            alt: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'story';
+          }
       )[]
     | null;
   updatedAt: string;
@@ -829,6 +845,17 @@ export interface PagesSelect<T extends boolean = true> {
                     alt?: T;
                     id?: T;
                   };
+              id?: T;
+              blockName?: T;
+            };
+        story?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              description?: T;
+              video?: T;
+              alt?: T;
               id?: T;
               blockName?: T;
             };

@@ -9,7 +9,7 @@ import styles from "./Story.module.css";
 import { StoryProps } from "./Story.types";
 
 export const Story = ({ content }: StoryProps) => {
-  const { title, specialWord, description, image, imageAlt } = content;
+  const { title, specialWord, description, video, alt } = content;
 
   return (
     <Section
@@ -39,10 +39,10 @@ export const Story = ({ content }: StoryProps) => {
             specialWord={specialWord}
             id="story-title"
           />
-          <DescriptionText text={description} align="center" />
+          <DescriptionText text={description} align="right" />
         </Row>
         <Row fullWidth justifyContent="center" alignItems="center">
-          <ImageContainer src={image} alt={imageAlt} className={styles.image} />
+          <ImageContainer src={video} alt={alt} className={styles.image} />
         </Row>
       </Column>
     </Section>
