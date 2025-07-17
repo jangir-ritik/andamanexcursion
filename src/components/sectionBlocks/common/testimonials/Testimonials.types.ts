@@ -1,3 +1,4 @@
+import { Media } from "@payload-types";
 import { ReactNode } from "react";
 
 export interface BaseSectionProps {
@@ -14,7 +15,7 @@ export interface TestimonialItem {
   id: number;
   text: string;
   author: string;
-  avatar: string;
+  avatar: Media;
   rotation: number;
 }
 

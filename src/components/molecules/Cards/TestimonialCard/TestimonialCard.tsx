@@ -2,12 +2,14 @@ import React from "react";
 import Image from "next/image";
 import styles from "./TestimonialCard.module.css";
 import quoteIcon from "@public/icons/misc/quote.svg";
-import type { TestimonialCardProps } from "./TestimonialCard.types";
+import { Media } from "@payload-types";
+import { cn } from "@/utils/cn";
+import { ImageContainer } from "@/components/atoms";
 
 interface TestimonialCardInternalProps {
   text: string;
   author: string;
-  avatar: string;
+  avatar: Media;
   rotation?: number;
 }
 
@@ -26,7 +28,7 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
 
   return (
     <div
-      className={`${styles.card} ${getRotationClass()}`}
+      className={cn(styles.card, getRotationClass())}
       style={{ transform: `rotate(${rotation}deg)` }}
       role="article"
       aria-label={`Testimonial from ${author}`}
@@ -41,15 +43,12 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
         <div className={styles.authorSection}>
           <div className={styles.divider} aria-hidden="true" />
           <div className={styles.authorInfo}>
-            <div className={styles.avatar}>
-              <Image
-                src={avatar}
-                alt={`${author}'s profile picture`}
-                width={36}
-                height={36}
-                style={{ objectFit: "cover" }}
-              />
-            </div>
+            <ImageContainer
+              src={avatar}
+              alt={`${author}'s profile picture`}
+              aspectRatio="square"
+              className={styles.avatar}
+            />
             <span className={styles.authorName}>{author}</span>
           </div>
         </div>

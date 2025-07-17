@@ -27,6 +27,7 @@ const blockComponentsMap = {
   partners: Partners,
   story: Story,
   topAdventures: TopAdventures,
+  testimonials: Testimonials,
   // Add more as you build them
 } as const;
 

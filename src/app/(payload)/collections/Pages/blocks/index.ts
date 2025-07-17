@@ -14,6 +14,7 @@ import { howToReachBlock } from "./howToReach";
 import { heroBlock } from "./hero";
 import { partnersBlock } from "./partners";
 import { storyBlock } from "./story";
+import { testimonialsBlock } from "./testimonials";
 
 export const contentBlocks: Block[] = [
   heroBlock,
@@ -31,4 +32,5 @@ export const contentBlocks: Block[] = [
   howToReachBlock,
   partnersBlock,
   storyBlock,
+  testimonialsBlock,
 ];

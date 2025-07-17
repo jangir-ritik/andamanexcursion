@@ -455,6 +455,29 @@ export interface Page {
             blockName?: string | null;
             blockType: 'story';
           }
+        | {
+            title: string;
+            /**
+             * Word to highlight in the title
+             */
+            specialWord?: string | null;
+            subtitle?: string | null;
+            testimonials?:
+              | {
+                  text: string;
+                  author?: string | null;
+                  avatar: string | Media;
+                  /**
+                   * Rotation of the testimonial card in degrees
+                   */
+                  rotation: number;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
       )[]
     | null;
   updatedAt: string;
@@ -860,6 +883,24 @@ export interface PagesSelect<T extends boolean = true> {
               description?: T;
               video?: T;
               alt?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              subtitle?: T;
+              testimonials?:
+                | T
+                | {
+                    text?: T;
+                    author?: T;
+                    avatar?: T;
+                    rotation?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };
