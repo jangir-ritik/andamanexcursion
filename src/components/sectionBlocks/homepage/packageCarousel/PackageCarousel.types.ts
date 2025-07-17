@@ -1,3 +1,5 @@
+import { Media } from "@payload-types";
+
 export interface PackageCarouselProps {
   content: PackageCarouselContent;
 }
@@ -13,6 +15,6 @@ export interface PackageCarouselSlide {
   title: string;
   price: string;
   description: string;
-  image: string;
-  imageAlt: string;
+  image: Media;
+  // imageAlt: string;
 }

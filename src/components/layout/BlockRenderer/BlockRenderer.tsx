@@ -14,41 +14,50 @@ import {
   TrustStats,
   WhyChooseUs,
 } from "@/components/sectionBlocks/homepage";
+import { Page } from "@payload-types";
 
 const blockComponentsMap = {
   hero: Banner,
   hiddenGems: HiddenGems,
-  lovedAdventures: LovedAdventures,
   packageCarousel: PackageCarousel,
-  packages: Packages,
-  story: Story,
   trustStats: TrustStats,
-  partners: Partners,
   whyChooseUs: WhyChooseUs,
-  testimonials: Testimonials,
-  faqSection: FAQ,
-  largeCardSection: LargeCardSection,
-};
+  faq: FAQ,
+  largeCard: LargeCardSection,
+  // Add more as you build them
+} as const;
 
 interface BlockRendererProps {
-  blocks: Array<{
-    blockType: keyof typeof blockComponentsMap;
-    id: string;
-    [key: string]: any;
-  }>;
+  blocks: NonNullable<Page["content"]>;
 }
 
 export function BlockRenderer({ blocks }: BlockRendererProps) {
   return (
     <>
       {blocks.map((block) => {
-        const Component = blockComponentsMap[block.blockType];
+        const Component =
+          blockComponentsMap[
+            block.blockType as keyof typeof blockComponentsMap
+          ];
 
         if (!Component) {
-          console.warn(`Unknown block type: ${block.blockType}`);
+          if (process.env.NODE_ENV === "development") {
+            console.warn(
+              `No component found for block type: ${block.blockType}`
+            );
+          }
           return null;
         }
-        return <Component key={block.id} content={block} />;
+
+        const { id, blockType, blockName, ...content } = block;
+
+        return (
+          <Component
+            key={id || `${blockType}-${Math.random()}`}
+            id={id || undefined}
+            content={content as any} // Trust TypeScript here
+          />
+        );
       })}
     </>
   );

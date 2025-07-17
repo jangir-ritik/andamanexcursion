@@ -2,6 +2,7 @@ import { Section, Column, Row } from "@/components/layout";
 import type { BannerProps } from "./Banner.types";
 import { HeroTitle, DescriptionText, ImageContainer } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
+import { cn } from "@/utils/cn";
 
 import styles from "./Banner.module.css";
 
@@ -10,7 +11,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
     <Section
       noPadding
       id={id}
-      className={`${styles.sectionContainer} ${className || ""}`}
+      className={cn(styles.sectionContainer, className)}
       aria-labelledby="hero-title"
     >
       <Column
@@ -29,19 +30,18 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
         >
           <HeroTitle
             primaryText={content.title}
-            secondaryText={content.subtitle}
+            secondaryText={content.subtitle || ""}
             id="hero-title"
           />
           <DescriptionText
-            text={content.description}
+            text={content.description || ""}
             className={`${styles.descriptionText} ${styles.heroDescription}`}
             align="right"
           />
         </Row>
-
         <ImageContainer
           src={content.image}
-          alt={content.imageAlt}
+          alt={content.image?.alt || ""}
           aspectRatio="banner"
           priority
           fullWidth

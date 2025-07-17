@@ -40,7 +40,6 @@ export const TrustStats = ({ content }: TrustStatsProps) => {
           {stats.map((stat, index) => (
             <React.Fragment key={`stat-${index}`}>
               <StatCard
-                label={stat.label}
                 value={stat.value}
                 description={stat.description}
                 icon={stat.icon as "users" | "ferry" | "island"}

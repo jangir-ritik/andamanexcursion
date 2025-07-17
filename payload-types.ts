@@ -215,12 +215,11 @@ export interface Page {
     | (
         | {
             title: string;
-            subtitle?: string | null;
-            description?: string | null;
-            image?: (string | null) | Media;
-            imageAlt?: string | null;
-            ctaText?: string | null;
-            ctaHref?: string | null;
+            subtitle: string;
+            description: string;
+            image: string | Media;
+            ctaText: string;
+            ctaHref: string;
             id?: string | null;
             blockName?: string | null;
             blockType: 'hero';
@@ -302,10 +301,9 @@ export interface Page {
             stats?:
               | {
                   value: string;
-                  label: string;
-                  description?: string | null;
+                  description: string;
                   /**
-                   * Icon identifier or class name
+                   * Icon identifier - one of (users, ferry, island)
                    */
                   icon?: string | null;
                   id?: string | null;
@@ -343,7 +341,6 @@ export interface Page {
                   price?: string | null;
                   description?: string | null;
                   image?: (string | null) | Media;
-                  imageAlt?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -357,20 +354,16 @@ export interface Page {
             description?: string | null;
             ctaText?: string | null;
             ctaHref?: string | null;
-            images?: {
-              island1?: {
-                src?: (string | null) | Media;
-                alt?: string | null;
-              };
-              island2?: {
-                src?: (string | null) | Media;
-                alt?: string | null;
-              };
-              island3?: {
-                src?: (string | null) | Media;
-                alt?: string | null;
-              };
-            };
+            images?:
+              | {
+                  image: string | Media;
+                  /**
+                   * Alt text for the image in this context (e.g. 'Island 1', 'Island 2', 'Island 3')
+                   */
+                  alt: string;
+                  id?: string | null;
+                }[]
+              | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'hiddenGems';
@@ -601,7 +594,6 @@ export interface PagesSelect<T extends boolean = true> {
               subtitle?: T;
               description?: T;
               image?: T;
-              imageAlt?: T;
               ctaText?: T;
               ctaHref?: T;
               id?: T;
@@ -691,7 +683,6 @@ export interface PagesSelect<T extends boolean = true> {
                 | T
                 | {
                     value?: T;
-                    label?: T;
                     description?: T;
                     icon?: T;
                     id?: T;
@@ -731,7 +722,6 @@ export interface PagesSelect<T extends boolean = true> {
                     price?: T;
                     description?: T;
                     image?: T;
-                    imageAlt?: T;
                     id?: T;
                   };
               id?: T;
@@ -748,24 +738,9 @@ export interface PagesSelect<T extends boolean = true> {
               images?:
                 | T
                 | {
-                    island1?:
-                      | T
-                      | {
-                          src?: T;
-                          alt?: T;
-                        };
-                    island2?:
-                      | T
-                      | {
-                          src?: T;
-                          alt?: T;
-                        };
-                    island3?:
-                      | T
-                      | {
-                          src?: T;
-                          alt?: T;
-                        };
+                    image?: T;
+                    alt?: T;
+                    id?: T;
                   };
               id?: T;
               blockName?: T;

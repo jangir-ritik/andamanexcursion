@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Media } from "@payload-types";
 
 export interface BaseSectionProps {
   className?: string;
@@ -14,6 +15,10 @@ export interface BannerContent {
   title: string;
   subtitle: string;
   description: string;
-  image: string;
-  imageAlt: string;
+  image: Media;
+  // imageAlt: string;
+  ctaText: string;
+  ctaHref: string;
+  blockName?: string | null | undefined;
+  blockType: "hero";
 }

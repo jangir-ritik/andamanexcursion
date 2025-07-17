@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Column, Row, Section } from "@/components/layout";
 import styles from "./HiddenGems.module.css";
 import DecorativeCurlyArrow from "@/components/atoms/DecorativeCurlyArrow/DecorativeCurlyArrow";
+import { cn } from "@/utils/cn";
 
 export const HiddenGems = ({ content }: HiddenGemsProps) => {
   const { title, specialWord, description, ctaText, ctaHref, images } = content;
@@ -52,25 +53,16 @@ export const HiddenGems = ({ content }: HiddenGemsProps) => {
           </Link>
         </Column>
         <div className={styles.imagesGrid}>
-          <ImageContainer
-            src={images.island1.src}
-            alt={images.island1.alt}
-            className={styles.gridImage1}
-            fullWidth
-            priority
-          />
-          <ImageContainer
-            src={images.island2.src}
-            alt={images.island2.alt}
-            className={styles.gridImage2}
-            fullWidth
-          />
-          <ImageContainer
-            src={images.island3.src}
-            alt={images.island3.alt}
-            className={styles.gridImage3}
-            fullWidth
-          />
+          {images.map((image, index) => (
+            <ImageContainer
+              key={index}
+              src={image.image}
+              alt={image.alt}
+              className={cn(styles.gridImage, styles[`gridImage${index + 1}`])}
+              fullWidth
+              priority
+            />
+          ))}
         </div>
       </Row>
     </Section>

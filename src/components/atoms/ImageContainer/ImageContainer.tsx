@@ -2,7 +2,8 @@
 import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import styles from "./ImageContainer.module.css";
-import type { ImageContainerProps  } from "./ImageContainer.types";
+import type { ImageContainerProps } from "./ImageContainer.types";
+import { useImageSrc, useImageMetadata } from "@/hooks/useImageSrc";
 
 export const ImageContainer = ({
   src,
@@ -13,13 +14,23 @@ export const ImageContainer = ({
   priority = false,
   fullWidth = false,
   decorative = false,
+  preferredSize, // New prop for preferred image size
 }: ImageContainerProps) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  // Validate src prop
-  const isValidSrc =
-    src && (typeof src === "string" ? src.trim() !== "" : true);
+  // Use the hook to process the image source
+  const {
+    src: processedSrc,
+    isValid,
+    mediaMetadata,
+  } = useImageSrc(src, {
+    preferredSize,
+    fallbackUrl: "", // Will use fallback UI instead
+  });
+
+  // Get metadata for potential use (dimensions, etc.)
+  const metadata = useImageMetadata(src);
 
   const handleImageError = useCallback(() => {
     setImageError(true);
@@ -78,9 +89,16 @@ export const ImageContainer = ({
   );
 
   // Don't render anything if src is invalid
-  if (!isValidSrc) {
+  if (!isValid) {
     return renderFallback();
   }
+
+  // Generate sizes based on metadata or defaults
+  const generateSizes = () => {
+    if (fullWidth) return "100vw";
+    if (metadata?.width && metadata.width < 768) return `${metadata.width}px`;
+    return "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw";
+  };
 
   return (
     <div
@@ -93,14 +111,22 @@ export const ImageContainer = ({
       ) : (
         <>
           <Image
-            src={src}
+            src={processedSrc}
             alt={alt || ""}
             fill
             className={styles[objectFit]}
             priority={priority}
             onError={handleImageError}
             onLoad={handleImageLoad}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes={generateSizes()}
+            // Optional: Use metadata for better optimization
+            {...(metadata?.width &&
+              metadata?.height && {
+                placeholder: "blur",
+                blurDataURL: `data:image/svg+xml;base64,${toBase64(
+                  shimmer(metadata.width, metadata.height)
+                )}`,
+              })}
           />
           {imageLoading && renderLoading()}
         </>
@@ -108,3 +134,23 @@ export const ImageContainer = ({
     </div>
   );
 };
+
+// Helper functions for blur placeholder (optional)
+const shimmer = (w: number, h: number) => `
+<svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g">
+      <stop stop-color="#f6f7f8" offset="20%" />
+      <stop stop-color="#edeef1" offset="50%" />
+      <stop stop-color="#f6f7f8" offset="70%" />
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#f6f7f8" />
+  <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
+</svg>`;
+
+const toBase64 = (str: string) =>
+  typeof window === "undefined"
+    ? Buffer.from(str).toString("base64")
+    : window.btoa(str);

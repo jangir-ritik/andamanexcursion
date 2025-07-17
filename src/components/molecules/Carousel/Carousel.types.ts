@@ -1,10 +1,12 @@
+import { Media } from "@payload-types";
+
 export interface CarouselSlide {
   id: number;
   title: string;
   price: string;
   description: string;
-  image: string;
-  imageAlt: string;
+  image: Media;
+  // imageAlt: string;
 }
 
 export interface CarouselProps {

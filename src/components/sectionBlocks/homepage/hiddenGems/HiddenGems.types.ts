@@ -1,5 +1,12 @@
+import { Media } from "@payload-types";
+
 export interface HiddenGemsProps {
   content: HiddenGemsContent;
+}
+
+export interface HiddenGemsImage {
+  image: Media;
+  alt: string;
 }
 
 export interface HiddenGemsContent {
@@ -8,18 +15,5 @@ export interface HiddenGemsContent {
   description: string;
   ctaText: string;
   ctaHref: string;
-  images: {
-    island1: {
-      src: string;
-      alt: string;
-    };
-    island2: {
-      src: string;
-      alt: string;
-    };
-    island3: {
-      src: string;
-      alt: string;
-    };
-  };
+  images: HiddenGemsImage[];
 }

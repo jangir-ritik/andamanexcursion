@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import type { CarouselProps } from "./Carousel.types";
 import { ArrowLeft, ArrowRight, Star } from "lucide-react";
 import styles from "./Carousel.module.css";
-import { InlineLink } from "@/components/atoms";
+import { ImageContainer, InlineLink } from "@/components/atoms";
 
 export const Carousel = ({
   slides,
@@ -93,11 +93,11 @@ export const Carousel = ({
                       stroke="none"
                     />
                   </div>
-                  <img
+                  <ImageContainer
                     src={slide.image}
-                    alt={slide.imageAlt}
+                    alt={slide.image?.alt}
                     className={styles.slideImage}
-                    loading="lazy"
+                    priority={false}
                   />
                   <div className={styles.starIconBottom}>
                     <Star size={24} fill="#EBF3FF" stroke="none" />

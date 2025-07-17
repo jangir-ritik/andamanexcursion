@@ -73,27 +73,28 @@ const Pages: CollectionConfig = {
             {
               name: "subtitle",
               type: "text",
+              required: true,
             },
             {
               name: "description",
               type: "textarea",
+              required: true,
             },
             {
               name: "image",
               type: "upload",
               relationTo: "media",
-            },
-            {
-              name: "imageAlt",
-              type: "text",
+              required: true,
             },
             {
               name: "ctaText",
               type: "text",
+              required: true,
             },
             {
               name: "ctaHref",
               type: "text",
+              required: true,
             },
           ],
         },
@@ -292,19 +293,16 @@ const Pages: CollectionConfig = {
                   required: true,
                 },
                 {
-                  name: "label",
-                  type: "text",
-                  required: true,
-                },
-                {
                   name: "description",
                   type: "text",
+                  required: true,
                 },
                 {
                   name: "icon",
                   type: "text",
                   admin: {
-                    description: "Icon identifier or class name",
+                    description:
+                      "Icon identifier - one of (users, ferry, island)",
                   },
                 },
               ],
@@ -397,10 +395,6 @@ const Pages: CollectionConfig = {
                   type: "upload",
                   relationTo: "media",
                 },
-                {
-                  name: "imageAlt",
-                  type: "text",
-                },
               ],
             },
           ],
@@ -432,52 +426,26 @@ const Pages: CollectionConfig = {
             },
             {
               name: "images",
-              type: "group",
+              type: "array",
+              label: "Island Images",
+              minRows: 3,
+              maxRows: 3,
               fields: [
                 {
-                  name: "island1",
-                  type: "group",
-                  fields: [
-                    {
-                      name: "src",
-                      type: "upload",
-                      relationTo: "media",
-                    },
-                    {
-                      name: "alt",
-                      type: "text",
-                    },
-                  ],
+                  name: "image",
+                  type: "upload",
+                  relationTo: "media",
+                  required: true,
                 },
                 {
-                  name: "island2",
-                  type: "group",
-                  fields: [
-                    {
-                      name: "src",
-                      type: "upload",
-                      relationTo: "media",
-                    },
-                    {
-                      name: "alt",
-                      type: "text",
-                    },
-                  ],
-                },
-                {
-                  name: "island3",
-                  type: "group",
-                  fields: [
-                    {
-                      name: "src",
-                      type: "upload",
-                      relationTo: "media",
-                    },
-                    {
-                      name: "alt",
-                      type: "text",
-                    },
-                  ],
+                  name: "alt",
+                  type: "text",
+                  label: "Alt Text",
+                  required: true,
+                  admin: {
+                    description:
+                      "Alt text for the image in this context (e.g. 'Island 1', 'Island 2', 'Island 3')",
+                  },
                 },
               ],
             },
