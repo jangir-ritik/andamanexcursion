@@ -1,12 +1,12 @@
 import React from "react";
-import { LovedAdventuresProps } from "./LovedAdventures.types";
-import styles from "./LovedAdventures.module.css";
+import { TopAdventuresProps } from "./TopAdventures.types";
+import styles from "./TopAdventures.module.css";
 import { Heart, Star } from "lucide-react";
 import { Column, Row, Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { MediumCard } from "@/components/molecules/Cards";
 
-export function LovedAdventures({ content }: LovedAdventuresProps) {
+export function TopAdventures({ content }: TopAdventuresProps) {
   const { title, specialWord, adventures } = content;
 
   return (
@@ -35,15 +35,15 @@ export function LovedAdventures({ content }: LovedAdventuresProps) {
             {adventures.map((adventure, index) => (
               <MediumCard
                 key={index}
-                badge={adventure.badge}
+                badge={adventure.badgeLabel}
                 badgeIcon={
-                  adventure.badgeIconType === "Star" ? (
+                  adventure.badgeIcon === "Star" ? (
                     <Star
                       fill="var(--color-black)"
                       stroke="var(--color-black)"
                       aria-hidden="true"
                     />
-                  ) : adventure.badgeIconType === "Heart" ? (
+                  ) : adventure.badgeIcon === "Heart" ? (
                     <Heart
                       fill="var(--color-black)"
                       stroke="var(--color-black)"
@@ -53,8 +53,8 @@ export function LovedAdventures({ content }: LovedAdventuresProps) {
                 }
                 title={adventure.title}
                 description={adventure.description}
-                image={adventure.image.src}
-                imageAlt={adventure.image.alt}
+                image={adventure.image}
+                imageAlt={adventure.imageAlt}
                 href={adventure.href}
               />
             ))}

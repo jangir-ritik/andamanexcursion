@@ -1,11 +1,11 @@
 "use client";
 
-import type { MediumCardProps  } from "./MediumCard.types";
+import type { MediumCardProps } from "./MediumCard.types";
 import { MoveUpRight } from "lucide-react";
 import styles from "./MediumCard.module.css";
 import Link from "next/link";
-import Image from "next/image";
 import clsx from "clsx";
+import { ImageContainer } from "@/components/atoms";
 
 export const MediumCard = ({
   image,
@@ -20,15 +20,12 @@ export const MediumCard = ({
   const CardContent = () => (
     <>
       <div className={styles.imageWrapper}>
-        <div className={styles.imageContainer}>
-          <Image
-            src={image}
-            alt={imageAlt}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            style={{ objectFit: "cover" }}
-          />
-        </div>
+        <ImageContainer
+          src={image}
+          alt={imageAlt}
+          fullWidth
+          className={styles.imageContainer}
+        />
         <div className={styles.imageOverlay} aria-hidden="true" />
         <div className={styles.contentContainer}>
           {badge && (

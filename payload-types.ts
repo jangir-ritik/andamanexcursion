@@ -373,20 +373,22 @@ export interface Page {
           }
         | {
             title: string;
-            specialWord?: string | null;
-            description?: string | null;
-            activities?:
+            specialWord: string;
+            adventures?:
               | {
-                  subtitle?: string | null;
                   title: string;
-                  image?: (string | null) | Media;
-                  imageAlt?: string | null;
+                  description: string;
+                  image: string | Media;
+                  imageAlt: string;
+                  badgeLabel: string;
+                  badgeIcon: 'Star' | 'Heart';
+                  href: string | Page;
                   id?: string | null;
                 }[]
               | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'explore';
+            blockType: 'topAdventures';
           }
         | {
             title: string;
@@ -781,19 +783,21 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        explore?:
+        topAdventures?:
           | T
           | {
               title?: T;
               specialWord?: T;
-              description?: T;
-              activities?:
+              adventures?:
                 | T
                 | {
-                    subtitle?: T;
                     title?: T;
+                    description?: T;
                     image?: T;
                     imageAlt?: T;
+                    badgeLabel?: T;
+                    badgeIcon?: T;
+                    href?: T;
                     id?: T;
                   };
               id?: T;

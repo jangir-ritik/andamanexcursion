@@ -8,7 +8,7 @@ import { trustStatsBlock } from "./trustStats";
 import { whyChooseUsBlock } from "./whyChooseUs";
 import { packageCarouselBlock } from "./packageCarousel";
 import { hiddenGemsBlock } from "./hiddenGems";
-import { exploreBlock } from "./explore";
+import { topAdventuresBlock } from "./topAdventures";
 import { famousFishesBlock } from "./famousFishes";
 import { howToReachBlock } from "./howToReach";
 import { heroBlock } from "./hero";
@@ -26,7 +26,7 @@ export const contentBlocks: Block[] = [
   whyChooseUsBlock,
   packageCarouselBlock,
   hiddenGemsBlock,
-  exploreBlock,
+  topAdventuresBlock,
   famousFishesBlock,
   howToReachBlock,
   partnersBlock,

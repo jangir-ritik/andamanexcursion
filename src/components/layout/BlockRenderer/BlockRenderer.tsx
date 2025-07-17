@@ -7,10 +7,10 @@ import {
 import {
   Banner,
   HiddenGems,
-  LovedAdventures,
   PackageCarousel,
   Packages,
   Story,
+  TopAdventures,
   TrustStats,
   WhyChooseUs,
 } from "@/components/sectionBlocks/homepage";
@@ -26,6 +26,7 @@ const blockComponentsMap = {
   largeCard: LargeCardSection,
   partners: Partners,
   story: Story,
+  topAdventures: TopAdventures,
   // Add more as you build them
 } as const;
 

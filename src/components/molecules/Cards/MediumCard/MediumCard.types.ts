@@ -1,7 +1,8 @@
+import { Media } from "@payload-types";
 import { ReactNode } from "react";
 
 export interface BaseCardProps {
-  image: string;
+  image: Media;
   imageAlt: string;
   title: string;
 }

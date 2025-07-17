@@ -19,7 +19,7 @@ import storyImage from "@public/images/homepage/story/story.png";
 
 import whyChooseUsImage from "@public/images/homepage/whyChooseUs/points.png";
 
-import { BadgeIconType } from "@/components/sectionBlocks/homepage/lovedAdventures/LovedAdventures.types";
+import { BadgeIconType } from "@/components/sectionBlocks/homepage/topAdventures/TopAdventures.types";
 
 export const content = {
   banner: {

@@ -1,5 +1,5 @@
 export * from "./hiddenGems/HiddenGems";
-export * from "./lovedAdventures/LovedAdventures";
+export * from "./topAdventures/TopAdventures";
 export * from "./packageCarousel/PackageCarousel";
 export * from "./packages/Packages";
 export * from "./story/Story";
