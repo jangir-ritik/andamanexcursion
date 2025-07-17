@@ -24,6 +24,7 @@ const blockComponentsMap = {
   whyChooseUs: WhyChooseUs,
   faq: FAQ,
   largeCard: LargeCardSection,
+  partners: Partners,
   // Add more as you build them
 } as const;
 

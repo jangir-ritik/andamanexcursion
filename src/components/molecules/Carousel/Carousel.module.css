@@ -497,7 +497,7 @@
 
 @media (max-width: 400px) {
   .imageWrapper {
-    height: 160px;
+    height: unset;
   }
 
   .slideTitle {

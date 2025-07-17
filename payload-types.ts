@@ -205,6 +205,9 @@ export interface Page {
    * URL path for this page
    */
   slug: string;
+  /**
+   * Type of page this is
+   */
   pageType: 'home' | 'activities' | 'fishing' | 'live-volcanos' | 'specials' | 'packages' | 'how-to-reach';
   seo?: {
     metaTitle?: string | null;
@@ -416,6 +419,23 @@ export interface Page {
             id?: string | null;
             blockName?: string | null;
             blockType: 'howToReach';
+          }
+        | {
+            title: string;
+            /**
+             * Word to highlight in the title
+             */
+            specialWord: string;
+            partners?:
+              | {
+                  partner: string | Media;
+                  alt?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'partners';
           }
       )[]
     | null;
@@ -792,6 +812,21 @@ export interface PagesSelect<T extends boolean = true> {
                     title?: T;
                     description?: T;
                     icon?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        partners?:
+          | T
+          | {
+              title?: T;
+              specialWord?: T;
+              partners?:
+                | T
+                | {
+                    partner?: T;
+                    alt?: T;
                     id?: T;
                   };
               id?: T;
