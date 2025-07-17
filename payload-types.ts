@@ -244,7 +244,7 @@ export interface Page {
           }
         | {
             title: string;
-            specialWord?: string | null;
+            specialWord: string;
             items?:
               | {
                   question: string;

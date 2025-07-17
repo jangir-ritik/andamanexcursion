@@ -11,6 +11,7 @@ export const faqBlock: Block = {
     {
       name: "specialWord",
       type: "text",
+      required: true,
     },
     {
       name: "items",
