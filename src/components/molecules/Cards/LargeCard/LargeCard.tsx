@@ -1,7 +1,6 @@
-import type { LargeCardProps  } from "./LargeCard.types";
+import type { LargeCardProps } from "./LargeCard.types";
 import styles from "./LargeCard.module.css";
-import Image from "next/image";
-import { InlineLink } from "@/components/atoms";
+import { ImageContainer, InlineLink } from "@/components/atoms";
 
 export const LargeCard = ({
   image,
@@ -19,16 +18,12 @@ export const LargeCard = ({
       aria-label={subtitle || title}
     >
       <div className={styles.imageWrapper}>
-        <div className={styles.imageContainer}>
-          <Image
-            src={image}
-            alt={imageAlt}
-            fill
-            sizes="100vw"
-            priority
-            style={{ objectFit: "cover" }}
-          />
-        </div>
+        <ImageContainer
+          src={image}
+          alt={imageAlt}
+          fullWidth
+          className={styles.imageContainer}
+        />
         <div className={styles.contentContainer}>
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           <h2 className={styles.cardTitle}>{title}</h2>

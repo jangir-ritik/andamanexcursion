@@ -23,7 +23,6 @@ import { PartnersContent } from "@/components/sectionBlocks/common/partners/Part
 import { TrustedFerriesContent } from "@/components/sectionBlocks/ferry/trustedFerries/TrustedFerries";
 import { PlanInFourEasyStepsContent } from "@/components/sectionBlocks/ferry/planInfourEasySteps/PlanInFourEasySteps.types";
 
-
 // Sample icons for amenities
 const premiumSeatingIcon = "/icons/misc/chair.svg";
 const airConditionedIcon = "/icons/misc/wind.svg";
@@ -268,8 +267,12 @@ export const content: FerryPageContent = {
   partners: {
     title: "Our Trusted Partners",
     specialWord: "Partners",
-    partners: [partner1, partner2, partner3, partner4],
-    partnersAlt: ["dss", "greenOcean", "nautika", "makruzz"],
+    partners: [
+      { partner: partner1, alt: "dss" },
+      { partner: partner2, alt: "greenOcean" },
+      { partner: partner3, alt: "nautika" },
+      { partner: partner4, alt: "makruzz" },
+    ],
   },
   trivia: {
     title: "Did you know?",
@@ -303,31 +306,31 @@ export const content: FerryPageContent = {
     },
   ],
   planInFourEasySteps: {
-  title: "Plan your Ride in 4 Easy Steps!",
-  specialWord: "4 Easy Steps!",
-  steps: [
-    {
-      title: "Select Your Route",
-      description: "Select your islands and travel date to get started.",
-      icon: step1,
-    },
-    {
-      title: "Compare Ferries",
-      description: "Add passenger info and confirm your booking.",
-      icon: step2,
-    },
-    {
-      title: "Book Seamlessly",
-      description: "Enter passenger details and book with secure payment.",
-      icon: step3,
-    },
-    {
-      title: "Board your Boat",
-      description:
-        "Get your e-ticket on email. Reach the terminal & sail away!",
-      icon: step4,
-    },
-  ],
+    title: "Plan your Ride in 4 Easy Steps!",
+    specialWord: "4 Easy Steps!",
+    steps: [
+      {
+        title: "Select Your Route",
+        description: "Select your islands and travel date to get started.",
+        icon: step1,
+      },
+      {
+        title: "Compare Ferries",
+        description: "Add passenger info and confirm your booking.",
+        icon: step2,
+      },
+      {
+        title: "Book Seamlessly",
+        description: "Enter passenger details and book with secure payment.",
+        icon: step3,
+      },
+      {
+        title: "Board your Boat",
+        description:
+          "Get your e-ticket on email. Reach the terminal & sail away!",
+        icon: step4,
+      },
+    ],
     description:
       "From island-hopping to water adventures, book smooth ferry rides tailored to your travel plan.",
   },
