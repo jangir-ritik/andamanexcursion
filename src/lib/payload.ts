@@ -23,6 +23,14 @@ export const getCachedPayload = cache(async () => {
   }
 });
 
+// Base query builder for common filtering patterns
+const buildBaseQuery = (additionalConditions: any[] = []) => ({
+  and: [
+    { "publishingSettings.status": { equals: "published" } },
+    ...additionalConditions,
+  ],
+});
+
 /**
  * Page Methods
  * -----------
@@ -32,19 +40,12 @@ export const getCachedPayload = cache(async () => {
 export async function getPageBySlug(slug: string) {
   try {
     const payload = await getCachedPayload();
-
     const { docs } = await payload.find({
       collection: "pages",
-      where: {
-        and: [
-          { slug: { equals: slug } },
-          { "publishingSettings.status": { equals: "published" } },
-        ],
-      },
+      where: buildBaseQuery([{ slug: { equals: slug } }]),
       limit: 1,
       depth: 2,
     });
-
     return docs[0] || null;
   } catch (error) {
     console.error("Error getting page by slug:", slug, error);
@@ -82,11 +83,7 @@ export async function getPackageCategories() {
     const payload = await getCachedPayload();
     const { docs } = await payload.find({
       collection: "package-categories",
-      where: {
-        "displaySettings.isActive": {
-          equals: true,
-        },
-      },
+      where: { "displaySettings.isActive": { equals: true } },
       sort: "displaySettings.order",
     });
     return docs;
@@ -103,19 +100,12 @@ export async function getPackageCategoryBySlug(slug: string) {
       collection: "package-categories",
       where: {
         and: [
-          {
-            slug: {
-              equals: slug,
-            },
-          },
-          {
-            "displaySettings.isActive": {
-              equals: true,
-            },
-          },
+          { slug: { equals: slug } },
+          { "displaySettings.isActive": { equals: true } },
         ],
       },
       limit: 1,
+      depth: 2,
     });
     return docs[0] || null;
   } catch (error) {
@@ -130,16 +120,12 @@ export async function getPackageCategoryBySlug(slug: string) {
  * Methods for accessing package periods
  */
 
-export async function getAllPackagePeriods() {
+export async function getPackagePeriods() {
   try {
     const payload = await getCachedPayload();
     const { docs } = await payload.find({
       collection: "package-periods",
-      where: {
-        isActive: {
-          equals: true,
-        },
-      },
+      where: { isActive: { equals: true } },
       sort: "order",
     });
     return docs;
@@ -155,63 +141,6 @@ export async function getAllPackagePeriods() {
  * Methods for accessing and filtering packages
  */
 
-export async function getPackagesByCategory(categorySlug: string) {
-  try {
-    const payload = await getCachedPayload();
-
-    // First get the category to get its ID
-    const category = await getPackageCategoryBySlug(categorySlug);
-    if (!category) return [];
-
-    const { docs } = await payload.find({
-      collection: "packages",
-      where: {
-        and: [
-          // Using relationship value - this will match the ID of the category
-          { "coreInfo.category": { equals: category.id } },
-          { "publishingSettings.status": { equals: "published" } },
-        ],
-      },
-      sort: "title",
-      depth: 2,
-    });
-
-    return docs;
-  } catch (error) {
-    console.error("Error getting packages by category:", error);
-    return [];
-  }
-}
-
-export async function getPackageBySlug(slug: string) {
-  try {
-    const payload = await getCachedPayload();
-    const { docs } = await payload.find({
-      collection: "packages",
-      where: {
-        and: [
-          {
-            slug: {
-              equals: slug,
-            },
-          },
-          {
-            "publishingSettings.status": {
-              equals: "published",
-            },
-          },
-        ],
-      },
-      limit: 1,
-      depth: 2,
-    });
-    return docs[0] || null;
-  } catch (error) {
-    console.error("Error getting package by slug:", error);
-    return null;
-  }
-}
-
 export async function getFeaturedPackages(limit: number = 3) {
   try {
     const payload = await getCachedPayload();
@@ -225,7 +154,7 @@ export async function getFeaturedPackages(limit: number = 3) {
       },
       sort: "featuredOrder",
       limit,
-      depth: 1,
+      depth: 2,
     });
     return docs;
   } catch (error) {
@@ -234,20 +163,95 @@ export async function getFeaturedPackages(limit: number = 3) {
   }
 }
 
-export async function getAllPackages(limit: number = 100) {
+export async function getPackageBySlug(slug: string, categorySlug?: string) {
   try {
     const payload = await getCachedPayload();
+    const conditions: any[] = [{ slug: { equals: slug } }];
+
+    // If category is provided, filter by it
+    if (categorySlug) {
+      const category = await getPackageCategoryBySlug(categorySlug);
+      if (category) {
+        conditions.push({
+          "coreInfo.category": { equals: category.id },
+        });
+      }
+    }
+
     const { docs } = await payload.find({
       collection: "packages",
-      where: {
-        "publishingSettings.status": { equals: "published" },
-      },
-      sort: "title",
-      limit,
+      where: buildBaseQuery(conditions),
+      limit: 1,
+      depth: 3, // Deep fetch for package details
     });
+    return docs[0] || null;
+  } catch (error) {
+    console.error("Error getting package by slug:", error);
+    return null;
+  }
+}
+
+export async function getAllPackages(
+  options: {
+    categorySlug?: string;
+    period?: string;
+    featured?: boolean;
+    limit?: number;
+    depth?: number;
+  } = {}
+) {
+  const { categorySlug, period, featured, limit = 100, depth = 2 } = options;
+
+  try {
+    const payload = await getCachedPayload();
+    const conditions: any[] = [];
+
+    // Handle category filtering
+    if (categorySlug) {
+      const category = await getPackageCategoryBySlug(categorySlug);
+      if (category) {
+        conditions.push({
+          "coreInfo.category": { equals: category.id },
+        });
+      } else {
+        return []; // Category not found, return empty
+      }
+    }
+
+    // Handle period filtering - improved logic
+    if (period && period !== "all") {
+      // Try to find period by value first, then by id
+      const periodQuery = await payload.find({
+        collection: "package-periods",
+        where: {
+          or: [{ value: { equals: period } }, { id: { equals: period } }],
+        },
+        limit: 1,
+      });
+
+      if (periodQuery.docs[0]) {
+        conditions.push({
+          "coreInfo.period": { equals: periodQuery.docs[0].id },
+        });
+      }
+    }
+
+    // Handle featured filtering
+    if (featured !== undefined) {
+      conditions.push({ "featuredSettings.featured": { equals: featured } });
+    }
+
+    const { docs } = await payload.find({
+      collection: "packages",
+      where: buildBaseQuery(conditions),
+      sort: featured ? "featuredSettings.featuredOrder" : "title",
+      limit,
+      depth,
+    });
+
     return docs;
   } catch (error) {
-    console.error("Error getting all packages:", error);
+    console.error("Error getting packages:", error);
     return [];
   }
 }
@@ -260,159 +264,70 @@ export async function getAllPackages(limit: number = 100) {
 
 export async function getPackagesPageData() {
   try {
-    const [packageCategories, packagePeriods] = await Promise.all([
+    const [categories, periods] = await Promise.all([
       getPackageCategories(),
-      getAllPackagePeriods(),
+      getPackagePeriods(),
     ]);
 
-    // Create period options with "All" option first
-    const periodOptions = [
-      { id: "all", label: "All Durations" },
-      ...packagePeriods.map((period) => ({
-        id: period.value,
-        label: period.shortTitle || period.title,
-      })),
-    ];
-
-    // Create package options from categories
-    const packageOptions = packageCategories.map((category) => ({
-      id: category.slug, // Use slug as reliable ID
-      label: category.title?.replace(" Packages", "") || category.title,
-    }));
-
-    const packageCategoriesContent = packageCategories.map((category) => ({
-      id: category.id,
-      slug: category.slug,
-      title: category.title,
-      description: category.categoryDetails?.description || "",
-      media: category.media,
-      heroImage: category.media?.heroImage,
-      href: `/packages/${category.slug}`,
-    }));
-
     return {
-      packageOptions,
-      periodOptions,
-      packageCategoriesContent,
+      packageOptions: categories.map((category) => ({
+        id: category.slug,
+        label: category.title?.replace(" Packages", "") || category.title,
+      })),
+
+      periodOptions: [
+        { id: "all", label: "All Durations" },
+        ...periods.map((period) => ({
+          id: period.value,
+          label: period.shortTitle || period.title,
+        })),
+      ],
+
+      packageCategoriesContent: categories.map((category) => ({
+        id: category.id,
+        slug: category.slug,
+        title: category.title,
+        description: category.categoryDetails?.description || "",
+        media: category.media,
+        href: `/packages/${category.slug}`,
+      })),
     };
   } catch (error) {
     console.error("Error getting packages page data:", error);
-    // Return fallback options if API fails
     return {
-      packageOptions: [{ id: "honeymoon", label: "Honeymoon" }],
+      packageOptions: [],
       periodOptions: [{ id: "all", label: "All Durations" }],
       packageCategoriesContent: [],
     };
   }
 }
 
-/**
- * Advanced Filter Methods
- * ---------------------
- * Enhanced methods for complex filtering needs
- */
-
-export async function getPackagesByFilters({
-  categorySlug,
-  period,
-  featured,
-  limit = 50,
-}: {
-  categorySlug?: string;
-  period?: string;
-  featured?: boolean;
-  limit?: number;
-}) {
+export async function getCategoryPageData(
+  categorySlug: string,
+  period?: string
+) {
   try {
-    const payload = await getCachedPayload();
+    const [category, periods, packages] = await Promise.all([
+      getPackageCategoryBySlug(categorySlug),
+      getPackagePeriods(),
+      getAllPackages({ categorySlug, period }),
+    ]);
 
-    const conditions: any[] = [
-      { "publishingSettings.status": { equals: "published" } },
-    ];
+    if (!category) return null;
 
-    if (categorySlug) {
-      const category = await getPackageCategoryBySlug(categorySlug);
-      if (category) {
-        conditions.push({ "coreInfo.category": { equals: category.id } });
-      }
-    }
-
-    if (period) {
-      // With relationship fields, we need to query for packages where the period.value equals our filter
-      // But since we're searching inside a relationship, we need to use payload's special format
-
-      // First, find the period by value to get its ID
-      const periodObj = await payload.find({
-        collection: "package-periods",
-        where: {
-          value: { equals: period },
-        },
-        limit: 1,
-      });
-
-      if (periodObj.docs.length > 0) {
-        // Use the ID of the period for filtering
-        conditions.push({
-          "coreInfo.period": { equals: periodObj.docs[0].id },
-        });
-      } else {
-        console.warn(`Period ${period} not found in database`);
-      }
-    }
-
-    if (featured !== undefined) {
-      conditions.push({ "featuredSettings.featured": { equals: featured } });
-    }
-
-    console.log(
-      "Fetching packages with conditions:",
-      JSON.stringify(conditions)
-    );
-
-    const { docs } = await payload.find({
-      collection: "packages",
-      where: {
-        and: conditions,
-      },
-      sort: featured ? "featuredOrder" : "title",
-      limit,
-      depth: 2, // Include related data
-    });
-
-    // Debug log first package if available
-    if (docs.length > 0) {
-      console.log(
-        `Found ${docs.length} packages. First package period:`,
-        docs[0]?.coreInfo?.period
-      );
-    } else {
-      console.log("No packages found with conditions:", conditions);
-    }
-
-    return docs;
+    return {
+      category,
+      packages,
+      periodOptions: [
+        { id: "all", label: "All Durations" },
+        ...periods.map((p) => ({
+          id: p.value,
+          label: p.shortTitle || p.title,
+        })),
+      ],
+    };
   } catch (error) {
-    console.error("Error getting packages by filters:", error);
-    return [];
-  }
-}
-
-export async function getPackageWithCategory(packageSlug: string) {
-  try {
-    const payload = await getCachedPayload();
-    const { docs } = await payload.find({
-      collection: "packages",
-      where: {
-        and: [
-          { slug: { equals: packageSlug } },
-          { "publishingSettings.status": { equals: "published" } },
-        ],
-      },
-      limit: 1,
-      depth: 2, // This will populate the category relationship
-    });
-    return docs[0] || null;
-  } catch (error) {
-    console.error("Error getting package with category:", error);
+    console.error("Error getting category page data:", error);
     return null;
   }
 }

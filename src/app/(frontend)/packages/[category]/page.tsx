@@ -1,11 +1,7 @@
-import React from "react";
-import { notFound } from "next/navigation";
-import {
-  getPackageCategoryBySlug,
-  getPackagesByFilters,
-  getPackagesPageData,
-} from "@/lib/payload";
+// app/packages/[category]/page.tsx
+import { getCategoryPageData, getPackageCategories } from "@/lib/payload";
 import { CategoryPageClient } from "./CategoryPageClient";
+import { notFound } from "next/navigation";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -16,42 +12,72 @@ export default async function CategoryPage({
   params,
   searchParams,
 }: CategoryPageProps) {
+  // Await the promises
   const { category: categorySlug } = await params;
   const { period } = await searchParams;
 
-  // Fetch category data
-  const category = await getPackageCategoryBySlug(categorySlug);
-  if (!category) notFound();
+  // Get the initial period from search params
+  const initialPeriod = period || "all";
 
-  console.log("URL period param:", period);
+  // Fetch category data and package options in parallel
+  const [data, allCategories] = await Promise.all([
+    getCategoryPageData(categorySlug, initialPeriod),
+    getPackageCategories(),
+  ]);
 
-  // Fetch packages for this category with optional period filter
-  const packages = await getPackagesByFilters({
-    categorySlug,
-    // Only pass period if it's not 'all' and not undefined
-    period: period && period !== "all" ? period : undefined,
-  });
+  if (!data) {
+    notFound();
+  }
 
-  // Get selector options
-  const { packageOptions, periodOptions } = await getPackagesPageData();
+  // Format package options for the selector
+  const packageOptions = allCategories.map((category) => ({
+    id: category.slug,
+    label: category.title?.replace(" Packages", "") || category.title,
+  }));
 
   return (
     <CategoryPageClient
-      category={category}
-      packages={packages}
+      category={data.category}
+      packages={data.packages}
+      periodOptions={data.periodOptions}
       packageOptions={packageOptions}
-      periodOptions={periodOptions}
-      initialPeriod={period || "all"}
+      initialPeriod={initialPeriod}
     />
   );
 }
 
 // Generate static params for better performance
 export async function generateStaticParams() {
-  // Pre-generate pages for each category
-  return [
-    { category: "honeymoon" },
-    { category: "family" },
-    { category: "romantic" },
-  ];
+  try {
+    const categories = await getPackageCategories();
+    return categories.map((category) => ({
+      category: category.slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
+
+// Optional: Add metadata generation
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category: categorySlug } = await params;
+
+  try {
+    const data = await getCategoryPageData(categorySlug);
+    if (!data) return {};
+
+    return {
+      title: `${data.category.title} | Your Site Name`,
+      description:
+        data.category.categoryDetails?.description ||
+        `Browse our ${data.category.title} collection`,
+    };
+  } catch (error) {
+    return {};
+  }
 }

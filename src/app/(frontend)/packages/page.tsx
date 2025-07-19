@@ -1,6 +1,3 @@
-// Using server client split pattern
-// This is the server component
-
 import React from "react";
 import { getPackagesPageData, getPageBySlug } from "@/lib/payload";
 import { PackagesPageClient } from "./PackagesPageClient";

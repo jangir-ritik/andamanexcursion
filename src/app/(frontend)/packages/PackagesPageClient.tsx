@@ -1,5 +1,7 @@
 "use client";
-import React from "react";
+
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
@@ -13,7 +15,6 @@ import {
   FAQ,
   Testimonials,
 } from "@/components/sectionBlocks/common";
-import { usePackageContext } from "@/context/PackageContext";
 import styles from "./page.module.css";
 
 interface PackagesPageClientProps {
@@ -33,19 +34,44 @@ export function PackagesPageClient({
   testimonials,
   largeCardSectionContent,
 }: PackagesPageClientProps) {
-  const {
-    selectedPackage,
-    selectedPeriod,
-    setSelectedPackage,
-    setSelectedPeriod,
-  } = usePackageContext();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [selectedPeriod, setSelectedPeriod] = useState("all");
+  const [filteredCategories, setFilteredCategories] = useState(
+    packageCategoriesContent
+  );
 
-  const handlePackageChange = (packageId: string) => {
-    setSelectedPackage(packageId);
-  };
+  // Sync with URL params
+  useEffect(() => {
+    const period = searchParams.get("period") || "all";
+    setSelectedPeriod(period);
+  }, [searchParams]);
+
+  // Filter categories based on period (if needed)
+  useEffect(() => {
+    if (selectedPeriod === "all") {
+      setFilteredCategories(packageCategoriesContent);
+    } else {
+      // You might want to implement category filtering by period here
+      // For now, we'll show all categories regardless of period
+      setFilteredCategories(packageCategoriesContent);
+    }
+  }, [selectedPeriod, packageCategoriesContent]);
 
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriod(periodId);
+
+    // Update URL
+    const params = new URLSearchParams(searchParams);
+    if (periodId === "all") {
+      params.delete("period");
+    } else {
+      params.set("period", periodId);
+    }
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `/packages?${queryString}` : "/packages";
+    router.push(newUrl);
   };
 
   return (
@@ -59,14 +85,13 @@ export function PackagesPageClient({
           className={styles.packageSelectorWrapper}
           style={{ minHeight: "150px" }}
         >
-          <SectionTitle text="Chosen Package" />
+          <SectionTitle text="Choose Your Package" />
           <PackageSelector
             packageOptions={packageOptions}
             periodOptions={periodOptions}
-            onPackageChange={handlePackageChange}
+            selectedPeriod={selectedPeriod}
             onPeriodChange={handlePeriodChange}
-            defaultPackage={selectedPackage}
-            defaultPeriod={selectedPeriod}
+            showPackageSelector={true}
           />
         </Column>
       </Section>
@@ -96,13 +121,15 @@ export function PackagesPageClient({
           </Column>
 
           <Column>
-            {packageCategoriesContent.map((category) => (
+            {filteredCategories.map((category) => (
               <PackageCard
                 key={category.id}
                 title={category.title}
                 description={category.description}
                 media={category.media}
-                href={`/packages/${category.slug}`}
+                href={`/packages/${category.slug}${
+                  selectedPeriod !== "all" ? `?period=${selectedPeriod}` : ""
+                }`}
               />
             ))}
           </Column>

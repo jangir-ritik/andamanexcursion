@@ -1,90 +1,72 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
-import { FeaturePackageCard } from "@/components/molecules/Cards";
-import { SectionTitle } from "@/components/atoms";
-import { usePackageContext } from "@/context/PackageContext";
+import { SectionTitle, DescriptionText } from "@/components/atoms";
 import styles from "../page.module.css";
+import { FeaturePackageCard } from "@/components/molecules/Cards";
 
 interface CategoryPageClientProps {
   category: any;
   packages: any[];
-  packageOptions: any[];
   periodOptions: any[];
-  initialPeriod?: string;
+  packageOptions: any[];
+  initialPeriod: string;
 }
 
 export function CategoryPageClient({
   category,
   packages,
-  packageOptions,
   periodOptions,
+  packageOptions,
   initialPeriod,
 }: CategoryPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const {
-    selectedPackage,
-    selectedPeriod,
-    setSelectedPackage,
-    setSelectedPeriod,
-  } = usePackageContext();
+  const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
 
-  // Initialize with URL params first, then context values
-  const [currentPeriod, setCurrentPeriod] = useState("all");
-
-  // Update local state after component mounts to match props/context
+  // Sync with URL params
   useEffect(() => {
-    const periodToUse = initialPeriod || selectedPeriod || "all";
-    setCurrentPeriod(periodToUse);
+    const period = searchParams.get("period") || "all";
+    setSelectedPeriod(period);
+  }, [searchParams]);
 
-    // Also update context if we have initialPeriod from URL
-    if (initialPeriod && initialPeriod !== selectedPeriod) {
-      setSelectedPeriod(initialPeriod);
+  // Filter packages based on selected period
+  const filteredPackages = useMemo(() => {
+    if (selectedPeriod === "all") {
+      return packages;
     }
-  }, [initialPeriod, selectedPeriod, setSelectedPeriod]);
 
-  // Handle package change
-  const handlePackageChange = (packageId: string) => {
-    setSelectedPackage(packageId);
-    router.push(`/packages/${category.slug}?period=${currentPeriod}`);
-  };
+    return packages.filter((pkg) => {
+      // Assuming the package has a period field that matches the period value
+      return (
+        pkg.coreInfo?.period?.value === selectedPeriod ||
+        pkg.coreInfo?.period?.id === selectedPeriod ||
+        pkg.period?.value === selectedPeriod ||
+        pkg.period?.id === selectedPeriod
+      );
+    });
+  }, [packages, selectedPeriod]);
 
-  // Handle period change
   const handlePeriodChange = (periodId: string) => {
-    setCurrentPeriod(periodId);
     setSelectedPeriod(periodId);
 
-    // Update URL with search params
-    const params = new URLSearchParams(searchParams.toString());
+    // Update URL
+    const params = new URLSearchParams(searchParams);
     if (periodId === "all") {
       params.delete("period");
     } else {
       params.set("period", periodId);
     }
 
-    const newUrl = params.toString() ? `?${params.toString()}` : "";
-    router.replace(`/packages/${category.slug}${newUrl}`, { scroll: false });
+    const queryString = params.toString();
+    const newUrl = queryString
+      ? `/packages/${category.slug}?${queryString}`
+      : `/packages/${category.slug}`;
+    router.push(newUrl);
   };
-
-  const getCategoryTitle = (category: any) => {
-    return category?.title || category?.categoryDetails?.name || "Packages";
-  };
-
-  // We can now directly use the period data from the CMS
-  useEffect(() => {
-    // Debug log to check package data
-    console.log(
-      "Package period data:",
-      packages.map((pkg) => ({
-        title: pkg.title,
-        period: pkg.coreInfo?.period,
-      }))
-    );
-  }, [packages]);
 
   return (
     <main className={styles.main}>
@@ -98,64 +80,63 @@ export function CategoryPageClient({
           className={styles.packageSelectorWrapper}
           style={{ minHeight: "150px" }}
         >
-          <SectionTitle text="Choose Your Package" />
+          <SectionTitle
+            text={`${category.title} Packages`}
+            specialWord={category.title}
+          />
           <PackageSelector
             packageOptions={packageOptions}
             periodOptions={periodOptions}
-            onPackageChange={handlePackageChange}
+            selectedPackage={category.slug}
+            selectedPeriod={selectedPeriod}
             onPeriodChange={handlePeriodChange}
-            defaultPackage={selectedPackage}
-            defaultPeriod={currentPeriod}
+            showPackageSelector={true}
           />
         </Column>
       </Section>
 
-      {/* Category Header */}
-      <Section>
+      {/* Category Description */}
+      {/* {category.categoryDetails?.description && (
         <Column gap={2} alignItems="start" fullWidth>
-          <SectionTitle
-            text={`${getCategoryTitle(category)} Packages`}
-            specialWord={getCategoryTitle(category)}
-            className={styles.sectionTitle}
-          />
-          {category.description && (
-            <p className={styles.categoryDescription}>{category.description}</p>
-          )}
+          <DescriptionText text={category.categoryDetails.description} />
         </Column>
-      </Section>
+      )} */}
 
       {/* Packages Grid */}
       <Section>
         <Column gap={4} fullWidth responsive responsiveGap="var(--space-3)">
-          {packages.length > 0 ? (
-            packages.map((pkg) => (
-              <FeaturePackageCard
-                key={pkg.id}
-                title={pkg.title}
-                description={pkg.description}
-                price={pkg.price}
-                // discountedPrice={pkg.discountedPrice}
-                location={pkg.location}
-                // Use the pre-formatted period value directly from CMS
-                duration={
-                  pkg.coreInfo?.period?.shortTitle ||
-                  pkg.coreInfo?.period?.title ||
-                  ""
-                }
-                image={pkg.images?.[0] || pkg.media?.heroImage}
-                href={`/packages/${category.slug}/${pkg.slug}`}
-                // highlights={pkg.highlights?.slice(0, 3)} // Show first 3 highlights
-              />
-            ))
+          {/* <SectionTitle
+            text={`${category.title} Options`}
+            specialWord="Options"
+          /> */}
+          {filteredPackages.length > 0 ? (
+            // <div className={styles.packagesGrid}>
+            <>
+              {filteredPackages.map((pkg) => (
+                <FeaturePackageCard
+                  key={pkg.id}
+                  title={pkg.title}
+                  description={
+                    pkg.coreInfo?.shortDescription || pkg.description
+                  }
+                  image={pkg.media}
+                  href={`/packages/${category.slug}/${pkg.slug}`}
+                  price={pkg.pricing?.basePrice}
+                  duration={
+                    pkg.coreInfo?.period?.shortTitle ||
+                    pkg.coreInfo?.period?.title
+                  }
+                  location="India"
+                />
+              ))}
+            </>
           ) : (
+            // </div>
             <div className={styles.noPackages}>
-              <p>No packages found for the selected period.</p>
-              <button
-                onClick={() => handlePeriodChange("all")}
-                className={styles.showAllButton}
-              >
-                Show All Packages
-              </button>
+              <p>No packages found for the selected duration.</p>
+              <p>
+                Try selecting "All Durations" to see all available packages.
+              </p>
             </div>
           )}
         </Column>

@@ -5,7 +5,6 @@ import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
-import { PackageProvider } from "@/context/PackageContext";
 import { BookingProviders } from "@/context/BookingProviders";
 import { TopLoadingBarProvider } from "@/components/layout/TopLoadingBarProvider/TopLoadingBarProvider";
 import { Footer, Header } from "@/components/organisms";
@@ -79,17 +78,17 @@ export default function RootLayout({
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
         <TopLoadingBarProvider>
           <BookingProviders>
-            <PackageProvider>
-              <Header />
-              <PageBackgroundProvider>
-                <Container>
-                  <Column gap="var(--space-section)" fullWidth>
-                    {children}
-                  </Column>
-                </Container>
-              </PageBackgroundProvider>
-              <Footer />
-            </PackageProvider>
+            {/* <PackageProvider> */}
+            <Header />
+            <PageBackgroundProvider>
+              <Container>
+                <Column gap="var(--space-section)" fullWidth>
+                  {children}
+                </Column>
+              </Container>
+            </PageBackgroundProvider>
+            <Footer />
+            {/* </PackageProvider> */}
           </BookingProviders>
         </TopLoadingBarProvider>
       </body>
