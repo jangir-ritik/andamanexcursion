@@ -59,6 +59,16 @@ export const useImageSrc = (
     if (typeof input === "string") {
       // Handle MongoDB ObjectID directly
       if (isMongoObjectId(input)) {
+        // First try to check if we have a file with this ID as name in the static directory
+        if (input.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+          return {
+            src: `/media/${input}`,
+            isValid: true,
+            isMediaObject: false,
+            originalSrc: input,
+          };
+        }
+        // Fallback to API path
         const mediaPath = `/api/media/file/${input}`;
         if (debug) console.log("Converting MongoDB ID to path:", mediaPath);
         return {
@@ -117,7 +127,16 @@ export const useImageSrc = (
 
 // Helper function to process API paths
 const processApiPath = (url: string, baseUrl: string): string => {
-  // Handle MongoDB ObjectID directly
+  // Handle filenames - serve from static directory if they look like filenames
+  if (typeof url === "string" && url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+    if (url.startsWith("/")) {
+      return url; // Already a path
+    } else {
+      return `/media/${url}`; // Add path prefix
+    }
+  }
+
+  // Handle MongoDB ObjectID directly - fallback to API
   if (isMongoObjectId(url)) {
     return `/api/media/file/${url}`;
   }

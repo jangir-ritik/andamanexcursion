@@ -2,6 +2,9 @@ import { CollectionConfig } from "payload";
 
 const Media: CollectionConfig = {
   slug: "media",
+  access: {
+    read: () => true, // Allow public read access
+  },
   upload: {
     staticDir: "public/media",
     imageSizes: [

@@ -272,7 +272,12 @@ const extractImageUrl = (mediaField: any): string => {
 
   // Case 3: Media ID that needs to be converted to URL
   if (mediaField && typeof mediaField === "object" && !mediaField.url) {
-    // If it's an ID (MongoDB ObjectId), construct a media URL
+    // If we have filename, serve from static directory
+    if (mediaField.filename) {
+      return `/media/${mediaField.filename}`;
+    }
+
+    // If it's an ID (MongoDB ObjectId), construct a media URL as fallback
     if (typeof mediaField === "string" || mediaField.id) {
       const mediaId =
         typeof mediaField === "string" ? mediaField : mediaField.id;
