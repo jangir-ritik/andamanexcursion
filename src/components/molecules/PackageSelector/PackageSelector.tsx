@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./PackageSelector.module.css";
+import { useClientSearchParams } from "@/hooks/useClientSearchParams";
 
 interface Option {
   id: string;
@@ -34,7 +35,8 @@ export const PackageSelector = ({
   const triggerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { searchParams, SearchParamsLoader, getParam } =
+    useClientSearchParams();
 
   // Auto-detect current package from URL
   const pathParts = pathname.split("/");
@@ -68,7 +70,7 @@ export const PackageSelector = ({
     setIsDropdownOpen(false);
 
     // Build URL with current period if it exists
-    const currentPeriod = searchParams.get("period") || selectedPeriod;
+    const currentPeriod = getParam("period") || selectedPeriod;
     const periodParam =
       currentPeriod && currentPeriod !== "all"
         ? `?period=${currentPeriod}`
@@ -97,7 +99,7 @@ export const PackageSelector = ({
       onPeriodChange(newPeriodId);
     } else {
       // Otherwise, update the URL
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams(searchParams || "");
       if (newPeriodId === "all") {
         params.delete("period");
       } else {
@@ -130,6 +132,7 @@ export const PackageSelector = ({
 
   return (
     <div className={`${styles.packageSelector} ${className}`}>
+      <SearchParamsLoader />
       <div className={styles.selectorContainer}>
         {/* Package Selector */}
         {showPackageSelector && packageOptions.length > 0 && (
@@ -169,8 +172,7 @@ export const PackageSelector = ({
                   }`}
                   onClick={() => {
                     setIsDropdownOpen(false);
-                    const currentPeriod =
-                      searchParams.get("period") || selectedPeriod;
+                    const currentPeriod = getParam("period") || selectedPeriod;
                     const periodParam =
                       currentPeriod && currentPeriod !== "all"
                         ? `?period=${currentPeriod}`

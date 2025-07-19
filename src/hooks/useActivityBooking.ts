@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useBooking } from "@/context/BookingContext";
 import { useActivityBookingContext } from "@/context/ActivityBookingContext";
+import { useClientSearchParams } from "./useClientSearchParams";
 
 export interface ActivityBookingHookState {
   activity: string;
@@ -13,6 +14,7 @@ export interface ActivityBookingHookState {
 export interface ActivityBookingHookActions {
   handleSelectActivity: (activityId: string) => void;
   setTimeFilter: (filter: string | null) => void;
+  SearchParamsLoader: React.FC;
 }
 
 // Define the hook
@@ -20,7 +22,8 @@ function useActivityBooking(): [
   ActivityBookingHookState,
   ActivityBookingHookActions
 ] {
-  const searchParams = useSearchParams();
+  const { searchParams, getParam, SearchParamsLoader } =
+    useClientSearchParams();
   const router = useRouter();
   const { bookingState } = useBooking();
   const {
@@ -32,38 +35,35 @@ function useActivityBooking(): [
 
   // Memoize search parameters to prevent unnecessary re-renders
   const activity = useMemo(
-    () => searchParams.get("activity") || "scuba-diving",
-    [searchParams]
+    () => getParam("activity") || "scuba-diving",
+    [getParam]
   );
   const date = useMemo(
-    () => searchParams.get("date") || bookingState.date,
-    [searchParams, bookingState.date]
+    () => getParam("date") || bookingState.date,
+    [getParam, bookingState.date]
   );
   const time = useMemo(
-    () => searchParams.get("time") || bookingState.time,
-    [searchParams, bookingState.time]
+    () => getParam("time") || bookingState.time,
+    [getParam, bookingState.time]
   );
   const passengers = useMemo(
     () =>
       parseInt(
-        searchParams.get("passengers") ||
+        getParam("passengers") ||
           String(
             bookingState.adults + bookingState.children + bookingState.infants
           ),
         10
       ),
-    [
-      searchParams,
-      bookingState.adults,
-      bookingState.children,
-      bookingState.infants,
-    ]
+    [getParam, bookingState.adults, bookingState.children, bookingState.infants]
   );
 
   // Effect for initial load and when search params change
   useEffect(() => {
-    loadActivities(activity, date, time, passengers);
-  }, [loadActivities, activity, date, time, passengers]);
+    if (searchParams) {
+      loadActivities(activity, date, time, passengers);
+    }
+  }, [loadActivities, activity, date, time, passengers, searchParams]);
 
   // Effect to set initial time filter
   useEffect(() => {
@@ -87,8 +87,9 @@ function useActivityBooking(): [
     () => ({
       handleSelectActivity,
       setTimeFilter: setActivityTimeFilter,
+      SearchParamsLoader,
     }),
-    [handleSelectActivity, setActivityTimeFilter]
+    [handleSelectActivity, setActivityTimeFilter, SearchParamsLoader]
   );
 
   // Memoized state to prevent recreation on every render

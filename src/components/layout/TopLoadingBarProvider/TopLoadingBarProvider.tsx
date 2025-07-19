@@ -3,6 +3,7 @@
 import { createContext, useContext, useRef, ReactNode, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import LoadingBar from "react-top-loading-bar";
+import { useClientSearchParams } from "@/hooks/useClientSearchParams";
 
 interface TopLoadingBarContextType {
   start: () => void;
@@ -35,6 +36,7 @@ export const TopLoadingBarProvider = ({
   const ref = useRef<any>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const { searchParams, SearchParamsLoader } = useClientSearchParams();
 
   const start = () => {
     ref.current?.continuousStart();
@@ -92,10 +94,19 @@ export const TopLoadingBarProvider = ({
     // Complete loading when pathname changes
     const timer = setTimeout(() => {
       complete();
-    }, 100);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [pathname, complete]);
+
+  useEffect(() => {
+    // Complete loading when search params change
+    const timer = setTimeout(() => {
+      complete();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchParams, complete]);
 
   useEffect(() => {
     // Handle browser back/forward buttons
@@ -120,6 +131,7 @@ export const TopLoadingBarProvider = ({
         loaderSpeed={500}
         waitingTime={400}
       />
+      <SearchParamsLoader />
       {children}
     </TopLoadingBarContext.Provider>
   );

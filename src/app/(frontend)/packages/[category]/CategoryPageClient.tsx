@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
-import { SectionTitle, DescriptionText } from "@/components/atoms";
+import { SectionTitle } from "@/components/atoms";
 import styles from "../page.module.css";
 import { FeaturePackageCard } from "@/components/molecules/Cards";
+import { useClientSearchParams } from "@/hooks/useClientSearchParams";
 
 interface CategoryPageClientProps {
   category: any;
@@ -24,14 +25,15 @@ export function CategoryPageClient({
   initialPeriod,
 }: CategoryPageClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { searchParams, SearchParamsLoader, getParam } =
+    useClientSearchParams();
   const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
 
   // Sync with URL params
   useEffect(() => {
-    const period = searchParams.get("period") || "all";
+    const period = getParam("period") || "all";
     setSelectedPeriod(period);
-  }, [searchParams]);
+  }, [searchParams, getParam]);
 
   // Filter packages based on selected period
   const filteredPackages = useMemo(() => {
@@ -54,7 +56,7 @@ export function CategoryPageClient({
     setSelectedPeriod(periodId);
 
     // Update URL
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams || "");
     if (periodId === "all") {
       params.delete("period");
     } else {
@@ -65,11 +67,14 @@ export function CategoryPageClient({
     const newUrl = queryString
       ? `/packages/${category.slug}?${queryString}`
       : `/packages/${category.slug}`;
-    router.push(newUrl);
+
+    // Push the URL with scroll: false to prevent page jump
+    router.push(newUrl, { scroll: false });
   };
 
   return (
     <main className={styles.main}>
+      <SearchParamsLoader />
       {/* Package Selector Section */}
       <Section>
         <Column
@@ -94,44 +99,31 @@ export function CategoryPageClient({
           />
         </Column>
       </Section>
-
-      {/* Category Description */}
-      {/* {category.categoryDetails?.description && (
-        <Column gap={2} alignItems="start" fullWidth>
-          <DescriptionText text={category.categoryDetails.description} />
-        </Column>
-      )} */}
-
       {/* Packages Grid */}
       <Section>
         <Column gap={4} fullWidth responsive responsiveGap="var(--space-3)">
-          {/* <SectionTitle
-            text={`${category.title} Options`}
-            specialWord="Options"
-          /> */}
           {filteredPackages.length > 0 ? (
-            // <div className={styles.packagesGrid}>
             <>
               {filteredPackages.map((pkg) => (
                 <FeaturePackageCard
                   key={pkg.id}
                   title={pkg.title}
                   description={
-                    pkg.coreInfo?.shortDescription || pkg.description
+                    pkg.descriptions?.shortDescription ||
+                    pkg.descriptions?.description
                   }
-                  image={pkg.media}
+                  image={pkg.media?.images?.[0]?.image?.url || ""}
                   href={`/packages/${category.slug}/${pkg.slug}`}
-                  price={pkg.pricing?.basePrice}
+                  price={pkg.pricing?.price}
                   duration={
                     pkg.coreInfo?.period?.shortTitle ||
                     pkg.coreInfo?.period?.title
                   }
-                  location="India"
+                  location={pkg.coreInfo?.location || "Andaman"}
                 />
               ))}
             </>
           ) : (
-            // </div>
             <div className={styles.noPackages}>
               <p>No packages found for the selected duration.</p>
               <p>

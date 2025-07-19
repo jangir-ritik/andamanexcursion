@@ -17,6 +17,7 @@ import { ACTIVITIES } from "@/data/activities";
 const ActivitiesBookingContent = () => {
   // Get basic booking parameters from useActivityBooking hook
   const [bookingParams, bookingActions] = useActivityBooking();
+  const { SearchParamsLoader } = bookingActions;
 
   // Get activity-specific state from context
   const { activityState, setTimeFilter: setActivityTimeFilter } =
@@ -36,6 +37,7 @@ const ActivitiesBookingContent = () => {
 
   return (
     <>
+      <SearchParamsLoader />
       <SearchSummary
         loading={loading}
         resultCount={mainTimeGroup.length}
@@ -68,7 +70,8 @@ const ActivitiesBookingContent = () => {
 // Component that uses useSearchParams for the title section
 const ActivityPageTitle = () => {
   // Get booking parameters to access selected activity
-  const [bookingParams] = useActivityBooking();
+  const [bookingParams, bookingActions] = useActivityBooking();
+  const { SearchParamsLoader } = bookingActions;
   const { activity: activityId } = bookingParams;
 
   // Find the activity name from the ACTIVITIES array
@@ -80,30 +83,16 @@ const ActivityPageTitle = () => {
   const specialWord = `${activityName}`;
 
   return (
-    <SectionTitle
-      specialWord={specialWord}
-      text={titleText}
-      id="available-activities-title"
-    />
+    <>
+      <SearchParamsLoader />
+      <SectionTitle
+        specialWord={specialWord}
+        text={titleText}
+        id="available-activities-title"
+      />
+    </>
   );
 };
-
-// Loading component for Suspense fallback
-const ActivitiesBookingLoader = () => (
-  <div className={styles.loader}>
-    <div className={styles.spinner} />
-    <p>Loading activity options...</p>
-  </div>
-);
-
-// Simple title fallback for loading state
-const TitleLoader = () => (
-  <SectionTitle
-    specialWord="Activities"
-    text="Activities in Andaman"
-    id="available-activities-title"
-  />
-);
 
 export default function ActivitiesBookingPage() {
   return (
@@ -140,16 +129,10 @@ export default function ActivitiesBookingPage() {
             gap="var(--space-4)"
             fullWidth
           >
-            {/* Wrap the title in Suspense since it uses useSearchParams */}
-            <Suspense fallback={<TitleLoader />}>
-              <ActivityPageTitle />
-            </Suspense>
+            <ActivityPageTitle />
           </Row>
 
-          {/* Suspense for the activity content */}
-          <Suspense fallback={<ActivitiesBookingLoader />}>
-            <ActivitiesBookingContent />
-          </Suspense>
+          <ActivitiesBookingContent />
         </Column>
       </Section>
     </main>

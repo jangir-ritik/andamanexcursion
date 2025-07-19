@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useBooking } from "@/context/BookingContext";
 import { useFerryBookingContext } from "@/context/FerryBookingContext";
+import { useClientSearchParams } from "./useClientSearchParams";
 
 export interface FerryBookingHookState {
   from: string;
@@ -14,11 +15,13 @@ export interface FerryBookingHookState {
 export interface FerryBookingHookActions {
   handleChooseSeats: (classType: string, ferryIndex: number) => void;
   setTimeFilter: (filter: string | null) => void;
+  SearchParamsLoader: React.FC;
 }
 
 // Define the hook
 function useFerryBooking(): [FerryBookingHookState, FerryBookingHookActions] {
-  const searchParams = useSearchParams();
+  const { searchParams, getParam, SearchParamsLoader } =
+    useClientSearchParams();
   const router = useRouter();
   const { bookingState } = useBooking();
   const {
@@ -30,42 +33,39 @@ function useFerryBooking(): [FerryBookingHookState, FerryBookingHookActions] {
 
   // Memoize search parameters to prevent unnecessary re-renders
   const from = useMemo(
-    () => searchParams.get("from") || bookingState.from,
-    [searchParams, bookingState.from]
+    () => getParam("from") || bookingState.from,
+    [getParam, bookingState.from]
   );
   const to = useMemo(
-    () => searchParams.get("to") || bookingState.to,
-    [searchParams, bookingState.to]
+    () => getParam("to") || bookingState.to,
+    [getParam, bookingState.to]
   );
   const date = useMemo(
-    () => searchParams.get("date") || bookingState.date,
-    [searchParams, bookingState.date]
+    () => getParam("date") || bookingState.date,
+    [getParam, bookingState.date]
   );
   const time = useMemo(
-    () => searchParams.get("time") || bookingState.time,
-    [searchParams, bookingState.time]
+    () => getParam("time") || bookingState.time,
+    [getParam, bookingState.time]
   );
   const passengers = useMemo(
     () =>
       parseInt(
-        searchParams.get("passengers") ||
+        getParam("passengers") ||
           String(
             bookingState.adults + bookingState.children + bookingState.infants
           ),
         10
       ),
-    [
-      searchParams,
-      bookingState.adults,
-      bookingState.children,
-      bookingState.infants,
-    ]
+    [getParam, bookingState.adults, bookingState.children, bookingState.infants]
   );
 
   // Effect for initial load and when search params change
   useEffect(() => {
-    loadFerries(from, to, date, passengers);
-  }, [loadFerries, from, to, date, passengers]);
+    if (searchParams) {
+      loadFerries(from, to, date, passengers);
+    }
+  }, [loadFerries, from, to, date, passengers, searchParams]);
 
   // Effect to set initial time filter
   useEffect(() => {
@@ -89,8 +89,9 @@ function useFerryBooking(): [FerryBookingHookState, FerryBookingHookActions] {
     () => ({
       handleChooseSeats,
       setTimeFilter: setFerryTimeFilter,
+      SearchParamsLoader,
     }),
-    [handleChooseSeats, setFerryTimeFilter]
+    [handleChooseSeats, setFerryTimeFilter, SearchParamsLoader]
   );
 
   // Memoized state to prevent recreation on every render

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
@@ -16,6 +16,7 @@ import {
   Testimonials,
 } from "@/components/sectionBlocks/common";
 import styles from "./page.module.css";
+import { useClientSearchParams } from "@/hooks/useClientSearchParams";
 
 interface PackagesPageClientProps {
   packageOptions: any[];
@@ -34,7 +35,8 @@ export function PackagesPageClient({
   testimonials,
   largeCardSectionContent,
 }: PackagesPageClientProps) {
-  const searchParams = useSearchParams();
+  const { searchParams, SearchParamsLoader, getParam } =
+    useClientSearchParams();
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState("all");
   const [filteredCategories, setFilteredCategories] = useState(
@@ -43,9 +45,9 @@ export function PackagesPageClient({
 
   // Sync with URL params
   useEffect(() => {
-    const period = searchParams.get("period") || "all";
+    const period = getParam("period") || "all";
     setSelectedPeriod(period);
-  }, [searchParams]);
+  }, [searchParams, getParam]);
 
   // Filter categories based on period (if needed)
   useEffect(() => {
@@ -62,7 +64,7 @@ export function PackagesPageClient({
     setSelectedPeriod(periodId);
 
     // Update URL
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams || "");
     if (periodId === "all") {
       params.delete("period");
     } else {
@@ -71,11 +73,12 @@ export function PackagesPageClient({
 
     const queryString = params.toString();
     const newUrl = queryString ? `/packages?${queryString}` : "/packages";
-    router.push(newUrl);
+    router.push(newUrl, { scroll: false });
   };
 
   return (
     <main className={styles.main}>
+      <SearchParamsLoader />
       <Section>
         <Column
           gap={3}
