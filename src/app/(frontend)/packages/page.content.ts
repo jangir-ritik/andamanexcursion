@@ -22,7 +22,18 @@ export const periodOptions: PeriodOption[] = [
   { id: "7-6", label: "7D 6N" },
 ];
 
-export const packageCategoriesContent = [
+export interface PackageCategory {
+  id: string;
+  title: string;
+  description: string;
+  images: {
+    src: string;
+    alt: string;
+  }[];
+  href: string;
+}
+
+export const packageCategoriesContent: PackageCategory[] = [
   {
     id: "honeymoon-retreat",
     title: "Honeymoon Retreat",

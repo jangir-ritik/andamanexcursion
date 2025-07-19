@@ -3,14 +3,14 @@
 import type { PackageCardProps } from "./PackageCard.types";
 import styles from "./PackageCard.module.css";
 import Link from "next/link";
-import Image from "next/image";
 import clsx from "clsx";
-import { InlineLink } from "@/components/atoms";
+import { ImageContainer, InlineLink } from "@/components/atoms";
+import { cn } from "@/utils/cn";
 
 export const PackageCard = ({
   title,
   description,
-  images,
+  media,
   href,
   className,
 }: PackageCardProps) => {
@@ -40,17 +40,17 @@ export const PackageCard = ({
       <div className={styles.divider} />
       <p className={styles.description}>{description}</p>
       <div className={styles.imagesContainer}>
-        {images.map((image, index) => {
+        {media?.cardImages?.map((image, index) => {
           // Make the middle image larger
-          const isMiddleImage = index === 1 && images.length >= 3;
+          const isMiddleImage = index === 1 && media?.cardImages?.length >= 3;
           const WrapperComponent = isMiddleImage
             ? styles.largeImageWrapper
             : styles.smallImageWrapper;
 
           return (
             <div key={index} className={WrapperComponent}>
-              <Image
-                src={image.src}
+              {/* <Image
+                src={image.url}
                 alt={image.alt}
                 fill
                 sizes={
@@ -59,6 +59,17 @@ export const PackageCard = ({
                     : "(max-width: 768px) 100vw, 251px"
                 }
                 className={styles.image}
+              /> */}
+              <ImageContainer
+                src={image.image}
+                alt={image.alt}
+                className={cn(styles.image, isMiddleImage && styles.middleImage)}
+                fullWidth
+                // sizes={
+                //   isMiddleImage
+                //     ? "(max-width: 768px) 100vw, 576px"
+                //     : "(max-width: 768px) 100vw, 251px"
+                // }
               />
             </div>
           );

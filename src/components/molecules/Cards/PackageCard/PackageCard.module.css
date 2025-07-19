@@ -11,17 +11,14 @@
   padding: var(--space-10);
   gap: var(--space-8);
   box-sizing: border-box;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .interactive {
   cursor: pointer;
 }
-
-/* .interactive:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-} */
 
 .interactive:hover .imagesContainer img {
   transform: scale(1.05);
@@ -122,7 +119,10 @@
 
 .smallImageWrapper {
   position: relative;
-  width: 251px;
+  max-width: 251px;
+  /* width: 251px; */
+  width: 100%;
+  flex-grow: 1;
   height: 173px;
   background: var(--color-border-secondary);
   border-radius: var(--radius-md);
@@ -131,7 +131,9 @@
 
 .largeImageWrapper {
   position: relative;
-  width: 576px;
+  /* width: 576px; */
+  width: 100%;
+  flex-grow: 2;
   height: 173px;
   background: var(--color-border-secondary);
   border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 60px;
@@ -141,6 +143,14 @@
 .image {
   object-fit: cover;
   transition: transform 0.5s ease;
+  border-radius: unset !important;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.middleImage {
+  border-radius: unset !important;
 }
 
 .cardLink {

@@ -7,17 +7,26 @@ import path from "path";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+// Collections
 import Users from "./app/(payload)/collections/Users";
 import Media from "./app/(payload)/collections/Media";
 import Pages from "./app/(payload)/collections/Pages";
+import Packages from "./app/(payload)/collections/Packages";
+import PackageCategories from "./app/(payload)/collections/PackageCategories/PackageCategories";
 
 export default buildConfig({
-  collections: [Users, Media, Pages],
+  collections: [Users, Media, Pages, Packages, PackageCategories],
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || "",
   }),
   sharp,
+  debug: true,
+  logger: {
+    options: {
+      level: "debug",
+    },
+  },
   admin: {
     importMap: {
       baseDir: path.resolve(dirname, "components"),

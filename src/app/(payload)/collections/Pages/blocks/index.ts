@@ -1,4 +1,5 @@
 import { Block } from "payload";
+
 import { featureBlock } from "./feature";
 import { faqBlock } from "./faq";
 import { largeCardBlock } from "./largeCard";

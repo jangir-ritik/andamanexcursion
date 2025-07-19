@@ -23,17 +23,17 @@ export const PackageProvider = ({ children }: { children: ReactNode }) => {
     // This code runs only on the client side
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("selectedPackage");
-      return saved || "honeymoon";
+      return saved || "all";
     }
-    return "honeymoon";
+    return "all";
   });
 
   const [selectedPeriod, setSelectedPeriodState] = useState<string>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("selectedPeriod");
-      return saved || "4-3";
+      return saved || "all";
     }
-    return "4-3";
+    return "all";
   });
 
   // Save to localStorage when state changes
