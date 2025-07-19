@@ -18,36 +18,36 @@ interface PackageContextType {
 const PackageContext = createContext<PackageContextType | undefined>(undefined);
 
 export const PackageProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize state from localStorage if available, otherwise use defaults
-  const [selectedPackage, setSelectedPackageState] = useState<string>(() => {
-    // This code runs only on the client side
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("selectedPackage");
-      return saved || "all";
-    }
-    return "all";
-  });
+  // Initialize with safe default values for SSR
+  const [selectedPackage, setSelectedPackageState] = useState<string>("all");
+  const [selectedPeriod, setSelectedPeriodState] = useState<string>("all");
+  // Track if we've hydrated
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const [selectedPeriod, setSelectedPeriodState] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("selectedPeriod");
-      return saved || "all";
-    }
-    return "all";
-  });
-
-  // Save to localStorage when state changes
+  // Only after hydration, load values from localStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    // This effect will only run on the client after hydration
+    const savedPackage = localStorage.getItem("selectedPackage");
+    const savedPeriod = localStorage.getItem("selectedPeriod");
+
+    if (savedPackage) setSelectedPackageState(savedPackage);
+    if (savedPeriod) setSelectedPeriodState(savedPeriod);
+
+    setIsHydrated(true);
+  }, []);
+
+  // Save to localStorage when state changes, but only after hydration
+  useEffect(() => {
+    if (isHydrated) {
       localStorage.setItem("selectedPackage", selectedPackage);
     }
-  }, [selectedPackage]);
+  }, [selectedPackage, isHydrated]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (isHydrated) {
       localStorage.setItem("selectedPeriod", selectedPeriod);
     }
-  }, [selectedPeriod]);
+  }, [selectedPeriod, isHydrated]);
 
   // Wrapper functions to update state
   const setSelectedPackage = (packageId: string) => {

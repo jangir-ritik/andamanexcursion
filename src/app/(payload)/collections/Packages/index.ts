@@ -1,8 +1,4 @@
 import { CollectionConfig } from "payload";
-import {
-  PACKAGE_CATEGORIES,
-  PACKAGE_PERIODS,
-} from "@/shared/constants/package-options";
 
 const Packages: CollectionConfig = {
   slug: "packages",
@@ -39,20 +35,32 @@ const Packages: CollectionConfig = {
       fields: [
         {
           name: "category",
-          type: "select",
+          type: "relationship",
+          relationTo: "package-categories",
           required: true,
-          options: PACKAGE_CATEGORIES,
           admin: {
-            description: "Package category",
+            description: "Select the package category",
+          },
+          // Filter to only show active categories
+          filterOptions: {
+            "displaySettings.isActive": {
+              equals: true,
+            },
           },
         },
         {
           name: "period",
-          type: "select",
+          type: "relationship",
+          relationTo: "package-periods",
           required: true,
-          options: PACKAGE_PERIODS,
           admin: {
-            description: "Package duration",
+            description: "Select the package period",
+          },
+          // Filter to only show active periods
+          filterOptions: {
+            isActive: {
+              equals: true,
+            },
           },
         },
         {

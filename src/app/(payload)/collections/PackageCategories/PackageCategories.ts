@@ -1,4 +1,3 @@
-import { PACKAGE_CATEGORIES } from "@/shared/constants/package-options";
 import { CollectionConfig } from "payload";
 
 const PackageCategories: CollectionConfig = {
@@ -26,6 +25,7 @@ const PackageCategories: CollectionConfig = {
       name: "slug",
       type: "text",
       required: true,
+      unique: true,
       admin: {
         description: 'URL slug (e.g., "honeymoon-retreat")',
       },
@@ -35,23 +35,28 @@ const PackageCategories: CollectionConfig = {
       type: "group",
       name: "categoryDetails",
       fields: [
-        {
-          name: "categoryId",
-          type: "select",
-          required: true,
-          unique: true,
-          options: PACKAGE_CATEGORIES,
-          admin: {
-            description:
-              "Internal category ID (must match package category field)",
-          },
-        },
+        // {
+        //   name: "categoryId",
+        //   type: "text",
+        //   required: true,
+        //   unique: true,
+        //   admin: {
+        //     description: "Internal category ID (used in packages and filters)",
+        //   },
+        // },
         {
           name: "description",
           type: "textarea",
           required: true,
           admin: {
             description: "Brief description shown on category cards",
+          },
+        },
+        {
+          name: "shortDescription",
+          type: "text",
+          admin: {
+            description: "Shorter version for compact displays",
           },
         },
       ],
@@ -119,6 +124,14 @@ const PackageCategories: CollectionConfig = {
           },
         },
         {
+          name: "isFeatured",
+          type: "checkbox",
+          defaultValue: false,
+          admin: {
+            description: "Feature this category prominently",
+          },
+        },
+        {
           name: "pageTitle",
           type: "text",
           admin: {
@@ -130,8 +143,48 @@ const PackageCategories: CollectionConfig = {
           name: "specialWord",
           type: "text",
           admin: {
-            description: "Word to highlight in the section title",
+            description: "Word to highlight in the page title",
           },
+        },
+      ],
+    },
+    // Content
+    {
+      type: "group",
+      name: "content",
+      fields: [
+        {
+          name: "highlights",
+          type: "array",
+          maxRows: 5,
+          admin: {
+            description: "Key highlights or features of this category",
+          },
+          fields: [
+            {
+              name: "highlight",
+              type: "text",
+            },
+          ],
+        },
+        {
+          name: "popularDestinations",
+          type: "array",
+          maxRows: 8,
+          admin: {
+            description: "Popular destinations for this category",
+          },
+          fields: [
+            {
+              name: "destination",
+              type: "text",
+            },
+            {
+              name: "isPopular",
+              type: "checkbox",
+              defaultValue: false,
+            },
+          ],
         },
       ],
     },
@@ -146,15 +199,42 @@ const PackageCategories: CollectionConfig = {
         {
           name: "metaTitle",
           type: "text",
+          admin: {
+            description: "SEO title (leave empty to auto-generate)",
+          },
         },
         {
           name: "metaDescription",
           type: "textarea",
+          admin: {
+            description: "SEO description (leave empty to auto-generate)",
+          },
         },
         {
           name: "metaImage",
           type: "upload",
           relationTo: "media",
+        },
+        {
+          name: "keywords",
+          type: "array",
+          maxRows: 10,
+          admin: {
+            description: "SEO keywords for this category",
+          },
+          fields: [
+            {
+              name: "keyword",
+              type: "text",
+            },
+          ],
+        },
+        {
+          name: "systemCategoryId",
+          type: "text",
+          admin: {
+            hidden: true, // Hide from admin UI
+          },
         },
       ],
     },
@@ -163,21 +243,52 @@ const PackageCategories: CollectionConfig = {
     beforeChange: [
       ({ data }) => {
         // Auto-generate slug from title if not provided
-        if (!data.slug && data.title) {
+        if (!data?.slug && data?.title) {
           data.slug = data.title
             .toLowerCase()
             .replace(/[^a-z0-9 -]/g, "")
             .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
+            .replace(/-+/g, "-")
+            .trim();
         }
+
+        // Auto-generate a system categoryId for internal use
+        // This creates a stable identifier based on the slug
+        data.systemCategoryId = data.slug;
 
         // Auto-generate pageTitle and specialWord if not provided
-        if (!data.pageTitle && data.title) {
-          data.pageTitle = data.title.replace(" Packages", "");
+        if (!data?.displaySettings?.pageTitle && data?.title) {
+          data.displaySettings = {
+            ...data.displaySettings,
+            pageTitle: data.title.replace(/\s+packages?/gi, "").trim(),
+          };
         }
 
-        if (!data.specialWord && data.pageTitle) {
-          data.specialWord = data.pageTitle;
+        if (
+          !data?.displaySettings?.specialWord &&
+          data?.displaySettings?.pageTitle
+        ) {
+          data.displaySettings = {
+            ...data.displaySettings,
+            specialWord: data.displaySettings.pageTitle,
+          };
+        }
+
+        // Auto-generate SEO fields if not provided
+        if (!data?.seo?.metaTitle && data?.title) {
+          data.seo = {
+            ...data.seo,
+            metaTitle: `${data.title} - Best Travel Packages & Deals`,
+          };
+        }
+
+        if (!data?.seo?.metaDescription && data?.categoryDetails?.description) {
+          data.seo = {
+            ...data.seo,
+            metaDescription: `${
+              data.categoryDetails.description
+            } Book your perfect ${data.title.toLowerCase()} with us today.`,
+          };
         }
 
         return data;

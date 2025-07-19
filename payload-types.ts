@@ -72,6 +72,7 @@ export interface Config {
     pages: Page;
     packages: Package;
     'package-categories': PackageCategory;
+    'package-periods': PackagePeriod;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -83,6 +84,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     packages: PackagesSelect<false> | PackagesSelect<true>;
     'package-categories': PackageCategoriesSelect<false> | PackageCategoriesSelect<true>;
+    'package-periods': PackagePeriodsSelect<false> | PackagePeriodsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -535,13 +537,13 @@ export interface Package {
    */
   coreInfo: {
     /**
-     * Package category
+     * Select the package category
      */
-    category: 'honeymoon' | 'family' | 'best';
+    category: string | PackageCategory;
     /**
-     * Package duration
+     * Select the package period
      */
-    period: '3-2' | '4-3' | '5-4' | '6-5' | '7-6';
+    period: string | PackagePeriod;
     location: string;
   };
   /**
@@ -674,13 +676,13 @@ export interface PackageCategory {
   slug: string;
   categoryDetails: {
     /**
-     * Internal category ID (must match package category field)
-     */
-    categoryId: 'honeymoon' | 'family' | 'best';
-    /**
      * Brief description shown on category cards
      */
     description: string;
+    /**
+     * Shorter version for compact displays
+     */
+    shortDescription?: string | null;
   };
   media?: {
     /**
@@ -708,19 +710,89 @@ export interface PackageCategory {
      */
     isActive?: boolean | null;
     /**
+     * Feature this category prominently
+     */
+    isFeatured?: boolean | null;
+    /**
      * Custom page title for category page (e.g., "Honeymoon")
      */
     pageTitle?: string | null;
     /**
-     * Word to highlight in the section title
+     * Word to highlight in the page title
      */
     specialWord?: string | null;
   };
+  content?: {
+    /**
+     * Key highlights or features of this category
+     */
+    highlights?:
+      | {
+          highlight?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Popular destinations for this category
+     */
+    popularDestinations?:
+      | {
+          destination?: string | null;
+          isPopular?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   seo?: {
+    /**
+     * SEO title (leave empty to auto-generate)
+     */
     metaTitle?: string | null;
+    /**
+     * SEO description (leave empty to auto-generate)
+     */
     metaDescription?: string | null;
     metaImage?: (string | null) | Media;
+    /**
+     * SEO keywords for this category
+     */
+    keywords?:
+      | {
+          keyword?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    systemCategoryId?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "package-periods".
+ */
+export interface PackagePeriod {
+  id: string;
+  /**
+   * Display name (e.g., '3 Days 2 Nights')
+   */
+  title: string;
+  /**
+   * Internal value (e.g., '3-2')
+   */
+  value: string;
+  /**
+   * Short display name (e.g., '3D 2N')
+   */
+  shortTitle?: string | null;
+  /**
+   * Display order in selectors
+   */
+  order?: number | null;
+  /**
+   * Whether this period is active in the selector
+   */
+  isActive?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -750,6 +822,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'package-categories';
         value: string | PackageCategory;
+      } | null)
+    | ({
+        relationTo: 'package-periods';
+        value: string | PackagePeriod;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1281,8 +1357,8 @@ export interface PackageCategoriesSelect<T extends boolean = true> {
   categoryDetails?:
     | T
     | {
-        categoryId?: T;
         description?: T;
+        shortDescription?: T;
       };
   media?:
     | T
@@ -1301,8 +1377,26 @@ export interface PackageCategoriesSelect<T extends boolean = true> {
     | {
         order?: T;
         isActive?: T;
+        isFeatured?: T;
         pageTitle?: T;
         specialWord?: T;
+      };
+  content?:
+    | T
+    | {
+        highlights?:
+          | T
+          | {
+              highlight?: T;
+              id?: T;
+            };
+        popularDestinations?:
+          | T
+          | {
+              destination?: T;
+              isPopular?: T;
+              id?: T;
+            };
       };
   seo?:
     | T
@@ -1310,7 +1404,27 @@ export interface PackageCategoriesSelect<T extends boolean = true> {
         metaTitle?: T;
         metaDescription?: T;
         metaImage?: T;
+        keywords?:
+          | T
+          | {
+              keyword?: T;
+              id?: T;
+            };
+        systemCategoryId?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "package-periods_select".
+ */
+export interface PackagePeriodsSelect<T extends boolean = true> {
+  title?: T;
+  value?: T;
+  shortTitle?: T;
+  order?: T;
+  isActive?: T;
   updatedAt?: T;
   createdAt?: T;
 }

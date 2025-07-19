@@ -3,10 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./PackageSelector.module.css";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import type { PackageOption,
-  PeriodOption,
-  PackageSelectorProps,
- } from "./PackageSelector.types";
+import type { PackageSelectorProps } from "./PackageSelector.types";
 
 export const PackageSelector = ({
   packageOptions,
@@ -17,15 +14,23 @@ export const PackageSelector = ({
   defaultPackage = "",
   defaultPeriod = "",
 }: PackageSelectorProps) => {
-  const [selectedPackage, setSelectedPackage] = useState(
-    defaultPackage || (packageOptions.length > 0 ? packageOptions[0].id : "")
-  );
-  const [selectedPeriod, setSelectedPeriod] = useState(
-    defaultPeriod || (periodOptions.length > 0 ? periodOptions[0].id : "")
-  );
+  // Initialize with basic defaults for SSR compatibility
+  const [selectedPackage, setSelectedPackage] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
+
+  // After component mounts, update with props - safe for hydration
+  useEffect(() => {
+    // Set initial values safely after first render
+    setSelectedPackage(
+      defaultPackage || (packageOptions.length > 0 ? packageOptions[0].id : "")
+    );
+    setSelectedPeriod(
+      defaultPeriod || (periodOptions.length > 0 ? periodOptions[0].id : "")
+    );
+  }, []);
 
   // Update local state when props change
   useEffect(() => {
@@ -93,9 +98,11 @@ export const PackageSelector = ({
 
   // Find the selected package and period labels
   const selectedPackageLabel =
-    packageOptions.find((p) => p.id === selectedPackage)?.label || "";
+    packageOptions.find((p) => p.id === selectedPackage)?.label ||
+    "Select package";
   const selectedPeriodLabel =
-    periodOptions.find((p) => p.id === selectedPeriod)?.label || "";
+    periodOptions.find((p) => p.id === selectedPeriod)?.label ||
+    "Select period";
 
   return (
     <div className={`${styles.packageSelector} ${className}`}>

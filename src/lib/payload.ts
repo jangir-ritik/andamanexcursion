@@ -1,10 +1,17 @@
 import { getPayload } from "payload";
 import { cache } from "react";
 import config from "@payload-config";
-import {
-  FRONTEND_CATEGORY_OPTIONS,
-  FRONTEND_PERIOD_OPTIONS,
-} from "@/shared/constants/package-options";
+
+/**
+ * PayloadCMS API Layer
+ * -------------------
+ * This file contains methods for accessing CMS data through PayloadCMS.
+ * All methods use the same pattern:
+ * 1. Initialize PayloadCMS (cached)
+ * 2. Query collections with appropriate filters
+ * 3. Transform data into frontend-friendly format if needed
+ * 4. Return results with proper error handling
+ */
 
 // Cache payload instance
 export const getCachedPayload = cache(async () => {
@@ -15,6 +22,12 @@ export const getCachedPayload = cache(async () => {
     throw error;
   }
 });
+
+/**
+ * Page Methods
+ * -----------
+ * Methods for accessing general page content
+ */
 
 export async function getPageBySlug(slug: string) {
   try {
@@ -58,7 +71,12 @@ export async function getAllPages() {
   }
 }
 
-// Package Category methods
+/**
+ * Package Category Methods
+ * -----------------------
+ * Methods for accessing package categories
+ */
+
 export async function getPackageCategories() {
   try {
     const payload = await getCachedPayload();
@@ -106,35 +124,37 @@ export async function getPackageCategoryBySlug(slug: string) {
   }
 }
 
-export async function getPackageCategoryByCategoryId(categoryId: string) {
+/**
+ * Package Period Methods
+ * --------------------
+ * Methods for accessing package periods
+ */
+
+export async function getAllPackagePeriods() {
   try {
     const payload = await getCachedPayload();
     const { docs } = await payload.find({
-      collection: "package-categories",
+      collection: "package-periods",
       where: {
-        and: [
-          {
-            "categoryDetails.categoryId": {
-              equals: categoryId,
-            },
-          },
-          {
-            "displaySettings.isActive": {
-              equals: true,
-            },
-          },
-        ],
+        isActive: {
+          equals: true,
+        },
       },
-      limit: 1,
+      sort: "order",
     });
-    return docs[0] || null;
+    return docs;
   } catch (error) {
-    console.error("Error getting package category by category id:", error);
-    return null;
+    console.error("Error getting package periods:", error);
+    return [];
   }
 }
 
-// Package methods
+/**
+ * Package Methods
+ * --------------
+ * Methods for accessing and filtering packages
+ */
+
 export async function getPackagesByCategory(categorySlug: string) {
   try {
     const payload = await getCachedPayload();
@@ -147,44 +167,18 @@ export async function getPackagesByCategory(categorySlug: string) {
       collection: "packages",
       where: {
         and: [
-          { "coreInfo.category": { equals: category.id } }, // Use category ID, not slug
+          // Using relationship value - this will match the ID of the category
+          { "coreInfo.category": { equals: category.id } },
           { "publishingSettings.status": { equals: "published" } },
         ],
       },
       sort: "title",
+      depth: 2,
     });
+
     return docs;
   } catch (error) {
     console.error("Error getting packages by category:", error);
-    return [];
-  }
-}
-
-export async function getFilteredPackages(
-  categorySlug: string,
-  period: string
-) {
-  try {
-    const payload = await getCachedPayload();
-
-    // Get category by slug first
-    const category = await getPackageCategoryBySlug(categorySlug);
-    if (!category) return [];
-
-    const { docs } = await payload.find({
-      collection: "packages",
-      where: {
-        and: [
-          { "coreInfo.category": { equals: category.id } },
-          { "coreInfo.period": { equals: period } },
-          { "publishingSettings.status": { equals: "published" } },
-        ],
-      },
-      sort: "title",
-    });
-    return docs;
-  } catch (error) {
-    console.error("Error getting filtered packages:", error);
     return [];
   }
 }
@@ -258,12 +252,33 @@ export async function getAllPackages(limit: number = 100) {
   }
 }
 
+/**
+ * Composite Methods
+ * ----------------
+ * Methods that combine multiple data sources
+ */
+
 export async function getPackagesPageData() {
   try {
-    const [packageCategories] = await Promise.all([getPackageCategories()]);
+    const [packageCategories, packagePeriods] = await Promise.all([
+      getPackageCategories(),
+      getAllPackagePeriods(),
+    ]);
 
-    const periodOptions = FRONTEND_PERIOD_OPTIONS;
-    const packageOptions = FRONTEND_CATEGORY_OPTIONS;
+    // Create period options with "All" option first
+    const periodOptions = [
+      { id: "all", label: "All Durations" },
+      ...packagePeriods.map((period) => ({
+        id: period.value,
+        label: period.shortTitle || period.title,
+      })),
+    ];
+
+    // Create package options from categories
+    const packageOptions = packageCategories.map((category) => ({
+      id: category.slug, // Use slug as reliable ID
+      label: category.title?.replace(" Packages", "") || category.title,
+    }));
 
     const packageCategoriesContent = packageCategories.map((category) => ({
       id: category.id,
@@ -276,21 +291,27 @@ export async function getPackagesPageData() {
     }));
 
     return {
-      packageOptions: FRONTEND_CATEGORY_OPTIONS,
-      periodOptions: FRONTEND_PERIOD_OPTIONS,
+      packageOptions,
+      periodOptions,
       packageCategoriesContent,
     };
   } catch (error) {
     console.error("Error getting packages page data:", error);
+    // Return fallback options if API fails
     return {
-      packageOptions: FRONTEND_CATEGORY_OPTIONS,
-      periodOptions: FRONTEND_PERIOD_OPTIONS,
+      packageOptions: [{ id: "honeymoon", label: "Honeymoon" }],
+      periodOptions: [{ id: "all", label: "All Durations" }],
       packageCategoriesContent: [],
     };
   }
 }
 
-// ===== ENHANCED METHODS FOR BETTER UX =====
+/**
+ * Advanced Filter Methods
+ * ---------------------
+ * Enhanced methods for complex filtering needs
+ */
+
 export async function getPackagesByFilters({
   categorySlug,
   period,
@@ -317,12 +338,36 @@ export async function getPackagesByFilters({
     }
 
     if (period) {
-      conditions.push({ "coreInfo.period": { equals: period } });
+      // With relationship fields, we need to query for packages where the period.value equals our filter
+      // But since we're searching inside a relationship, we need to use payload's special format
+
+      // First, find the period by value to get its ID
+      const periodObj = await payload.find({
+        collection: "package-periods",
+        where: {
+          value: { equals: period },
+        },
+        limit: 1,
+      });
+
+      if (periodObj.docs.length > 0) {
+        // Use the ID of the period for filtering
+        conditions.push({
+          "coreInfo.period": { equals: periodObj.docs[0].id },
+        });
+      } else {
+        console.warn(`Period ${period} not found in database`);
+      }
     }
 
     if (featured !== undefined) {
       conditions.push({ "featuredSettings.featured": { equals: featured } });
     }
+
+    console.log(
+      "Fetching packages with conditions:",
+      JSON.stringify(conditions)
+    );
 
     const { docs } = await payload.find({
       collection: "packages",
@@ -331,8 +376,18 @@ export async function getPackagesByFilters({
       },
       sort: featured ? "featuredOrder" : "title",
       limit,
-      depth: 1,
+      depth: 2, // Include related data
     });
+
+    // Debug log first package if available
+    if (docs.length > 0) {
+      console.log(
+        `Found ${docs.length} packages. First package period:`,
+        docs[0]?.coreInfo?.period
+      );
+    } else {
+      console.log("No packages found with conditions:", conditions);
+    }
 
     return docs;
   } catch (error) {

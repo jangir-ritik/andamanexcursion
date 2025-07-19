@@ -33,16 +33,19 @@ export function CategoryPageClient({
     setSelectedPeriod,
   } = usePackageContext();
 
-  // Initialize with URL search params or context
-  const [currentPeriod, setCurrentPeriod] = useState(
-    initialPeriod || selectedPeriod || "all"
-  );
+  // Initialize with URL params first, then context values
+  const [currentPeriod, setCurrentPeriod] = useState("all");
 
-  // Filter packages based on selected period
-  const filteredPackages = useMemo(() => {
-    if (currentPeriod === "all") return packages;
-    return packages.filter((pkg) => pkg.period === currentPeriod);
-  }, [packages, currentPeriod]);
+  // Update local state after component mounts to match props/context
+  useEffect(() => {
+    const periodToUse = initialPeriod || selectedPeriod || "all";
+    setCurrentPeriod(periodToUse);
+
+    // Also update context if we have initialPeriod from URL
+    if (initialPeriod && initialPeriod !== selectedPeriod) {
+      setSelectedPeriod(initialPeriod);
+    }
+  }, [initialPeriod, selectedPeriod, setSelectedPeriod]);
 
   // Handle package change
   const handlePackageChange = (packageId: string) => {
@@ -56,7 +59,7 @@ export function CategoryPageClient({
     setSelectedPeriod(periodId);
 
     // Update URL with search params
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     if (periodId === "all") {
       params.delete("period");
     } else {
@@ -71,12 +74,17 @@ export function CategoryPageClient({
     return category?.title || category?.categoryDetails?.name || "Packages";
   };
 
-  const formatDuration = (period: string) => {
-    // Convert period format like "4-3" to "4 Days 3 Nights"
-    if (!period || period === "all") return "";
-    const [days, nights] = period.split("-");
-    return `${days} Days ${nights} Nights`;
-  };
+  // We can now directly use the period data from the CMS
+  useEffect(() => {
+    // Debug log to check package data
+    console.log(
+      "Package period data:",
+      packages.map((pkg) => ({
+        title: pkg.title,
+        period: pkg.coreInfo?.period,
+      }))
+    );
+  }, [packages]);
 
   return (
     <main className={styles.main}>
@@ -119,8 +127,8 @@ export function CategoryPageClient({
       {/* Packages Grid */}
       <Section>
         <Column gap={4} fullWidth responsive responsiveGap="var(--space-3)">
-          {filteredPackages.length > 0 ? (
-            filteredPackages.map((pkg) => (
+          {packages.length > 0 ? (
+            packages.map((pkg) => (
               <FeaturePackageCard
                 key={pkg.id}
                 title={pkg.title}
@@ -128,7 +136,12 @@ export function CategoryPageClient({
                 price={pkg.price}
                 // discountedPrice={pkg.discountedPrice}
                 location={pkg.location}
-                duration={formatDuration(pkg.period)}
+                // Use the pre-formatted period value directly from CMS
+                duration={
+                  pkg.coreInfo?.period?.shortTitle ||
+                  pkg.coreInfo?.period?.title ||
+                  ""
+                }
                 image={pkg.images?.[0] || pkg.media?.heroImage}
                 href={`/packages/${category.slug}/${pkg.slug}`}
                 // highlights={pkg.highlights?.slice(0, 3)} // Show first 3 highlights
