@@ -9,10 +9,13 @@ export interface PackagesContent {
 }
 
 export interface Package {
-  image: string;
-  imageAlt: string;
+  id: string;
+  slug: string;
   title: string;
+  description?: string;
+  image: string;
+  price: string | number;
   duration: string;
-  price: string;
-  href: string;
+  location?: string;
+  href?: string;
 }

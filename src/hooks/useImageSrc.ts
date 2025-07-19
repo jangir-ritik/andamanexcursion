@@ -5,6 +5,7 @@ interface UseImageSrcOptions {
   fallbackUrl?: string;
   preferredSize?: keyof Media["sizes"]; // e.g., 'thumbnail', 'medium', 'large'
   baseUrl?: string;
+  debug?: boolean;
 }
 
 interface UseImageSrcReturn {
@@ -15,6 +16,11 @@ interface UseImageSrcReturn {
   mediaMetadata?: Pick<Media, "width" | "height" | "mimeType" | "filesize">;
 }
 
+// Test for MongoDB ObjectID format
+const isMongoObjectId = (str: string): boolean => {
+  return /^[0-9a-f]{24}$/i.test(str);
+};
+
 export const useImageSrc = (
   input: string | Media | null | undefined,
   options: UseImageSrcOptions = {}
@@ -23,9 +29,14 @@ export const useImageSrc = (
     fallbackUrl = "",
     preferredSize,
     baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "",
+    debug = false,
   } = options;
 
   return useMemo(() => {
+    if (debug) {
+      console.log("useImageSrc input:", input);
+    }
+
     // Type guard for Media objects
     const isMediaObject = (src: any): src is Media => {
       return src && typeof src === "object" && "url" in src;
@@ -46,7 +57,20 @@ export const useImageSrc = (
 
     // Process string URLs
     if (typeof input === "string") {
+      // Handle MongoDB ObjectID directly
+      if (isMongoObjectId(input)) {
+        const mediaPath = `/api/media/file/${input}`;
+        if (debug) console.log("Converting MongoDB ID to path:", mediaPath);
+        return {
+          src: mediaPath,
+          isValid: true,
+          isMediaObject: false,
+          originalSrc: input,
+        };
+      }
+
       const processedSrc = processApiPath(input, baseUrl);
+      if (debug) console.log("Processed string URL:", processedSrc);
       return {
         src: processedSrc,
         isValid: true,
@@ -65,6 +89,7 @@ export const useImageSrc = (
       }
 
       const processedSrc = processApiPath(url || "", baseUrl);
+      if (debug) console.log("Processed media object URL:", processedSrc);
 
       return {
         src: processedSrc,
@@ -87,15 +112,19 @@ export const useImageSrc = (
       isMediaObject: false,
       originalSrc: input,
     };
-  }, [input, fallbackUrl, preferredSize, baseUrl]);
+  }, [input, fallbackUrl, preferredSize, baseUrl, debug]);
 };
 
 // Helper function to process API paths
 const processApiPath = (url: string, baseUrl: string): string => {
+  // Handle MongoDB ObjectID directly
+  if (isMongoObjectId(url)) {
+    return `/api/media/file/${url}`;
+  }
+
   // Handle API paths that need to be converted to direct paths
   if (url.startsWith("/api/media/file/")) {
-    const filename = url.split("/").pop();
-    return `/media/${filename}`;
+    return url; // Keep API media paths as they are
   }
 
   // Handle relative URLs

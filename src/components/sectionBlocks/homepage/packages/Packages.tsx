@@ -47,17 +47,23 @@ export const Packages = ({ content }: PackagesProps) => {
           responsiveGap="var(--space-4)"
           fullWidth
         >
-          {packages.map((item: Package) => (
-            <SmallCard
-              key={item.href}
-              image={item.image}
-              imageAlt={item.imageAlt}
-              title={item.title}
-              duration={item.duration}
-              price={item.price}
-              href={item.href}
-            />
-          ))}
+          {packages.length > 0 ? (
+            packages.map((item: Package) => (
+              <SmallCard
+                key={item.id}
+                image={item.image}
+                imageAlt={`${item.title} package`}
+                title={item.title}
+                duration={item.duration}
+                price={item.price}
+                href={item.href || `/packages/all/${item.slug}`}
+              />
+            ))
+          ) : (
+            <div className="no-packages-message">
+              <p>No featured packages available at the moment.</p>
+            </div>
+          )}
         </Row>
       </Column>
     </Section>
