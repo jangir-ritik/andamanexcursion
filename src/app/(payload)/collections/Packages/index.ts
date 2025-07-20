@@ -3,7 +3,7 @@ import { CollectionConfig } from "payload";
 const Packages: CollectionConfig = {
   slug: "packages",
   admin: {
-    useAsTitle: "title", // Updated to reference nested title field
+    useAsTitle: "title",
     defaultColumns: ["title", "category", "period", "price", "featured"],
   },
   access: {
@@ -56,12 +56,7 @@ const Packages: CollectionConfig = {
           admin: {
             description: "Select the package period",
           },
-          // Filter to only show active periods
-          filterOptions: {
-            isActive: {
-              equals: true,
-            },
-          },
+          // Remove the filterOptions temporarily
         },
         {
           name: "location",
