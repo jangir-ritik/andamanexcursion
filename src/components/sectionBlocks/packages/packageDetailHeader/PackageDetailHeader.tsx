@@ -7,15 +7,26 @@ import type { PackageDetailHeaderProps } from "./PackageDetailHeader.types";
 export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
   packageData,
 }) => {
+  // Get first available image URL
+  const imageUrl = packageData.images?.[0]?.url || "/images/placeholder.png";
+
+  // Get period display
+  const periodValue =
+    typeof packageData.coreInfo?.period === "object"
+      ? packageData.coreInfo.period?.value
+      : packageData.coreInfo?.period || "";
+  const periodDisplay = periodValue.replace("-", "D ") + "N";
+
   return (
-    <React.Fragment>
+    <>
       <Row fullWidth responsive responsiveGap="var(--space-4)">
         <ImageContainer
-          src={packageData.images[1]}
+          src={imageUrl}
           alt={packageData.title}
           className={styles.imageContainer}
         />
       </Row>
+
       <Row
         fullWidth
         justifyContent="between"
@@ -23,12 +34,8 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
         responsive
         responsiveGap="var(--space-4)"
       >
-        <h3
-          aria-label={`Package: ${packageData.title}`}
-          className={styles.sectionTitle}
-        >
-          {packageData.title}
-        </h3>
+        <h3 className={styles.sectionTitle}>{packageData.title}</h3>
+
         <Column
           gap={1}
           alignItems="end"
@@ -37,28 +44,18 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
           responsiveAlignItems="start"
           responsiveGap="var(--space-2)"
         >
-          <p
-            className={styles.price}
-            aria-label={`Price: ${packageData.price} rupees per adult`}
-          >
-            ₹{packageData.price}/adult
+          <p className={styles.price}>
+            ₹{packageData.pricing?.price || 0}/adult
           </p>
+
           <Row gap={1}>
-            <p
-              className={styles.location}
-              aria-label={`Location: ${packageData.location}`}
-            >
-              {packageData.location || "Andaman Islands"}
+            <p className={styles.location}>
+              {packageData.coreInfo?.location || "Andaman Islands"}
             </p>
-            <p
-              className={styles.period}
-              aria-label={`Period: ${packageData.period}`}
-            >
-              {packageData.period.replace("-", "D ")}N
-            </p>
+            <p className={styles.period}>{periodDisplay}</p>
           </Row>
         </Column>
       </Row>
-    </React.Fragment>
+    </>
   );
 };

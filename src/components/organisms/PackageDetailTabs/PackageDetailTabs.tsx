@@ -1,7 +1,7 @@
 import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 
-import type { PackageDetailTabsProps  } from "./PackageDetailTabs.types";
+import type { PackageDetailTabsProps } from "./PackageDetailTabs.types";
 
 import styles from "./PackageDetailTabs.module.css";
 import { OverviewTab } from "./tabs/OverviewTab/OverviewTab";
@@ -11,6 +11,13 @@ import { WhatsCoveredTab } from "./tabs/WhatsCoveredTab/WhatsCoveredTab";
 export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
   packageData,
 }) => {
+  // Extract itinerary from packageData
+  const itinerary = packageData.packageDetails?.itinerary;
+
+  // Extract includes/excludes from packageData
+  const includes = packageData.packageDetails?.inclusions;
+  const excludes = packageData.packageDetails?.exclusions;
+
   return (
     <Tabs.Root className={styles.tabsRoot} defaultValue="overview">
       <Tabs.List className={styles.tabsList} aria-label="Package details">
@@ -25,6 +32,7 @@ export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
           className={styles.tabsTrigger}
           value="itinerary"
           aria-controls="itinerary-tab"
+          disabled={!itinerary || itinerary.length === 0}
         >
           Itinerary
         </Tabs.Trigger>
@@ -32,6 +40,10 @@ export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
           className={styles.tabsTrigger}
           value="whats-covered"
           aria-controls="whats-covered-tab"
+          disabled={
+            (!includes || includes.length === 0) &&
+            (!excludes || excludes.length === 0)
+          }
         >
           What's Covered
         </Tabs.Trigger>
@@ -54,7 +66,7 @@ export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
         role="tabpanel"
         aria-labelledby="itinerary"
       >
-        <ItineraryTab itinerary={packageData.itinerary} />
+        <ItineraryTab itinerary={itinerary} />
       </Tabs.Content>
 
       <Tabs.Content
@@ -64,10 +76,7 @@ export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
         role="tabpanel"
         aria-labelledby="whats-covered"
       >
-        <WhatsCoveredTab
-          includes={packageData.includes}
-          excludes={packageData.excludes}
-        />
+        <WhatsCoveredTab includes={includes} excludes={excludes} />
       </Tabs.Content>
     </Tabs.Root>
   );

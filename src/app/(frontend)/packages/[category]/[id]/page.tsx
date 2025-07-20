@@ -34,11 +34,14 @@ export default async function PackageDetailPage({
   const { category, id } = await params;
 
   // Get package data from API
-  const packageData = await getPackageDetailPageData(category, id);
+  const result = await getPackageDetailPageData(category, id);
 
-  if (!packageData || !packageData.packageData) {
+  if (!result || !result.packageData) {
     notFound();
   }
+
+  // Get the original package data object - this contains all Payload CMS fields
+  const packageData = result.packageData;
 
   return (
     <main className={styles.main}>
@@ -50,9 +53,9 @@ export default async function PackageDetailPage({
           responsiveGap="var(--space-4)"
           responsiveAlignItems="start"
         >
-          {/* <PackageDetailHeader packageData={packageData} /> */}
+          <PackageDetailHeader packageData={packageData} />
           {/* Package Detail Tabs */}
-          {/* <PackageDetailTabs packageData={packageData} /> */}
+          <PackageDetailTabs packageData={packageData} />
           <Row gap={3} responsive responsiveGap="var(--space-4)">
             <InlineLink href="/customise">Customise this package</InlineLink>
             <Button showArrow>Enquire</Button>
@@ -80,20 +83,22 @@ export async function generateMetadata({
   params: Promise<{ category: string; id: string }>;
 }) {
   const { category, id } = await params;
-  const packageData = await getPackageDetailPageData(category, id);
+  const result = await getPackageDetailPageData(category, id);
 
-  if (!packageData || !packageData.packageData) {
+  if (!result || !result.packageData) {
     return {
       title: "Package Not Found",
       description: "The requested package does not exist.",
     };
   }
 
+  const packageData = result.packageData;
+
   return {
-    title: `${packageData.packageData.title} | Your Site Name`,
+    title: `${packageData.title} | Andaman Excursion`,
     description:
-      packageData.packageData.descriptions?.shortDescription ||
-      packageData.packageData.descriptions?.description ||
-      `${packageData.packageData.title} - Book Now`,
+      packageData.descriptions?.shortDescription ||
+      packageData.descriptions?.description ||
+      `${packageData.title} - Book Now`,
   };
 }

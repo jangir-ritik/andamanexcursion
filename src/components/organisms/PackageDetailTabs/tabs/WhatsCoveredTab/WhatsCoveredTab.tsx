@@ -12,6 +12,38 @@ export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
   includes,
   excludes,
 }) => {
+  // Process includes to handle both array formats
+  const processedIncludes = React.useMemo(() => {
+    if (!includes) return [];
+
+    return includes.map((item) => {
+      if (typeof item === "string") return item;
+      return item.inclusion;
+    });
+  }, [includes]);
+
+  // Process excludes to handle both array formats
+  const processedExcludes = React.useMemo(() => {
+    if (!excludes) return [];
+
+    return excludes.map((item) => {
+      if (typeof item === "string") return item;
+      return item.exclusion;
+    });
+  }, [excludes]);
+
+  // If nothing to show, return empty message
+  if (
+    (!processedIncludes || processedIncludes.length === 0) &&
+    (!processedExcludes || processedExcludes.length === 0)
+  ) {
+    return (
+      <div className={styles.whatsCoveredContainer}>
+        <p>No inclusion or exclusion details available.</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={styles.whatsCoveredContainer}
@@ -19,7 +51,7 @@ export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
       aria-label="What's covered in this package"
     >
       <div className={styles.sectionsWrapper}>
-        {includes && includes.length > 0 && (
+        {processedIncludes && processedIncludes.length > 0 && (
           <Column
             className={styles.section}
             responsive
@@ -29,14 +61,14 @@ export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
               Included
             </h3>
             <div className={styles.itemsGrid} aria-labelledby="included-title">
-              {includes.map((item, index) => (
+              {processedIncludes.map((item, index) => (
                 <IncludeItem key={index} text={item} />
               ))}
             </div>
           </Column>
         )}
 
-        {excludes && excludes.length > 0 && (
+        {processedExcludes && processedExcludes.length > 0 && (
           <Column
             className={styles.section}
             responsive
@@ -46,7 +78,7 @@ export const WhatsCoveredTab: React.FC<WhatsCoveredTabProps> = ({
               Not Included
             </h3>
             <div className={styles.itemsGrid} aria-labelledby="excluded-title">
-              {excludes.map((item, index) => (
+              {processedExcludes.map((item, index) => (
                 <ExcludeItem key={index} text={item} />
               ))}
             </div>

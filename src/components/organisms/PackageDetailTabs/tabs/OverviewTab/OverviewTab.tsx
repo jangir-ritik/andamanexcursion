@@ -9,6 +9,12 @@ import { HighlightItem } from "../../components/HighlightItem/HighlightItem";
 import styles from "./OverviewTab.module.css";
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({ packageData }) => {
+  // Get description from packageData
+  const description = packageData.descriptions?.description || "";
+
+  // Get highlights from packageData
+  const highlights = packageData.packageDetails?.highlights || [];
+
   return (
     <div
       className={styles.overviewContainer}
@@ -17,22 +23,31 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ packageData }) => {
     >
       <Column gap={4} fullWidth>
         <div className={styles.descriptionSection}>
-          <p className={styles.description}>{packageData.description}</p>
+          <p className={styles.description}>{description}</p>
         </div>
 
-        <div
-          className={styles.highlightsSection}
-          aria-labelledby="highlights-title"
-        >
-          <h2 id="highlights-title" className={styles.sectionTitle}>
-            Highlights
-          </h2>
-          <Column gap={2} fullWidth>
-            {packageData.highlights.map((highlight, index) => (
-              <HighlightItem key={index} text={highlight} />
-            ))}
-          </Column>
-        </div>
+        {highlights.length > 0 && (
+          <div
+            className={styles.highlightsSection}
+            aria-labelledby="highlights-title"
+          >
+            <h2 id="highlights-title" className={styles.sectionTitle}>
+              Highlights
+            </h2>
+            <Column gap={2} fullWidth>
+              {highlights.map((highlight, index) => (
+                <HighlightItem
+                  key={index}
+                  text={
+                    typeof highlight === "string"
+                      ? highlight
+                      : highlight.highlight
+                  }
+                />
+              ))}
+            </Column>
+          </div>
+        )}
       </Column>
     </div>
   );

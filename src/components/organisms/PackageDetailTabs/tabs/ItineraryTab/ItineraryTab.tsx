@@ -8,6 +8,15 @@ import styles from "./ItineraryTab.module.css";
 import { ItineraryDay } from "../../components/ItineraryDay/ItineraryDay";
 
 export const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
+  // If no itinerary, show empty state
+  if (!itinerary || itinerary.length === 0) {
+    return (
+      <div className={styles.itineraryContainer}>
+        <p>No itinerary details available.</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={styles.itineraryContainer}
@@ -21,7 +30,7 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
               key={day.day}
               day={day.day}
               title={day.title}
-              description={day.description}
+              description={day.description || ""}
               isLast={index === itinerary.length - 1}
             />
           ))}
