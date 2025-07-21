@@ -16,6 +16,8 @@ export const SecondaryBanner = ({
 }: {
   content: SecondaryBannerProps;
 }) => {
+  const hasDescription = content.description;
+
   return (
     <Section className={styles.section}>
       <Row
@@ -28,22 +30,28 @@ export const SecondaryBanner = ({
         responsiveAlignItems="center"
       >
         <Column fullWidth className={styles.titleContainer}>
-          <h1 className={styles.title}>
+          <h1 className={hasDescription ? styles.title : styles.highlight}>
             {content.title} <br />
-            <span className={styles.highlight}>{content.subtitle}</span>
+            <span className={hasDescription ? styles.highlight : styles.title}>
+              {content.subtitle}
+            </span>
           </h1>
         </Column>
-        <Column
-          responsive
-          responsiveGap="var(--space-4)"
-          responsiveAlignItems="center"
-        >
-          <DescriptionText
-            text={content.description}
-            className={styles.description}
-          />
-        </Column>
+
+        {hasDescription && (
+          <Column
+            responsive
+            responsiveGap="var(--space-4)"
+            responsiveAlignItems="center"
+          >
+            <DescriptionText
+              text={content.description}
+              className={styles.description}
+            />
+          </Column>
+        )}
       </Row>
+
       <Row gap="var(--space-8)" fullWidth>
         <ImageContainer
           src={content.image}

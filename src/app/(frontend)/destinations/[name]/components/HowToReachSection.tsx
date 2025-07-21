@@ -42,11 +42,11 @@ export const HowToReachSection: React.FC<{
             specialWord={content.specialWord}
           />
         </Row>
-        <Row gap="var(--space-4)" justifyContent="between">
+        {/* <Row gap="var(--space-4)" justifyContent="between">
           {content.cards.map((card) => (
             <FeatureCard key={card.title} {...card} />
           ))}
-        </Row>
+        </Row> */}
       </Container>
     </Section>
   );

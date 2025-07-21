@@ -1,6 +1,8 @@
+import { Media } from "@payload-types";
+
 export interface FeatureCardProps {
   title: string;
   description: string;
-  icon: string;
+  icon: Media;
   className?: string;
 }

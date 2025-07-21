@@ -506,7 +506,7 @@ export interface Page {
           | {
               title: string;
               subtitle: string;
-              description: string;
+              description?: string | null;
               image: string | Media;
               id?: string | null;
               blockName?: string | null;

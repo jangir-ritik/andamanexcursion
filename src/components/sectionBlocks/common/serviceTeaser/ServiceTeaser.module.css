@@ -4,6 +4,7 @@
   align-items: center;
   gap: var(--space-6);
   position: relative;
+  background-color: var(--color-white);
 }
 
 .featureTitle {

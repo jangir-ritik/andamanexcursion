@@ -1,3 +1,5 @@
+import { ExperienceSection } from "@/app/(frontend)/fishing/components/ExperienceSection";
+import { FamousFishes } from "@/app/(frontend)/fishing/components/FamousFishes";
 import {
   FAQ,
   Testimonials,
@@ -35,9 +37,9 @@ const blockComponentsMap = {
   // Add more block types as needed
   serviceTeaser: ServiceTeaser,
   trivia: Trivia,
-  experience: null, // Add component when available
+  experience: ExperienceSection,
   howToReach: null, // Add component when available
-  famousFishes: null, // Add component when available
+  famousFishes: FamousFishes, // Add component when available
 } as const;
 
 interface BlockRendererProps {

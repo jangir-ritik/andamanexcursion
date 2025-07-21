@@ -60,7 +60,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
             className={styles.description}
           />
         </Row>
-        <Row
+        {/* <Row
           gap="var(--space-4)"
           justifyContent="between"
           alignItems="start"
@@ -75,7 +75,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
               {...card}
             />
           ))}
-        </Row>
+        </Row> */}
       </Container>
     </Section>
   );

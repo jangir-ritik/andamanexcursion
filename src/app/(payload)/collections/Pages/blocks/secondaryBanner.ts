@@ -16,7 +16,6 @@ export const secondaryBannerBlock: Block = {
     {
       name: "description",
       type: "textarea",
-      required: true,
     },
     {
       name: "image",

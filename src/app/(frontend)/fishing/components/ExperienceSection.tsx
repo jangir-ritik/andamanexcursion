@@ -5,18 +5,19 @@ import { FeatureCard } from "@/components/molecules/Cards/FeatureCard/FeatureCar
 import styles from "../page.module.css";
 import Image from "next/image";
 import stepsWave from "@public/graphics/stepsWave.svg";
+import { Media } from "@payload-types";
 
 export interface ExperienceSectionContent {
   title: string;
   specialWord: string;
   description: string;
-  cards: HowToReachCard[];
+  cards: ExperienceCard[];
 }
 
-interface HowToReachCard {
+interface ExperienceCard {
   title: string;
   description: string;
-  icon: string;
+  icon: Media;
 }
 
 export const ExperienceSection: React.FC<{
