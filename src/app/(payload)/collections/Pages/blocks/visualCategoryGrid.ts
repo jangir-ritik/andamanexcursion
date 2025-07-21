@@ -1,7 +1,7 @@
 import { Block } from "payload";
 
-export const famousFishesBlock: Block = {
-  slug: "famousFishes",
+export const visualCategoryGridBlock: Block = {
+  slug: "visualCategoryGrid",
   fields: [
     {
       name: "title",
@@ -17,7 +17,7 @@ export const famousFishesBlock: Block = {
       type: "textarea",
     },
     {
-      name: "fishes",
+      name: "categories",
       type: "array",
       fields: [
         {

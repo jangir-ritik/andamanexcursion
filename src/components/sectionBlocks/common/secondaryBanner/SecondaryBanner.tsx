@@ -3,6 +3,7 @@ import { Column, Row, Section } from "@/components/layout";
 import React from "react";
 import styles from "./SecondaryBanner.module.css";
 import { Media } from "@payload-types";
+import { cn } from "@/utils/cn";
 
 interface SecondaryBannerProps {
   title: string;
@@ -30,7 +31,7 @@ export const SecondaryBanner = ({
         responsiveAlignItems="center"
       >
         <Column fullWidth className={styles.titleContainer}>
-          <h1 className={hasDescription ? styles.title : styles.highlight}>
+          <h1 className={hasDescription ? styles.title : cn(styles.highlight, styles.controlledLineHeight)}>
             {content.title} <br />
             <span className={hasDescription ? styles.highlight : styles.title}>
               {content.subtitle}

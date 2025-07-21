@@ -10,6 +10,9 @@
   font-weight: 500;
   letter-spacing: 4%;
   color: var(--color-black);
+}
+
+.controlledLineHeight {
   line-height: 1;
 }
 
@@ -24,7 +27,6 @@
   color: var(--color-secondary);
   text-transform: capitalize;
   letter-spacing: 2%;
-  line-height: 1;
 }
 
 @media (max-width: 768px) {

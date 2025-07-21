@@ -1,5 +1,5 @@
 import { ExperienceSection } from "@/app/(frontend)/fishing/components/ExperienceSection";
-import { FamousFishes } from "@/app/(frontend)/fishing/components/FamousFishes";
+import { VisualCategoryGrid } from "@/components/sectionBlocks/common";
 import {
   FAQ,
   Testimonials,
@@ -39,7 +39,7 @@ const blockComponentsMap = {
   trivia: Trivia,
   experience: ExperienceSection,
   howToReach: null, // Add component when available
-  famousFishes: FamousFishes, // Add component when available
+  visualCategoryGrid: VisualCategoryGrid, // Add component when available
 } as const;
 
 interface BlockRendererProps {

@@ -5,5 +5,5 @@ export const pageTypeOptions = [
   { label: "Live Volcanos", value: "live-volcanos" },
   { label: "Specials", value: "specials" },
   { label: "Packages", value: "packages" },
-  { label: "How to Reach", value: "how-to-reach" },
+  { label: "Destinations", value: "destinations" },
 ];

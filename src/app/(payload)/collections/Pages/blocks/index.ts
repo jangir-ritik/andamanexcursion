@@ -10,7 +10,7 @@ import { whyChooseUsBlock } from "./whyChooseUs";
 import { packageCarouselBlock } from "./packageCarousel";
 import { hiddenGemsBlock } from "./hiddenGems";
 import { topAdventuresBlock } from "./topAdventures";
-import { famousFishesBlock } from "./famousFishes";
+import { visualCategoryGridBlock } from "./visualCategoryGrid";
 import { howToReachBlock } from "./howToReach";
 import { heroBlock } from "./hero";
 import { partnersBlock } from "./partners";
@@ -30,7 +30,7 @@ export const contentBlocks: Block[] = [
   packageCarouselBlock,
   hiddenGemsBlock,
   topAdventuresBlock,
-  famousFishesBlock,
+  visualCategoryGridBlock,
   howToReachBlock,
   partnersBlock,
   storyBlock,

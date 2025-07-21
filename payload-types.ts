@@ -223,7 +223,7 @@ export interface Page {
     /**
      * Type of page this is
      */
-    pageType: 'home' | 'activities' | 'fishing' | 'live-volcanos' | 'specials' | 'packages' | 'how-to-reach';
+    pageType: 'home' | 'activities' | 'fishing' | 'live-volcanos' | 'specials' | 'packages' | 'destinations';
   };
   /**
    * Search engine optimization settings
@@ -419,7 +419,7 @@ export interface Page {
               title: string;
               specialWord?: string | null;
               description?: string | null;
-              fishes?:
+              categories?:
                 | {
                     title: string;
                     subtitle?: string | null;
@@ -430,7 +430,7 @@ export interface Page {
                 | null;
               id?: string | null;
               blockName?: string | null;
-              blockType: 'famousFishes';
+              blockType: 'visualCategoryGrid';
             }
           | {
               title: string;
@@ -1223,13 +1223,13 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
-              famousFishes?:
+              visualCategoryGrid?:
                 | T
                 | {
                     title?: T;
                     specialWord?: T;
                     description?: T;
-                    fishes?:
+                    categories?:
                       | T
                       | {
                           title?: T;

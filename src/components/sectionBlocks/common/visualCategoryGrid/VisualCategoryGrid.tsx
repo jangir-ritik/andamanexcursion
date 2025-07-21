@@ -3,25 +3,25 @@ import React, { useState } from "react";
 import { Container, Row, Section } from "@/components/layout";
 import { DescriptionText, SectionTitle } from "@/components/atoms";
 import { HoverExpandCard } from "@/components/molecules/Cards/HoverExpandCard/HoverExpandCard";
-import styles from "../page.module.css";
+import styles from "./VisualCategoryGrid.module.css";
 
-interface FamousFish {
+interface VisualCategory {
   subtitle: string;
   title: string;
   image: string;
   imageAlt: string;
 }
 
-export interface FamousFishesProps {
+export interface VisualCategoryGridProps {
   title: string;
   specialWord: string;
   description: string;
-  fishes: FamousFish[];
+  categories: VisualCategory[];
 }
 
-export const FamousFishes: React.FC<{ content: FamousFishesProps }> = ({
-  content,
-}) => {
+export const VisualCategoryGrid: React.FC<{
+  content: VisualCategoryGridProps;
+}> = ({ content }) => {
   const [expandedCardIndex, setExpandedCardIndex] = useState(0);
 
   const handleCardClick = (index: number) => {
@@ -55,10 +55,10 @@ export const FamousFishes: React.FC<{ content: FamousFishesProps }> = ({
           responsiveGap="var(--space-4)"
           responsiveAlignItems="center"
         >
-          {content.fishes.map((fish, index) => (
+          {content.categories.map((category, index) => (
             <HoverExpandCard
-              key={fish.title}
-              {...fish}
+              key={category.title}
+              {...category}
               className={styles.famousFishesCard}
               isExpanded={index === expandedCardIndex}
               onHover={() => handleCardClick(index)}
