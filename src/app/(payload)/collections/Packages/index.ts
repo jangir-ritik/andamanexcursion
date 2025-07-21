@@ -5,6 +5,7 @@ const Packages: CollectionConfig = {
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "category", "period", "price", "featured"],
+    group: "Packages",
   },
   access: {
     read: () => true, // Public read access
@@ -60,8 +61,12 @@ const Packages: CollectionConfig = {
         },
         {
           name: "location",
-          type: "text",
+          type: "relationship",
+          relationTo: "locations",
           required: true,
+          admin: {
+            description: "Select the package location",
+          },
         },
       ],
     },

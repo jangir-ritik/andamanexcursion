@@ -5,10 +5,15 @@ import styles from "./Trivia.module.css";
 import Image from "next/image";
 import underlineGraphic from "@public/graphics/underline.svg";
 
+export interface HighlightedPhrase {
+  phrase: string;
+  id: string;
+}
+
 export interface TriviaContent {
   title?: string;
   text: string;
-  highlightedPhrases: string[];
+  highlightedPhrases: HighlightedPhrase[];
 }
 
 export interface TriviaProps {
@@ -17,11 +22,11 @@ export interface TriviaProps {
   id?: string;
 }
 
-export const Trivia: React.FC<TriviaProps> = ({
+export const Trivia = ({
   content,
   className = "",
   id = "trivia",
-}) => {
+}: TriviaProps) => {
   const { title, text, highlightedPhrases } = content;
 
   const [underlinePositions, setUnderlinePositions] = useState<
@@ -96,7 +101,8 @@ export const Trivia: React.FC<TriviaProps> = ({
         {highlightedPhrases.length === 0
           ? text
           : highlightedPhrases.reduce(
-              (acc: React.ReactNode[], phrase, index) => {
+              (acc: React.ReactNode[], phraseObj, index) => {
+                const phrase = phraseObj.phrase;
                 const parts = processedText.split(phrase);
                 if (parts.length === 1) return acc;
 

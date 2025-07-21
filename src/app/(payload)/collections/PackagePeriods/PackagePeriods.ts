@@ -5,6 +5,7 @@ const PackagePeriods: CollectionConfig = {
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "value", "order", "isActive"],
+    group: "Packages",
   },
   access: {
     read: () => true,

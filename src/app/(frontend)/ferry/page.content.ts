@@ -278,7 +278,10 @@ export const content: FerryPageContent = {
   trivia: {
     title: "Did you know?",
     text: "Port Blair is home to the iconic Cellular Jail, a historic symbol of India's freedom struggle",
-    highlightedPhrases: ["Cellular Jail", "historic symbol"],
+    highlightedPhrases: [
+      { phrase: "Cellular Jail", id: "Cellular Jail" },
+      { phrase: "historic symbol", id: "historic symbol" },
+    ],
   },
   ferries: [
     {

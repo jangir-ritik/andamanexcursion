@@ -1,6 +1,6 @@
 import { Block } from "payload";
 
-import { featureBlock } from "./feature";
+import { serviceTeaserBlock } from "./serviceTeaser";
 import { faqBlock } from "./faq";
 import { largeCardBlock } from "./largeCard";
 import { triviaBlock } from "./trivia";
@@ -16,10 +16,11 @@ import { heroBlock } from "./hero";
 import { partnersBlock } from "./partners";
 import { storyBlock } from "./story";
 import { testimonialsBlock } from "./testimonials";
+import { secondaryBannerBlock } from "./secondaryBanner";
 
 export const contentBlocks: Block[] = [
   heroBlock,
-  featureBlock,
+  serviceTeaserBlock,
   faqBlock,
   largeCardBlock,
   triviaBlock,
@@ -34,4 +35,5 @@ export const contentBlocks: Block[] = [
   partnersBlock,
   storyBlock,
   testimonialsBlock,
+  secondaryBannerBlock,
 ];

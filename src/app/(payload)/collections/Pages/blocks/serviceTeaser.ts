@@ -1,7 +1,7 @@
 import { Block } from "payload";
 
-export const featureBlock: Block = {
-  slug: "feature",
+export const serviceTeaserBlock: Block = {
+  slug: "serviceTeaser",
   fields: [
     {
       name: "title",
@@ -23,10 +23,6 @@ export const featureBlock: Block = {
       name: "image",
       type: "upload",
       relationTo: "media",
-    },
-    {
-      name: "imageAlt",
-      type: "text",
     },
     {
       name: "ctaText",

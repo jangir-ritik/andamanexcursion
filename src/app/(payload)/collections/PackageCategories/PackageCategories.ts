@@ -6,6 +6,7 @@ const PackageCategories: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "slug", "order", "isActive"],
     description: "Manage package category information displayed on the website",
+    group: "Packages",
   },
   access: {
     read: () => true,

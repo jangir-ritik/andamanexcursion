@@ -73,6 +73,7 @@ export interface Config {
     packages: Package;
     'package-categories': PackageCategory;
     'package-periods': PackagePeriod;
+    locations: Location;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,6 +86,7 @@ export interface Config {
     packages: PackagesSelect<false> | PackagesSelect<true>;
     'package-categories': PackageCategoriesSelect<false> | PackageCategoriesSelect<true>;
     'package-periods': PackagePeriodsSelect<false> | PackagePeriodsSelect<true>;
+    locations: LocationsSelect<false> | LocationsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -259,12 +261,11 @@ export interface Page {
               specialWord?: string | null;
               description?: string | null;
               image?: (string | null) | Media;
-              imageAlt?: string | null;
               ctaText?: string | null;
               ctaHref?: string | null;
               id?: string | null;
               blockName?: string | null;
-              blockType: 'feature';
+              blockType: 'serviceTeaser';
             }
           | {
               title: string;
@@ -502,6 +503,15 @@ export interface Page {
               blockName?: string | null;
               blockType: 'testimonials';
             }
+          | {
+              title: string;
+              subtitle: string;
+              description: string;
+              image: string | Media;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'secondaryBanner';
+            }
         )[]
       | null;
   };
@@ -544,7 +554,10 @@ export interface Package {
      * Select the package period
      */
     period: string | PackagePeriod;
-    location: string;
+    /**
+     * Select the package location
+     */
+    location: string | Location;
   };
   /**
    * Descriptions for the package
@@ -798,6 +811,55 @@ export interface PackagePeriod {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: string;
+  /**
+   * e.g., 'Port Blair', 'Havelock Island', 'Neil Island'
+   */
+  name: string;
+  slug: string;
+  /**
+   * What type of location is this?
+   */
+  type:
+    | 'ferry_port'
+    | 'activity_location'
+    | 'boat_departure'
+    | 'package_destination'
+    | 'accommodation'
+    | 'attraction'
+    | 'general';
+  /**
+   * Brief description of the location
+   */
+  description?: string | null;
+  media?: {
+    featuredImage?: (string | null) | Media;
+    gallery?:
+      | {
+          image: string | Media;
+          alt: string;
+          caption?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  isActive?: boolean | null;
+  /**
+   * Priority for sorting (higher numbers appear first)
+   */
+  priority?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -826,6 +888,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'package-periods';
         value: string | PackagePeriod;
+      } | null)
+    | ({
+        relationTo: 'locations';
+        value: string | Location;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -992,14 +1058,13 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
-              feature?:
+              serviceTeaser?:
                 | T
                 | {
                     title?: T;
                     specialWord?: T;
                     description?: T;
                     image?: T;
-                    imageAlt?: T;
                     ctaText?: T;
                     ctaHref?: T;
                     id?: T;
@@ -1236,6 +1301,16 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
+              secondaryBanner?:
+                | T
+                | {
+                    title?: T;
+                    subtitle?: T;
+                    description?: T;
+                    image?: T;
+                    id?: T;
+                    blockName?: T;
+                  };
             };
       };
   publishingSettings?:
@@ -1425,6 +1500,39 @@ export interface PackagePeriodsSelect<T extends boolean = true> {
   shortTitle?: T;
   order?: T;
   isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations_select".
+ */
+export interface LocationsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  type?: T;
+  description?: T;
+  media?:
+    | T
+    | {
+        featuredImage?: T;
+        gallery?:
+          | T
+          | {
+              image?: T;
+              alt?: T;
+              caption?: T;
+              id?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  isActive?: T;
+  priority?: T;
   updatedAt?: T;
   createdAt?: T;
 }

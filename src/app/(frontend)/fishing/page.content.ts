@@ -58,7 +58,10 @@ export const content = {
   trivia: {
     title: "Did You Know?",
     text: "Andaman's Barren Island hosts India's only Active Volcano, quietly erupting since 1991.",
-    highlightedPhrases: ["Active Volcano", "1991."],
+    highlightedPhrases: [
+      { phrase: "Active Volcano", id: "Active Volcano" },
+      { phrase: "1991.", id: "1991." },
+    ],
   },
   experience: {
     title: "Experience that pulls more than just fishes",

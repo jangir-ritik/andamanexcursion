@@ -3,7 +3,10 @@ import {
   Testimonials,
   Partners,
   LargeCardSection,
+  SecondaryBanner,
+  Trivia,
 } from "@/components/sectionBlocks/common";
+import { ServiceTeaser } from "@/components/sectionBlocks/common/serviceTeaser/ServiceTeaser";
 import {
   Banner,
   HiddenGems,
@@ -18,6 +21,7 @@ import { Page } from "@payload-types";
 
 const blockComponentsMap = {
   hero: Banner,
+  secondaryBanner: SecondaryBanner,
   hiddenGems: HiddenGems,
   packageCarousel: PackageCarousel,
   trustStats: TrustStats,
@@ -29,8 +33,8 @@ const blockComponentsMap = {
   topAdventures: TopAdventures,
   testimonials: Testimonials,
   // Add more block types as needed
-  feature: null, // Add component when available
-  trivia: null, // Add component when available
+  serviceTeaser: ServiceTeaser,
+  trivia: Trivia,
   experience: null, // Add component when available
   howToReach: null, // Add component when available
   famousFishes: null, // Add component when available
