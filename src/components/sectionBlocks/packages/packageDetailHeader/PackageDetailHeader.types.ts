@@ -6,6 +6,7 @@ import type {
   Media,
   PackageCategory as PayloadPackageCategory,
   PackagePeriod as PayloadPackagePeriod,
+  Location,
 } from "@payload-types";
 
 export interface PayloadPackage {
@@ -16,7 +17,7 @@ export interface PayloadPackage {
     // Use union type to handle both string and object types
     category: string | PayloadPackageCategory;
     period: string | PayloadPackagePeriod;
-    location: string;
+    location: string | Location;
   } | null;
   descriptions?: {
     description: string;

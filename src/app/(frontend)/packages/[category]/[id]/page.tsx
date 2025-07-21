@@ -1,11 +1,6 @@
 import React from "react";
 import { Section, Column, Row } from "@/components/layout";
-import {
-  SectionTitle,
-  DescriptionText,
-  InlineLink,
-  Button,
-} from "@/components/atoms";
+import { InlineLink, Button } from "@/components/atoms";
 import { getPackageDetailPageData } from "@/lib/payload";
 import { notFound } from "next/navigation";
 
@@ -15,6 +10,7 @@ import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Tes
 import { LargeCardSection } from "@/components/sectionBlocks/common";
 import { PackageDetailTabs } from "@/components/organisms";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
+import { PayloadPackage } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader.types";
 import {
   packagesPageFAQContent,
   testimonials,
@@ -41,7 +37,7 @@ export default async function PackageDetailPage({
   }
 
   // Get the original package data object - this contains all Payload CMS fields
-  const packageData = result.packageData;
+  const packageData = result.packageData as PayloadPackage;
 
   return (
     <main className={styles.main}>
@@ -92,7 +88,7 @@ export async function generateMetadata({
     };
   }
 
-  const packageData = result.packageData;
+  const packageData = result.packageData as PayloadPackage;
 
   return {
     title: `${packageData.title} | Andaman Excursion`,

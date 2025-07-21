@@ -17,6 +17,12 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
       : packageData.coreInfo?.period || "";
   const periodDisplay = periodValue.replace("-", "D ") + "N";
 
+  // Get location display
+  const locationDisplay =
+    typeof packageData.coreInfo?.location === "object"
+      ? packageData.coreInfo.location?.name
+      : packageData.coreInfo?.location || "Andaman Islands";
+
   return (
     <>
       <Row fullWidth responsive responsiveGap="var(--space-4)">
@@ -49,9 +55,7 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
           </p>
 
           <Row gap={1}>
-            <p className={styles.location}>
-              {packageData.coreInfo?.location || "Andaman Islands"}
-            </p>
+            <p className={styles.location}>{locationDisplay}</p>
             <p className={styles.period}>{periodDisplay}</p>
           </Row>
         </Column>
