@@ -41,28 +41,35 @@ export const DesktopNav = React.memo(
               ) : (
                 <div className={styles.navigationMenuItemWithDropdown}>
                   {item.isClickable ? (
-                    <div className={styles.clickableParentContainer}>
-                      <CustomLink
-                        href={item.href}
-                        className={clsx(
-                          styles.navigationMenuLink,
-                          styles.parentLink,
-                          pathname === item.href && styles.active
-                        )}
-                      >
-                        {item.label}
-                      </CustomLink>
-                      <NavigationMenuTrigger
-                        className={styles.navigationMenuTrigger}
-                      >
+                    // For clickable parent items with dropdowns
+                    <NavigationMenuTrigger
+                      className={styles.navigationMenuTriggerClickable}
+                      asChild
+                    >
+                      <div className={styles.clickableParentContainer}>
+                        <CustomLink
+                          href={item.href}
+                          className={clsx(
+                            styles.navigationMenuLink,
+                            styles.parentLink,
+                            pathname === item.href && styles.active
+                          )}
+                          onClick={(e) => {
+                            // Allow the link to work normally
+                            e.stopPropagation();
+                          }}
+                        >
+                          {item.label}
+                        </CustomLink>
                         <ChevronDown
                           size={16}
                           className={styles.navigationMenuTriggerIcon}
                           aria-hidden="true"
                         />
-                      </NavigationMenuTrigger>
-                    </div>
+                      </div>
+                    </NavigationMenuTrigger>
                   ) : (
+                    // For non-clickable parent items
                     <NavigationMenuTrigger
                       className={styles.navigationMenuTrigger}
                     >
