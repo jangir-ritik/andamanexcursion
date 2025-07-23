@@ -6,17 +6,23 @@ export const heroBlock: Block = {
     {
       name: "title",
       type: "text",
-      required: true,
+      admin: {
+        description: "Main title of the hero section (only on the home page)",
+      },
     },
     {
       name: "subtitle",
       type: "text",
-      required: true,
+      admin: {
+        description: "Subtitle of the hero section (only on the home page)",
+      },
     },
     {
       name: "description",
       type: "textarea",
-      required: true,
+      admin: {
+        description: "Description of the hero section (only on the home page)",
+      },
     },
     {
       name: "image",
@@ -27,12 +33,19 @@ export const heroBlock: Block = {
     {
       name: "ctaText",
       type: "text",
-      required: true,
     },
     {
       name: "ctaHref",
       type: "text",
-      required: true,
+    },
+    {
+      name: "initialTab",
+      type: "select",
+      options: ["activities", "ferry", "local-boat"],
+      defaultValue: "ferry",
+      admin: {
+        description: "Initial tab of the booking form",
+      },
     },
   ],
 };

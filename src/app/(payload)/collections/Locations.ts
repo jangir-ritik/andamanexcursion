@@ -5,7 +5,6 @@ const Locations: CollectionConfig = {
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "type", "isActive"],
-    group: "Common",
   },
   access: {
     read: () => true,

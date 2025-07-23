@@ -12,13 +12,14 @@ export interface BannerProps extends BaseSectionProps {
 }
 
 export interface BannerContent {
-  title: string;
-  subtitle: string;
-  description: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
   image: Media;
   // imageAlt: string;
-  ctaText: string;
-  ctaHref: string;
+  ctaText?: string;
+  ctaHref?: string;
   blockName?: string | null | undefined;
   blockType: "hero";
+  initialTab?: "ferry" | "local-boat" | "activities";
 }

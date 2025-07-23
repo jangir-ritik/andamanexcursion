@@ -1,6 +1,8 @@
+import { Media } from "@payload-types";
+
 export interface BaseCardProps {
-  image: string;
-  imageAlt: string;
+  image: Media;
+  imageAlt?: string;
   title: string;
 }
 
@@ -10,4 +12,5 @@ export interface SmallCardProps extends BaseCardProps {
   price?: string | number;
   href?: string;
   rating?: number;
+  priority?: boolean;
 }

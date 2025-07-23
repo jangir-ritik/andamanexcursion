@@ -28,16 +28,20 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
           fullWidth
           wrap
         >
+          {content.title && (
           <HeroTitle
             primaryText={content.title}
             secondaryText={content.subtitle || ""}
-            id="hero-title"
-          />
+              id="hero-title"
+            />
+          )}
+          {content.description && (
           <DescriptionText
             text={content.description || ""}
             className={`${styles.descriptionText} ${styles.heroDescription}`}
-            align="right"
-          />
+              align="right"
+            />
+          )}
         </Row>
         <ImageContainer
           src={content.image}
@@ -47,7 +51,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
           fullWidth
         />
 
-        <BookingForm />
+        <BookingForm initialTab={content.initialTab} />
       </Column>
     </Section>
   );

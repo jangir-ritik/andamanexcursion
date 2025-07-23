@@ -4,10 +4,12 @@ import type { SmallCardProps } from "./SmallCard.types";
 import { MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import styles from "./SmallCard.module.css";
+import { ImageContainer } from "@/components/atoms";
 import { Chip } from "@/components/atoms";
 import star from "@public/icons/misc/star.svg";
 import heart from "@public/icons/misc/heart.svg";
 import { cn } from "@/utils/cn";
+import { Media } from "@payload-types";
 
 export const SmallCard = ({
   image,
@@ -18,14 +20,25 @@ export const SmallCard = ({
   description,
   href,
   rating,
+  priority = false,
 }: SmallCardProps) => {
   const CardContent = () => (
     <>
       <div className={styles.imageWrapper}>
-        <div
+        {/* <div
           className={styles.imageContainer}
-          style={{ backgroundImage: `url(${image})` }}
-          aria-label={imageAlt}
+          style={{ backgroundImage: `url(${image.url})` }}
+          aria-label={imageAlt || title}
+        /> */}
+        <ImageContainer
+          src={image}
+          alt={imageAlt || title}
+          className={styles.cardImage}
+          aspectRatio="auto"
+          objectFit="cover"
+          priority={priority}
+          preferredSize={image.sizes?.smallCard as keyof Media["sizes"]}
+          decorative={false}
         />
         <div className={styles.imageOverlay} />
         <div

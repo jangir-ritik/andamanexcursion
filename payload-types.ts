@@ -74,6 +74,8 @@ export interface Config {
     'package-categories': PackageCategory;
     'package-periods': PackagePeriod;
     locations: Location;
+    'activity-categories': ActivityCategory;
+    activities: Activity;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -87,6 +89,8 @@ export interface Config {
     'package-categories': PackageCategoriesSelect<false> | PackageCategoriesSelect<true>;
     'package-periods': PackagePeriodsSelect<false> | PackagePeriodsSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
+    'activity-categories': ActivityCategoriesSelect<false> | ActivityCategoriesSelect<true>;
+    activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -176,6 +180,14 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
+    smallCard?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     card?: {
       url?: string | null;
       width?: number | null;
@@ -243,12 +255,25 @@ export interface Page {
     content?:
       | (
           | {
-              title: string;
-              subtitle: string;
-              description: string;
+              /**
+               * Main title of the hero section (only on the home page)
+               */
+              title?: string | null;
+              /**
+               * Subtitle of the hero section (only on the home page)
+               */
+              subtitle?: string | null;
+              /**
+               * Description of the hero section (only on the home page)
+               */
+              description?: string | null;
               image: string | Media;
-              ctaText: string;
-              ctaHref: string;
+              ctaText?: string | null;
+              ctaHref?: string | null;
+              /**
+               * Initial tab of the booking form
+               */
+              initialTab?: ('activities' | 'ferry' | 'local-boat') | null;
               id?: string | null;
               blockName?: string | null;
               blockType: 'hero';
@@ -399,21 +424,22 @@ export interface Page {
           | {
               title: string;
               specialWord: string;
-              adventures?:
-                | {
-                    title: string;
-                    description: string;
-                    image: string | Media;
-                    imageAlt: string;
-                    badgeLabel: string;
-                    badgeIcon: 'Star' | 'Heart';
-                    href: string | Page;
-                    id?: string | null;
-                  }[]
-                | null;
+              description?: string | null;
+              /**
+               * Select the activities to display in the top activities section
+               */
+              activities: (string | Activity)[];
+              /**
+               * Maximum number of activities to display
+               */
+              maxActivities?: number | null;
+              /**
+               * Show 'Customer's Favourite' badge on featured activities
+               */
+              showCustomerFavorite?: boolean | null;
               id?: string | null;
               blockName?: string | null;
-              blockType: 'topAdventures';
+              blockType: 'topActivities';
             }
           | {
               title: string;
@@ -528,6 +554,202 @@ export interface Page {
      */
     publishedAt?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities".
+ */
+export interface Activity {
+  id: string;
+  title: string;
+  /**
+   * URL-friendly version of the title
+   */
+  slug: string;
+  coreInfo: {
+    description: string;
+    /**
+     * Brief description for cards and listings
+     */
+    shortDescription?: string | null;
+    category: (string | ActivityCategory)[];
+    location: (string | Location)[];
+    /**
+     * Base price per person
+     */
+    basePrice: number;
+    /**
+     * e.g., '2 hours', '1 day'
+     */
+    duration: string;
+    /**
+     * Maximum number of participants per session
+     */
+    maxCapacity?: number | null;
+  };
+  media: {
+    featuredImage: string | Media;
+    gallery?:
+      | {
+          image: string | Media;
+          alt: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  activityOptions?:
+    | {
+        /**
+         * e.g., 'Shore Diving for Beginners', 'Boat Scuba Diving'
+         */
+        optionTitle: string;
+        optionDescription: string;
+        /**
+         * Price for this specific option
+         */
+        price: number;
+        /**
+         * Duration specific to this option (if different from base)
+         */
+        duration?: string | null;
+        /**
+         * Max capacity for this option (if different from base)
+         */
+        maxCapacity?: number | null;
+        /**
+         * Optional icon for the amenity
+         */
+        icon?: (string | null) | Media;
+        isActive?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Search engine optimization settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    /**
+     * Comma-separated keywords
+     */
+    keywords?: string | null;
+  };
+  /**
+   * Status and visibility settings
+   */
+  status?: {
+    isActive?: boolean | null;
+    /**
+     * Show this activity in featured sections
+     */
+    isFeatured?: boolean | null;
+    /**
+     * Higher numbers appear first in listings
+     */
+    priority?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity-categories".
+ */
+export interface ActivityCategory {
+  id: string;
+  /**
+   * e.g., 'Scuba Diving', 'Water Sports', 'Adventure'
+   */
+  name: string;
+  /**
+   * URL-friendly version (auto-generated from name)
+   */
+  slug: string;
+  /**
+   * Brief description of this activity category
+   */
+  description?: string | null;
+  /**
+   * Uncheck to hide this category from public view
+   */
+  isActive?: boolean | null;
+  /**
+   * Display order (0 = first, higher numbers = later)
+   */
+  sortOrder?: number | null;
+  /**
+   * Select parent category for hierarchical organization
+   */
+  parentCategory?: (string | null) | ActivityCategory;
+  /**
+   * Icon/image representing this category (recommended: square format, min 64x64px)
+   */
+  icon?: (string | null) | Media;
+  /**
+   * Search engine optimization settings
+   */
+  seo?: {
+    /**
+     * Leave blank to auto-generate from category name
+     */
+    metaTitle?: string | null;
+    /**
+     * Brief description for search engines (150-160 characters recommended)
+     */
+    metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: string;
+  /**
+   * e.g., 'Port Blair', 'Havelock Island', 'Neil Island'
+   */
+  name: string;
+  slug: string;
+  /**
+   * What type of location is this?
+   */
+  type:
+    | 'ferry_port'
+    | 'activity_location'
+    | 'boat_departure'
+    | 'package_destination'
+    | 'accommodation'
+    | 'attraction'
+    | 'general';
+  /**
+   * Brief description of the location
+   */
+  description?: string | null;
+  media?: {
+    featuredImage?: (string | null) | Media;
+    gallery?:
+      | {
+          image: string | Media;
+          alt: string;
+          caption?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  isActive?: boolean | null;
+  /**
+   * Priority for sorting (higher numbers appear first)
+   */
+  priority?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -811,55 +1033,6 @@ export interface PackagePeriod {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "locations".
- */
-export interface Location {
-  id: string;
-  /**
-   * e.g., 'Port Blair', 'Havelock Island', 'Neil Island'
-   */
-  name: string;
-  slug: string;
-  /**
-   * What type of location is this?
-   */
-  type:
-    | 'ferry_port'
-    | 'activity_location'
-    | 'boat_departure'
-    | 'package_destination'
-    | 'accommodation'
-    | 'attraction'
-    | 'general';
-  /**
-   * Brief description of the location
-   */
-  description?: string | null;
-  media?: {
-    featuredImage?: (string | null) | Media;
-    gallery?:
-      | {
-          image: string | Media;
-          alt: string;
-          caption?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-  };
-  isActive?: boolean | null;
-  /**
-   * Priority for sorting (higher numbers appear first)
-   */
-  priority?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -892,6 +1065,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'locations';
         value: string | Location;
+      } | null)
+    | ({
+        relationTo: 'activity-categories';
+        value: string | ActivityCategory;
+      } | null)
+    | ({
+        relationTo: 'activities';
+        value: string | Activity;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -989,6 +1170,16 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
+        smallCard?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         card?:
           | T
           | {
@@ -1055,6 +1246,7 @@ export interface PagesSelect<T extends boolean = true> {
                     image?: T;
                     ctaText?: T;
                     ctaHref?: T;
+                    initialTab?: T;
                     id?: T;
                     blockName?: T;
                   };
@@ -1203,23 +1395,15 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
-              topAdventures?:
+              topActivities?:
                 | T
                 | {
                     title?: T;
                     specialWord?: T;
-                    adventures?:
-                      | T
-                      | {
-                          title?: T;
-                          description?: T;
-                          image?: T;
-                          imageAlt?: T;
-                          badgeLabel?: T;
-                          badgeIcon?: T;
-                          href?: T;
-                          id?: T;
-                        };
+                    description?: T;
+                    activities?: T;
+                    maxActivities?: T;
+                    showCustomerFavorite?: T;
                     id?: T;
                     blockName?: T;
                   };
@@ -1533,6 +1717,86 @@ export interface LocationsSelect<T extends boolean = true> {
       };
   isActive?: T;
   priority?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity-categories_select".
+ */
+export interface ActivityCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  isActive?: T;
+  sortOrder?: T;
+  parentCategory?: T;
+  icon?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities_select".
+ */
+export interface ActivitiesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  coreInfo?:
+    | T
+    | {
+        description?: T;
+        shortDescription?: T;
+        category?: T;
+        location?: T;
+        basePrice?: T;
+        duration?: T;
+        maxCapacity?: T;
+      };
+  media?:
+    | T
+    | {
+        featuredImage?: T;
+        gallery?:
+          | T
+          | {
+              image?: T;
+              alt?: T;
+              id?: T;
+            };
+      };
+  activityOptions?:
+    | T
+    | {
+        optionTitle?: T;
+        optionDescription?: T;
+        price?: T;
+        duration?: T;
+        maxCapacity?: T;
+        icon?: T;
+        isActive?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        keywords?: T;
+      };
+  status?:
+    | T
+    | {
+        isActive?: T;
+        isFeatured?: T;
+        priority?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

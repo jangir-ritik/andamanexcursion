@@ -9,7 +9,7 @@ import { trustStatsBlock } from "./trustStats";
 import { whyChooseUsBlock } from "./whyChooseUs";
 import { packageCarouselBlock } from "./packageCarousel";
 import { hiddenGemsBlock } from "./hiddenGems";
-import { topAdventuresBlock } from "./topAdventures";
+import { topActivitiesBlock } from "./topActivities";
 import { visualCategoryGridBlock } from "./visualCategoryGrid";
 import { howToReachBlock } from "./howToReach";
 import { heroBlock } from "./hero";
@@ -29,7 +29,7 @@ export const contentBlocks: Block[] = [
   whyChooseUsBlock,
   packageCarouselBlock,
   hiddenGemsBlock,
-  topAdventuresBlock,
+  topActivitiesBlock,
   visualCategoryGridBlock,
   howToReachBlock,
   partnersBlock,

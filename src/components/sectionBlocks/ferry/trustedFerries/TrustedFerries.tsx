@@ -2,9 +2,10 @@ import React from "react";
 import { Section, Column, Row } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { SmallCard } from "@/components/molecules/Cards";
+import { Media } from "@payload-types";
 
 export interface TrustedFerriesContent {
-  image: string;
+  image: Media;
   imageAlt: string;
   title: string;
   price: string;

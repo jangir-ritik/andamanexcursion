@@ -285,7 +285,7 @@ export const content: FerryPageContent = {
   },
   ferries: [
     {
-      image: image1.src,
+      image: image1.src as unknown as Media,
       imageAlt: "Go Nautica",
       title: "Go Nautica",
       price: "Starting @₹1,520",
@@ -293,7 +293,7 @@ export const content: FerryPageContent = {
       href: "/ferry/go-nautica",
     },
     {
-      image: image2.src,
+      image: image2.src as unknown as Media,
       imageAlt: "IIT Majestic",
       title: "IIT Majestic",
       price: "Starting @₹1,520",
@@ -301,7 +301,7 @@ export const content: FerryPageContent = {
       href: "/packages/family-fiesta",
     },
     {
-      image: image3.src,
+      image: image3.src as unknown as Media,
       imageAlt: "Green Ocean",
       title: "Green Ocean",
       price: "Starting @₹1,520",

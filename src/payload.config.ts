@@ -12,9 +12,11 @@ import Users from "./app/(payload)/collections/Users";
 import Media from "./app/(payload)/collections/Media";
 import Pages from "./app/(payload)/collections/Pages";
 import Packages from "./app/(payload)/collections/Packages";
-import PackageCategories from "./app/(payload)/collections/PackageCategories/PackageCategories";
-import PackagePeriods from "./app/(payload)/collections/PackagePeriods/PackagePeriods";
-import Locations from "./app/(payload)/collections/Locations/Locations";
+import PackageCategories from "./app/(payload)/collections/PackageCategories";
+import PackagePeriods from "./app/(payload)/collections/PackagePeriods";
+import Locations from "./app/(payload)/collections/Locations";
+import ActivityCategories from "./app/(payload)/collections/ActivityCategories";
+import Activities from "./app/(payload)/collections/Activities";
 
 export default buildConfig({
   collections: [
@@ -25,6 +27,8 @@ export default buildConfig({
     PackageCategories,
     PackagePeriods,
     Locations,
+    ActivityCategories,
+    Activities,
   ],
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({

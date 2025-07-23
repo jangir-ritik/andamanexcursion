@@ -59,6 +59,7 @@ const Pages: CollectionConfig = {
       label: "SEO & Metadata",
       admin: {
         description: "Search engine optimization settings",
+        position: "sidebar",
       },
       fields: [...seoFields.fields],
     },

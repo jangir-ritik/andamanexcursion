@@ -15,6 +15,12 @@ const Media: CollectionConfig = {
         position: "centre",
       },
       {
+        name: "smallCard",
+        width: 405,
+        height: 360,
+        position: "centre",
+      },
+      {
         name: "card",
         width: 768,
         height: 576,

@@ -1,3 +1,5 @@
+import { Media } from "@payload-types";
+
 export interface PackagesProps {
   content: PackagesContent;
 }
@@ -13,7 +15,7 @@ export interface Package {
   slug: string;
   title: string;
   description?: string;
-  image: string;
+  image: Media;
   price: string | number;
   duration: string;
   location?: string;

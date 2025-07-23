@@ -26,16 +26,14 @@
   height: 100%;
 }
 
-.imageContainer {
-  position: absolute;
+/* ImageContainer will handle the image positioning and styling */
+.cardImage {
+  position: absolute !important;
   width: 100%;
   height: 100%;
-  left: 0;
-  top: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   z-index: 1;
+  /* Override ImageContainer's border-radius to match card */
+  border-radius: 0 !important;
 }
 
 .imageOverlay {
@@ -96,12 +94,14 @@
   line-height: 20px;
   color: var(--color-text-primary);
 }
+
 .ratingBadge,
 .favouriteBadge {
   margin-bottom: var(--space-3);
   background: #ffffff20;
   backdrop-filter: blur(4px);
 }
+
 .ratingBadge span,
 .favouriteBadge span {
   white-space: nowrap;

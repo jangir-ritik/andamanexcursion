@@ -9,6 +9,7 @@ import {
   Trivia,
 } from "@/components/sectionBlocks/common";
 import { ServiceTeaser } from "@/components/sectionBlocks/common/serviceTeaser/ServiceTeaser";
+import TopActivities from "@/components/sectionBlocks/common/topActivities/TopActivities";
 import {
   Banner,
   HiddenGems,
@@ -32,6 +33,7 @@ const blockComponentsMap = {
   largeCard: LargeCardSection,
   partners: Partners,
   story: Story,
+  topActivities: TopActivities,
   topAdventures: TopAdventures,
   testimonials: Testimonials,
   // Add more block types as needed
