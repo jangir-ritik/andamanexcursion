@@ -119,7 +119,7 @@ export function CategoryPageClient({
                     pkg.coreInfo?.period?.shortTitle ||
                     pkg.coreInfo?.period?.title
                   }
-                  location={pkg.coreInfo?.location || "Andaman"}
+                  location={pkg.coreInfo?.location}
                 />
               ))}
             </>

@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { FeaturePackageCardProps  } from "./FeaturePackageCard.types";
+import type { FeaturePackageCardProps } from "./FeaturePackageCard.types";
 import clsx from "clsx";
 
 import styles from "./FeaturePackageCard.module.css";
@@ -40,7 +40,7 @@ export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
               </p>
             </div>
             <div className={styles.locationInfo}>
-              <span className={styles.location}>{location}</span>
+              <span className={styles.location}>{location.name}</span>
               <span className={styles.duration}>. {duration}</span>
             </div>
           </div>

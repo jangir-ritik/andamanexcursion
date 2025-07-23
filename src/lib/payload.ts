@@ -213,12 +213,15 @@ export async function getPackages(options: PackageOptions = {}) {
       conditions.push({ "featuredSettings.featured": { equals: featured } });
     }
 
+    // Only include published packages
+    conditions.push({ "publishingSettings.status": { equals: "published" } });
+
     const { docs } = await payload.find({
       collection: "packages",
       where: buildBaseQuery(conditions),
       sort: featured ? "featuredSettings.featuredOrder" : "title",
       limit,
-      depth,
+      depth, // This will populate relationships like location, category, period
     });
 
     return docs;
@@ -394,6 +397,20 @@ export async function getPackagesPageData() {
           imageUrl = extractImageUrl(pkg.media.heroImage);
         }
 
+        // Extract location name safely
+        let locationName = "Andaman"; // Default fallback
+        if (pkg.coreInfo?.location) {
+          // If location is populated (object with name)
+          if (
+            typeof pkg.coreInfo.location === "object" &&
+            pkg.coreInfo.location.name
+          ) {
+            locationName = pkg.coreInfo.location.name;
+          }
+          // If location is just an ID string, we might need to handle it differently
+          // For now, keep the default fallback
+        }
+
         return {
           id: pkg.id,
           slug: pkg.slug,
@@ -408,7 +425,7 @@ export async function getPackagesPageData() {
               : pkg.coreInfo?.period?.shortTitle ||
                 pkg.coreInfo?.period?.title ||
                 "",
-          location: pkg.coreInfo?.location || "Andaman",
+          location: locationName,
         };
       }),
     };
@@ -422,7 +439,6 @@ export async function getPackagesPageData() {
     };
   }
 }
-
 /**
  * Get data needed for a specific category page
  */
