@@ -2,10 +2,10 @@ import { DescriptionText, SectionTitle } from "@/components/atoms";
 import { Column, Grid, Section } from "@/components/layout";
 import { SmallCard } from "@/components/molecules/Cards";
 import React from "react";
-import { TopActivitiesProps } from "./TopActivities.types";
 import { Media } from "@payload-types";
+import { TopActivitiesProps } from "./TopActivities.types";
 
-function TopActivities({ content }: TopActivitiesProps) {
+export function TopActivities({ content }: TopActivitiesProps) {
   return (
     <Section id="activities" noPadding>
       <Column
@@ -35,7 +35,7 @@ function TopActivities({ content }: TopActivitiesProps) {
               image={activity.media.featuredImage as Media}
               title={activity.title}
               description={activity.coreInfo.description}
-              href={`/activities/${activity.slug}`}
+              href={`/activities/search`}
             />
           ))}
         </Grid>
@@ -43,5 +43,3 @@ function TopActivities({ content }: TopActivitiesProps) {
     </Section>
   );
 }
-
-export default TopActivities;

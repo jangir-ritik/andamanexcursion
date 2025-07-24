@@ -17,6 +17,7 @@ import PackagePeriods from "./app/(payload)/collections/PackagePeriods";
 import Locations from "./app/(payload)/collections/Locations";
 import ActivityCategories from "./app/(payload)/collections/ActivityCategories";
 import Activities from "./app/(payload)/collections/Activities";
+import TimeSlots from "./app/(payload)/collections/TimeSlots";
 
 export default buildConfig({
   collections: [
@@ -29,6 +30,7 @@ export default buildConfig({
     Locations,
     ActivityCategories,
     Activities,
+    TimeSlots,
   ],
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({

@@ -5,3 +5,5 @@ export * from "./largeCardSection/LargeCardSection";
 export * from "./trivia/Trivia";
 export * from "./secondaryBanner/SecondaryBanner";
 export * from "./visualCategoryGrid/VisualCategoryGrid";
+export * from "./serviceTeaser/ServiceTeaser";
+export * from "./topActivities/TopActivities";

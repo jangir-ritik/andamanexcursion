@@ -7,9 +7,10 @@ import {
   LargeCardSection,
   SecondaryBanner,
   Trivia,
+  ServiceTeaser,
+  TopActivities,
 } from "@/components/sectionBlocks/common";
-import { ServiceTeaser } from "@/components/sectionBlocks/common/serviceTeaser/ServiceTeaser";
-import TopActivities from "@/components/sectionBlocks/common/topActivities/TopActivities";
+
 import {
   Banner,
   HiddenGems,

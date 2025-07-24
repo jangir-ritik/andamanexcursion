@@ -76,6 +76,7 @@ export interface Config {
     locations: Location;
     'activity-categories': ActivityCategory;
     activities: Activity;
+    'time-slots': TimeSlot;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -91,6 +92,7 @@ export interface Config {
     locations: LocationsSelect<false> | LocationsSelect<true>;
     'activity-categories': ActivityCategoriesSelect<false> | ActivityCategoriesSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
+    'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -1033,6 +1035,52 @@ export interface PackagePeriod {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "time-slots".
+ */
+export interface TimeSlot {
+  id: string;
+  /**
+   * Start time in 24-hour format (e.g., '09:00', '14:30')
+   */
+  startTime: string;
+  /**
+   * End time in 24-hour format (optional, for display purposes)
+   */
+  endTime?: string | null;
+  /**
+   * Duration in minutes (optional, for reference)
+   */
+  duration?: number | null;
+  /**
+   * URL-friendly identifier for this time slot
+   */
+  slug: string;
+  /**
+   * 12-hour format time (e.g., '7:00 AM', '8:00 AM')
+   */
+  twelveHourTime?: string | null;
+  /**
+   * Status and priority settings
+   */
+  status?: {
+    /**
+     * Is this time slot currently available for booking?
+     */
+    isActive?: boolean | null;
+    /**
+     * Display priority (higher numbers appear first)
+     */
+    priority?: number | null;
+    /**
+     * Mark as popular/recommended slot
+     */
+    isPopular?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -1073,6 +1121,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'activities';
         value: string | Activity;
+      } | null)
+    | ({
+        relationTo: 'time-slots';
+        value: string | TimeSlot;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1796,6 +1848,26 @@ export interface ActivitiesSelect<T extends boolean = true> {
         isActive?: T;
         isFeatured?: T;
         priority?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "time-slots_select".
+ */
+export interface TimeSlotsSelect<T extends boolean = true> {
+  startTime?: T;
+  endTime?: T;
+  duration?: T;
+  slug?: T;
+  twelveHourTime?: T;
+  status?:
+    | T
+    | {
+        isActive?: T;
+        priority?: T;
+        isPopular?: T;
       };
   updatedAt?: T;
   createdAt?: T;
