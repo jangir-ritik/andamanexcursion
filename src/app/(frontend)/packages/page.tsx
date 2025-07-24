@@ -1,5 +1,5 @@
 import React from "react";
-import { getPackagesPageData, getPageBySlug } from "@/lib/payload";
+import { pageService, pageDataService } from "@/services/payload";
 import { PackagesPageClient } from "./PackagesPageClient";
 
 import { testimonials } from "./page.content";
@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 
 export default async function PackagesPage() {
   // For the main packages page, no slug is needed/expected
-  const page = await getPageBySlug("packages");
+  const page = await pageService.getBySlug("packages");
 
   // Check if the page exists and is published
   if (
@@ -30,7 +30,7 @@ export default async function PackagesPage() {
 
   // Server-side data fetching
   const { packageOptions, periodOptions, packageCategoriesContent } =
-    await getPackagesPageData();
+    await pageDataService.getPackagesPageData();
 
   return (
     <PackagesPageClient

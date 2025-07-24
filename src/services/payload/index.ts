@@ -12,7 +12,7 @@ export { getCachedPayload } from "./base/client";
 export * from "./collections/activities";
 export * from "./collections/locations";
 export * from "./collections/packages";
-export * from "./collections/Pages";
+export * from "./collections/pages";
 export * from "./collections/time-slots";
 
 // Re-export all composed services

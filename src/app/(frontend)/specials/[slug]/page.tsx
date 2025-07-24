@@ -113,7 +113,7 @@
 // }
 
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
-import { getPageBySlug } from "@/lib/payload";
+import { pageService } from "@/services/payload";
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -126,7 +126,7 @@ export default async function SpecialsPage({ params }: PageProps) {
   const resolvedParams = await params;
   const slug = resolvedParams?.slug || "specials";
 
-  const page = await getPageBySlug(slug);
+  const page = await pageService.getBySlug(slug);
 
   if (!page || !page.pageContent?.content) {
     notFound();

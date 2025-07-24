@@ -1,5 +1,5 @@
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
-import { getPageBySlug } from "@/lib/payload";
+import { pageService } from "@/services/payload";
 import { notFound } from "next/navigation";
 
 type PageProps = {
@@ -11,7 +11,7 @@ export default async function Home({ params }: PageProps) {
   const resolvedParams = await params;
   const slug = resolvedParams?.slug || "home";
 
-  const page = await getPageBySlug(slug);
+  const page = await pageService.getBySlug(slug);
 
   if (!page || !page.pageContent?.content) {
     notFound();

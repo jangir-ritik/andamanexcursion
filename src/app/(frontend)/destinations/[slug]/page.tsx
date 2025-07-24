@@ -11,7 +11,7 @@ import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
 // import { Column } from "@/components/layout";
 
 import styles from "./page.module.css";
-import { getPageBySlug } from "@/lib/payload";
+import { pageService } from "@/services/payload";
 import { notFound } from "next/navigation";
 // import { content } from "./page.content";
 interface PageProps {
@@ -22,7 +22,7 @@ export default async function DestinationPage({ params }: PageProps) {
   // Await params before using its properties
   const { slug: destinationSlug } = await params;
 
-  const page = await getPageBySlug(destinationSlug);
+  const page = await pageService.getBySlug(destinationSlug);
 
   if (!page) {
     return notFound();

@@ -76,12 +76,12 @@
 //   );
 // }
 
-import { getPageBySlug } from "@/lib/payload";
+import { pageService } from "@/services/payload";
 import { notFound } from "next/navigation";
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
 
 const ActivitiesPage = async () => {
-  const page = await getPageBySlug("activities");
+  const page = await pageService.getBySlug("activities");
 
   if (!page || !page.pageContent?.content) {
     notFound();

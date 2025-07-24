@@ -1,5 +1,5 @@
 // app/packages/[category]/page.tsx
-import { getCategoryPageData, getPackageCategories } from "@/lib/payload";
+import { pageDataService, packageCategoryService } from "@/services/payload";
 import { CategoryPageClient } from "./CategoryPageClient";
 import { notFound } from "next/navigation";
 
@@ -21,8 +21,8 @@ export default async function CategoryPage({
 
   // Fetch category data and package options in parallel
   const [data, allCategories] = await Promise.all([
-    getCategoryPageData(categorySlug, initialPeriod),
-    getPackageCategories(),
+    pageDataService.getCategoryPageData(categorySlug, initialPeriod),
+    packageCategoryService.getAll(),
   ]);
 
   if (!data) {
@@ -49,7 +49,7 @@ export default async function CategoryPage({
 // Generate static params for better performance
 export async function generateStaticParams() {
   try {
-    const categories = await getPackageCategories();
+    const categories = await packageCategoryService.getAll();
     return categories.map((category) => ({
       category: category.slug,
     }));
@@ -68,7 +68,7 @@ export async function generateMetadata({
   const { category: categorySlug } = await params;
 
   try {
-    const data = await getCategoryPageData(categorySlug);
+    const data = await pageDataService.getCategoryPageData(categorySlug);
     if (!data) return {};
 
     return {

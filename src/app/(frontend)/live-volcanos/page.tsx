@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./page.module.css";
-import { getPageBySlug } from "@/lib/payload";
+import { pageService } from "@/services/payload";
 import { notFound } from "next/navigation";
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
 
@@ -9,7 +9,7 @@ type PageProps = {
 };
 
 export default async function LiveVolcanosPage({ params }: PageProps) {
-  const page = await getPageBySlug("live-volcanos");
+  const page = await pageService.getBySlug("live-volcanos");
 
   if (!page) {
     notFound();

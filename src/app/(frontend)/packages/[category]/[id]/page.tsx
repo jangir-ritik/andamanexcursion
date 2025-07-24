@@ -1,7 +1,7 @@
 import React from "react";
 import { Section, Column, Row } from "@/components/layout";
 import { InlineLink, Button } from "@/components/atoms";
-import { getPackageDetailPageData } from "@/lib/payload";
+import { pageDataService } from "@/services/payload";
 import { notFound } from "next/navigation";
 
 import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
@@ -30,7 +30,7 @@ export default async function PackageDetailPage({
   const { category, id } = await params;
 
   // Get package data from API
-  const result = await getPackageDetailPageData(category, id);
+  const result = await pageDataService.getPackageDetailPageData(category, id);
 
   if (!result || !result.packageData) {
     notFound();
@@ -79,7 +79,7 @@ export async function generateMetadata({
   params: Promise<{ category: string; id: string }>;
 }) {
   const { category, id } = await params;
-  const result = await getPackageDetailPageData(category, id);
+  const result = await pageDataService.getPackageDetailPageData(category, id);
 
   if (!result || !result.packageData) {
     return {

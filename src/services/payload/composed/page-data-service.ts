@@ -18,6 +18,156 @@ import { extractImageUrl } from "../base/utils";
 
 export const pageDataService = {
   /**
+   * Get data needed for packages listing page
+   */
+  async getPackagesPageData() {
+    try {
+      const [categories, periods, featuredPackages] = await Promise.all([
+        packageCategoryService.getAll(),
+        packagePeriodService.getAll(),
+        packageService.getFeatured(3),
+      ]);
+
+      return {
+        packageOptions: categories.map((category) => ({
+          id: category.slug,
+          label: category.title?.replace(" Packages", "") || category.title,
+        })),
+
+        periodOptions: [
+          { id: "all", label: "All Durations" },
+          ...periods.map((period) => ({
+            id: period.value,
+            label: period.shortTitle || period.title,
+          })),
+        ],
+
+        packageCategoriesContent: categories.map((category: any) => {
+          // Ensure we have a valid media object structure for PackageCard
+          const media: {
+            heroImage: { image: any; alt: string } | null;
+            cardImages: Array<{ image: any; alt: string }>;
+          } = {
+            heroImage: null,
+            cardImages: [],
+          };
+
+          // Process heroImage if available
+          if (category.media?.heroImage) {
+            media.heroImage = {
+              image: category.media.heroImage.url || category.media.heroImage,
+              alt:
+                category.media.heroImage.alt || `${category.title} hero image`,
+            };
+          }
+
+          // Process cardImages if available
+          if (
+            category.media?.cardImages &&
+            Array.isArray(category.media.cardImages)
+          ) {
+            media.cardImages = category.media.cardImages.map((img: any) => {
+              // Handle different image structures
+              const imageValue = img.image?.url
+                ? img.image.url
+                : typeof img.image === "string"
+                ? img.image
+                : img.image?.id || img.image;
+
+              return {
+                image: imageValue,
+                alt: img.alt || `${category.title} image`,
+              };
+            });
+          }
+          // If no cardImages but we have a heroImage, use that
+          else if (media.heroImage) {
+            media.cardImages = [
+              {
+                image: media.heroImage.image,
+                alt: media.heroImage.alt,
+              },
+            ];
+          }
+          // Fallback to ensure we always have at least one cardImage
+          if (!media.cardImages.length) {
+            media.cardImages = [
+              {
+                image: "/images/placeholder.png",
+                alt: `${category.title} image`,
+              },
+            ];
+          }
+
+          return {
+            id: category.id,
+            slug: category.slug,
+            title: category.title,
+            description: category.categoryDetails?.description || "",
+            media: media,
+            href: `/packages/${category.slug}`,
+          };
+        }),
+
+        featuredPackages: featuredPackages.map((pkg: any) => {
+          // Extract valid image URL from package media
+          let imageUrl = "/images/placeholder.png";
+
+          // Handle case where we have a media.images array
+          if (pkg.media?.images && pkg.media.images.length > 0) {
+            const firstImage = pkg.media.images[0].image;
+            imageUrl = extractImageUrl(firstImage);
+          }
+          // Handle case where we have a media.heroImage directly
+          else if (pkg.media?.heroImage) {
+            imageUrl = extractImageUrl(pkg.media.heroImage);
+          }
+
+          // Extract location name safely
+          let locationName = "Andaman"; // Default fallback
+          if (pkg.coreInfo?.location) {
+            // If location is populated (object with name)
+            if (
+              typeof pkg.coreInfo.location === "object" &&
+              pkg.coreInfo.location.name
+            ) {
+              locationName = pkg.coreInfo.location.name;
+            }
+            // If location is just an ID string, we might need to handle it differently
+            // For now, keep the default fallback
+          }
+
+          return {
+            id: pkg.id,
+            slug: pkg.slug,
+            title: pkg.title,
+            description:
+              pkg.descriptions?.shortDescription ||
+              pkg.descriptions?.description,
+            image: imageUrl,
+            price: pkg.pricing?.price,
+            duration:
+              typeof pkg.coreInfo?.period === "string"
+                ? pkg.coreInfo.period
+                : pkg.coreInfo?.period?.shortTitle ||
+                  pkg.coreInfo?.period?.title ||
+                  "",
+            location: locationName,
+          };
+        }),
+      };
+    } catch (error) {
+      console.error("Error getting packages page data:", error);
+      return {
+        packageOptions: [],
+        periodOptions: [{ id: "all", label: "All Durations" }],
+        packageCategoriesContent: [],
+        featuredPackages: [],
+      };
+    }
+  },
+
+  /**
    * Get data needed for a specific category page
    */
   async getCategoryPageData(categorySlug: string, period?: string) {
