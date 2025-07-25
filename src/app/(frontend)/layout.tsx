@@ -10,6 +10,11 @@ import { TopLoadingBarProvider } from "@/components/layout/TopLoadingBarProvider
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
 import { PageBackgroundProvider } from "@/components/atoms/PageBackgroundProvider/PageBackgroundProvider";
+import { ReactQueryProvider } from "@/context/ReactQueryProvider";
+import { locationService } from "@/services/payload/collections/locations";
+import { timeSlotService } from "@/services/payload/collections/time-slots";
+import { activityService } from "@/services/payload/collections/activities";
+import { BookingDataProvider } from "@/context/BookingDataProvider";
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
@@ -55,11 +60,44 @@ const quickBeach = localFont({
   fallback: ["cursive", "fantasy", "serif"],
 });
 
-export default function RootLayout({
+// Server component that fetches the data
+async function fetchBookingData() {
+  try {
+    // Fetch locations for activities - using direct Payload API
+    const locations = await locationService.getActivityLocations();
+
+    // Fetch time slots for activities and ferries - using direct Payload API
+    const activityTimeSlots = await timeSlotService.getForActivities();
+    const ferryTimeSlots = await timeSlotService.getForFerries();
+
+    // Fetch activities data - using direct Payload API
+    const activities = await activityService.getAll();
+
+    return {
+      locations,
+      activityTimeSlots,
+      ferryTimeSlots,
+      activities,
+    };
+  } catch (error) {
+    console.error("Error prefetching booking data:", error);
+    return {
+      locations: [],
+      activityTimeSlots: [],
+      ferryTimeSlots: [],
+      activities: [],
+    };
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch data server-side
+  const bookingData = await fetchBookingData();
+
   return (
     <html
       lang="en"
@@ -77,19 +115,23 @@ export default function RootLayout({
       </head>
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
         <TopLoadingBarProvider>
-          <BookingProviders>
-            {/* <PackageProvider> */}
-            <Header />
-            <PageBackgroundProvider>
-              <Container>
-                <Column gap="var(--space-section)" fullWidth>
-                  {children}
-                </Column>
-              </Container>
-            </PageBackgroundProvider>
-            <Footer />
-            {/* </PackageProvider> */}
-          </BookingProviders>
+          <ReactQueryProvider>
+            <BookingDataProvider initialData={bookingData}>
+              <BookingProviders>
+                {/* <PackageProvider> */}
+                <Header />
+                <PageBackgroundProvider>
+                  <Container>
+                    <Column gap="var(--space-section)" fullWidth>
+                      {children}
+                    </Column>
+                  </Container>
+                </PageBackgroundProvider>
+                <Footer />
+                {/* </PackageProvider> */}
+              </BookingProviders>
+            </BookingDataProvider>
+          </ReactQueryProvider>
         </TopLoadingBarProvider>
       </body>
     </html>

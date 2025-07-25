@@ -61,6 +61,22 @@ const TimeSlots: CollectionConfig = {
       },
     },
     {
+      name: "type",
+      type: "select",
+      defaultValue: "activity",
+      required: true,
+      options: [
+        { label: "Activity", value: "activity" },
+        { label: "Ferry", value: "ferry" },
+        { label: "Boat", value: "boat" },
+        { label: "Package", value: "package" },
+        { label: "General", value: "general" },
+      ],
+      admin: {
+        description: "Type of time slot",
+      },
+    },
+    {
       name: "duration",
       type: "number",
       defaultValue: 30,

@@ -40,78 +40,97 @@ export const extractImageUrl = (mediaField: any): string => {
 /**
  * Extract location name from various location field structures
  */
-export const extractLocationName = (locationField: any, fallback: string = "Location"): string => {
+export const extractLocationName = (
+  locationField: any,
+  fallback: string = "Location"
+): string => {
   if (!locationField) return fallback;
-  
+
   // If location is populated (object with name)
   if (typeof locationField === "object" && locationField.name) {
     return locationField.name;
   }
-  
+
   // If location is just a string
   if (typeof locationField === "string") {
     return locationField;
   }
-  
+
   return fallback;
 };
 
 /**
  * Extract category name from various category field structures
  */
-export const extractCategoryName = (categoryField: any, fallback: string = "Category"): string => {
+export const extractCategoryName = (
+  categoryField: any,
+  fallback: string = "Category"
+): string => {
   if (!categoryField) return fallback;
-  
+
   // If category is populated (object with name)
   if (typeof categoryField === "object" && categoryField.name) {
     return categoryField.name;
   }
-  
+
   // If category has title instead of name
   if (typeof categoryField === "object" && categoryField.title) {
     return categoryField.title;
   }
-  
+
   // If category is just a string
   if (typeof categoryField === "string") {
     return categoryField;
   }
-  
+
   return fallback;
 };
 
 /**
  * Extract period/duration information from various period field structures
  */
-export const extractPeriodInfo = (periodField: any, fallback: string = ""): string => {
+export const extractPeriodInfo = (
+  periodField: any,
+  fallback: string = ""
+): string => {
   if (!periodField) return fallback;
-  
+
   // If period is populated (object)
   if (typeof periodField === "object") {
-    return periodField.shortTitle || periodField.title || periodField.value || fallback;
+    return (
+      periodField.shortTitle ||
+      periodField.title ||
+      periodField.value ||
+      fallback
+    );
   }
-  
+
   // If period is just a string
   if (typeof periodField === "string") {
     return periodField;
   }
-  
+
   return fallback;
 };
 
 /**
  * Process images array from PayloadCMS media structure
  */
-export const processImageArray = (images: any[], altFallback: string = "Image"): Array<{
+export const processImageArray = (
+  images: any[],
+  altFallback: string = "Image"
+): Array<{
   url: string;
   alt: string;
   caption?: string;
 }> => {
   if (!Array.isArray(images) || images.length === 0) {
-    return [{
-      url: "/images/placeholder.png",
-      alt: altFallback,
-    }];
+    return [
+      {
+        url: "/images/placeholder.png",
+        alt: altFallback,
+      },
+    ];
   }
 
   return images.map((img: any) => ({
@@ -130,12 +149,12 @@ export const buildSafeQuery = (
   additionalConditions: any[] = []
 ): any => {
   const conditions = [...baseConditions, ...additionalConditions];
-  
+
   // If no conditions, return a simple active query
   if (conditions.length === 0) {
     return getDefaultActiveQuery(collection);
   }
-  
+
   return {
     and: conditions,
   };
@@ -147,45 +166,41 @@ export const buildSafeQuery = (
  */
 export const getDefaultActiveQuery = (collection: string): any => {
   switch (collection) {
-    case 'packages':
+    case "packages":
       return {
-        and: [
-          { "publishingSettings.status": { equals: "published" } },
-        ],
+        and: [{ "publishingSettings.status": { equals: "published" } }],
       };
-    
-    case 'activities':
+
+    case "activities":
       return {
-        and: [
-          { "status.isActive": { equals: true } },
-        ],
+        and: [{ "status.isActive": { equals: true } }],
       };
-    
-    case 'pages':
+
+    case "pages":
       return {
-        and: [
-          { "publishingSettings.status": { equals: "published" } },
-        ],
+        and: [{ "publishingSettings.status": { equals: "published" } }],
       };
-    
-    case 'locations':
-    case 'activity-categories':
-    case 'package-categories':
-    case 'package-periods':
-    case 'time-slots':
+
+    case "time-slots":
       return {
-        and: [
-          { "isActive": { equals: true } },
-        ],
+        and: [{ "status.isActive": { equals: true } }],
       };
-    
+
+    case "locations":
+    case "activity-categories":
+    case "package-categories":
+    case "package-periods":
+      return {
+        and: [{ isActive: { equals: true } }],
+      };
+
     // Add more collections as needed
     default:
-      console.warn(`Unknown collection: ${collection}. Using default isActive query.`);
+      console.warn(
+        `Unknown collection: ${collection}. Using default isActive query.`
+      );
       return {
-        and: [
-          { "isActive": { equals: true } },
-        ],
+        and: [{ isActive: { equals: true } }],
       };
   }
 };
@@ -193,34 +208,37 @@ export const getDefaultActiveQuery = (collection: string): any => {
 /**
  * Get published query for collections that have publishing status
  */
-export const getPublishedQuery = (collection: string, additionalConditions: any[] = []): any => {
+export const getPublishedQuery = (
+  collection: string,
+  additionalConditions: any[] = []
+): any => {
   const publishedCondition = getDefaultActiveQuery(collection);
-  
+
   if (additionalConditions.length === 0) {
     return publishedCondition;
   }
-  
+
   return {
-    and: [
-      ...publishedCondition.and,
-      ...additionalConditions,
-    ],
+    and: [...publishedCondition.and, ...additionalConditions],
   };
 };
 
 /**
  * Format date for display
  */
-export const formatDate = (date: string | Date, options?: Intl.DateTimeFormatOptions): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+export const formatDate = (
+  date: string | Date,
+  options?: Intl.DateTimeFormatOptions
+): string => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
   const defaultOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   };
-  
-  return dateObj.toLocaleDateString('en-US', { ...defaultOptions, ...options });
+
+  return dateObj.toLocaleDateString("en-US", { ...defaultOptions, ...options });
 };
 
 /**
@@ -236,26 +254,26 @@ export const isValidDate = (dateString: string): boolean => {
  */
 export const getDayOfWeek = (dateString: string): string => {
   if (!isValidDate(dateString)) {
-    throw new Error('Invalid date string');
+    throw new Error("Invalid date string");
   }
-  
-  return new Date(dateString).toLocaleDateString('en-US', { weekday: 'long' });
+
+  return new Date(dateString).toLocaleDateString("en-US", { weekday: "long" });
 };
 
 /**
  * Safely access nested object properties
  */
 export const safeGet = <T>(obj: any, path: string, defaultValue: T): T => {
-  const keys = path.split('.');
+  const keys = path.split(".");
   let current = obj;
-  
+
   for (const key of keys) {
-    if (current == null || typeof current !== 'object') {
+    if (current == null || typeof current !== "object") {
       return defaultValue;
     }
     current = current[key];
   }
-  
+
   return current !== undefined ? current : defaultValue;
 };
 
@@ -266,18 +284,22 @@ export const createSlug = (text: string): string => {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 };
 
 /**
  * Truncate text to a specific length
  */
-export const truncateText = (text: string, maxLength: number, suffix: string = '...'): string => {
+export const truncateText = (
+  text: string,
+  maxLength: number,
+  suffix: string = "..."
+): string => {
   if (text.length <= maxLength) {
     return text;
   }
-  
+
   return text.substring(0, maxLength - suffix.length) + suffix;
 };

@@ -2,7 +2,6 @@
 import { Activity, ActivityCategory } from "@payload-types";
 import { getCachedPayload } from "../base/client";
 import { queryCollection } from "../base/queries";
-import { getPublishedQuery } from "../base/utils";
 
 /**
  * Activity Services

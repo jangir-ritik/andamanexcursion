@@ -1048,6 +1048,10 @@ export interface TimeSlot {
    */
   endTime?: string | null;
   /**
+   * Type of time slot
+   */
+  type: 'activity' | 'ferry' | 'boat' | 'package' | 'general';
+  /**
    * Duration in minutes (optional, for reference)
    */
   duration?: number | null;
@@ -1859,6 +1863,7 @@ export interface ActivitiesSelect<T extends boolean = true> {
 export interface TimeSlotsSelect<T extends boolean = true> {
   startTime?: T;
   endTime?: T;
+  type?: T;
   duration?: T;
   slug?: T;
   twelveHourTime?: T;

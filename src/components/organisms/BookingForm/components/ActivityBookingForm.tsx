@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useFormContext, Controller } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import styles from "../BookingForm.module.css";
 import { useBooking } from "@/context/BookingContext";
 import { formatTimeForDisplay } from "@/utils/timeUtils";
@@ -16,35 +16,20 @@ import {
   LocationSelect,
 } from "@/components/atoms";
 
-import { ACTIVITIES } from "@/data/activities";
-import { FERRY_LOCATIONS } from "@/data/ferries";
-import { TIME_SLOTS } from "../BookingForm.types";
+import { useBookingData } from "@/hooks/useBookingData";
+import {
+  transformLocationsForSelect,
+  transformTimeSlotsForSelect,
+  transformActivitiesForSelect,
+} from "@/utils/dataTransforms";
+
 import {
   activityFormSchema,
   ActivityFormValues,
   getActivityNameById,
-  getLocationNameById,
 } from "../schemas/formSchemas";
 import { useBookingForm } from "../hooks/useBookingForm";
 import { cn } from "@/utils/cn";
-
-// Filter time slots for activities
-const ACTIVITY_TIME_SLOTS = TIME_SLOTS.filter((slot) =>
-  [
-    "07-00",
-    "07-30",
-    "08-00",
-    "08-30",
-    "09-00",
-    "09-30",
-    "10-00",
-    "10-30",
-    "11-00",
-    "11-30",
-    "14-00",
-    "14-30",
-  ].includes(slot.id)
-);
 
 interface ActivityBookingFormProps {
   className?: string;
@@ -57,6 +42,30 @@ export function ActivityBookingForm({
 }: ActivityBookingFormProps) {
   const router = useRouter();
   const { bookingState, updateBookingState } = useBooking();
+  const {
+    locations: prefetchedLocations,
+    activityTimeSlots: prefetchedTimeSlots,
+    activities: prefetchedActivities,
+  } = useBookingData();
+
+  // transform data for form usage
+  const locations = React.useMemo(() => {
+    return prefetchedLocations
+      ? transformLocationsForSelect(prefetchedLocations)
+      : [];
+  }, [prefetchedLocations]);
+
+  const timeSlots = React.useMemo(() => {
+    return prefetchedTimeSlots
+      ? transformTimeSlotsForSelect(prefetchedTimeSlots)
+      : [];
+  }, [prefetchedTimeSlots]);
+
+  const activities = React.useMemo(() => {
+    return prefetchedActivities
+      ? transformActivitiesForSelect(prefetchedActivities)
+      : [];
+  }, [prefetchedActivities]);
 
   // Initialize form with our custom hook
   const {
@@ -64,10 +73,10 @@ export function ActivityBookingForm({
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useBookingForm<typeof activityFormSchema>(activityFormSchema, {
-    selectedActivity: "scuba-diving",
-    activityLocation: FERRY_LOCATIONS[0]?.id || "",
+    selectedActivity: activities.length > 0 ? activities[0].id : "scuba-diving",
+    activityLocation: locations[0]?.id || "",
+    selectedSlot: timeSlots[0]?.id || "",
     selectedDate: new Date(bookingState.date),
-    selectedSlot: ACTIVITY_TIME_SLOTS[0]?.id || "",
     passengers: {
       adults: bookingState.adults,
       infants: bookingState.infants,
@@ -75,13 +84,20 @@ export function ActivityBookingForm({
     },
   });
 
+  //Helper function to get location name by id
+  const getLocationNameById = (id: string) => {
+    return locations.find((loc) => loc.id === id)?.name || "";
+  };
+
   const onSubmit = (data: ActivityFormValues) => {
     const activityName = getActivityNameById(data.selectedActivity);
-    const locationName = getLocationNameById(data.activityLocation, "activity");
+    const locationName = getLocationNameById(data.activityLocation);
 
-    const timeSlot =
-      ACTIVITY_TIME_SLOTS.find((slot) => slot.id === data.selectedSlot)?.time ||
-      "11:00 AM";
+    // Find the selected time slot
+    const selectedTimeSlot = timeSlots.find(
+      (slot) => slot.id === data.selectedSlot
+    );
+    const timeSlot = selectedTimeSlot?.time || "11:00 AM";
 
     // Standardize the time format
     const standardizedTime = formatTimeForDisplay(timeSlot);
@@ -115,6 +131,15 @@ export function ActivityBookingForm({
   // Create button text based on variant
   const buttonText = variant === "compact" ? "Search" : "View Details";
 
+  // Loading state for edge cases
+  if (
+    !prefetchedLocations.length ||
+    !prefetchedTimeSlots.length ||
+    !prefetchedActivities.length
+  ) {
+    return <div className={styles.formGrid}>Loading booking options...</div>;
+  }
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -136,7 +161,7 @@ export function ActivityBookingForm({
               <ActivitySelect
                 value={field.value}
                 onChange={field.onChange}
-                options={ACTIVITIES || []}
+                options={activities}
                 placeholder="Select Activity"
                 hasError={!!errors.selectedActivity}
               />
@@ -157,7 +182,7 @@ export function ActivityBookingForm({
               <LocationSelect
                 value={field.value}
                 onChange={field.onChange}
-                options={FERRY_LOCATIONS || []}
+                options={locations || []}
                 placeholder="Select Location"
                 label="Location"
                 hasError={!!errors.activityLocation}
@@ -200,7 +225,7 @@ export function ActivityBookingForm({
               <SlotSelect
                 value={field.value}
                 onChange={field.onChange}
-                options={ACTIVITY_TIME_SLOTS || []}
+                options={timeSlots || []}
                 hasError={!!errors.selectedSlot}
               />
             )}
