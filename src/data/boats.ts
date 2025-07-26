@@ -37,10 +37,34 @@ export interface BoatRoute {
  */
 export const BOAT_LOCATIONS: Location[] = [
   ...FERRY_LOCATIONS,
-  { id: "elephant-beach", name: "Elephant Beach" },
-  { id: "north-bay", name: "North Bay" },
-  { id: "ross-island", name: "Ross Island" },
-  { id: "baratang", name: "Baratang" },
+  {
+    id: "elephant-beach",
+    name: "Elephant Beach",
+    slug: "elephant-beach",
+    value: "elephant-beach",
+    label: "Elephant Beach",
+  },
+  {
+    id: "north-bay",
+    name: "North Bay",
+    slug: "north-bay",
+    value: "north-bay",
+    label: "North Bay",
+  },
+  {
+    id: "ross-island",
+    name: "Ross Island",
+    slug: "ross-island",
+    value: "ross-island",
+    label: "Ross Island",
+  },
+  {
+    id: "baratang",
+    name: "Baratang",
+    slug: "baratang",
+    value: "baratang",
+    label: "Baratang",
+  },
 ];
 
 /**

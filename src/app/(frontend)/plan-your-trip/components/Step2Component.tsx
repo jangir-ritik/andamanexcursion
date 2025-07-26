@@ -18,24 +18,24 @@ interface Step2ComponentProps {
 }
 
 const DESTINATIONS: Location[] = [
-  { id: "havelock", name: "Havelock Island" },
-  { id: "neil", name: "Neil Island" },
-  { id: "port-blair", name: "Port Blair" },
-  { id: "ross", name: "Ross Island" },
-  { id: "baratang", name: "Baratang Island" },
-  { id: "rangat", name: "Rangat" },
-  { id: "diglipur", name: "Diglipur" },
+  { id: "havelock", name: "Havelock Island", slug: "havelock", value: "havelock", label: "Havelock Island" },
+  { id: "neil", name: "Neil Island", slug: "neil", value: "neil", label: "Neil Island" },
+  { id: "port-blair", name: "Port Blair", slug: "port-blair", value: "port-blair", label: "Port Blair" },
+  { id: "ross", name: "Ross Island", slug: "ross", value: "ross", label: "Ross Island" },
+  { id: "baratang", name: "Baratang Island", slug: "baratang", value: "baratang", label: "Baratang Island" },
+  { id: "rangat", name: "Rangat", slug: "rangat", value: "rangat", label: "Rangat" },
+  { id: "diglipur", name: "Diglipur", slug: "diglipur", value: "diglipur", label: "Diglipur" },
 ];
 
 const ACTIVITIES: Activity[] = [
-  { id: "scuba-diving", name: "Scuba Diving" },
-  { id: "snorkeling", name: "Snorkeling" },
-  { id: "beach-relaxation", name: "Beach Relaxation" },
-  { id: "sightseeing", name: "Sightseeing" },
-  { id: "water-sports", name: "Water Sports" },
-  { id: "mangrove-tour", name: "Mangrove Tour" },
-  { id: "historical-sites", name: "Historical Sites" },
-  { id: "fishing", name: "Fishing" },
+  { id: "scuba-diving", name: "Scuba Diving", slug: "scuba-diving", value: "scuba-diving", label: "Scuba Diving" },
+  { id: "snorkeling", name: "Snorkeling", slug: "snorkeling", value: "snorkeling", label: "Snorkeling" },
+  { id: "beach-relaxation", name: "Beach Relaxation", slug: "beach-relaxation", value: "beach-relaxation", label: "Beach Relaxation" },
+  { id: "sightseeing", name: "Sightseeing", slug: "sightseeing", value: "sightseeing", label: "Sightseeing" },
+  { id: "water-sports", name: "Water Sports", slug: "water-sports", value: "water-sports", label: "Water Sports" },
+  { id: "mangrove-tour", name: "Mangrove Tour", slug: "mangrove-tour", value: "mangrove-tour", label: "Mangrove Tour" },
+  { id: "historical-sites", name: "Historical Sites", slug: "historical-sites", value: "historical-sites", label: "Historical Sites" },
+  { id: "fishing", name: "Fishing", slug: "fishing", value: "fishing", label: "Fishing" },
 ];
 
 // Maximum reasonable number of days to generate

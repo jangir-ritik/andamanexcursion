@@ -258,3 +258,10 @@
 //     </form>
 //   );
 // }
+import React from "react";
+
+function BoatBookingForm() {
+  return <div>BoatBookingForm</div>;
+}
+
+export default BoatBookingForm;

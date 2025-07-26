@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,7 @@ import {
   LocationSelect,
 } from "@/components/atoms";
 
-// Simplified validation schema
+// Move the schema outside component to prevent recreation on each render
 const activitySearchSchema = z.object({
   selectedActivity: z.string().min(1, "Please select an activity type"),
   activityLocation: z.string().min(1, "Please select a location"),
@@ -57,14 +57,9 @@ export function ActivitySearchForm({
     error: loadError,
   } = state.formOptions;
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setError,
-  } = useForm<ActivitySearchFormData>({
-    resolver: zodResolver(activitySearchSchema),
-    defaultValues: {
+  // Memoize default values to prevent recreating on each render
+  const defaultValues = useMemo(
+    () => ({
       selectedActivity: state.searchParams.activityType || "",
       activityLocation: state.searchParams.location || "",
       selectedDate: state.searchParams.date
@@ -76,51 +71,77 @@ export function ActivitySearchForm({
         children: state.searchParams.children || 0,
         infants: state.searchParams.infants || 0,
       },
-    },
+    }),
+    [state.searchParams]
+  );
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<ActivitySearchFormData>({
+    resolver: zodResolver(activitySearchSchema),
+    defaultValues,
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: ActivitySearchFormData) => {
-    // Additional validation check
-    if (!data.selectedActivity) {
-      setError("selectedActivity", {
-        type: "manual",
-        message: "Please select an activity type",
+  // Memoize the submit handler to prevent recreation on each render
+  const onSubmit = useCallback(
+    async (data: ActivitySearchFormData) => {
+      // Additional validation check
+      if (!data.selectedActivity) {
+        setError("selectedActivity", {
+          type: "manual",
+          message: "Please select an activity type",
+        });
+        return;
+      }
+
+      if (!data.activityLocation) {
+        setError("activityLocation", {
+          type: "manual",
+          message: "Please select a location",
+        });
+        return;
+      }
+
+      // Create search params with slugs
+      const searchParams = {
+        activityType: data.selectedActivity,
+        location: data.activityLocation,
+        date: data.selectedDate.toISOString().split("T")[0],
+        time: data.selectedSlot,
+        adults: data.passengers.adults,
+        children: data.passengers.children,
+        infants: data.passengers.infants,
+      };
+
+      // Update search params in context
+      updateSearchParams(searchParams);
+
+      // Trigger search with the search params
+      await searchActivities(searchParams);
+    },
+    [updateSearchParams, searchActivities, setError]
+  );
+
+  // Memoize button text based on variant
+  const buttonText = useMemo(
+    () => (variant === "compact" ? "Search" : "View Details"),
+    [variant]
+  );
+
+  // Memoize passenger handler to prevent recreation on each render
+  const handlePassengerChange = useCallback(
+    (field: any) => (type: string, value: number) => {
+      field.onChange({
+        ...field.value,
+        [type]: value,
       });
-      return;
-    }
-
-    if (!data.activityLocation) {
-      setError("activityLocation", {
-        type: "manual",
-        message: "Please select a location",
-      });
-      return;
-    }
-
-
-    // Create search params with slugs
-    const searchParams = {
-      activityType: data.selectedActivity,
-      location: data.activityLocation,
-      date: data.selectedDate.toISOString().split("T")[0],
-      time: data.selectedSlot,
-      adults: data.passengers.adults,
-      children: data.passengers.children,
-      infants: data.passengers.infants,
-    };
-
-    // Log to verify we're using slugs
-
-    // Update search params in context
-    updateSearchParams(searchParams);
-
-    // Trigger search with the search params
-    await searchActivities(searchParams);
-  };
-
-  // Create button text based on variant
-  const buttonText = variant === "compact" ? "Search" : "Search Activities";
+    },
+    []
+  );
 
   // Loading state while fetching form options
   if (isLoadingOptions) {
@@ -254,12 +275,7 @@ export function ActivitySearchForm({
             render={({ field }) => (
               <PassengerCounter
                 value={field.value}
-                onChange={(type, value) => {
-                  field.onChange({
-                    ...field.value,
-                    [type]: value,
-                  });
-                }}
+                onChange={handlePassengerChange(field)}
                 hasError={!!errors.passengers}
               />
             )}
@@ -283,11 +299,7 @@ export function ActivitySearchForm({
       </div>
 
       {/* Error Display */}
-      {state.error && (
-        <div className={`${styles.errorMessage} ${styles.fullWidth}`}>
-          {state.error}
-        </div>
-      )}
+      {state.error && <div className={styles.errorMessage}>{state.error}</div>}
     </form>
   );
 }

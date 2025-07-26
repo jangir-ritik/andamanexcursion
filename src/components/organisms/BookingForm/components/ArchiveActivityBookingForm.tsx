@@ -292,3 +292,11 @@
 //     </form>
 //   );
 // }
+
+import React from "react";
+
+function ArchiveActivityBookingForm() {
+  return <div>ArchiveActivityBookingForm</div>;
+}
+
+export default ArchiveActivityBookingForm;

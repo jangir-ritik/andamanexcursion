@@ -26,6 +26,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Scuba diving in clear waters",
     description: "Discover the underwater world with professional guidance",
     rating: 4.7,
+    slug: "scuba-diving",
+    value: "scuba-diving",
+    label: "Scuba Diving",
   },
   {
     id: "snorkeling",
@@ -34,6 +37,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Snorkeling in coral gardens",
     description: "Explore the vibrant coral gardens and marine life",
     rating: 4.8,
+    slug: "snorkeling",
+    value: "snorkeling",
+    label: "Snorkeling",
   },
   {
     id: "sea-walk",
@@ -42,6 +48,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Sea walking experience",
     description: "Walk on the ocean floor and experience marine life up close",
     rating: 4.6,
+    slug: "sea-walk",
+    value: "sea-walk",
+    label: "Sea Walk",
   },
   {
     id: "glass-bottom-boat",
@@ -51,6 +60,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     description:
       "View marine life from the comfort of a boat with a glass bottom",
     rating: 4.5,
+    slug: "glass-bottom-boat",
+    value: "glass-bottom-boat",
+    label: "Glass Bottom Boat",
   },
   {
     id: "jet-ski",
@@ -59,6 +71,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Jet skiing across blue waters",
     description: "Experience the thrill of riding on the ocean",
     rating: 4.7,
+    slug: "jet-ski",
+    value: "jet-ski",
+    label: "Jet Ski",
   },
   {
     id: "parasailing",
@@ -67,6 +82,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Parasailing over blue waters",
     description: "Experience the thrill of flying over the ocean",
     rating: 4.9,
+    slug: "parasailing",
+    value: "parasailing",
+    label: "Parasailing",
   },
   {
     id: "night-snorkeling",
@@ -75,6 +93,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Night snorkeling adventure",
     description: "Explore the underwater world at night",
     rating: 4.5,
+    slug: "night-snorkeling",
+    value: "night-snorkeling",
+    label: "Night Snorkeling",
   },
   {
     id: "tandem-parasailing",
@@ -84,6 +105,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     description:
       "Experience the thrill of flying over the ocean with a partner",
     rating: 4.8,
+    slug: "tandem-parasailing",
+    value: "tandem-parasailing",
+    label: "Tandem Parasailing",
   },
   {
     id: "advanced-scuba",
@@ -93,6 +117,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     description:
       "Experience the thrill of deep sea diving for certified divers",
     rating: 4.9,
+    slug: "advanced-scuba",
+    value: "advanced-scuba",
+    label: "Advanced Scuba",
   },
   {
     id: "group-snorkeling",
@@ -101,6 +128,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Group snorkeling experience",
     description: "Explore the coral gardens with a group of friends",
     rating: 4.6,
+    slug: "group-snorkeling",
+    value: "group-snorkeling",
+    label: "Group Snorkeling",
   },
   {
     id: "deep-sea-diving",
@@ -109,6 +139,9 @@ export const ACTIVITIES_DATA: ActivityData[] = [
     imageAlt: "Deep sea diving expedition",
     description: "Experience the thrill of deep sea diving",
     rating: 4.9,
+    slug: "deep-sea-diving",
+    value: "deep-sea-diving",
+    label: "Deep Sea Diving",
   },
 ];
 
@@ -116,7 +149,12 @@ export const ACTIVITIES_DATA: ActivityData[] = [
  * Basic activity list for form selection
  * Derived from the master list
  */
-export const ACTIVITIES: Activity[] = ACTIVITIES_DATA.map(({ id, name }) => ({
-  id,
-  name,
-}));
+export const ACTIVITIES: Activity[] = ACTIVITIES_DATA.map(
+  ({ id, name, slug, value, label }) => ({
+    id,
+    name,
+    slug,
+    value,
+    label,
+  })
+);

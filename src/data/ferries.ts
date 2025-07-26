@@ -38,11 +38,41 @@ export interface FerryRoute {
  * Available ferry locations
  */
 export const FERRY_LOCATIONS: Location[] = [
-  { id: "port-blair", name: "Port Blair" },
-  { id: "havelock", name: "Havelock" },
-  { id: "neil-island", name: "Neil Island" },
-  { id: "diglipur", name: "Diglipur" },
-  { id: "rangat", name: "Rangat" },
+  {
+    id: "port-blair",
+    name: "Port Blair",
+    slug: "port-blair",
+    value: "port-blair",
+    label: "Port Blair",
+  },
+  {
+    id: "havelock",
+    name: "Havelock",
+    slug: "havelock",
+    value: "havelock",
+    label: "Havelock",
+  },
+  {
+    id: "neil-island",
+    name: "Neil Island",
+    slug: "neil-island",
+    value: "neil-island",
+    label: "Neil Island",
+  },
+  {
+    id: "diglipur",
+    name: "Diglipur",
+    slug: "diglipur",
+    value: "diglipur",
+    label: "Diglipur",
+  },
+  {
+    id: "rangat",
+    name: "Rangat",
+    slug: "rangat",
+    value: "rangat",
+    label: "Rangat",
+  },
 ];
 
 /**

@@ -5,12 +5,15 @@ import React, {
   useReducer,
   ReactNode,
   useEffect,
+  useCallback,
+  useMemo,
 } from "react";
 
 // Import client-side API services
 import { locationApi } from "@/services/api/locations";
 import { timeSlotApi } from "@/services/api/timeSlots";
 import { activityApi } from "@/services/api/activities";
+import { activityCategoryApi } from "@/services/api/activityCategories";
 import { formatTimeForDisplay } from "@/utils/timeUtils";
 
 // Types
@@ -145,12 +148,96 @@ type ActivityAction =
       payload: string | null;
     };
 
-// Initial state
+// Helper functions for transforming data
+const formatDataForSelect = {
+  locations: (locations: any[]) =>
+    locations.map((location) => ({
+      id: location.id,
+      name: location.name,
+      slug: location.slug || location.id,
+      value: location.slug || location.id,
+      label: location.name,
+    })),
+
+  timeSlots: (timeSlots: any[]) =>
+    timeSlots.map((slot) => ({
+      id: slot.id,
+      time: slot.startTime, // 24-hour format
+      slug: slot.slug,
+      value: slot.slug, // Use slug as value
+      label: slot.twelveHourTime || formatTimeForDisplay(slot.startTime), // Display 12-hour format
+    })),
+
+  activities: (activities: any[]) =>
+    activities.map((activity) => ({
+      id: activity.id,
+      name: activity.name || activity.title,
+      slug: activity.slug || activity.id,
+      value: activity.slug || activity.id,
+      label: activity.name || activity.title,
+    })),
+
+  apiActivities: (activities: any[]): Activity[] =>
+    activities.map((apiActivity) => ({
+      id: apiActivity.id,
+      title: apiActivity.title || "Activity",
+      description:
+        apiActivity.content?.shortDescription || "No description available",
+      price: apiActivity.coreInfo?.price || 0,
+      duration: apiActivity.coreInfo?.duration || "1 hour",
+      images: apiActivity.media?.gallery?.map((img: any) => ({
+        src: img.url || "/images/placeholder.png",
+        alt: img.alt || apiActivity.title || "Activity image",
+      })) || [{ src: "/images/placeholder.png", alt: "Placeholder image" }],
+      availableSlots: apiActivity.coreInfo?.capacity || 10,
+    })),
+};
+
+// Default values for the form options
+const DEFAULT_ACTIVITY_TYPES = [
+  {
+    id: "1",
+    name: "Scuba Diving",
+    slug: "scuba-diving",
+    value: "scuba-diving",
+    label: "Scuba Diving",
+  },
+  {
+    id: "2",
+    name: "Snorkeling",
+    slug: "snorkeling",
+    value: "snorkeling",
+    label: "Snorkeling",
+  },
+  {
+    id: "3",
+    name: "Parasailing",
+    slug: "parasailing",
+    value: "parasailing",
+    label: "Parasailing",
+  },
+  {
+    id: "4",
+    name: "Jet Ski",
+    slug: "jet-ski",
+    value: "jet-ski",
+    label: "Jet Ski",
+  },
+];
+
+// Get tomorrow's date in YYYY-MM-DD format
+const getTomorrow = (): string => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split("T")[0];
+};
+
+// Initial state - remove DEFAULT_ACTIVITY_TYPES
 const initialState: ActivityState = {
   searchParams: {
     activityType: "",
     location: "",
-    date: new Date().toISOString().split("T")[0],
+    date: getTomorrow(),
     time: "",
     adults: 2,
     children: 0,
@@ -163,30 +250,7 @@ const initialState: ActivityState = {
   formOptions: {
     locations: [],
     timeSlots: [],
-    activityTypes: [
-      {
-        id: "1",
-        name: "Scuba Diving",
-        slug: "scuba-diving",
-        value: "scuba-diving",
-        label: "Scuba Diving",
-      },
-      {
-        id: "2",
-        name: "Snorkeling",
-        slug: "snorkeling",
-        value: "snorkeling",
-        label: "Snorkeling",
-      },
-      {
-        id: "3",
-        name: "Parasailing",
-        slug: "parasailing",
-        value: "parasailing",
-        label: "Parasailing",
-      },
-      { id: "4", name: "Anku", slug: "anku", value: "anku", label: "Anku" },
-    ],
+    activityTypes: [], // Start with empty array instead of defaults
     isLoading: false,
     error: null,
   },
@@ -351,8 +415,8 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
     loadFormOptions();
   }, []);
 
-  // Form options loading function
-  const loadFormOptions = async () => {
+  // Form options loading function - memoized
+  const loadFormOptions = useCallback(async () => {
     try {
       dispatch({
         type: ActivityActionTypes.SET_FORM_OPTIONS_LOADING,
@@ -361,71 +425,25 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
 
       // Fetch data in parallel using client-side API services
       const [categories, locations, timeSlots] = await Promise.all([
-        activityApi.getCategories(),
+        activityCategoryApi.getActive(),
         locationApi.getForActivities(),
         timeSlotApi.getForActivities(),
       ]);
 
-      // Transform data for select components with proper slug mapping
-      const formattedLocations = locations.map((location) => ({
-        id: location.id,
-        name: location.name,
-        slug: location.slug || location.id,
-        value: location.slug || location.id, // Use slug as value
-        label: location.name,
-      }));
+      // Transform data using our helper functions
+      const formattedLocations = formatDataForSelect.locations(locations);
+      const formattedTimeSlots = formatDataForSelect.timeSlots(timeSlots);
 
-      const formattedTimeSlots = timeSlots.map((slot) => ({
-        id: slot.id,
-        time: slot.startTime, // 24-hour format
-        slug: slot.slug,
-        value: slot.slug, // Use slug as value
-        label: slot.twelveHourTime || formatTimeForDisplay(slot.startTime), // Display 12-hour format
-      }));
-
-      // Format activity categories
-      const formattedActivityTypes = categories.map((category) => ({
-        id: category.id,
-        name: category.name,
-        slug: category.slug || category.id,
-        value: category.slug || category.id, // Use slug as value
-        label: category.name,
-      }));
-
-      // If no categories were returned from API, use default options
-      const activityTypeOptions =
-        formattedActivityTypes.length > 0
-          ? formattedActivityTypes
-          : [
-              {
-                id: "1",
-                name: "Scuba Diving",
-                slug: "scuba-diving",
-                value: "scuba-diving",
-                label: "Scuba Diving",
-              },
-              {
-                id: "2",
-                name: "Snorkeling",
-                slug: "snorkeling",
-                value: "snorkeling",
-                label: "Snorkeling",
-              },
-              {
-                id: "3",
-                name: "Parasailing",
-                slug: "parasailing",
-                value: "parasailing",
-                label: "Parasailing",
-              },
-              {
-                id: "4",
-                name: "Jet Ski",
-                slug: "jet-ski",
-                value: "jet-ski",
-                label: "Jet Ski",
-              },
-            ];
+      // Transform categories, use defaults only if empty
+      let activityTypeOptions = [];
+      if (categories && categories.length > 0) {
+        activityTypeOptions = formatDataForSelect.activities(categories);
+      } else {
+        console.warn(
+          "No activity categories returned from API, using defaults"
+        );
+        activityTypeOptions = DEFAULT_ACTIVITY_TYPES;
+      }
 
       // Update state with form options
       dispatch({
@@ -448,161 +466,177 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
         payload: false,
       });
     }
-  };
+  }, []);
 
-  //search actions
-  const updateSearchParams = (params: Partial<ActivitySearchParams>) => {
-    dispatch({ type: ActivityActionTypes.SET_SEARCH_PARAMS, payload: params });
-  };
+  // Search actions - memoized
+  const updateSearchParams = useCallback(
+    (params: Partial<ActivitySearchParams>) => {
+      dispatch({
+        type: ActivityActionTypes.SET_SEARCH_PARAMS,
+        payload: params,
+      });
+    },
+    []
+  );
 
-  const searchActivities = async (searchParams?: ActivitySearchParams) => {
-    dispatch({ type: ActivityActionTypes.SET_LOADING, payload: true });
-
-    try {
-      // Use provided search params or fallback to state
-      const params = searchParams || state.searchParams;
-
-      // Validate required fields before proceeding
-      const { activityType, location } = params;
-
-      if (!activityType || !location) {
-        throw new Error(
-          "Please select both activity type and location to search"
-        );
-      }
-
-      console.log("Searching with params (using slugs):", params);
-
-      // Attempt to search using the API
-      let results = [];
+  const searchActivities = useCallback(
+    async (searchParams?: ActivitySearchParams) => {
+      dispatch({ type: ActivityActionTypes.SET_LOADING, payload: true });
 
       try {
-        results = await activityApi.search({
-          activityType: params.activityType,
-          location: params.location,
-          date: params.date,
-          time: params.time,
-          adults: params.adults,
-          children: params.children,
-          infants: params.infants,
+        // Use provided search params or fallback to state
+        const params = searchParams || state.searchParams;
+
+        // Validate required fields before proceeding
+        const { activityType, location } = params;
+
+        if (!activityType || !location) {
+          throw new Error(
+            "Please select both activity type and location to search"
+          );
+        }
+
+        // Attempt to search using the API
+        let results = [];
+
+        try {
+          results = await activityApi.search({
+            activityType: params.activityType,
+            location: params.location,
+            date: params.date,
+            time: params.time,
+            adults: params.adults,
+            children: params.children,
+            infants: params.infants,
+          });
+
+          // Convert API results to match our Activity interface
+          results = formatDataForSelect.apiActivities(results);
+        } catch (apiError) {
+          console.error("API search failed, using mock data:", apiError);
+
+          // If API fails, use mock data
+          results = [
+            {
+              id: "1",
+              title: "Scuba Diving at Neil Island",
+              description:
+                "Explore the underwater world with professional instructors",
+              price: 2500,
+              duration: "2 hours",
+              images: [{ src: "/images/scuba1.jpg", alt: "Scuba diving" }],
+              availableSlots: 8,
+            },
+            {
+              id: "2",
+              title: "Snorkeling Adventure",
+              description: "Perfect for beginners, explore coral reefs safely",
+              price: 1500,
+              duration: "1.5 hours",
+              images: [{ src: "/images/snorkel1.jpg", alt: "Snorkeling" }],
+              availableSlots: 12,
+            },
+          ];
+        }
+
+        dispatch({
+          type: ActivityActionTypes.SET_ACTIVITIES,
+          payload: results,
         });
-
-        // Convert API results to match our Activity interface
-        results = results.map((apiActivity: any) => ({
-          id: apiActivity.id,
-          title: apiActivity.title || "Activity",
-          description:
-            apiActivity.content?.shortDescription || "No description available",
-          price: apiActivity.coreInfo?.price || 0,
-          duration: apiActivity.coreInfo?.duration || "1 hour",
-          images: apiActivity.media?.gallery?.map((img: any) => ({
-            src: img.url || "/images/placeholder.png",
-            alt: img.alt || apiActivity.title || "Activity image",
-          })) || [{ src: "/images/placeholder.png", alt: "Placeholder image" }],
-          availableSlots: apiActivity.coreInfo?.capacity || 10,
-        }));
-      } catch (apiError) {
-        console.error("API search failed, using mock data:", apiError);
-
-        // If API fails, use mock data
-        results = [
-          {
-            id: "1",
-            title: "Scuba Diving at Neil Island",
-            description:
-              "Explore the underwater world with professional instructors",
-            price: 2500,
-            duration: "2 hours",
-            images: [{ src: "/images/scuba1.jpg", alt: "Scuba diving" }],
-            availableSlots: 8,
-          },
-          {
-            id: "2",
-            title: "Snorkeling Adventure",
-            description: "Perfect for beginners, explore coral reefs safely",
-            price: 1500,
-            duration: "1.5 hours",
-            images: [{ src: "/images/snorkel1.jpg", alt: "Snorkeling" }],
-            availableSlots: 12,
-          },
-        ];
+      } catch (error) {
+        dispatch({
+          type: ActivityActionTypes.SET_ERROR,
+          payload:
+            error instanceof Error
+              ? error.message
+              : "Failed to load activities",
+        });
+      } finally {
+        dispatch({ type: ActivityActionTypes.SET_LOADING, payload: false });
       }
+    },
+    [state.searchParams]
+  );
 
-      dispatch({
-        type: ActivityActionTypes.SET_ACTIVITIES,
-        payload: results,
-      });
-    } catch (error) {
-      dispatch({
-        type: ActivityActionTypes.SET_ERROR,
-        payload:
-          error instanceof Error ? error.message : "Failed to load activities",
-      });
-    } finally {
-      dispatch({ type: ActivityActionTypes.SET_LOADING, payload: false });
-    }
-  };
-
-  // Cart actions
-  const addToCart = (activity: Activity, quantity: number = 1) => {
+  // Cart actions - memoized
+  const addToCart = useCallback((activity: Activity, quantity: number = 1) => {
     dispatch({
       type: ActivityActionTypes.ADD_TO_CART,
       payload: { activity, quantity },
     });
-  };
+  }, []);
 
-  const removeFromCart = (activityId: string) => {
+  const removeFromCart = useCallback((activityId: string) => {
     dispatch({
       type: ActivityActionTypes.REMOVE_FROM_CART,
       payload: activityId,
     });
-  };
+  }, []);
 
-  const updateCartQuantity = (activityId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(activityId);
-      return;
-    }
-    dispatch({
-      type: ActivityActionTypes.UPDATE_CART_QUANTITY,
-      payload: { activityId, quantity },
-    });
-  };
+  const updateCartQuantity = useCallback(
+    (activityId: string, quantity: number) => {
+      if (quantity <= 0) {
+        removeFromCart(activityId);
+        return;
+      }
+      dispatch({
+        type: ActivityActionTypes.UPDATE_CART_QUANTITY,
+        payload: { activityId, quantity },
+      });
+    },
+    [removeFromCart]
+  );
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     dispatch({ type: ActivityActionTypes.CLEAR_CART });
-  };
+  }, []);
 
-  // Computed values
-  const getTotalPassengers = () => {
+  // Computed values - memoized
+  const getTotalPassengers = useCallback(() => {
     return (
       state.searchParams.adults +
       state.searchParams.children +
       state.searchParams.infants
     );
-  };
+  }, [state.searchParams]);
 
-  const getCartTotal = () => {
+  const getCartTotal = useCallback(() => {
     return state.cart.reduce((total, item) => total + item.totalPrice, 0);
-  };
+  }, [state.cart]);
 
-  const getCartItemCount = () => {
+  const getCartItemCount = useCallback(() => {
     return state.cart.reduce((count, item) => count + item.quantity, 0);
-  };
+  }, [state.cart]);
 
-  const contextValue: ActivityContextType = {
-    state,
-    updateSearchParams,
-    searchActivities,
-    addToCart,
-    removeFromCart,
-    updateCartQuantity,
-    clearCart,
-    loadFormOptions,
-    getTotalPassengers,
-    getCartTotal,
-    getCartItemCount,
-  };
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({
+      state,
+      updateSearchParams,
+      searchActivities,
+      addToCart,
+      removeFromCart,
+      updateCartQuantity,
+      clearCart,
+      loadFormOptions,
+      getTotalPassengers,
+      getCartTotal,
+      getCartItemCount,
+    }),
+    [
+      state,
+      updateSearchParams,
+      searchActivities,
+      addToCart,
+      removeFromCart,
+      updateCartQuantity,
+      clearCart,
+      loadFormOptions,
+      getTotalPassengers,
+      getCartTotal,
+      getCartItemCount,
+    ]
+  );
 
   return (
     <ActivityContext.Provider value={contextValue}>

@@ -134,22 +134,4 @@ export const activityApi = {
       return null;
     }
   },
-
-  // Get activity categories
-  async getCategories(): Promise<any[]> {
-    try {
-      const response = await fetch(
-        `${API_BASE}/api/activity-categories?where[isActive][equals]=true&sort=priority&limit=100`
-      );
-      if (!response.ok) throw new Error("Failed to fetch activity categories");
-      const data = await response.json();
-      return data.docs;
-    } catch (error) {
-      console.error("Error fetching activity categories:", error);
-      return [];
-    }
-  },
 };
-
-// Export the direct function for server components
-export const getActivityCategories = activityApi.getCategories;

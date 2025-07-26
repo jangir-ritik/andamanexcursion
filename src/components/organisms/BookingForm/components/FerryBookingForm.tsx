@@ -242,3 +242,11 @@
 //     </form>
 //   );
 // }
+
+import React from "react";
+
+function FerryBookingForm() {
+  return <div>FerryBookingForm</div>;
+}
+
+export default FerryBookingForm;
