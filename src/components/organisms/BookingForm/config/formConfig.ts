@@ -1,4 +1,4 @@
-import { LOCATIONS, ACTIVITIES, TIME_SLOTS } from "../BookingForm.types";
+import { LOCATIONS, TIME_SLOTS } from "../BookingForm.types";
 import { TabConfig } from "../BookingForm.types";
 
 // Custom time slots for specific tabs
@@ -53,7 +53,7 @@ export const TAB_CONFIG: TabConfig[] = [
     id: "activities",
     label: "Activities",
     type: "activity",
-    activities: ACTIVITIES,
+    // activities: ACTIVITIES,
     timeSlots: ACTIVITY_TIME_SLOTS,
   },
 ];

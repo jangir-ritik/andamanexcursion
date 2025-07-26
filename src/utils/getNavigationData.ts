@@ -2,48 +2,6 @@ import { NavigationItem } from "@/components/organisms/Header/Header.types";
 import { navigationService } from "@/services/payload/collections/navigation";
 import { cache } from "react";
 
-interface PayloadNavigationItem {
-  type: "simple" | "activities" | "packages" | "specials" | "custom";
-  label: string;
-  href: string;
-  isClickable?: boolean | null;
-  unique?: boolean | null;
-  activityCategories?: Array<{
-    id: string;
-    name: string;
-    slug: string;
-    isActive: boolean;
-    sortOrder: number;
-  }>;
-  packageCategories?: Array<{
-    id: string;
-    title: string;
-    slug: string;
-    isActive?: boolean;
-    displaySettings: {
-      order: number;
-      isActive: boolean;
-    };
-  }>;
-  specialCategories?: Array<{
-    id: string;
-    name: string;
-    slug: string;
-    isActive: boolean;
-    order: number;
-  }>;
-  customItems?: Array<{
-    label: string;
-    href: string;
-    isActive: boolean;
-  }>;
-  displaySettings: {
-    order: number;
-    isActive: boolean;
-    maxDropdownItems?: number;
-  };
-}
-
 // Define types for category objects
 interface ActivityCategory {
   id: string;
@@ -124,14 +82,6 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
 
             case "packages":
               if (item.packageCategories?.length) {
-                // Log to diagnose the exact structure
-                if (process.env.NODE_ENV === "development") {
-                  console.log(
-                    "Package categories raw data:",
-                    JSON.stringify(item.packageCategories, null, 2)
-                  );
-                }
-
                 baseItem.children = item.packageCategories
                   // For packages, don't check isActive directly as it may not exist at top level
                   .filter(
@@ -148,14 +98,6 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                     label: category.title,
                     href: `/packages/${category.slug}`,
                   }));
-
-                // Log transformed children
-                if (process.env.NODE_ENV === "development") {
-                  console.log(
-                    "Transformed package children:",
-                    baseItem.children
-                  );
-                }
               }
               break;
 
