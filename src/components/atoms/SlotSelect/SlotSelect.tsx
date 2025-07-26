@@ -11,24 +11,35 @@ export const SlotSelect = ({
   options,
   className,
   hasError,
+  placeholder,
 }: SlotSelectProps) => {
-  // Find the current slot index
-  const currentIndex = options.findIndex((slot) => slot.id === value);
+  // Find the current slot index by value, slug, or id
+  const currentIndex = options.findIndex(
+    (slot) => slot.value === value || slot.slug === value || slot.id === value
+  );
 
   // Handle navigation between slots
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      onChange(options[currentIndex - 1].id);
+      const prevSlot = options[currentIndex - 1];
+      onChange(prevSlot.value || prevSlot.slug || prevSlot.id);
     }
   };
 
   const handleNext = () => {
     if (currentIndex < options.length - 1) {
-      onChange(options[currentIndex + 1].id);
+      const nextSlot = options[currentIndex + 1];
+      onChange(nextSlot.value || nextSlot.slug || nextSlot.id);
     }
   };
 
-  const currentSlot = options.find((slot) => slot.id === value);
+  const currentSlot = options.find(
+    (slot) => slot.value === value || slot.slug === value || slot.id === value
+  );
+
+  const displayText = currentSlot
+    ? currentSlot.label || currentSlot.time
+    : placeholder;
 
   return (
     <div
@@ -47,7 +58,7 @@ export const SlotSelect = ({
         >
           <ChevronLeft size={20} />
         </button>
-        <span className={styles.selectValue}>{currentSlot?.time}</span>
+        <span className={styles.selectValue}>{displayText}</span>
         <button
           type="button"
           aria-label="Next Slot"

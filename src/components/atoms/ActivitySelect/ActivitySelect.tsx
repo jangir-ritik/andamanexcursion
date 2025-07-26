@@ -15,10 +15,15 @@ export const ActivitySelect = ({
   hasError,
   placeholder,
 }: ActivitySelectProps) => {
-  // Find the selected activity name
-  const selectedActivity =
-    options.find((activity) => activity.id === value)?.name || "";
-  const displayText = selectedActivity || placeholder || "Select activity";
+  // Find the selected activity
+  const selectedActivity = options.find(
+    (activity) =>
+      activity.value === value ||
+      activity.slug === value ||
+      activity.id === value
+  );
+  const displayText =
+    selectedActivity?.label || placeholder || "Select activity";
 
   return (
     <Select.Root value={value} onValueChange={onChange}>
@@ -51,10 +56,12 @@ export const ActivitySelect = ({
             {options.map((activity) => (
               <Select.Item
                 key={activity.id}
-                value={activity.id}
+                value={activity.value || activity.slug || activity.id}
                 className={styles.selectItem}
               >
-                <Select.ItemText>{activity.name}</Select.ItemText>
+                <Select.ItemText>
+                  {activity.label || activity.name}
+                </Select.ItemText>
               </Select.Item>
             ))}
           </Select.Viewport>

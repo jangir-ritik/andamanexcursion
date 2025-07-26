@@ -5,7 +5,7 @@ import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
 import "@/styles/variables.css";
-import { BookingProviders } from "@/context/BookingProviders";
+// import { BookingProviders } from "@/context/BookingProviders";
 import { TopLoadingBarProvider } from "@/components/layout/TopLoadingBarProvider/TopLoadingBarProvider";
 import { Footer, Header } from "@/components/organisms";
 import { Column, Container } from "@/components/layout";
@@ -14,7 +14,9 @@ import { ReactQueryProvider } from "@/context/ReactQueryProvider";
 import { locationService } from "@/services/payload/collections/locations";
 import { timeSlotService } from "@/services/payload/collections/time-slots";
 import { activityService } from "@/services/payload/collections/activities";
-import { BookingDataProvider } from "@/context/BookingDataProvider";
+import { ActivityProvider } from "@/context/ActivityContext";
+// import { BookingDataProvider } from "@/context/BookingDataProvider";
+
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
@@ -116,21 +118,23 @@ export default async function RootLayout({
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
         <TopLoadingBarProvider>
           <ReactQueryProvider>
-            <BookingDataProvider initialData={bookingData}>
-              <BookingProviders>
-                {/* <PackageProvider> */}
-                <Header />
-                <PageBackgroundProvider>
-                  <Container>
-                    <Column gap="var(--space-section)" fullWidth>
-                      {children}
-                    </Column>
-                  </Container>
-                </PageBackgroundProvider>
-                <Footer />
-                {/* </PackageProvider> */}
-              </BookingProviders>
-            </BookingDataProvider>
+            <ActivityProvider>
+              {/* <BookingDataProvider initialData={bookingData}> */}
+                {/* <BookingProviders> */}
+                  {/* <PackageProvider> */}
+                  <Header />
+                  <PageBackgroundProvider>
+                    <Container>
+                      <Column gap="var(--space-section)" fullWidth>
+                        {children}
+                      </Column>
+                    </Container>
+                  </PageBackgroundProvider>
+                  <Footer />
+                  {/* </PackageProvider> */}
+                {/* </BookingProviders> */}
+              {/* </BookingDataProvider> */}
+            </ActivityProvider>
           </ReactQueryProvider>
         </TopLoadingBarProvider>
       </body>

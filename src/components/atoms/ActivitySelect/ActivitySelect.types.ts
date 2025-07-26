@@ -1,6 +1,9 @@
 export interface Activity {
   id: string;
   name: string;
+  slug: string;
+  value: string;
+  label: string;
 }
 
 export interface ActivitySelectProps {

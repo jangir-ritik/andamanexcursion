@@ -15,9 +15,12 @@ export const LocationSelect = ({
   hasError,
   placeholder,
 }: LocationSelectProps) => {
-  // Find the selected location name
-  const selectedLocation = options.find((loc) => loc.id === value)?.name || "";
-  const displayText = selectedLocation || placeholder || "Select location";
+  // Find the selected location
+  const selectedLocation = options.find(
+    (loc) => loc.value === value || loc.slug === value || loc.id === value
+  );
+  const displayText =
+    selectedLocation?.label || placeholder || "Select location";
 
   return (
     <Select.Root value={value} onValueChange={onChange}>
@@ -51,10 +54,12 @@ export const LocationSelect = ({
             {options.map((location) => (
               <Select.Item
                 key={location.id}
-                value={location.id}
+                value={location.value || location.slug || location.id}
                 className={styles.selectItem}
               >
-                <Select.ItemText>{location.name}</Select.ItemText>
+                <Select.ItemText>
+                  {location.label || location.name}
+                </Select.ItemText>
               </Select.Item>
             ))}
           </Select.Viewport>

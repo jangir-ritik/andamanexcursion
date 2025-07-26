@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useActivity } from "@/context/ActivityContext";
 import { useRouter } from "next/navigation";
-import { Controller } from "react-hook-form";
 import styles from "../BookingForm.module.css";
-import { useBooking } from "@/context/BookingContext";
-import { formatTimeForDisplay } from "@/utils/timeUtils";
-import { buildBookingUrlParams } from "@/utils/urlUtils";
+import { cn } from "@/utils/cn";
 
 import {
   Button,
@@ -16,139 +17,141 @@ import {
   LocationSelect,
 } from "@/components/atoms";
 
-import { useBookingData } from "@/hooks/useBookingData";
-import {
-  transformLocationsForSelect,
-  transformTimeSlotsForSelect,
-  transformActivitiesForSelect,
-} from "@/utils/dataTransforms";
+// Simplified validation schema
+const activitySearchSchema = z.object({
+  selectedActivity: z.string().min(1, "Please select an activity type"),
+  activityLocation: z.string().min(1, "Please select a location"),
+  selectedDate: z.date({ required_error: "Please select a date" }),
+  selectedSlot: z.string().min(1, "Please select a time"),
+  passengers: z.object({
+    adults: z
+      .number()
+      .min(1, "At least 1 adult required")
+      .max(10, "Maximum 10 adults"),
+    children: z.number().min(0).max(10, "Maximum 10 children"),
+    infants: z.number().min(0).max(5, "Maximum 5 infants"),
+  }),
+});
 
-import {
-  activityFormSchema,
-  ActivityFormValues,
-  getActivityNameById,
-} from "../schemas/formSchemas";
-import { useBookingForm } from "../hooks/useBookingForm";
-import { cn } from "@/utils/cn";
+type ActivitySearchFormData = z.infer<typeof activitySearchSchema>;
 
-interface ActivityBookingFormProps {
+interface ActivitySearchFormProps {
   className?: string;
   variant?: "default" | "compact" | "embedded";
 }
 
-export function ActivityBookingForm({
+export function ActivitySearchForm({
   className,
   variant = "default",
-}: ActivityBookingFormProps) {
+}: ActivitySearchFormProps) {
   const router = useRouter();
-  const { bookingState, updateBookingState } = useBooking();
+  const { state, updateSearchParams, searchActivities, loadFormOptions } =
+    useActivity();
+
+  // Get form options from context
   const {
-    locations: prefetchedLocations,
-    activityTimeSlots: prefetchedTimeSlots,
-    activities: prefetchedActivities,
-  } = useBookingData();
+    activityTypes: activityOptions,
+    locations: locationOptions,
+    timeSlots: timeSlotOptions,
+    isLoading: isLoadingOptions,
+    error: loadError,
+  } = state.formOptions;
 
-  // transform data for form usage
-  const locations = React.useMemo(() => {
-    return prefetchedLocations
-      ? transformLocationsForSelect(prefetchedLocations)
-      : [];
-  }, [prefetchedLocations]);
-
-  const timeSlots = React.useMemo(() => {
-    return prefetchedTimeSlots
-      ? transformTimeSlotsForSelect(prefetchedTimeSlots)
-      : [];
-  }, [prefetchedTimeSlots]);
-
-  const activities = React.useMemo(() => {
-    return prefetchedActivities
-      ? transformActivitiesForSelect(prefetchedActivities)
-      : [];
-  }, [prefetchedActivities]);
-
-  // Initialize form with our custom hook
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useBookingForm<typeof activityFormSchema>(activityFormSchema, {
-    selectedActivity: activities.length > 0 ? activities[0].id : "scuba-diving",
-    activityLocation: locations[0]?.id || "",
-    selectedSlot: timeSlots[0]?.id || "",
-    selectedDate: new Date(bookingState.date),
-    passengers: {
-      adults: bookingState.adults,
-      infants: bookingState.infants,
-      children: bookingState.children || 0,
+    setError,
+  } = useForm<ActivitySearchFormData>({
+    resolver: zodResolver(activitySearchSchema),
+    defaultValues: {
+      selectedActivity: state.searchParams.activityType || "",
+      activityLocation: state.searchParams.location || "",
+      selectedDate: state.searchParams.date
+        ? new Date(state.searchParams.date)
+        : new Date(),
+      selectedSlot: state.searchParams.time || "",
+      passengers: {
+        adults: state.searchParams.adults || 2,
+        children: state.searchParams.children || 0,
+        infants: state.searchParams.infants || 0,
+      },
     },
+    mode: "onSubmit",
   });
 
-  //Helper function to get location name by id
-  const getLocationNameById = (id: string) => {
-    return locations.find((loc) => loc.id === id)?.name || "";
-  };
+  const onSubmit = async (data: ActivitySearchFormData) => {
+    // Additional validation check
+    if (!data.selectedActivity) {
+      setError("selectedActivity", {
+        type: "manual",
+        message: "Please select an activity type",
+      });
+      return;
+    }
 
-  const onSubmit = (data: ActivityFormValues) => {
-    const activityName = getActivityNameById(data.selectedActivity);
-    const locationName = getLocationNameById(data.activityLocation);
+    if (!data.activityLocation) {
+      setError("activityLocation", {
+        type: "manual",
+        message: "Please select a location",
+      });
+      return;
+    }
 
-    // Find the selected time slot
-    const selectedTimeSlot = timeSlots.find(
-      (slot) => slot.id === data.selectedSlot
-    );
-    const timeSlot = selectedTimeSlot?.time || "11:00 AM";
 
-    // Standardize the time format
-    const standardizedTime = formatTimeForDisplay(timeSlot);
-
-    updateBookingState({
-      from: bookingState.from,
-      to: bookingState.to,
+    // Create search params with slugs
+    const searchParams = {
+      activityType: data.selectedActivity,
+      location: data.activityLocation,
       date: data.selectedDate.toISOString().split("T")[0],
-      time: standardizedTime,
+      time: data.selectedSlot,
       adults: data.passengers.adults,
       children: data.passengers.children,
       infants: data.passengers.infants,
-    });
+    };
 
-    // Build URL parameters
-    const urlParams = buildBookingUrlParams({
-      activity: data.selectedActivity,
-      location: data.activityLocation,
-      date: data.selectedDate.toISOString().split("T")[0],
-      time: standardizedTime,
-      passengers:
-        data.passengers.adults +
-        data.passengers.children +
-        data.passengers.infants,
-      type: "activity",
-    });
+    // Log to verify we're using slugs
 
-    router.push(`/activities/booking?${urlParams}`);
+    // Update search params in context
+    updateSearchParams(searchParams);
+
+    // Trigger search with the search params
+    await searchActivities(searchParams);
   };
 
   // Create button text based on variant
-  const buttonText = variant === "compact" ? "Search" : "View Details";
+  const buttonText = variant === "compact" ? "Search" : "Search Activities";
 
-  // Loading state for edge cases
-  if (
-    !prefetchedLocations.length ||
-    !prefetchedTimeSlots.length ||
-    !prefetchedActivities.length
-  ) {
+  // Loading state while fetching form options
+  if (isLoadingOptions) {
     return <div className={styles.formGrid}>Loading booking options...</div>;
+  }
+
+  // Error state if data fetching failed
+  if (loadError) {
+    return (
+      <div className={`${styles.formGrid} ${styles.errorContainer}`}>
+        <div className={styles.errorMessage}>{loadError}</div>
+        <Button
+          variant="secondary"
+          onClick={() => loadFormOptions()}
+          className={styles.retryButton}
+        >
+          Retry
+        </Button>
+      </div>
+    );
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      aria-label="Activity Booking Form"
+      aria-label="Activity Search Form"
       role="form"
-      aria-describedby="activity-booking-form-description"
+      aria-describedby="activity-search-form-description"
       aria-required="true"
-      aria-invalid={errors.selectedActivity ? "true" : "false"}
-      aria-busy={isSubmitting ? "true" : "false"}
+      aria-invalid={Object.keys(errors).length > 0 ? "true" : "false"}
+      aria-busy={isSubmitting || state.isLoading ? "true" : "false"}
       aria-live="polite"
       className={cn(styles.formGrid, className)}
     >
@@ -161,7 +164,7 @@ export function ActivityBookingForm({
               <ActivitySelect
                 value={field.value}
                 onChange={field.onChange}
-                options={activities}
+                options={activityOptions}
                 placeholder="Select Activity"
                 hasError={!!errors.selectedActivity}
               />
@@ -182,7 +185,7 @@ export function ActivityBookingForm({
               <LocationSelect
                 value={field.value}
                 onChange={field.onChange}
-                options={locations || []}
+                options={locationOptions}
                 placeholder="Select Location"
                 label="Location"
                 hasError={!!errors.activityLocation}
@@ -225,7 +228,7 @@ export function ActivityBookingForm({
               <SlotSelect
                 value={field.value}
                 onChange={field.onChange}
-                options={timeSlots || []}
+                options={timeSlotOptions}
                 hasError={!!errors.selectedSlot}
               />
             )}
@@ -273,11 +276,18 @@ export function ActivityBookingForm({
           className={styles.viewDetailsButton}
           showArrow
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || state.isLoading}
         >
-          {isSubmitting ? "Loading..." : buttonText}
+          {isSubmitting || state.isLoading ? "Loading..." : buttonText}
         </Button>
       </div>
+
+      {/* Error Display */}
+      {state.error && (
+        <div className={`${styles.errorMessage} ${styles.fullWidth}`}>
+          {state.error}
+        </div>
+      )}
     </form>
   );
 }

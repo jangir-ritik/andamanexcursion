@@ -4,11 +4,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 import styles from "./BookingForm.module.css";
 import { TAB_CONFIG } from "./config/formConfig";
 import type { BookingFormProps } from "./BookingForm.types";
-import {
-  FerryBookingForm,
-  BoatBookingForm,
-  ActivityBookingForm,
-} from "./components";
+import { ActivitySearchForm } from "./components/ActivitySearchForm";
 
 export function BookingForm({
   className,
@@ -32,10 +28,10 @@ export function BookingForm({
           className || ""
         }`}
       >
-        {selectedTab === "ferry" && <FerryBookingForm variant={variant} />}
-        {selectedTab === "local-boat" && <BoatBookingForm variant={variant} />}
+        {/* {selectedTab === "ferry" && <FerryBookingForm variant={variant} />} */}
+        {/* {selectedTab === "local-boat" && <BoatBookingForm variant={variant} />} */}
         {selectedTab === "activities" && (
-          <ActivityBookingForm variant={variant} />
+          <ActivitySearchForm variant={variant} />
         )}
       </div>
     );
@@ -63,15 +59,17 @@ export function BookingForm({
         </Tabs.List>
 
         <Tabs.Content className={styles.tabsContent} value="ferry">
-          <FerryBookingForm variant={variant} />
+          {/* <FerryBookingForm variant={variant} /> */}
+          null
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="local-boat">
-          <BoatBookingForm variant={variant} />
+          {/* <BoatBookingForm variant={variant} /> */}
+          null
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="activities">
-          <ActivityBookingForm variant={variant} />
+          <ActivitySearchForm variant={variant} />
         </Tabs.Content>
       </Tabs.Root>
     </div>

@@ -137,6 +137,7 @@ const TimeSlots: CollectionConfig = {
       ],
     },
   ],
+  defaultSort: "startTime",
   hooks: {
     beforeChange: [
       ({ data }) => {

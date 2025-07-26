@@ -1,7 +1,7 @@
 import { useForm, UseFormProps } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ZodSchema, z } from "zod";
-import { useBooking } from "@/context/BookingContext";
+// import { useBooking } from "@/context/BookingContext";
 
 /**
  * Custom hook for booking forms with Zod validation
@@ -15,7 +15,7 @@ export function useBookingForm<T extends ZodSchema<any>>(
   defaultValues: z.infer<T>,
   options?: Omit<UseFormProps<z.infer<T>>, "resolver" | "defaultValues">
 ) {
-  const { bookingState } = useBooking();
+  // const { bookingState } = useBooking();
 
   return useForm<z.infer<T>>({
     resolver: zodResolver(schema as any),

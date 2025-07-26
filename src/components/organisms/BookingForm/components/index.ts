@@ -1,3 +1,3 @@
 export * from "./FerryBookingForm";
 export * from "./BoatBookingForm";
-export * from "./ActivityBookingForm";
+export * from "./ArchiveActivityBookingForm";
