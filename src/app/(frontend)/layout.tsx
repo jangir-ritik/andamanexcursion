@@ -15,8 +15,8 @@ import { locationService } from "@/services/payload/collections/locations";
 import { timeSlotService } from "@/services/payload/collections/time-slots";
 import { activityService } from "@/services/payload/collections/activities";
 import { ActivityProvider } from "@/context/ActivityContext";
+import { getNavigationData } from "@/utils/getNavigationData";
 // import { BookingDataProvider } from "@/context/BookingDataProvider";
-
 
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
@@ -99,6 +99,7 @@ export default async function RootLayout({
 }>) {
   // Fetch data server-side
   const bookingData = await fetchBookingData();
+  const navItems = await getNavigationData();
 
   return (
     <html
@@ -120,19 +121,17 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <ActivityProvider>
               {/* <BookingDataProvider initialData={bookingData}> */}
-                {/* <BookingProviders> */}
-                  {/* <PackageProvider> */}
-                  <Header />
-                  <PageBackgroundProvider>
-                    <Container>
-                      <Column gap="var(--space-section)" fullWidth>
-                        {children}
-                      </Column>
-                    </Container>
-                  </PageBackgroundProvider>
-                  <Footer />
-                  {/* </PackageProvider> */}
-                {/* </BookingProviders> */}
+              {/* <BookingProviders> */}
+              <Header navItems={navItems} />
+              <PageBackgroundProvider>
+                <Container>
+                  <Column gap="var(--space-section)" fullWidth>
+                    {children}
+                  </Column>
+                </Container>
+              </PageBackgroundProvider>
+              <Footer />
+              {/* </BookingProviders> */}
               {/* </BookingDataProvider> */}
             </ActivityProvider>
           </ReactQueryProvider>

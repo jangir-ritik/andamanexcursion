@@ -18,6 +18,7 @@ import Locations from "./app/(payload)/collections/Locations";
 import ActivityCategories from "./app/(payload)/collections/ActivityCategories";
 import Activities from "./app/(payload)/collections/Activities";
 import TimeSlots from "./app/(payload)/collections/TimeSlots";
+import Navigation from "./app/(payload)/globals/Navigation";
 
 export default buildConfig({
   collections: [
@@ -32,6 +33,7 @@ export default buildConfig({
     Activities,
     TimeSlots,
   ],
+  globals: [Navigation],
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || "",

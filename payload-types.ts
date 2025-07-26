@@ -100,8 +100,12 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    navigation: Navigation;
+  };
+  globalsSelect: {
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -1908,6 +1912,112 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: string;
+  /**
+   * Configure the main header navigation menu
+   */
+  mainNavigation?:
+    | {
+        /**
+         * Type of navigation item
+         */
+        type: 'simple' | 'activities' | 'packages' | 'specials' | 'custom';
+        /**
+         * Display text for the navigation item
+         */
+        label: string;
+        /**
+         * URL for the main link (e.g., /activities, /packages)
+         */
+        href: string;
+        /**
+         * Whether the parent item should be clickable
+         */
+        isClickable?: boolean | null;
+        /**
+         * Apply unique styling (e.g., CTA button)
+         */
+        unique?: boolean | null;
+        /**
+         * Select activity categories to show in dropdown
+         */
+        activityCategories?: (string | ActivityCategory)[] | null;
+        /**
+         * Select package categories to show in dropdown
+         */
+        packageCategories?: (string | PackageCategory)[] | null;
+        /**
+         * Custom dropdown items (use for destinations, etc.)
+         */
+        customItems?:
+          | {
+              label: string;
+              href: string;
+              isActive?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        displaySettings?: {
+          /**
+           * Display order in navigation
+           */
+          order?: number | null;
+          /**
+           * Show this item in navigation
+           */
+          isActive?: boolean | null;
+          /**
+           * Maximum number of items to show in dropdown
+           */
+          maxDropdownItems?: number | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  mainNavigation?:
+    | T
+    | {
+        type?: T;
+        label?: T;
+        href?: T;
+        isClickable?: T;
+        unique?: T;
+        activityCategories?: T;
+        packageCategories?: T;
+        customItems?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              isActive?: T;
+              id?: T;
+            };
+        displaySettings?:
+          | T
+          | {
+              order?: T;
+              isActive?: T;
+              maxDropdownItems?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
