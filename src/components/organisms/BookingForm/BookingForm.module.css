@@ -1,7 +1,6 @@
 .bookingForm {
   width: 100%;
   max-width: 1130px;
-  margin: 0 auto;
   filter: drop-shadow(-1px 1px 7px rgba(0, 0, 0, 0.1));
   z-index: 1000;
   padding: var(--space-4);
@@ -209,10 +208,6 @@
 @media (min-width: 1200px) {
   .tabsContent {
     border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
-  }
-
-  .formGrid {
-    height: var(--size-form-field-height);
   }
 }
 

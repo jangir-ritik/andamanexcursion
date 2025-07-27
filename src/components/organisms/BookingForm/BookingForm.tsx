@@ -30,7 +30,7 @@ export function BookingForm({
       >
         {/* {selectedTab === "ferry" && <FerryBookingForm variant={variant} />} */}
         {/* {selectedTab === "local-boat" && <BoatBookingForm variant={variant} />} */}
-        {selectedTab === "activities" && (
+        {initialTab === "activities" && (
           <ActivitySearchForm variant={variant} />
         )}
       </div>

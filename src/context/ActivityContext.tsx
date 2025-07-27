@@ -30,17 +30,58 @@ export interface ActivitySearchParams {
 export interface Activity {
   id: string;
   title: string;
-  description: string;
-  price: number;
-  duration: string;
-  images: Array<{ src: string; alt: string }>;
-  availableSlots: number;
+  slug: string;
+  coreInfo: {
+    description: string;
+    shortDescription?: string;
+    category: Array<{
+      id: string;
+      name?: string;
+      slug?: string;
+    }>;
+    location: Array<{
+      id: string;
+      name?: string;
+      slug?: string;
+    }>;
+    basePrice: number;
+    duration: string;
+    maxCapacity?: number;
+  };
+  media: {
+    featuredImage?: {
+      id: string;
+      url?: string;
+    };
+    gallery?: Array<{
+      image: {
+        id: string;
+        url?: string;
+      };
+      alt: string;
+    }>;
+  };
+  activityOptions: Array<{
+    id?: string;
+    optionTitle: string;
+    optionDescription: string;
+    price: number;
+    duration?: string;
+    maxCapacity?: number;
+    isActive: boolean;
+  }>;
+  status: {
+    isActive: boolean;
+    isFeatured: boolean;
+    priority: number;
+  };
 }
 
 export interface CartItem {
   activity: Activity;
   quantity: number;
   totalPrice: number;
+  activityOptionId?: string;
 }
 
 export interface ActivityState {
@@ -108,7 +149,11 @@ type ActivityAction =
   | { type: ActivityActionTypes.SET_ERROR; payload: string | null }
   | {
       type: ActivityActionTypes.ADD_TO_CART;
-      payload: { activity: Activity; quantity: number };
+      payload: {
+        activity: Activity;
+        quantity: number;
+        activityOptionId?: string;
+      };
     }
   | { type: ActivityActionTypes.REMOVE_FROM_CART; payload: string }
   | {
@@ -181,15 +226,46 @@ const formatDataForSelect = {
     activities.map((apiActivity) => ({
       id: apiActivity.id,
       title: apiActivity.title || "Activity",
-      description:
-        apiActivity.content?.shortDescription || "No description available",
-      price: apiActivity.coreInfo?.price || 0,
-      duration: apiActivity.coreInfo?.duration || "1 hour",
-      images: apiActivity.media?.gallery?.map((img: any) => ({
-        src: img.url || "/images/placeholder.png",
-        alt: img.alt || apiActivity.title || "Activity image",
-      })) || [{ src: "/images/placeholder.png", alt: "Placeholder image" }],
-      availableSlots: apiActivity.coreInfo?.capacity || 10,
+      slug: apiActivity.slug || `activity-${apiActivity.id}`,
+      coreInfo: {
+        description:
+          apiActivity.coreInfo?.description || "No description available",
+        shortDescription: apiActivity.coreInfo?.shortDescription || null,
+        category: Array.isArray(apiActivity.coreInfo?.category)
+          ? apiActivity.coreInfo.category
+          : [{ id: "default-category", name: "Activity", slug: "activity" }],
+        location: Array.isArray(apiActivity.coreInfo?.location)
+          ? apiActivity.coreInfo.location
+          : [{ id: "default-location", name: "Andaman", slug: "andaman" }],
+        basePrice: apiActivity.coreInfo?.basePrice || 0,
+        duration: apiActivity.coreInfo?.duration || "1 hour",
+        maxCapacity: apiActivity.coreInfo?.maxCapacity || 10,
+      },
+      media: {
+        featuredImage: apiActivity.media?.featuredImage || {
+          id: "default-image",
+          url: "/images/placeholder.png",
+        },
+        gallery: apiActivity.media?.gallery || [],
+      },
+      activityOptions: Array.isArray(apiActivity.activityOptions)
+        ? apiActivity.activityOptions
+        : [
+            {
+              id: `default-option-${apiActivity.id}`,
+              optionTitle: "Standard Option",
+              optionDescription: "Standard activity option",
+              price: apiActivity.coreInfo?.basePrice || 0,
+              duration: apiActivity.coreInfo?.duration || "1 hour",
+              maxCapacity: apiActivity.coreInfo?.maxCapacity || 10,
+              isActive: true,
+            },
+          ],
+      status: {
+        isActive: apiActivity.status?.isActive ?? true,
+        isFeatured: apiActivity.status?.isFeatured ?? false,
+        priority: apiActivity.status?.priority ?? 0,
+      },
     })),
 };
 
@@ -279,6 +355,7 @@ function activityReducer(
       return {
         ...state,
         activities: action.payload,
+        isLoading: false,
         error: null,
       };
     case ActivityActionTypes.SET_ERROR:
@@ -287,72 +364,93 @@ function activityReducer(
         error: action.payload,
         isLoading: false,
       };
-    case ActivityActionTypes.ADD_TO_CART:
-      const existingItem = state.cart.find(
-        (item) => item.activity.id === action.payload.activity.id
+    case ActivityActionTypes.ADD_TO_CART: {
+      const { activity, quantity, activityOptionId } = action.payload;
+
+      // Check if already in cart with same option
+      const existingItemIndex = state.cart.findIndex(
+        (item) =>
+          item.activity.id === activity.id &&
+          item.activityOptionId === activityOptionId
       );
 
-      if (existingItem) {
+      // Get the price from the selected option or base price
+      const selectedOption = activityOptionId
+        ? activity.activityOptions.find((opt) => opt.id === activityOptionId)
+        : null;
+
+      const price = selectedOption?.price || activity.coreInfo.basePrice;
+
+      // Calculate total price based on adults and children counts
+      const totalPrice =
+        price * (state.searchParams.adults + state.searchParams.children * 0.5);
+
+      if (existingItemIndex >= 0) {
+        // Update existing item
+        const updatedCart = [...state.cart];
+        updatedCart[existingItemIndex].quantity += quantity;
+        updatedCart[existingItemIndex].totalPrice =
+          updatedCart[existingItemIndex].quantity * totalPrice;
         return {
           ...state,
-          cart: state.cart.map((item) =>
-            item.activity.id === action.payload.activity.id
-              ? {
-                  ...item,
-                  quantity: item.quantity + action.payload.quantity,
-                  totalPrice:
-                    (item.quantity + action.payload.quantity) *
-                    item.activity.price,
-                }
-              : item
-          ),
+          cart: updatedCart,
+        };
+      } else {
+        // Add new item
+        return {
+          ...state,
+          cart: [
+            ...state.cart,
+            {
+              activity,
+              quantity,
+              totalPrice,
+              activityOptionId,
+            },
+          ],
         };
       }
-
-      return {
-        ...state,
-        cart: [
-          ...state.cart,
-          {
-            activity: action.payload.activity,
-            quantity: action.payload.quantity,
-            totalPrice: action.payload.quantity * action.payload.activity.price,
-          },
-        ],
-      };
+    }
     case ActivityActionTypes.REMOVE_FROM_CART:
       return {
         ...state,
         cart: state.cart.filter((item) => item.activity.id !== action.payload),
       };
-
-    case ActivityActionTypes.UPDATE_CART_QUANTITY:
+    case ActivityActionTypes.UPDATE_CART_QUANTITY: {
+      const { activityId, quantity } = action.payload;
       return {
         ...state,
-        cart: state.cart.map((item) =>
-          item.activity.id === action.payload.activityId
-            ? {
-                ...item,
-                quantity: action.payload.quantity,
-                totalPrice: action.payload.quantity * item.activity.price,
-              }
-            : item
-        ),
+        cart: state.cart.map((item) => {
+          if (item.activity.id === activityId) {
+            const basePrice = item.activity.coreInfo.basePrice;
+            return {
+              ...item,
+              quantity,
+              totalPrice:
+                quantity *
+                basePrice *
+                (state.searchParams.adults + state.searchParams.children * 0.5),
+            };
+          }
+          return item;
+        }),
       };
-
+    }
     case ActivityActionTypes.CLEAR_CART:
-      return { ...state, cart: [] };
-
+      return {
+        ...state,
+        cart: [],
+      };
     case ActivityActionTypes.SET_FORM_OPTIONS:
       return {
         ...state,
         formOptions: {
           ...state.formOptions,
           ...action.payload,
+          isLoading: false,
           error: null,
         },
       };
-
     case ActivityActionTypes.SET_FORM_OPTIONS_LOADING:
       return {
         ...state,
@@ -361,7 +459,6 @@ function activityReducer(
           isLoading: action.payload,
         },
       };
-
     case ActivityActionTypes.SET_FORM_OPTIONS_ERROR:
       return {
         ...state,
@@ -371,7 +468,6 @@ function activityReducer(
           isLoading: false,
         },
       };
-
     default:
       return state;
   }
@@ -386,7 +482,11 @@ export interface ActivityContextType {
   searchActivities: (searchParams?: ActivitySearchParams) => Promise<void>;
 
   // cart actions
-  addToCart: (activity: Activity, quantity: number) => void;
+  addToCart: (
+    activity: Activity,
+    quantity: number,
+    activityOptionId?: string
+  ) => void;
   removeFromCart: (activityId: string) => void;
   updateCartQuantity: (activityId: string, quantity: number) => void;
   clearCart: () => void;
@@ -479,92 +579,56 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
     []
   );
 
-  const searchActivities = useCallback(
-    async (searchParams?: ActivitySearchParams) => {
-      dispatch({ type: ActivityActionTypes.SET_LOADING, payload: true });
+  // Search for activities
+  const searchActivities = async (
+    params?: ActivitySearchParams
+  ): Promise<void> => {
+    dispatch({ type: ActivityActionTypes.SET_LOADING, payload: true });
+    try {
+      // Use provided params or current state
+      const searchParams = params || state.searchParams;
 
-      try {
-        // Use provided search params or fallback to state
-        const params = searchParams || state.searchParams;
+      // Log for debugging
+      console.log("Searching with params:", searchParams);
 
-        // Validate required fields before proceeding
-        const { activityType, location } = params;
+      // Call API service to search activities
+      const activities = await activityApi.search({
+        activityType: searchParams.activityType,
+        location: searchParams.location,
+        date: searchParams.date,
+        time: searchParams.time,
+        adults: searchParams.adults,
+        children: searchParams.children,
+        infants: searchParams.infants,
+      });
 
-        if (!activityType || !location) {
-          throw new Error(
-            "Please select both activity type and location to search"
-          );
-        }
+      // Update state with activities
+      dispatch({
+        type: ActivityActionTypes.SET_ACTIVITIES,
+        payload: activities,
+      });
+    } catch (error) {
+      console.error("Error searching activities:", error);
+      dispatch({
+        type: ActivityActionTypes.SET_ERROR,
+        payload:
+          error instanceof Error
+            ? error.message
+            : "An error occurred while searching for activities",
+      });
+    }
+  };
 
-        // Attempt to search using the API
-        let results = [];
-
-        try {
-          results = await activityApi.search({
-            activityType: params.activityType,
-            location: params.location,
-            date: params.date,
-            time: params.time,
-            adults: params.adults,
-            children: params.children,
-            infants: params.infants,
-          });
-
-          // Convert API results to match our Activity interface
-          results = formatDataForSelect.apiActivities(results);
-        } catch (apiError) {
-          console.error("API search failed, using mock data:", apiError);
-
-          // If API fails, use mock data
-          results = [
-            {
-              id: "1",
-              title: "Scuba Diving at Neil Island",
-              description:
-                "Explore the underwater world with professional instructors",
-              price: 2500,
-              duration: "2 hours",
-              images: [{ src: "/images/scuba1.jpg", alt: "Scuba diving" }],
-              availableSlots: 8,
-            },
-            {
-              id: "2",
-              title: "Snorkeling Adventure",
-              description: "Perfect for beginners, explore coral reefs safely",
-              price: 1500,
-              duration: "1.5 hours",
-              images: [{ src: "/images/snorkel1.jpg", alt: "Snorkeling" }],
-              availableSlots: 12,
-            },
-          ];
-        }
-
-        dispatch({
-          type: ActivityActionTypes.SET_ACTIVITIES,
-          payload: results,
-        });
-      } catch (error) {
-        dispatch({
-          type: ActivityActionTypes.SET_ERROR,
-          payload:
-            error instanceof Error
-              ? error.message
-              : "Failed to load activities",
-        });
-      } finally {
-        dispatch({ type: ActivityActionTypes.SET_LOADING, payload: false });
-      }
+  // Add activity to cart
+  const addToCart = useCallback(
+    (activity: Activity, quantity: number, activityOptionId?: string) => {
+      dispatch({
+        type: ActivityActionTypes.ADD_TO_CART,
+        payload: { activity, quantity, activityOptionId },
+      });
     },
-    [state.searchParams]
+    [dispatch]
   );
-
-  // Cart actions - memoized
-  const addToCart = useCallback((activity: Activity, quantity: number = 1) => {
-    dispatch({
-      type: ActivityActionTypes.ADD_TO_CART,
-      payload: { activity, quantity },
-    });
-  }, []);
 
   const removeFromCart = useCallback((activityId: string) => {
     dispatch({

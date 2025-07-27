@@ -8,6 +8,14 @@ const nextConfig = withPayload({
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "localhost",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
     ],
   },
   reactStrictMode: true,

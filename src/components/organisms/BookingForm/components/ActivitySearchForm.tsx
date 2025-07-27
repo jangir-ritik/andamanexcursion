@@ -122,8 +122,21 @@ export function ActivitySearchForm({
 
       // Trigger search with the search params
       await searchActivities(searchParams);
+
+      // Navigate to search results page with URL parameters
+      const urlParams = new URLSearchParams({
+        activityType: searchParams.activityType,
+        location: searchParams.location,
+        date: searchParams.date,
+        time: searchParams.time,
+        adults: searchParams.adults.toString(),
+        children: searchParams.children.toString(),
+        infants: searchParams.infants.toString(),
+      });
+
+      router.push(`/activities/search?${urlParams.toString()}`);
     },
-    [updateSearchParams, searchActivities, setError]
+    [updateSearchParams, searchActivities, setError, router]
   );
 
   // Memoize button text based on variant

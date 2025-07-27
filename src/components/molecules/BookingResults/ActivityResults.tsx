@@ -1,18 +1,18 @@
+// src/components/molecules/BookingResults/ActivityResults.tsx
 import React, { memo, useMemo, useCallback } from "react";
-import { Info } from "lucide-react";
 import { Button } from "@/components/atoms";
 import { Column } from "@/components/layout";
 import { ActivityCard } from "@/components/molecules/Cards";
+import { Activity, ActivitySearchParams } from "@/context/ActivityContext";
 import styles from "./BookingResults.module.css";
-import type { ActivityCardProps } from "@/components/molecules/Cards/ActivityCard/ActivityCard.types";
 
 interface ActivityResultsProps {
   loading: boolean;
-  mainTimeGroup: ActivityCardProps[];
-  otherTimeGroups: ActivityCardProps[];
-  filteredActivities: ActivityCardProps[];
+  activities: Activity[];
+  searchParams: ActivitySearchParams;
+  timeFilter?: string | null;
   className?: string;
-  onSelectActivity?: (activityId: string, optionId: string) => void;
+  onSelectActivity?: (activityId: string) => void;
 }
 
 // Memoized loading component
@@ -37,24 +37,12 @@ const NoResultsState = memo(() => (
 ));
 NoResultsState.displayName = "NoResultsState";
 
-// Memoized other options header
-const OtherOptionsHeader = memo(() => (
-  <div className={styles.otherOptionsHeader}>
-    <h2>Other Activity Options</h2>
-    <div className={styles.resultCount}>
-      <Info size={16} />
-      <span>Activity Options for other time slots</span>
-    </div>
-  </div>
-));
-OtherOptionsHeader.displayName = "OtherOptionsHeader";
-
 export const ActivityResults = memo<ActivityResultsProps>(
   ({
     loading,
-    mainTimeGroup,
-    otherTimeGroups,
-    filteredActivities,
+    activities,
+    searchParams,
+    timeFilter,
     className,
     onSelectActivity,
   }) => {
@@ -62,81 +50,88 @@ export const ActivityResults = memo<ActivityResultsProps>(
     if (loading) {
       return <LoadingState />;
     }
-
     // Show no results state if no activities found
-    if (!filteredActivities.length) {
+    if (!activities || activities.length === 0) {
       return <NoResultsState />;
     }
 
     // Handle activity selection
     const handleActivitySelection = useCallback(
-      (activityId: string, optionId: string) => {
+      (activityId: string) => {
         if (onSelectActivity) {
-          onSelectActivity(activityId, optionId);
+          onSelectActivity(activityId);
         }
       },
       [onSelectActivity]
     );
 
-    // Memoize the main time group cards to prevent unnecessary re-renders
-    const mainTimeGroupCards = useMemo(() => {
-      return mainTimeGroup.map((activity) => (
-        <ActivityCard
-          key={activity.id}
-          id={activity.id}
-          title={activity.title}
-          description={activity.description}
-          images={activity.images}
-          price={activity.price}
-          totalPrice={activity.totalPrice}
-          type={activity.type}
-          duration={activity.duration}
-          href={`/activities/booking?activity=${activity.id}`}
-          activityOptions={activity.activityOptions}
-          onSelectActivity={handleActivitySelection}
-        />
-      ));
-    }, [mainTimeGroup, handleActivitySelection]);
+    // Transform API activities to match the ActivityCard component props
+    const activityCards = useMemo(() => {
+      return activities.map((activity) => {
+        // Extract the first image or use a placeholder
+        const featuredImage = activity.media?.featuredImage;
+        const imageUrl = featuredImage
+          ? `/api/media/${featuredImage.id}`
+          : "/images/placeholder.png";
 
-    // Memoize the other time groups cards to prevent unnecessary re-renders
-    const otherTimeGroupCards = useMemo(() => {
-      return otherTimeGroups.map((activity) => (
-        <ActivityCard
-          key={activity.id}
-          id={activity.id}
-          title={activity.title}
-          description={activity.description}
-          images={activity.images}
-          price={activity.price}
-          totalPrice={activity.totalPrice}
-          type={activity.type}
-          duration={activity.duration}
-          href={`/activities/booking?activity=${activity.id}`}
-          activityOptions={activity.activityOptions}
-          onSelectActivity={handleActivitySelection}
-        />
-      ));
-    }, [otherTimeGroups, handleActivitySelection]);
+        // Map activity options to the format expected by ActivityCard
+        const options =
+          activity.activityOptions?.map((option) => ({
+            id:
+              option.id || `option-${Math.random().toString(36).substring(7)}`,
+            type: option.optionTitle || "Standard",
+            price: option.price || activity.coreInfo.basePrice,
+            totalPrice:
+              (option.price || activity.coreInfo.basePrice) *
+              (searchParams.adults + searchParams.children * 0.5),
+            description: option.optionDescription || "",
+            seatsLeft:
+              option.maxCapacity || activity.coreInfo.maxCapacity || 10,
+          })) || [];
 
-    // Check if we have any activities in each group
-    const hasMainTimeGroup = mainTimeGroup.length > 0;
-    const hasOtherTimeGroups = otherTimeGroups.length > 0;
+        return (
+          <ActivityCard
+            key={activity.id}
+            id={activity.id}
+            title={activity.title}
+            description={
+              activity.coreInfo?.shortDescription ||
+              activity.coreInfo?.description ||
+              ""
+            }
+            images={[
+              {
+                src: imageUrl,
+                alt: activity.title,
+              },
+            ]}
+            price={activity.coreInfo?.basePrice || 0}
+            totalPrice={
+              activity.coreInfo?.basePrice *
+                (searchParams.adults + searchParams.children * 0.5) || 0
+            }
+            type={
+              Array.isArray(activity.coreInfo?.category)
+                ? activity.coreInfo.category[0]?.name || "Activity"
+                : "Activity"
+            }
+            duration={activity.coreInfo?.duration || ""}
+            href={`/activities/${activity.slug}`}
+            activityOptions={options}
+            onSelectActivity={handleActivitySelection}
+          />
+        );
+      });
+    }, [activities, searchParams, handleActivitySelection]);
 
     return (
       <div className={className}>
-        {hasMainTimeGroup && (
-          <Column gap={4} fullWidth>
-            {mainTimeGroupCards}
+        {activityCards.length > 0 ? (
+          <Column gap="var(--space-4)" fullWidth>
+            {activityCards}
           </Column>
-        )}
-
-        {hasOtherTimeGroups && (
-          <>
-            <OtherOptionsHeader />
-            <Column gap="var(--space-4)" fullWidth>
-              {otherTimeGroupCards}
-            </Column>
-          </>
+        ) : (
+          <NoResultsState />
         )}
       </div>
     );

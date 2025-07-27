@@ -7,6 +7,15 @@
   padding-top: var(--space-14);
 }
 
+.bookingHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  width: 100%;
+  padding: 0 var(--space-4);
+}
+
 .sectionTitle {
   font-family: var(--font-family-primary);
   font-style: normal;

@@ -2,6 +2,7 @@
 import { Activity } from "@payload-types";
 
 const API_BASE = process.env.NEXT_PUBLIC_PAYLOAD_URL || "http://localhost:3000";
+const NEXT_API_BASE = "/api"; // Next.js API routes
 
 export const activityApi = {
   // Get all activities
@@ -62,7 +63,7 @@ export const activityApi = {
     infants?: number;
     page?: number;
     limit?: number;
-  }): Promise<Activity[]> {
+  }): Promise<any[]> {
     try {
       // Build query parameters
       const queryParams = new URLSearchParams();
@@ -103,17 +104,17 @@ export const activityApi = {
         queryParams.append("limit", params.limit.toString());
       }
 
-      // Make the API request
+      // Make the API request to our Next.js API route
       const response = await fetch(
-        `${API_BASE}/api/activities/search?${queryParams}`
+        `${NEXT_API_BASE}/activities/search?${queryParams}`
       );
 
       if (!response.ok) {
-        throw new Error("Failed to search activities");
+        throw new Error(`Failed to search activities: ${response.status}`);
       }
 
       const data = await response.json();
-      return data.docs || [];
+      return data || [];
     } catch (error) {
       console.error("Error searching activities:", error);
       return [];
