@@ -78,7 +78,8 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
     // Event handlers
     const handleCardClick = useCallback(
       (e: React.MouseEvent) => {
-        e.stopPropagation();
+        e.preventDefault(); // Prevent any default behavior
+        e.stopPropagation(); // Stop event bubbling
         onSelect();
       },
       [onSelect]
@@ -88,6 +89,7 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
       (e: React.KeyboardEvent) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
+          e.stopPropagation();
           onSelect();
         }
       },
@@ -96,10 +98,11 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
 
     const handleAction = useCallback(
       (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onAction?.(classOption.type);
+        e.preventDefault(); // Prevent any default behavior
+        e.stopPropagation(); // Stop event bubbling
+        onAction?.(classOption.id);
       },
-      [onAction, classOption.type]
+      [onAction, classOption.id]
     );
 
     return (
@@ -164,7 +167,6 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
             <p className={styles.description}>{classOption.description}</p>
           )}
           {showActionButton && onAction && (
-            // <div className={styles.actionButtonContainer}>
             <Button
               type="button"
               variant="primary"
@@ -175,7 +177,6 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
             >
               {actionButtonText}
             </Button>
-            // </div>
           )}
         </section>
       </article>

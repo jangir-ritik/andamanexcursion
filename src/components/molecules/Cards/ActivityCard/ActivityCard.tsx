@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, memo } from "react";
 import type { ActivityCardProps } from "./ActivityCard.types";
 import clsx from "clsx";
 import styles from "./ActivityCard.module.css";
@@ -12,7 +12,7 @@ import { ImageSlider } from "../FerryCard/components/ImageSlider";
 import { ClassCard } from "../ClassCard/ClassCard";
 import { ChevronDown } from "lucide-react";
 
-export const ActivityCard: React.FC<ActivityCardProps> = ({
+const ActivityCard: React.FC<ActivityCardProps> = ({
   id,
   title,
   description,
@@ -21,7 +21,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   type,
   duration,
   images,
-  href,
+  href, // Keep for potential future navigation needs
   className,
   activityOptions = [],
   onSelectActivity,
@@ -29,31 +29,67 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
 
-  const toggleExpand = useCallback(() => {
-    setIsExpanded(!isExpanded);
-  }, [isExpanded]);
+  // Optimized toggle handler with explicit event handling
+  const toggleExpand = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded((prev) => !prev);
+  }, []);
 
+  // Optimized add activity handler
   const handleAddActivity = useCallback(
     (optionId: string) => {
       if (onSelectActivity) {
         onSelectActivity(id, optionId);
+        // Auto-collapse after adding to provide visual feedback
         setIsExpanded(false);
       }
     },
     [id, onSelectActivity]
   );
 
+  // Optimized option selection handler
   const handleSelectOption = useCallback((index: number) => {
     setSelectedOptionIndex(index);
   }, []);
 
+  // Prevent any potential navigation when card is expanded
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isExpanded) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    [isExpanded]
+  );
+
+  // Memoize button text and icon rotation
+  const buttonProps = React.useMemo(
+    () => ({
+      text: isExpanded ? "Hide Details" : "View Details",
+      variant: isExpanded ? ("outline" as const) : ("primary" as const),
+      iconClassName: clsx(styles.chevronIcon, {
+        [styles.chevronExpanded]: isExpanded,
+      }),
+    }),
+    [isExpanded]
+  );
+
+  // Memoize image URLs for slider
+  const sliderImages = React.useMemo(
+    () => images.map((image) => image.src),
+    [images]
+  );
+
   return (
-    <div
+    <article
       className={clsx(styles.card, className, {
         [styles.expanded]: isExpanded,
       })}
       role="article"
       aria-label={`Activity: ${title}`}
+      onClick={handleCardClick}
     >
       <div className={styles.contentWrapper}>
         <ImageContainer
@@ -61,8 +97,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           alt={images[0].alt}
           className={styles.imageWrapper}
         />
+
         <div className={styles.textContent}>
-          <div className={styles.header}>
+          <header className={styles.header}>
             <div className={styles.titleContainer}>
               <h3 className={styles.title}>{title}</h3>
               <div className={styles.activityInfo}>
@@ -70,7 +107,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                   <Image
                     aria-hidden="true"
                     src={clockIcon}
-                    alt="Clock icon"
+                    alt=""
                     className={styles.durationIcon}
                     width={18}
                     height={18}
@@ -81,7 +118,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                   <Image
                     aria-hidden="true"
                     src={snorkelingIcon}
-                    alt="Snorkeling icon"
+                    alt=""
                     className={styles.durationIcon}
                     width={18}
                     height={18}
@@ -90,56 +127,69 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                 </div>
               </div>
             </div>
+
             <div className={styles.priceContainer}>
               <p className={styles.pricePerAdult}>₹{price}/adult</p>
               <p className={styles.totalPrice}>₹{totalPrice}/- total</p>
             </div>
-          </div>
+          </header>
 
           <p className={styles.description}>{description}</p>
 
           <Button
-            variant={isExpanded ? "outline" : "primary"}
+            variant={buttonProps.variant}
             onClick={toggleExpand}
             className={styles.viewDetailsButton}
+            type="button"
+            aria-expanded={isExpanded}
+            aria-controls={`${id}-details`}
             icon={
               <ChevronDown
                 strokeWidth={2}
                 size={16}
                 aria-hidden="true"
-                className={clsx(styles.chevronIcon, {
-                  [styles.chevronExpanded]: isExpanded,
-                })}
+                className={buttonProps.iconClassName}
               />
             }
           >
-            {isExpanded ? "Hide Details" : "View Details"}
+            {buttonProps.text}
           </Button>
         </div>
       </div>
 
       {isExpanded && (
-        <div className={styles.classesContainer}>
+        <section
+          className={styles.classesContainer}
+          id={`${id}-details`}
+          role="region"
+          aria-label={`${title} booking options`}
+        >
           <div className={styles.classesWrapper}>
             {activityOptions.map((activityOption, index) => (
               <ClassCard
-                key={`${activityOption.id}-${index}`}
+                key={activityOption.id}
                 classOption={activityOption}
                 isActive={index === selectedOptionIndex}
                 onSelect={() => handleSelectOption(index)}
-                onAction={handleAddActivity}
+                onAction={() => handleAddActivity(activityOption.id)}
                 showActionButton={index === selectedOptionIndex}
                 actionButtonText="Add Activity"
                 contentType="activity"
               />
             ))}
           </div>
-          <ImageSlider
-            images={images.map((image) => image.src)}
-            altText={`${title} activity images`}
-          />
-        </div>
+
+          {sliderImages.length > 1 && (
+            <ImageSlider
+              images={sliderImages}
+              altText={`${title} activity images`}
+            />
+          )}
+        </section>
       )}
-    </div>
+    </article>
   );
 };
+
+// Export memoized component for performance
+export default memo(ActivityCard);

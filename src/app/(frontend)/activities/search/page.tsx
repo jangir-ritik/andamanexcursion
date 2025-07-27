@@ -1,49 +1,58 @@
 // src/app/activities/search/page.tsx
 "use client";
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "../page.module.css";
 import { SectionTitle, Button } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
 import { useActivity } from "@/context/ActivityContext";
-import { ActivityCard } from "@/components/molecules/Cards";
 import {
   SearchSummary,
   TimeFilters,
   ActivityResults,
+  CartSummary,
 } from "@/components/molecules/BookingResults";
 
 // Component that handles search params and displays results
 const ActivitySearchContent = () => {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { state, updateSearchParams, searchActivities } = useActivity();
   const [timeFilter, setTimeFilter] = React.useState<string | null>(null);
   const initializedRef = React.useRef(false);
+
+  // Memoize search params extraction to avoid re-computation
+  const urlSearchParams = useMemo(() => {
+    const activityType = searchParams.get("activityType");
+    const location = searchParams.get("location");
+    const date = searchParams.get("date");
+    const time = searchParams.get("time");
+    const adults = parseInt(searchParams.get("adults") || "2", 10);
+    const children = parseInt(searchParams.get("children") || "0", 10);
+    const infants = parseInt(searchParams.get("infants") || "0", 10);
+
+    return {
+      activityType,
+      location,
+      date: date || new Date().toISOString().split("T")[0],
+      time: time || "",
+      adults,
+      children,
+      infants,
+    };
+  }, [searchParams]);
 
   // Load search params from URL on mount only once
   useEffect(() => {
     if (initializedRef.current) return;
 
-    const activityType = searchParams.get("activityType");
-    const location = searchParams.get("location");
+    const { activityType, location, ...restParams } = urlSearchParams;
 
     if (activityType && location) {
-      const date = searchParams.get("date");
-      const time = searchParams.get("time");
-      const adults = parseInt(searchParams.get("adults") || "2", 10);
-      const children = parseInt(searchParams.get("children") || "0", 10);
-      const infants = parseInt(searchParams.get("infants") || "0", 10);
-
       const params = {
         activityType,
         location,
-        date: date || new Date().toISOString().split("T")[0],
-        time: time || "",
-        adults,
-        children,
-        infants,
+        ...restParams,
       };
 
       // Update params and trigger search
@@ -56,69 +65,63 @@ const ActivitySearchContent = () => {
 
       initializedRef.current = true;
     }
-  }, []); // Empty dependency array - only run once on mount
+  }, [urlSearchParams, updateSearchParams, searchActivities]);
 
-  const {
-    searchParams: currentParams,
-    activities,
-    isLoading,
-    error,
-    cart,
-  } = state;
+  const { searchParams: currentParams, activities, isLoading, error } = state;
 
-  // Get activity and location names from options for display
-  const selectedActivity = state.formOptions.activityTypes.find(
-    (activity) => activity.value === currentParams.activityType
+  // Memoize display names to prevent unnecessary re-computations
+  const displayNames = useMemo(() => {
+    const selectedActivity = state.formOptions.activityTypes.find(
+      (activity) => activity.value === currentParams.activityType
+    );
+    const selectedLocation = state.formOptions.locations.find(
+      (location) => location.value === currentParams.location
+    );
+
+    return {
+      activityName: selectedActivity?.label,
+      locationName: selectedLocation?.label,
+    };
+  }, [state.formOptions, currentParams.activityType, currentParams.location]);
+
+  // Memoize total passengers calculation
+  const totalPassengers = useMemo(
+    () => currentParams.adults + currentParams.children + currentParams.infants,
+    [currentParams.adults, currentParams.children, currentParams.infants]
   );
-  const selectedLocation = state.formOptions.locations.find(
-    (location) => location.value === currentParams.location
-  );
 
-  const totalPassengers =
-    currentParams.adults + currentParams.children + currentParams.infants;
+  // Optimized scroll handler with useCallback
+  const handleAddMore = useCallback(() => {
+    const formElement = document.getElementById("booking-form-section");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
 
-  const handleSelectActivity = (activityId: string) => {
-    // Navigate to activity details or booking page
-    router.push(`/activities/${activityId}`);
-  };
+  // Optimized retry handler
+  const handleRetry = useCallback(() => {
+    searchActivities(currentParams);
+  }, [searchActivities, currentParams]);
 
   return (
     <>
+      {/* Cart Summary */}
+      <CartSummary onAddMore={handleAddMore} />
+
       {/* Search Summary */}
       <SearchSummary
         loading={isLoading}
         resultCount={activities.length}
         activity={currentParams.activityType}
-        activityName={selectedActivity?.label}
+        activityName={displayNames.activityName}
         location={currentParams.location}
-        locationName={selectedLocation?.label}
+        locationName={displayNames.locationName}
         date={currentParams.date}
         time={currentParams.time}
         timeFilter={timeFilter}
         passengers={totalPassengers}
         type="activity"
       />
-
-      {/* Cart Summary */}
-      {cart.length > 0 && (
-        <div className={styles.cartSummary}>
-          <div className={styles.cartInfo}>
-            <span className={styles.cartCount}>
-              {cart.length} item{cart.length !== 1 ? "s" : ""} in cart
-            </span>
-            <span className={styles.cartTotal}>
-              ₹{state.cart.reduce((total, item) => total + item.totalPrice, 0)}
-            </span>
-          </div>
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => router.push("/checkout")}
-          >
-            View Cart
-          </Button>
-        </div>
-      )}
 
       {/* Time Filters */}
       {!isLoading && activities.length > 0 && (
@@ -129,44 +132,50 @@ const ActivitySearchContent = () => {
       {error && (
         <div className={styles.errorContainer}>
           <div className={styles.errorMessage}>{error}</div>
-          <Button variant="secondary" onClick={() => searchActivities()}>
+          <Button variant="secondary" onClick={handleRetry}>
             Try Again
           </Button>
         </div>
       )}
 
-      {/* Activity Results */}
+      {/* Activity Results - No onSelectActivity prop needed since we're not navigating */}
       <ActivityResults
         loading={isLoading}
         activities={activities}
         searchParams={currentParams}
         timeFilter={timeFilter}
-        onSelectActivity={handleSelectActivity}
       />
     </>
   );
 };
 
-// Component for the page title
-const ActivityPageTitle = () => {
+// Memoized component for the page title
+const ActivityPageTitle = React.memo(() => {
   const { state } = useActivity();
   const { searchParams, formOptions } = state;
 
-  const selectedActivity = formOptions.activityTypes.find(
-    (activity) => activity.value === searchParams.activityType
-  );
+  // Memoize the title computation
+  const titleData = useMemo(() => {
+    const selectedActivity = formOptions.activityTypes.find(
+      (activity) => activity.value === searchParams.activityType
+    );
 
-  const activityName = selectedActivity?.label || "Activities";
-  const titleText = `${activityName} in Andaman`;
+    const activityName = selectedActivity?.label || "Activities";
+    const titleText = `${activityName} in Andaman`;
+
+    return { activityName, titleText };
+  }, [formOptions.activityTypes, searchParams.activityType]);
 
   return (
     <SectionTitle
-      specialWord={activityName}
-      text={titleText}
+      specialWord={titleData.activityName}
+      text={titleData.titleText}
       id="available-activities-title"
     />
   );
-};
+});
+
+ActivityPageTitle.displayName = "ActivityPageTitle";
 
 // Main page component
 export default function ActivitiesSearchPage() {

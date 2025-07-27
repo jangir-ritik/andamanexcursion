@@ -580,44 +580,45 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   // Search for activities
-  const searchActivities = async (
-    params?: ActivitySearchParams
-  ): Promise<void> => {
-    dispatch({ type: ActivityActionTypes.SET_LOADING, payload: true });
-    try {
-      // Use provided params or current state
-      const searchParams = params || state.searchParams;
+  const searchActivities = useCallback(
+    async (params?: ActivitySearchParams): Promise<void> => {
+      dispatch({ type: ActivityActionTypes.SET_LOADING, payload: true });
+      try {
+        // Use provided params or current state
+        const searchParams = params || state.searchParams;
 
-      // Log for debugging
-      console.log("Searching with params:", searchParams);
+        // Log for debugging
+        console.log("Searching with params:", searchParams);
 
-      // Call API service to search activities
-      const activities = await activityApi.search({
-        activityType: searchParams.activityType,
-        location: searchParams.location,
-        date: searchParams.date,
-        time: searchParams.time,
-        adults: searchParams.adults,
-        children: searchParams.children,
-        infants: searchParams.infants,
-      });
+        // Call API service to search activities
+        const activities = await activityApi.search({
+          activityType: searchParams.activityType,
+          location: searchParams.location,
+          date: searchParams.date,
+          time: searchParams.time,
+          adults: searchParams.adults,
+          children: searchParams.children,
+          infants: searchParams.infants,
+        });
 
-      // Update state with activities
-      dispatch({
-        type: ActivityActionTypes.SET_ACTIVITIES,
-        payload: activities,
-      });
-    } catch (error) {
-      console.error("Error searching activities:", error);
-      dispatch({
-        type: ActivityActionTypes.SET_ERROR,
-        payload:
-          error instanceof Error
-            ? error.message
-            : "An error occurred while searching for activities",
-      });
-    }
-  };
+        // Update state with activities
+        dispatch({
+          type: ActivityActionTypes.SET_ACTIVITIES,
+          payload: activities,
+        });
+      } catch (error) {
+        console.error("Error searching activities:", error);
+        dispatch({
+          type: ActivityActionTypes.SET_ERROR,
+          payload:
+            error instanceof Error
+              ? error.message
+              : "An error occurred while searching for activities",
+        });
+      }
+    },
+    [state.searchParams]
+  ); // Add dependencies
 
   // Add activity to cart
   const addToCart = useCallback(
