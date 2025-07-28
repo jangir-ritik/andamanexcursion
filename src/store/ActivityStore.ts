@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
@@ -141,6 +142,7 @@ interface ActivityActions {
 
   // Edit actions
   startEditingItem: (cartItemId: string) => void;
+  editItem: (item: CartItem) => void; // Backward compatibility method
   updateEditingSearchParams: (params: Partial<ActivitySearchParams>) => void;
   saveEditedItem: (
     cartItemId: string,
@@ -458,6 +460,13 @@ export const useActivityStore = create<ActivityStore>()(
         }
       },
 
+      editItem: (item) => {
+        set((state) => {
+          state.editingItemId = item.id;
+          state.editingSearchParams = { ...item.searchParams };
+        });
+      },
+
       updateEditingSearchParams: (params) => {
         set((state) => {
           if (state.editingSearchParams) {
@@ -592,6 +601,20 @@ export const useActivityStore = create<ActivityStore>()(
 export const useActivity = () => {
   const store = useActivityStore();
 
+  // Auto-load form options if they haven't been loaded yet
+  useEffect(() => {
+    const shouldLoad =
+      store.formOptions.activityTypes.length === 0 &&
+      store.formOptions.locations.length === 0 &&
+      store.formOptions.timeSlots.length === 0 &&
+      !store.formOptions.isLoading &&
+      !store.formOptions.error;
+
+    if (shouldLoad) {
+      store.loadFormOptions();
+    }
+  }, [store.formOptions, store.loadFormOptions]);
+
   return {
     state: {
       searchParams: store.searchParams,
@@ -612,6 +635,7 @@ export const useActivity = () => {
     updateCartQuantity: store.updateCartQuantity,
     clearCart: store.clearCart,
     startEditingItem: store.startEditingItem,
+    editItem: store.editItem,
     updateEditingSearchParams: store.updateEditingSearchParams,
     saveEditedItem: store.saveEditedItem,
     cancelEditing: store.cancelEditing,

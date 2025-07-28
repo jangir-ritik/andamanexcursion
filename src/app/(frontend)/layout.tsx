@@ -14,7 +14,7 @@ import { ReactQueryProvider } from "@/context/ReactQueryProvider";
 import { locationService } from "@/services/payload/collections/locations";
 import { timeSlotService } from "@/services/payload/collections/time-slots";
 import { activityService } from "@/services/payload/collections/activities";
-import { ActivityProvider } from "@/context/ActivityContext";
+// import { ActivityProvider } from "@/context/ActivityContext";
 import { getNavigationData } from "@/utils/getNavigationData";
 // import { BookingDataProvider } from "@/context/BookingDataProvider";
 
@@ -119,21 +119,19 @@ export default async function RootLayout({
       <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
         <TopLoadingBarProvider>
           <ReactQueryProvider>
-            <ActivityProvider>
-              {/* <BookingDataProvider initialData={bookingData}> */}
-              {/* <BookingProviders> */}
-              <Header navItems={navItems} />
-              <PageBackgroundProvider>
-                <Container>
-                  <Column gap="var(--space-section)" fullWidth>
-                    {children}
-                  </Column>
-                </Container>
-              </PageBackgroundProvider>
-              <Footer />
-              {/* </BookingProviders> */}
-              {/* </BookingDataProvider> */}
-            </ActivityProvider>
+            {/* <BookingDataProvider initialData={bookingData}> */}
+            {/* <BookingProviders> */}
+            <Header navItems={navItems} />
+            <PageBackgroundProvider>
+              <Container>
+                <Column gap="var(--space-section)" fullWidth>
+                  {children}
+                </Column>
+              </Container>
+            </PageBackgroundProvider>
+            <Footer />
+            {/* </BookingProviders> */}
+            {/* </BookingDataProvider> */}
           </ReactQueryProvider>
         </TopLoadingBarProvider>
       </body>

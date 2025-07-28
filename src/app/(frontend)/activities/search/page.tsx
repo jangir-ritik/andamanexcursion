@@ -1,12 +1,12 @@
 // src/app/activities/search/page.tsx
 "use client";
 import React, { Suspense, useEffect, useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
-import styles from "../page.module.css";
+import styles from "./page.module.css";
 import { SectionTitle, Button } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
-import { useActivity } from "@/context/ActivityContext";
+import { useActivity } from "@/store/ActivityStore";
 import {
   SearchSummary,
   TimeFilters,

@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useActivity } from "@/context/ActivityContext";
+import { useActivity } from "@/store/ActivityStore";
 import { useRouter } from "next/navigation";
 import styles from "../BookingForm.module.css";
 import { cn } from "@/utils/cn";
@@ -50,11 +50,10 @@ export function ActivitySearchForm({
     updateSearchParams,
     searchActivities,
     loadFormOptions,
-    clearEditingItem,
-    removeFromCart,
+    cancelEditing,
   } = useActivity();
 
-  // Get form options from context
+  // Get form options from Zustand store
   const {
     activityTypes: activityOptions,
     locations: locationOptions,
@@ -63,25 +62,31 @@ export function ActivitySearchForm({
     error: loadError,
   } = state.formOptions;
 
-  // Check if we're in edit mode
-  const isEditMode = !!state.editingItem;
+  // Check if we're in edit mode using Zustand store
+  const isEditMode = !!state.editingItemId;
+
+  // Use editing search params when in edit mode, otherwise use regular search params
+  const currentSearchParams =
+    isEditMode && state.editingSearchParams
+      ? state.editingSearchParams
+      : state.searchParams;
 
   // Memoize default values to prevent recreating on each render
   const defaultValues = useMemo(
     () => ({
-      selectedActivity: state.searchParams.activityType || "",
-      activityLocation: state.searchParams.location || "",
-      selectedDate: state.searchParams.date
-        ? new Date(state.searchParams.date)
+      selectedActivity: currentSearchParams.activityType || "",
+      activityLocation: currentSearchParams.location || "",
+      selectedDate: currentSearchParams.date
+        ? new Date(currentSearchParams.date)
         : new Date(),
-      selectedSlot: state.searchParams.time || "",
+      selectedSlot: currentSearchParams.time || "",
       passengers: {
-        adults: state.searchParams.adults || 2,
-        children: state.searchParams.children || 0,
-        infants: state.searchParams.infants || 0,
+        adults: currentSearchParams.adults || 2,
+        children: currentSearchParams.children || 0,
+        infants: currentSearchParams.infants || 0,
       },
     }),
-    [state.searchParams]
+    [currentSearchParams]
   );
 
   const {
@@ -98,10 +103,10 @@ export function ActivitySearchForm({
 
   // Reset form values when edit mode is triggered
   React.useEffect(() => {
-    if (isEditMode && state.editingItem) {
+    if (isEditMode && state.editingItemId) {
       reset(defaultValues);
     }
-  }, [isEditMode, state.editingItem, reset, defaultValues]);
+  }, [isEditMode, state.editingItemId, reset, defaultValues]);
 
   // Memoize the submit handler to prevent recreation on each render
   const onSubmit = useCallback(
@@ -134,7 +139,7 @@ export function ActivitySearchForm({
         infants: data.passengers.infants,
       };
 
-      // Update search params in context
+      // Update search params in Zustand store
       updateSearchParams(searchParams);
 
       // Trigger search with the search params
@@ -176,8 +181,8 @@ export function ActivitySearchForm({
 
   // Add cancel edit handler
   const handleCancelEdit = useCallback(() => {
-    clearEditingItem();
-  }, [clearEditingItem]);
+    cancelEditing();
+  }, [cancelEditing]);
 
   // Memoize passenger handler to prevent recreation on each render
   const handlePassengerChange = useCallback(
@@ -231,8 +236,7 @@ export function ActivitySearchForm({
             <div className={styles.editModeText}>
               <h3 className={styles.editModeTitle}>Editing Activity</h3>
               <p className={styles.editModeSubtitle}>
-                You are editing:{" "}
-                <strong>{state.editingItem?.activity.title}</strong>
+                You are editing an activity selection
               </p>
             </div>
             <Button

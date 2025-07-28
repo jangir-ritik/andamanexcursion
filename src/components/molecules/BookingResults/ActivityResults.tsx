@@ -2,8 +2,8 @@
 import React, { memo, useMemo, useCallback } from "react";
 import { Button } from "@/components/atoms";
 import { Column } from "@/components/layout";
-import { Activity, ActivitySearchParams } from "@/context/ActivityContext";
-import { useActivity } from "@/context/ActivityContext";
+import { Activity, ActivitySearchParams } from "@/store/ActivityStore";
+import { useActivity } from "@/store/ActivityStore";
 import styles from "./BookingResults.module.css";
 import ActivityCard from "../Cards/ActivityCard/ActivityCard";
 
@@ -40,7 +40,7 @@ NoResultsState.displayName = "NoResultsState";
 export const ActivityResults = memo<ActivityResultsProps>(
   ({ loading, activities, searchParams, timeFilter, className }) => {
     // ALWAYS define hooks at the top level
-    const { addToCart, replaceCartItem, state, clearEditingItem } =
+    const { addToCart, saveEditedItem, state, cancelEditing, getCartItemById } =
       useActivity();
 
     // Create stable option ID generator
@@ -61,29 +61,16 @@ export const ActivityResults = memo<ActivityResultsProps>(
 
         if (selectedActivity) {
           // Check if we're in edit mode
-          if (state.editingItem) {
-            // Replace the existing item in cart
-            replaceCartItem(
-              state.editingItem.activity.id,
-              selectedActivity,
-              1,
-              optionId
-            );
-            // Clear the editing state
-            clearEditingItem();
+          if (state.editingItemId) {
+            // Save the edited item with the new activity
+            saveEditedItem(state.editingItemId, selectedActivity, optionId);
           } else {
-            // Add new activity to cart
-            addToCart(selectedActivity, 1, optionId);
+            // Add new activity to cart with current search params
+            addToCart(selectedActivity, 1, optionId, searchParams);
           }
         }
       },
-      [
-        activities,
-        addToCart,
-        replaceCartItem,
-        state.editingItem,
-        clearEditingItem,
-      ]
+      [activities, state.editingItemId, saveEditedItem, addToCart, searchParams]
     );
 
     // Memoized price calculation helper
@@ -94,13 +81,29 @@ export const ActivityResults = memo<ActivityResultsProps>(
       [searchParams.adults, searchParams.children]
     );
 
+    // Filter activities by time if timeFilter is provided
+    const filteredActivities = useMemo(() => {
+      if (!timeFilter) return activities;
+
+      return activities.filter((activity) => {
+        // Add your time filtering logic here
+        // This is a placeholder - adjust based on your time filtering requirements
+        return true;
+      });
+    }, [activities, timeFilter]);
+
     // Transform API activities to match the ActivityCard component props
     const activityCards = useMemo(() => {
-      if (loading || !activities || activities.length === 0) {
+      if (loading || !filteredActivities || filteredActivities.length === 0) {
         return [];
       }
 
-      return activities.map((activity) => {
+      return filteredActivities.map((activity) => {
+        // Get the current editing item if in edit mode
+        const editingItem = state.editingItemId
+          ? getCartItemById(state.editingItemId)
+          : null;
+
         // Extract the first image or use a placeholder
         const featuredImage = activity.media?.featuredImage;
         const imageUrl = featuredImage
@@ -150,41 +153,41 @@ export const ActivityResults = memo<ActivityResultsProps>(
             totalPrice={calculateTotalPrice(basePrice)}
             type={categoryName}
             duration={activity.coreInfo?.duration || ""}
-            href={`/activities/${activity.slug}`} // Keep for potential future use
+            href={`/activities/${activity.slug}`}
             activityOptions={options}
             onSelectActivity={handleActivitySelection}
             selectedOptionId={
-              state.editingItem?.activity.id === activity.id
-                ? state.editingItem.activityOptionId
+              state.editingItemId && editingItem?.activity.id === activity.id
+                ? editingItem.activityOptionId
                 : undefined
             }
           />
         );
       });
     }, [
-      activities,
+      filteredActivities,
       searchParams,
       handleActivitySelection,
       getStableOptionId,
       loading,
       calculateTotalPrice,
-      state.editingItem,
+      state.editingItemId,
+      getCartItemById,
     ]);
 
-    // Handle conditional rendering after all hooks are defined
+    // Render loading state
     if (loading) {
       return <LoadingState />;
     }
 
-    if (!activities || activities.length === 0) {
+    // Render no results state
+    if (!filteredActivities.length) {
       return <NoResultsState />;
     }
 
     return (
-      <div className={className}>
-        <Column gap="var(--space-4)" fullWidth>
-          {activityCards}
-        </Column>
+      <div id="search-results" className={className}>
+        <Column gap="var(--space-4)">{activityCards}</Column>
       </div>
     );
   }
