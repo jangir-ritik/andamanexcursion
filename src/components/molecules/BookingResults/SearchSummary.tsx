@@ -98,7 +98,7 @@ interface SearchSummaryProps {
   locationName?: string; // Display name for location
   date: string;
   time: string;
-  timeFilter: string | null;
+  timeFilter?: string | null; // Make optional
   passengers: number;
   type: "ferry" | "activity";
 }

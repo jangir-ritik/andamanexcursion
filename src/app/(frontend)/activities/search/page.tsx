@@ -47,7 +47,6 @@ const ActivityCartContent = () => {
 const ActivitySearchContent = () => {
   const searchParams = useSearchParams();
   const { state, updateSearchParams, searchActivities } = useActivity();
-  const [timeFilter, setTimeFilter] = React.useState<string | null>(null);
   const initializedRef = React.useRef(false);
 
   // Memoize search params extraction to avoid re-computation
@@ -147,18 +146,9 @@ const ActivitySearchContent = () => {
             locationName={displayNames.locationName}
             date={currentParams.date}
             time={currentParams.time}
-            timeFilter={timeFilter}
             passengers={totalPassengers}
             type="activity"
           />
-
-          {/* Time Filters - Only show when we have results */}
-          {!isLoading && activities.length > 0 && (
-            <TimeFilters
-              timeFilter={timeFilter}
-              setTimeFilter={setTimeFilter}
-            />
-          )}
 
           {/* Error State */}
           {error && (
@@ -175,7 +165,6 @@ const ActivitySearchContent = () => {
             loading={isLoading}
             activities={activities}
             searchParams={currentParams}
-            timeFilter={timeFilter}
           />
         </Column>
       </Section>

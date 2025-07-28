@@ -50,8 +50,19 @@ export const ImageContainer = ({
     className,
   ]
     .filter(Boolean)
-    .join(" ")
-    .trim();
+    .join(" ");
+
+  // Show error fallback if image failed to load or source is invalid
+  if (imageError || !isValid || !processedSrc) {
+    return (
+      <div className={containerClasses} role="img" aria-label={alt}>
+        <div className={styles.errorFallback}>
+          <div className={styles.errorIcon}>📷</div>
+          <div className={styles.errorText}>Image not available</div>
+        </div>
+      </div>
+    );
+  }
 
   // Fallback content when image fails or src is invalid
   const renderFallback = () => (

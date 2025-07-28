@@ -272,47 +272,125 @@
   .bookingForm {
     max-width: unset;
     width: 100%;
-    padding: var(--space-4);
+    padding: var(--space-2);
+    margin-top: 0;
+  }
+
+  .compact {
+    padding: var(--space-2);
+  }
+
+  .embedded {
+    padding: 0;
+  }
+
+  .embedded .formGrid {
+    padding: var(--space-2);
   }
 
   .tabsList {
     width: 100%;
+    height: auto;
+    flex-wrap: wrap;
+  }
+
+  .tabsTrigger {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--font-size-xs);
+    padding: var(--space-2);
+    height: 40px;
+  }
+
+  .tabsContent {
+    padding: var(--space-2);
   }
 
   .formGrid {
+    display: flex;
     flex-direction: column;
+    gap: var(--space-3);
     align-items: stretch;
+  }
+
+  .formContent {
+    flex-direction: column;
+    gap: var(--space-3);
   }
 
   .locationSelectors {
     flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .activityContainer {
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: stretch;
   }
 
   .dateTimeSection {
     flex-direction: column;
+    gap: var(--space-2);
   }
 
   .passengerButtonSection {
     flex-direction: column;
-    /* gap: var(--space-4); */
+    gap: var(--space-3);
     align-items: stretch;
+  }
+
+  .formFieldContainer {
+    max-width: unset;
+    width: 100%;
   }
 
   .viewDetailsButton {
     width: 100%;
     margin-left: 0;
+    margin-top: 0;
+  }
+
+  .cancelButton {
+    width: 100%;
+    margin-left: 0;
+    margin-top: var(--space-2);
   }
 }
 
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
+  .bookingForm {
+    padding: var(--space-1);
+  }
+
   .tabsContent {
-    padding: var(--space-2);
+    padding: var(--space-1);
+  }
+
+  .embedded .formGrid {
+    padding: var(--space-1);
   }
 
   .tabsTrigger {
     font-size: var(--font-size-xs);
-    padding: 0 var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    height: 36px;
+  }
+
+  .formGrid {
+    gap: var(--space-2);
+  }
+
+  .formContent {
+    gap: var(--space-2);
+  }
+
+  .locationSelectors,
+  .activityContainer,
+  .dateTimeSection,
+  .passengerButtonSection {
+    gap: var(--space-1-5);
   }
 }
 

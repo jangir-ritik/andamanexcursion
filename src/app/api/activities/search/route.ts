@@ -66,6 +66,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Find the location by slug to get its ID
+    const locationResults = await payload.find({
+      collection: "locations",
+      where: {
+        slug: {
+          equals: location,
+        },
+      },
+      limit: 1,
+    });
+
+    const locationId = locationResults.docs[0]?.id;
+
+    if (!locationId) {
+      return NextResponse.json(
+        { error: "Location not found" },
+        { status: 404, headers }
+      );
+    }
+
     // Build query - use proper PayloadCMS query format for relationships
     const query = {
       and: [
@@ -80,10 +100,10 @@ export async function GET(request: NextRequest) {
             contains: categoryId,
           },
         },
-        // Find activities where one of the locations matches the requested location
+        // Match activities where the location relationship includes the specific location ID
         {
           "coreInfo.location": {
-            contains: location,
+            contains: locationId,
           },
         },
       ],
@@ -97,7 +117,9 @@ export async function GET(request: NextRequest) {
       limit: 20,
     });
 
-    console.log("Results:", results.docs);
+    console.log("Results found:", results.docs.length);
+    console.log("Location ID used:", locationId);
+    console.log("Category ID used:", categoryId);
 
     // Return response WITH the CORS headers
     return NextResponse.json(results.docs, { headers });

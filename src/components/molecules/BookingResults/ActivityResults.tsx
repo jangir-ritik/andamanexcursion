@@ -11,7 +11,6 @@ interface ActivityResultsProps {
   loading: boolean;
   activities: Activity[];
   searchParams: ActivitySearchParams;
-  timeFilter?: string | null;
   className?: string;
 }
 
@@ -38,7 +37,7 @@ const NoResultsState = memo(() => (
 NoResultsState.displayName = "NoResultsState";
 
 export const ActivityResults = memo<ActivityResultsProps>(
-  ({ loading, activities, searchParams, timeFilter, className }) => {
+  ({ loading, activities, searchParams, className }) => {
     // ALWAYS define hooks at the top level
     const { addToCart, saveEditedItem, state, cancelEditing, getCartItemById } =
       useActivity();
@@ -81,114 +80,83 @@ export const ActivityResults = memo<ActivityResultsProps>(
       [searchParams.adults, searchParams.children]
     );
 
-    // Filter activities by time if timeFilter is provided
-    const filteredActivities = useMemo(() => {
-      if (!timeFilter) return activities;
-
-      return activities.filter((activity) => {
-        // Add your time filtering logic here
-        // This is a placeholder - adjust based on your time filtering requirements
-        return true;
-      });
-    }, [activities, timeFilter]);
-
     // Transform API activities to match the ActivityCard component props
     const activityCards = useMemo(() => {
-      if (loading || !filteredActivities || filteredActivities.length === 0) {
+      if (loading || !activities || activities.length === 0) {
         return [];
       }
 
-      return filteredActivities.map((activity) => {
-        // Get the current editing item if in edit mode
-        const editingItem = state.editingItemId
-          ? getCartItemById(state.editingItemId)
-          : null;
-
-        // Extract the first image or use a placeholder
-        const featuredImage = activity.media?.featuredImage;
-        const imageUrl = featuredImage
-          ? `/api/media/${featuredImage.id}`
-          : "/images/placeholder.png";
-
-        // Get base price with fallback
+      return activities.map((activity) => {
         const basePrice = activity.coreInfo?.basePrice || 0;
+        const totalPrice = calculateTotalPrice(basePrice);
 
-        // Map activity options to the format expected by ActivityCard
-        const options =
-          activity.activityOptions?.map((option, index) => {
-            const optionPrice = option.price || basePrice;
-            return {
-              id: option.id || getStableOptionId(activity.id, index),
-              type: option.optionTitle || "Standard",
-              price: optionPrice,
-              totalPrice: calculateTotalPrice(optionPrice),
-              description: option.optionDescription || "",
-              seatsLeft:
-                option.maxCapacity || activity.coreInfo.maxCapacity || 10,
-            };
-          }) || [];
-
-        // Get activity category name
-        const categoryName = Array.isArray(activity.coreInfo?.category)
-          ? activity.coreInfo.category[0]?.name || "Activity"
-          : "Activity";
-
-        return (
-          <ActivityCard
-            key={activity.id}
-            id={activity.id}
-            title={activity.title}
-            description={
-              activity.coreInfo?.shortDescription ||
-              activity.coreInfo?.description ||
-              ""
-            }
-            images={[
-              {
-                src: imageUrl,
-                alt: activity.title,
-              },
-            ]}
-            price={basePrice}
-            totalPrice={calculateTotalPrice(basePrice)}
-            type={categoryName}
-            duration={activity.coreInfo?.duration || ""}
-            href={`/activities/${activity.slug}`}
-            activityOptions={options}
-            onSelectActivity={handleActivitySelection}
-            selectedOptionId={
-              state.editingItemId && editingItem?.activity.id === activity.id
-                ? editingItem.activityOptionId
-                : undefined
-            }
-          />
+        // Transform activity options for ActivityCard
+        const transformedOptions = (activity.activityOptions || []).map(
+          (option, index) => ({
+            id: option.id || getStableOptionId(activity.id, index),
+            type: option.optionTitle || "Standard Option",
+            description: option.optionDescription || "",
+            price: option.price || basePrice,
+            totalPrice: calculateTotalPrice(option.price || basePrice),
+            seatsLeft:
+              option.maxCapacity || activity.coreInfo?.maxCapacity || 10,
+            amenities: [],
+          })
         );
+
+        // Transform images
+        const images = [
+          {
+            src:
+              activity.media?.featuredImage?.url || "/images/placeholder.png",
+            alt: activity.title || "Activity image",
+          },
+          ...(activity.media?.gallery || []).map((img) => ({
+            src: img.image?.url || "/images/placeholder.png",
+            alt: img.alt || "Activity gallery image",
+          })),
+        ];
+
+        return {
+          id: activity.id,
+          title: activity.title,
+          description:
+            activity.coreInfo?.description ||
+            activity.coreInfo?.shortDescription ||
+            "Experience this amazing activity in Andaman!",
+          images,
+          price: basePrice,
+          totalPrice,
+          type: activity.coreInfo?.category[0]?.name || "Activity",
+          duration: activity.coreInfo?.duration || "2 hours",
+          href: `/activities/${activity.slug}`,
+          activityOptions: transformedOptions,
+          onSelectActivity: handleActivitySelection,
+        };
       });
     }, [
-      filteredActivities,
-      searchParams,
-      handleActivitySelection,
-      getStableOptionId,
+      activities,
       loading,
       calculateTotalPrice,
-      state.editingItemId,
-      getCartItemById,
+      getStableOptionId,
+      handleActivitySelection,
     ]);
 
-    // Render loading state
+    // Render states
     if (loading) {
       return <LoadingState />;
     }
 
-    // Render no results state
-    if (!filteredActivities.length) {
+    if (!activities || activities.length === 0) {
       return <NoResultsState />;
     }
 
     return (
-      <div id="search-results" className={className}>
-        <Column gap="var(--space-4)">{activityCards}</Column>
-      </div>
+      <Column gap="var(--space-6)" className={className}>
+        {activityCards.map((activityCard) => (
+          <ActivityCard key={activityCard.id} {...activityCard} />
+        ))}
+      </Column>
     );
   }
 );

@@ -166,6 +166,34 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
           {classOption.description && (
             <p className={styles.description}>{classOption.description}</p>
           )}
+
+          {/* Gallery Section */}
+          {classOption.images && classOption.images.length > 0 && (
+            <div className={styles.galleryContainer}>
+              <div className={styles.galleryImages}>
+                {classOption.images.slice(0, 3).map((image, index) => (
+                  <div key={index} className={styles.galleryImage}>
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      onError={(e) => {
+                        // Hide broken images
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  </div>
+                ))}
+                {classOption.images.length > 3 && (
+                  <div className={styles.moreImages}>
+                    +{classOption.images.length - 3} more
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {showActionButton && onAction && (
             <Button
               type="button"
