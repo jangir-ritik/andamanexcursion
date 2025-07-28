@@ -16,7 +16,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   onAddMore,
 }) => {
   const router = useRouter();
-  const { state, removeFromCart } = useActivity();
+  const { state, removeFromCart, editItem } = useActivity();
   const { cart } = state;
 
   // Format date for display
@@ -42,15 +42,22 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
     return timeString;
   };
 
-  const handleRemove = (activityId: string) => {
-    removeFromCart(activityId);
+  const handleRemove = (activityId: string, activityOptionId?: string) => {
+    removeFromCart(activityId, activityOptionId);
   };
 
   const handleEdit = (activityId: string) => {
-    // For now, just scroll to form to modify selection
-    const formElement = document.getElementById("booking-form-section");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth" });
+    // Find the cart item to edit
+    const itemToEdit = cart.find((item) => item.activity.id === activityId);
+    if (itemToEdit) {
+      // Use the editItem function to populate the form with this item's data
+      editItem(itemToEdit);
+
+      // Scroll to the form to show the populated data
+      const formElement = document.getElementById("booking-form-section");
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 
@@ -64,7 +71,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
   return (
     <div className={`${styles.cartSummaryContainer} ${className || ""}`}>
-      <h2 className={styles.sectionTitle}>Your Activities</h2>
+      {/* <h2 className={styles.sectionTitle}>Your Activities</h2> */}
 
       <div className={styles.cartItemsContainer}>
         {cart.map((item) => {
@@ -76,10 +83,18 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           const activityType = selectedOption?.optionTitle || "Standard";
           const location = activity.coreInfo.location?.[0]?.name || "Andaman";
 
+          // Check if this item is being edited
+          const isBeingEdited =
+            state.editingItem &&
+            state.editingItem.activity.id === activity.id &&
+            state.editingItem.activityOptionId === item.activityOptionId;
+
           return (
             <div
               key={`${activity.id}-${item.activityOptionId}`}
-              className={styles.cartItem}
+              className={`${styles.cartItem} ${
+                isBeingEdited ? styles.editing : ""
+              }`}
             >
               <Row alignItems="center" justifyContent="between" fullWidth>
                 <Column gap="var(--space-1)">
@@ -139,7 +154,9 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                   <Button
                     variant="outline"
                     className={styles.removeButton}
-                    onClick={() => handleRemove(activity.id)}
+                    onClick={() =>
+                      handleRemove(activity.id, item.activityOptionId)
+                    }
                   >
                     <Trash2 size={18} /> Remove
                   </Button>
@@ -172,7 +189,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           onClick={handleNext}
           icon={<ChevronRight size={16} />}
         >
-          Next
+          Proceed to Checkout
         </Button>
       </Row>
     </div>

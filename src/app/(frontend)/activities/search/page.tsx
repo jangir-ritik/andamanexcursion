@@ -14,6 +14,35 @@ import {
   CartSummary,
 } from "@/components/molecules/BookingResults";
 
+// Component for cart content with empty state
+const ActivityCartContent = () => {
+  const { state } = useActivity();
+  const { cart } = state;
+
+  // Optimized scroll handler
+  const handleAddMore = useCallback(() => {
+    const formElement = document.getElementById("booking-form-section");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
+  if (cart.length === 0) {
+    return (
+      <div className={styles.emptyCart}>
+        <p className={styles.emptyCartText}>No activities selected yet</p>
+        <p className={styles.emptyCartSubtext}>
+          Use the form to search and add activities
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <CartSummary onAddMore={handleAddMore} className={styles.cartContent} />
+  );
+};
+
 // Component that handles search params and displays results
 const ActivitySearchContent = () => {
   const searchParams = useSearchParams();
@@ -104,48 +133,53 @@ const ActivitySearchContent = () => {
   }, [searchActivities, currentParams]);
 
   return (
-    <>
-      {/* Cart Summary */}
-      <CartSummary onAddMore={handleAddMore} />
+    <Column gap="var(--space-6)" fullWidth>
+      {/* Search Summary & Results Container */}
+      <Section className={styles.resultsSection}>
+        <Column gap="var(--space-4)" fullWidth>
+          {/* Search Summary */}
+          <SearchSummary
+            loading={isLoading}
+            resultCount={activities.length}
+            activity={currentParams.activityType}
+            activityName={displayNames.activityName}
+            location={currentParams.location}
+            locationName={displayNames.locationName}
+            date={currentParams.date}
+            time={currentParams.time}
+            timeFilter={timeFilter}
+            passengers={totalPassengers}
+            type="activity"
+          />
 
-      {/* Search Summary */}
-      <SearchSummary
-        loading={isLoading}
-        resultCount={activities.length}
-        activity={currentParams.activityType}
-        activityName={displayNames.activityName}
-        location={currentParams.location}
-        locationName={displayNames.locationName}
-        date={currentParams.date}
-        time={currentParams.time}
-        timeFilter={timeFilter}
-        passengers={totalPassengers}
-        type="activity"
-      />
+          {/* Time Filters - Only show when we have results */}
+          {!isLoading && activities.length > 0 && (
+            <TimeFilters
+              timeFilter={timeFilter}
+              setTimeFilter={setTimeFilter}
+            />
+          )}
 
-      {/* Time Filters */}
-      {!isLoading && activities.length > 0 && (
-        <TimeFilters timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
-      )}
+          {/* Error State */}
+          {error && (
+            <div className={styles.errorContainer}>
+              <div className={styles.errorMessage}>{error}</div>
+              <Button variant="secondary" onClick={handleRetry}>
+                Try Again
+              </Button>
+            </div>
+          )}
 
-      {/* Error State */}
-      {error && (
-        <div className={styles.errorContainer}>
-          <div className={styles.errorMessage}>{error}</div>
-          <Button variant="secondary" onClick={handleRetry}>
-            Try Again
-          </Button>
-        </div>
-      )}
-
-      {/* Activity Results - No onSelectActivity prop needed since we're not navigating */}
-      <ActivityResults
-        loading={isLoading}
-        activities={activities}
-        searchParams={currentParams}
-        timeFilter={timeFilter}
-      />
-    </>
+          {/* Activity Results */}
+          <ActivityResults
+            loading={isLoading}
+            activities={activities}
+            searchParams={currentParams}
+            timeFilter={timeFilter}
+          />
+        </Column>
+      </Section>
+    </Column>
   );
 };
 
@@ -177,52 +211,58 @@ const ActivityPageTitle = React.memo(() => {
 
 ActivityPageTitle.displayName = "ActivityPageTitle";
 
-// Main page component
+// Main page component with unified management section
 export default function ActivitiesSearchPage() {
   return (
     <main className={styles.main}>
-      {/* Booking Form Section */}
+      {/* Management Section - Cart + Booking Form */}
       <Section
-        ariaLabelledby="booking-form-title"
+        ariaLabelledby="management-section"
         id="booking-form-section"
-        className={styles.bookingHeader}
+        className={styles.managementSection}
       >
-        <h1 className={styles.pageTitle}>Your Activity</h1>
-        <BookingForm
-          variant="embedded"
-          initialTab="activities"
-          className={styles.bookingForm}
-        />
+        <Column gap="var(--space-6)" fullWidth alignItems="start">
+          {/* Top - Booking Form */}
+          <h1 className={styles.sectionHeading}>Your Activities</h1>
+          <Row gap="var(--space-3)" className={styles.formColumn}>
+            <BookingForm
+              variant="embedded"
+              initialTab="activities"
+              className={styles.bookingForm}
+            />
+          </Row>
+          {/* Bottom - Your Activities Cart */}
+          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
+            <Suspense
+              fallback={
+                <div className={styles.cartLoading}>Loading cart...</div>
+              }
+            >
+              <ActivityCartContent />
+            </Suspense>
+          </Row>
+        </Column>
       </Section>
 
       {/* Search Results Section */}
       <Section
         id="search-results"
-        aria-labelledby="available-activities-title"
-        className={styles.searchResults}
+        aria-labelledby="search-results-content"
+        className={styles.contentArea}
       >
-        <Column
-          gap="var(--space-6)"
-          fullWidth
-          responsive
-          responsiveGap="var(--space-4)"
-          responsiveAlignItems="start"
+        <Suspense fallback={<div>Loading...</div>}>
+          <ActivityPageTitle />
+        </Suspense>
+        <Suspense
+          fallback={
+            <div className={styles.loadingFallback}>
+              <div className={styles.spinner} />
+              <p>Loading your activity search...</p>
+            </div>
+          }
         >
-          <Row
-            justifyContent="between"
-            alignItems="center"
-            gap="var(--space-4)"
-            fullWidth
-          >
-            <Suspense fallback={<div>Loading...</div>}>
-              <ActivityPageTitle />
-            </Suspense>
-          </Row>
-
-          <Suspense fallback={<div>Loading search results...</div>}>
-            <ActivitySearchContent />
-          </Suspense>
-        </Column>
+          <ActivitySearchContent />
+        </Suspense>
       </Section>
     </main>
   );

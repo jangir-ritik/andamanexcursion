@@ -40,7 +40,8 @@ NoResultsState.displayName = "NoResultsState";
 export const ActivityResults = memo<ActivityResultsProps>(
   ({ loading, activities, searchParams, timeFilter, className }) => {
     // ALWAYS define hooks at the top level
-    const { addToCart } = useActivity();
+    const { addToCart, replaceCartItem, state, clearEditingItem } =
+      useActivity();
 
     // Create stable option ID generator
     const getStableOptionId = useCallback(
@@ -50,7 +51,7 @@ export const ActivityResults = memo<ActivityResultsProps>(
       []
     );
 
-    // Optimized activity selection handler - only adds to cart, no navigation
+    // Optimized activity selection handler - handles both add and replace operations
     const handleActivitySelection = useCallback(
       (activityId: string, optionId: string) => {
         // Find the selected activity
@@ -59,12 +60,30 @@ export const ActivityResults = memo<ActivityResultsProps>(
         );
 
         if (selectedActivity) {
-          // Add activity to cart with quantity 1
-          addToCart(selectedActivity, 1, optionId);
-
+          // Check if we're in edit mode
+          if (state.editingItem) {
+            // Replace the existing item in cart
+            replaceCartItem(
+              state.editingItem.activity.id,
+              selectedActivity,
+              1,
+              optionId
+            );
+            // Clear the editing state
+            clearEditingItem();
+          } else {
+            // Add new activity to cart
+            addToCart(selectedActivity, 1, optionId);
+          }
         }
       },
-      [activities, addToCart]
+      [
+        activities,
+        addToCart,
+        replaceCartItem,
+        state.editingItem,
+        clearEditingItem,
+      ]
     );
 
     // Memoized price calculation helper
@@ -134,6 +153,11 @@ export const ActivityResults = memo<ActivityResultsProps>(
             href={`/activities/${activity.slug}`} // Keep for potential future use
             activityOptions={options}
             onSelectActivity={handleActivitySelection}
+            selectedOptionId={
+              state.editingItem?.activity.id === activity.id
+                ? state.editingItem.activityOptionId
+                : undefined
+            }
           />
         );
       });
@@ -144,6 +168,7 @@ export const ActivityResults = memo<ActivityResultsProps>(
       getStableOptionId,
       loading,
       calculateTotalPrice,
+      state.editingItem,
     ]);
 
     // Handle conditional rendering after all hooks are defined

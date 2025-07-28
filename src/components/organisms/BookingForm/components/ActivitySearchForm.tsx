@@ -45,8 +45,14 @@ export function ActivitySearchForm({
   variant = "default",
 }: ActivitySearchFormProps) {
   const router = useRouter();
-  const { state, updateSearchParams, searchActivities, loadFormOptions } =
-    useActivity();
+  const {
+    state,
+    updateSearchParams,
+    searchActivities,
+    loadFormOptions,
+    clearEditingItem,
+    removeFromCart,
+  } = useActivity();
 
   // Get form options from context
   const {
@@ -56,6 +62,9 @@ export function ActivitySearchForm({
     isLoading: isLoadingOptions,
     error: loadError,
   } = state.formOptions;
+
+  // Check if we're in edit mode
+  const isEditMode = !!state.editingItem;
 
   // Memoize default values to prevent recreating on each render
   const defaultValues = useMemo(
@@ -80,11 +89,19 @@ export function ActivitySearchForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    reset,
   } = useForm<ActivitySearchFormData>({
     resolver: zodResolver(activitySearchSchema),
     defaultValues,
     mode: "onSubmit",
   });
+
+  // Reset form values when edit mode is triggered
+  React.useEffect(() => {
+    if (isEditMode && state.editingItem) {
+      reset(defaultValues);
+    }
+  }, [isEditMode, state.editingItem, reset, defaultValues]);
 
   // Memoize the submit handler to prevent recreation on each render
   const onSubmit = useCallback(
@@ -123,27 +140,44 @@ export function ActivitySearchForm({
       // Trigger search with the search params
       await searchActivities(searchParams);
 
-      // Navigate to search results page with URL parameters
-      const urlParams = new URLSearchParams({
-        activityType: searchParams.activityType,
-        location: searchParams.location,
-        date: searchParams.date,
-        time: searchParams.time,
-        adults: searchParams.adults.toString(),
-        children: searchParams.children.toString(),
-        infants: searchParams.infants.toString(),
-      });
+      // If in edit mode, just scroll to results instead of navigating away
+      if (isEditMode) {
+        // Scroll to search results to show the updated options
+        const resultsElement = document.getElementById("search-results");
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        // Only navigate for new searches (not in edit mode)
+        // Navigate to search results page with URL parameters
+        const urlParams = new URLSearchParams({
+          activityType: searchParams.activityType,
+          location: searchParams.location,
+          date: searchParams.date,
+          time: searchParams.time,
+          adults: searchParams.adults.toString(),
+          children: searchParams.children.toString(),
+          infants: searchParams.infants.toString(),
+        });
 
-      router.push(`/activities/search?${urlParams.toString()}`);
+        router.push(`/activities/search?${urlParams.toString()}`);
+      }
     },
-    [updateSearchParams, searchActivities, setError, router]
+    [updateSearchParams, searchActivities, setError, router, isEditMode]
   );
 
-  // Memoize button text based on variant
-  const buttonText = useMemo(
-    () => (variant === "compact" ? "Search" : "View Details"),
-    [variant]
-  );
+  // Memoize button text based on variant and edit mode
+  const buttonText = useMemo(() => {
+    if (isEditMode) {
+      return "Update Selection";
+    }
+    return variant === "compact" ? "Search" : "View Details";
+  }, [variant, isEditMode]);
+
+  // Add cancel edit handler
+  const handleCancelEdit = useCallback(() => {
+    clearEditingItem();
+  }, [clearEditingItem]);
 
   // Memoize passenger handler to prevent recreation on each render
   const handlePassengerChange = useCallback(
@@ -189,117 +223,143 @@ export function ActivitySearchForm({
       aria-live="polite"
       className={cn(styles.formGrid, className)}
     >
-      <div className={styles.activityContainer}>
-        <div className={styles.formFieldContainer}>
-          <Controller
-            control={control}
-            name="selectedActivity"
-            render={({ field }) => (
-              <ActivitySelect
-                value={field.value}
-                onChange={field.onChange}
-                options={activityOptions}
-                placeholder="Select Activity"
-                hasError={!!errors.selectedActivity}
-              />
-            )}
-          />
-          {errors.selectedActivity && (
-            <div className={styles.errorMessage}>
-              {errors.selectedActivity.message}
+      {/* Edit Mode Banner - Prominent at top */}
+      {isEditMode && (
+        <div className={styles.editModeBanner}>
+          <div className={styles.editModeContent}>
+            <div className={styles.editModeIcon}>✏️</div>
+            <div className={styles.editModeText}>
+              <h3 className={styles.editModeTitle}>Editing Activity</h3>
+              <p className={styles.editModeSubtitle}>
+                You are editing:{" "}
+                <strong>{state.editingItem?.activity.title}</strong>
+              </p>
             </div>
-          )}
+            <Button
+              variant="secondary"
+              className={styles.cancelEditButton}
+              onClick={handleCancelEdit}
+              type="button"
+              size="small"
+            >
+              Cancel Edit
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className={styles.formContent}>
+        <div className={styles.activityContainer}>
+          <div className={styles.formFieldContainer}>
+            <Controller
+              control={control}
+              name="selectedActivity"
+              render={({ field }) => (
+                <ActivitySelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={activityOptions}
+                  placeholder="Select Activity"
+                  hasError={!!errors.selectedActivity}
+                />
+              )}
+            />
+            {errors.selectedActivity && (
+              <div className={styles.errorMessage}>
+                {errors.selectedActivity.message}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.formFieldContainer}>
+            <Controller
+              control={control}
+              name="activityLocation"
+              render={({ field }) => (
+                <LocationSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={locationOptions}
+                  placeholder="Select Location"
+                  label="Location"
+                  hasError={!!errors.activityLocation}
+                />
+              )}
+            />
+            {errors.activityLocation && (
+              <div className={styles.errorMessage}>
+                {errors.activityLocation.message}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className={styles.formFieldContainer}>
-          <Controller
-            control={control}
-            name="activityLocation"
-            render={({ field }) => (
-              <LocationSelect
-                value={field.value}
-                onChange={field.onChange}
-                options={locationOptions}
-                placeholder="Select Location"
-                label="Location"
-                hasError={!!errors.activityLocation}
-              />
+        <div className={styles.dateTimeSection}>
+          <div className={styles.formFieldContainer}>
+            <Controller
+              control={control}
+              name="selectedDate"
+              render={({ field }) => (
+                <DateSelect
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  hasError={!!errors.selectedDate}
+                />
+              )}
+            />
+            {errors.selectedDate && (
+              <div className={styles.errorMessage}>
+                {errors.selectedDate.message}
+              </div>
             )}
-          />
-          {errors.activityLocation && (
-            <div className={styles.errorMessage}>
-              {errors.activityLocation.message}
-            </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      <div className={styles.dateTimeSection}>
-        <div className={styles.formFieldContainer}>
-          <Controller
-            control={control}
-            name="selectedDate"
-            render={({ field }) => (
-              <DateSelect
-                selected={field.value}
-                onChange={(date) => field.onChange(date)}
-                hasError={!!errors.selectedDate}
-              />
+          <div className={styles.formFieldContainer}>
+            <Controller
+              control={control}
+              name="selectedSlot"
+              render={({ field }) => (
+                <SlotSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={timeSlotOptions}
+                  hasError={!!errors.selectedSlot}
+                />
+              )}
+            />
+            {errors.selectedSlot && (
+              <div className={styles.errorMessage}>
+                {errors.selectedSlot.message}
+              </div>
             )}
-          />
-          {errors.selectedDate && (
-            <div className={styles.errorMessage}>
-              {errors.selectedDate.message}
-            </div>
-          )}
+          </div>
         </div>
 
-        <div className={styles.formFieldContainer}>
-          <Controller
-            control={control}
-            name="selectedSlot"
-            render={({ field }) => (
-              <SlotSelect
-                value={field.value}
-                onChange={field.onChange}
-                options={timeSlotOptions}
-                hasError={!!errors.selectedSlot}
-              />
+        <div className={styles.passengerButtonSection}>
+          <div
+            className={cn(
+              styles.formFieldContainer,
+              styles.passengerCounterContainer
             )}
-          />
-          {errors.selectedSlot && (
-            <div className={styles.errorMessage}>
-              {errors.selectedSlot.message}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.passengerButtonSection}>
-        <div
-          className={cn(
-            styles.formFieldContainer,
-            styles.passengerCounterContainer
-          )}
-        >
-          <Controller
-            control={control}
-            name="passengers"
-            render={({ field }) => (
-              <PassengerCounter
-                value={field.value}
-                onChange={handlePassengerChange(field)}
-                hasError={!!errors.passengers}
-              />
+          >
+            <Controller
+              control={control}
+              name="passengers"
+              render={({ field }) => (
+                <PassengerCounter
+                  value={field.value}
+                  onChange={handlePassengerChange(field)}
+                  hasError={!!errors.passengers}
+                />
+              )}
+            />
+            {errors.passengers && (
+              <div className={styles.errorMessage}>
+                {errors.passengers.message}
+              </div>
             )}
-          />
-          {errors.passengers && (
-            <div className={styles.errorMessage}>
-              {errors.passengers.message}
-            </div>
-          )}
+          </div>
         </div>
-
         <Button
           variant="primary"
           className={styles.viewDetailsButton}

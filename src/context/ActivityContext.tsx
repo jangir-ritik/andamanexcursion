@@ -82,6 +82,7 @@ export interface CartItem {
   quantity: number;
   totalPrice: number;
   activityOptionId?: string;
+  searchParams: ActivitySearchParams; // Store the search params used when adding to cart
 }
 
 export interface ActivityState {
@@ -95,6 +96,9 @@ export interface ActivityState {
 
   // Cart state
   cart: CartItem[];
+
+  // Edit state
+  editingItem: CartItem | null;
 
   // Form options
   formOptions: {
@@ -133,7 +137,10 @@ export enum ActivityActionTypes {
   ADD_TO_CART = "ADD_TO_CART",
   REMOVE_FROM_CART = "REMOVE_FROM_CART",
   UPDATE_CART_QUANTITY = "UPDATE_CART_QUANTITY",
+  REPLACE_CART_ITEM = "REPLACE_CART_ITEM",
   CLEAR_CART = "CLEAR_CART",
+  SET_EDITING_ITEM = "SET_EDITING_ITEM",
+  CLEAR_EDITING_ITEM = "CLEAR_EDITING_ITEM",
   SET_FORM_OPTIONS = "SET_FORM_OPTIONS",
   SET_FORM_OPTIONS_LOADING = "SET_FORM_OPTIONS_LOADING",
   SET_FORM_OPTIONS_ERROR = "SET_FORM_OPTIONS_ERROR",
@@ -155,12 +162,29 @@ type ActivityAction =
         activityOptionId?: string;
       };
     }
-  | { type: ActivityActionTypes.REMOVE_FROM_CART; payload: string }
+  | {
+      type: ActivityActionTypes.REMOVE_FROM_CART;
+      payload: {
+        activityId: string;
+        activityOptionId?: string;
+      };
+    }
   | {
       type: ActivityActionTypes.UPDATE_CART_QUANTITY;
       payload: { activityId: string; quantity: number };
     }
+  | {
+      type: ActivityActionTypes.REPLACE_CART_ITEM;
+      payload: {
+        oldActivityId: string;
+        newActivity: Activity;
+        quantity: number;
+        activityOptionId?: string;
+      };
+    }
   | { type: ActivityActionTypes.CLEAR_CART }
+  | { type: ActivityActionTypes.SET_EDITING_ITEM; payload: CartItem | null }
+  | { type: ActivityActionTypes.CLEAR_EDITING_ITEM }
   | {
       type: ActivityActionTypes.SET_FORM_OPTIONS;
       payload: {
@@ -323,6 +347,7 @@ const initialState: ActivityState = {
   isLoading: false,
   error: null,
   cart: [],
+  editingItem: null,
   formOptions: {
     locations: [],
     timeSlots: [],
@@ -406,16 +431,23 @@ function activityReducer(
               quantity,
               totalPrice,
               activityOptionId,
+              searchParams: state.searchParams, // Store current search params
             },
           ],
         };
       }
     }
-    case ActivityActionTypes.REMOVE_FROM_CART:
+    case ActivityActionTypes.REMOVE_FROM_CART: {
+      const { activityId, activityOptionId } = action.payload;
       return {
         ...state,
-        cart: state.cart.filter((item) => item.activity.id !== action.payload),
+        cart: state.cart.filter((item) => {
+          const matchesActivityId = item.activity.id === activityId;
+          const matchesOptionId = item.activityOptionId === activityOptionId;
+          return !(matchesActivityId && matchesOptionId);
+        }),
       };
+    }
     case ActivityActionTypes.UPDATE_CART_QUANTITY: {
       const { activityId, quantity } = action.payload;
       return {
@@ -429,7 +461,30 @@ function activityReducer(
               totalPrice:
                 quantity *
                 basePrice *
-                (state.searchParams.adults + state.searchParams.children * 0.5),
+                (item.searchParams.adults + item.searchParams.children * 0.5),
+            };
+          }
+          return item;
+        }),
+      };
+    }
+    case ActivityActionTypes.REPLACE_CART_ITEM: {
+      const { oldActivityId, newActivity, quantity, activityOptionId } =
+        action.payload;
+      return {
+        ...state,
+        cart: state.cart.map((item) => {
+          if (item.activity.id === oldActivityId) {
+            const basePrice = newActivity.coreInfo.basePrice;
+            return {
+              ...item,
+              activity: newActivity,
+              quantity,
+              totalPrice:
+                quantity *
+                basePrice *
+                (item.searchParams.adults + item.searchParams.children * 0.5),
+              activityOptionId,
             };
           }
           return item;
@@ -440,6 +495,16 @@ function activityReducer(
       return {
         ...state,
         cart: [],
+      };
+    case ActivityActionTypes.SET_EDITING_ITEM:
+      return {
+        ...state,
+        editingItem: action.payload,
+      };
+    case ActivityActionTypes.CLEAR_EDITING_ITEM:
+      return {
+        ...state,
+        editingItem: null,
       };
     case ActivityActionTypes.SET_FORM_OPTIONS:
       return {
@@ -487,9 +552,18 @@ export interface ActivityContextType {
     quantity: number,
     activityOptionId?: string
   ) => void;
-  removeFromCart: (activityId: string) => void;
+  removeFromCart: (activityId: string, activityOptionId?: string) => void;
   updateCartQuantity: (activityId: string, quantity: number) => void;
   clearCart: () => void;
+  setEditingItem: (item: CartItem | null) => void;
+  clearEditingItem: () => void;
+  editItem: (item: CartItem) => void;
+  replaceCartItem: (
+    oldActivityId: string,
+    newActivity: Activity,
+    quantity: number,
+    activityOptionId?: string
+  ) => void;
 
   // Form options actions
   loadFormOptions: () => Promise<void>;
@@ -631,12 +705,15 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
     [dispatch]
   );
 
-  const removeFromCart = useCallback((activityId: string) => {
-    dispatch({
-      type: ActivityActionTypes.REMOVE_FROM_CART,
-      payload: activityId,
-    });
-  }, []);
+  const removeFromCart = useCallback(
+    (activityId: string, activityOptionId?: string) => {
+      dispatch({
+        type: ActivityActionTypes.REMOVE_FROM_CART,
+        payload: { activityId, activityOptionId },
+      });
+    },
+    []
+  );
 
   const updateCartQuantity = useCallback(
     (activityId: string, quantity: number) => {
@@ -655,6 +732,49 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
   const clearCart = useCallback(() => {
     dispatch({ type: ActivityActionTypes.CLEAR_CART });
   }, []);
+
+  const setEditingItem = useCallback((item: CartItem | null) => {
+    dispatch({ type: ActivityActionTypes.SET_EDITING_ITEM, payload: item });
+  }, []);
+
+  const clearEditingItem = useCallback(() => {
+    dispatch({ type: ActivityActionTypes.CLEAR_EDITING_ITEM });
+  }, []);
+
+  const editItem = useCallback((item: CartItem) => {
+    dispatch({ type: ActivityActionTypes.SET_EDITING_ITEM, payload: item });
+
+    // Use the stored search params from the cart item instead of trying to extract from activity
+    const editSearchParams = {
+      activityType: item.searchParams.activityType,
+      location: item.searchParams.location,
+      date: item.searchParams.date,
+      time: item.searchParams.time,
+      adults: item.searchParams.adults,
+      children: item.searchParams.children,
+      infants: item.searchParams.infants,
+    };
+
+    dispatch({
+      type: ActivityActionTypes.SET_SEARCH_PARAMS,
+      payload: editSearchParams,
+    });
+  }, []);
+
+  const replaceCartItem = useCallback(
+    (
+      oldActivityId: string,
+      newActivity: Activity,
+      quantity: number,
+      activityOptionId?: string
+    ) => {
+      dispatch({
+        type: ActivityActionTypes.REPLACE_CART_ITEM,
+        payload: { oldActivityId, newActivity, quantity, activityOptionId },
+      });
+    },
+    [dispatch]
+  );
 
   // Computed values - memoized
   const getTotalPassengers = useCallback(() => {
@@ -683,6 +803,10 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
       removeFromCart,
       updateCartQuantity,
       clearCart,
+      setEditingItem,
+      clearEditingItem,
+      editItem,
+      replaceCartItem,
       loadFormOptions,
       getTotalPassengers,
       getCartTotal,
@@ -696,6 +820,10 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
       removeFromCart,
       updateCartQuantity,
       clearCart,
+      setEditingItem,
+      clearEditingItem,
+      editItem,
+      replaceCartItem,
       loadFormOptions,
       getTotalPassengers,
       getCartTotal,

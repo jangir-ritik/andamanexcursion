@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
 import type { ActivityCardProps } from "./ActivityCard.types";
 import clsx from "clsx";
 import styles from "./ActivityCard.module.css";
@@ -16,18 +16,44 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   id,
   title,
   description,
+  images,
   price,
   totalPrice,
   type,
   duration,
-  images,
-  href, // Keep for potential future navigation needs
+  href,
   className,
   activityOptions = [],
   onSelectActivity,
+  selectedOptionId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
+
+  // Find the initial selected option index based on selectedOptionId
+  const initialSelectedIndex = useMemo(() => {
+    if (selectedOptionId && activityOptions.length > 0) {
+      const foundIndex = activityOptions.findIndex(
+        (option) => option.id === selectedOptionId
+      );
+      return foundIndex >= 0 ? foundIndex : 0;
+    }
+    return 0;
+  }, [selectedOptionId, activityOptions]);
+
+  const [selectedOptionIndex, setSelectedOptionIndex] =
+    useState(initialSelectedIndex);
+
+  // Update selectedOptionIndex when selectedOptionId changes (for edit mode)
+  useEffect(() => {
+    if (selectedOptionId && activityOptions.length > 0) {
+      const foundIndex = activityOptions.findIndex(
+        (option) => option.id === selectedOptionId
+      );
+      if (foundIndex >= 0) {
+        setSelectedOptionIndex(foundIndex);
+      }
+    }
+  }, [selectedOptionId, activityOptions]);
 
   // Optimized toggle handler with explicit event handling
   const toggleExpand = useCallback((e: React.MouseEvent) => {

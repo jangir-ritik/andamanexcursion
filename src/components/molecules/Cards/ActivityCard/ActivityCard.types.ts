@@ -14,6 +14,7 @@ export interface ActivityCardProps {
   className?: string;
   activityOptions?: ActivityOption[];
   onSelectActivity?: (activityId: string, optionId: string) => void;
+  selectedOptionId?: string;
 }
 
 export interface ActivityOption {
