@@ -1,9 +1,8 @@
 .container {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 100%;
   overflow: hidden;
-  border-radius: var(--radius-2xl);
   background-color: var(--gray-50, #f9fafb);
 }
 

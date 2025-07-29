@@ -31,25 +31,14 @@ export const TopActivityCategories = ({
           role="grid"
           ariaLabel="Available water activities"
         >
-          {content.activities.map((activity) => {
-            // Get the first category slug for navigation
-            const categorySlug =
-              Array.isArray(activity.coreInfo.category) &&
-              activity.coreInfo.category.length > 0
-                ? typeof activity.coreInfo.category[0] === "string"
-                  ? activity.coreInfo.category[0]
-                  : activity.coreInfo.category[0].slug
-                : "water-activities"; // fallback
-
+          {content.activityCategories.map((activity) => {
             return (
               <SmallCard
-                key={activity.id}
-                image={activity.media.featuredImage as Media}
-                title={activity.title}
-                description={activity.coreInfo.description}
-                href={`/activities/search?activityType=${categorySlug}`}
-                duration={activity.coreInfo.duration}
-                price={activity.coreInfo.basePrice}
+                key={activity.slug}
+                image={activity.image as Media}
+                title={activity.name}
+                description={activity.description}
+                href={`/activities/search?activityType=${activity.slug}`}
               />
             );
           })}

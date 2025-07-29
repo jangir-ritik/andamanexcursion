@@ -38,6 +38,7 @@ const ActivityCategories: CollectionConfig = {
     {
       name: "description",
       type: "textarea",
+      required: true,
       admin: {
         description: "Brief description of this activity category",
         rows: 3,

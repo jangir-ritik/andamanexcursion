@@ -109,7 +109,7 @@
 
 .title {
   font-family: var(--font-family-primary);
-  font-weight: 600;
+  font-weight: 400;
   font-size: var(--font-size-heading-4);
   color: var(--color-text-primary);
   margin: 0;

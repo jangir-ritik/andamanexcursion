@@ -580,7 +580,7 @@ export interface ActivityCategory {
   /**
    * Brief description of this activity category
    */
-  description?: string | null;
+  description: string;
   /**
    * Uncheck to hide this category from public view
    */

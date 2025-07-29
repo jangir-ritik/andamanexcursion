@@ -7,7 +7,6 @@ type PageProps = {
 };
 
 export default async function Home({ params }: PageProps) {
-  // Use 'home' as default slug for the homepage
   const resolvedParams = await params;
   const slug = resolvedParams?.slug || "home";
 

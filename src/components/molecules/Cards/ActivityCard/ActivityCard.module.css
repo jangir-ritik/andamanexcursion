@@ -152,12 +152,12 @@
   width: 100%;
   border-top: 1px solid var(--color-border-secondary);
   margin-top: var(--space-6);
-  
+
   /* Animation properties */
   opacity: 0;
   max-height: 0;
   overflow: hidden;
-  transform: translateY(-20px);
+  transform: translateY(-10px);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -174,7 +174,7 @@
   flex-direction: column;
   gap: var(--space-4);
   width: 60%;
-  
+
   /* Stagger animation for child elements */
   animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   animation-delay: 0.1s;
@@ -222,7 +222,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -301,10 +301,18 @@
   opacity: 0;
 }
 
-.amenityItem:nth-child(1) { animation-delay: 0.1s; }
-.amenityItem:nth-child(2) { animation-delay: 0.2s; }
-.amenityItem:nth-child(3) { animation-delay: 0.3s; }
-.amenityItem:nth-child(4) { animation-delay: 0.4s; }
+.amenityItem:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.amenityItem:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.amenityItem:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.amenityItem:nth-child(4) {
+  animation-delay: 0.4s;
+}
 
 .amenityIcon {
   width: 16px;
@@ -537,16 +545,16 @@
     transition: none;
     animation: none;
   }
-  
+
   .classesContainer {
     opacity: 1;
     transform: none;
   }
-  
+
   .expanded .classesContainer {
     max-height: none;
   }
-  
+
   .classesWrapper,
   .classesContainer > div:last-child {
     opacity: 1;

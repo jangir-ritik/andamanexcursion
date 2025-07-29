@@ -1,8 +1,7 @@
 import React, { useState, memo, useCallback } from "react";
-import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "../FerryCard.module.css";
 import { Button, ImageContainer } from "@/components/atoms";
-import { ferryCardContent } from "../FerryCard.content";
 
 interface ImageSliderProps {
   images: string[];
@@ -69,7 +68,7 @@ export const ImageSlider = memo<ImageSliderProps>(({ images, altText }) => {
             size="small"
             className={`${styles.sliderButton} ${styles.sliderButtonPrev}`}
             onClick={handlePrevious}
-            aria-label={ferryCardContent.aria.previousImage}
+            aria-label={"previous image"}
             type="button"
           >
             <ChevronLeft size={16} aria-hidden="true" />
@@ -79,7 +78,7 @@ export const ImageSlider = memo<ImageSliderProps>(({ images, altText }) => {
             size="small"
             className={`${styles.sliderButton} ${styles.sliderButtonNext}`}
             onClick={handleNext}
-            aria-label={ferryCardContent.aria.nextImage}
+            aria-label={"next image"}
             type="button"
           >
             <ChevronRight size={16} aria-hidden="true" />
