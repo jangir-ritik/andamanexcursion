@@ -1,93 +1,81 @@
-// import React from "react";
-// import { Section, Column, Grid } from "@/components/layout";
+import React from "react";
+import { Section, Column, Grid } from "@/components/layout";
+import {
+  SectionTitle,
+  DescriptionText,
+  ImageContainer,
+} from "@/components/atoms";
+import { SmallCard } from "@/components/molecules/Cards";
+import { activityCategoryService } from "@/services/payload/collections/navigation";
+import { BookingForm } from "@/components/organisms";
+import styles from "./page.module.css";
+import { Media } from "@payload-types";
 
-// import {
-//   FAQ,
-//   LargeCardSection,
-//   Testimonials,
-// } from "@/components/sectionBlocks/common";
-// import {
-//   DescriptionText,
-//   ImageContainer,
-//   SectionTitle,
-// } from "@/components/atoms";
-// import { BookingForm } from "@/components/organisms";
-// import { SmallCard } from "@/components/molecules/Cards";
-
-// import styles from "./page.module.css";
-
-// import { content } from "./page.content";
-
-// export default function ActivitiesPage() {
-//   return (
-//     <main className={styles.main}>
-//       <Section noPadding id="hero">
-//         <Column gap="var(--space-8)" fullWidth>
-//           <ImageContainer
-//             src={content.image}
-//             alt={content.imageAlt}
-//             aspectRatio="banner"
-//             priority
-//             fullWidth
-//           />
-
-//           <BookingForm initialTab="activities" />
-//         </Column>
-//       </Section>
-//       <Section id="activities" noPadding>
-//         <Column
-//           gap={3}
-//           alignItems="start"
-//           justifyContent="start"
-//           fullWidth
-//           responsive
-//           responsiveGap="var(--space-4)"
-//           responsiveAlignItems="start"
-//         >
-//           <SectionTitle
-//             text={content.title}
-//             specialWord={content.subtitle}
-//             id="activities-title"
-//           />
-//           <DescriptionText text={content.description} />
-//           <Grid
-//             columns={{ desktop: 3, tablet: 2, mobile: 1 }}
-//             gap={3}
-//             role="grid"
-//             ariaLabel="Available water activities"
-//           >
-//             {content.activitiesData.map((activity) => (
-//               <SmallCard
-//                 key={activity.id}
-//                 image={activity.image.src}
-//                 imageAlt={activity.imageAlt}
-//                 title={activity.name}
-//                 description={activity.description}
-//                 href={activity.href}
-//               />
-//             ))}
-//           </Grid>
-//         </Column>
-//       </Section>
-//       <FAQ content={content.faqSection} />
-//       <Testimonials content={content.testimonials} />
-//       <LargeCardSection content={content.largeCardSection} />
-//     </main>
-//   );
-// }
-
-import { pageService } from "@/services/payload";
-import { notFound } from "next/navigation";
-import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
+// Import hero image
+import activitiesHeroImage from "@public/media/activities-hero.png";
 
 const ActivitiesPage = async () => {
-  const page = await pageService.getBySlug("activities");
+  // Fetch active activity categories
+  const categories = await activityCategoryService.getAll();
 
-  if (!page || !page.pageContent?.content) {
-    notFound();
-  }
+  return (
+    <main className={styles.main}>
+      {/* Hero Section */}
+      <Section noPadding id="hero">
+        <Column gap="var(--space-8)" fullWidth>
+          <ImageContainer
+            src={activitiesHeroImage.src}
+            alt="Explore water activities in Andaman Islands"
+            aspectRatio="banner"
+            priority
+            fullWidth
+          />
+          <BookingForm initialTab="activities" />
+        </Column>
+      </Section>
 
-  return <BlockRenderer blocks={page.pageContent.content} />;
+      {/* Activity Categories Section */}
+      <Section id="activity-categories" noPadding>
+        <Column
+          gap={3}
+          alignItems="start"
+          justifyContent="start"
+          fullWidth
+          responsive
+          responsiveGap="var(--space-4)"
+          responsiveAlignItems="start"
+        >
+          <SectionTitle
+            text="Explore the Best Water Activities in Andaman"
+            specialWord="Activities"
+            id="activities-title"
+          />
+          <DescriptionText text="From snorkeling in coral gardens to jet skiing across blue horizons, your adventure begins here. Choose your adventure category to discover all available activities." />
+
+          <Grid
+            columns={{ desktop: 3, tablet: 2, mobile: 1 }}
+            gap={3}
+            role="grid"
+            ariaLabel="Activity categories"
+          >
+            {categories.map((category) => (
+              <SmallCard
+                key={category.id}
+                image={category.icon as Media}
+                imageAlt={`${category.name} activities`}
+                title={category.name}
+                description={
+                  category.description ||
+                  `Discover amazing ${category.name.toLowerCase()} experiences in Andaman`
+                }
+                href={`/activities/search?activityType=${category.slug}`}
+              />
+            ))}
+          </Grid>
+        </Column>
+      </Section>
+    </main>
+  );
 };
 
 export default ActivitiesPage;

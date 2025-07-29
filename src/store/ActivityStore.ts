@@ -347,6 +347,11 @@ export const useActivityStore = create<ActivityStore>()(
       updateSearchParams: (params) => {
         set((state) => {
           Object.assign(state.searchParams, params);
+
+          // If we're in edit mode, also update the editing search params
+          if (state.editingItemId && state.editingSearchParams) {
+            Object.assign(state.editingSearchParams, params);
+          }
         });
       },
 

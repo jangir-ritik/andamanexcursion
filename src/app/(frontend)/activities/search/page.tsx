@@ -76,10 +76,12 @@ const ActivitySearchContent = () => {
 
     const { activityType, location, ...restParams } = urlSearchParams;
 
-    if (activityType && location) {
+    // Trigger search if we have activityType (for category browsing)
+    // or both activityType and location (for full search)
+    if (activityType) {
       const params = {
         activityType,
-        location,
+        location: location || "", // Optional location
         ...restParams,
       };
 

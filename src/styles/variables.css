@@ -32,9 +32,13 @@
   /* Additional Color Variables */
   --color-rating-star: #ffac18;
   --color-alert-error: #e53e3e;
+  --color-alert-error-light: #f9e2e2;
   --color-alert-warning: #ff9500;
+  --color-alert-warning-light: #fff3e0;
   --color-alert-success: #00c851;
+  --color-alert-success-light: #e8f5e9;
   --color-alert-info: #17a2b8;
+  --color-alert-info-light: #e0f2f7;
 
   /* ===== SEMANTIC TOKENS ===== */
 

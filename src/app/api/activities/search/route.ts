@@ -35,10 +35,10 @@ export async function GET(request: NextRequest) {
       infants,
     });
 
-    // Validate required parameters
-    if (!activityType || !location) {
+    // Validate required parameters - only activityType is required
+    if (!activityType) {
       return NextResponse.json(
-        { error: "Missing required parameters" },
+        { error: "Missing required parameter: activityType" },
         { status: 400 }
       );
     }
@@ -66,72 +66,64 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find the location by slug to get its ID
-    const locationResults = await payload.find({
-      collection: "locations",
-      where: {
-        slug: {
-          equals: location,
-        },
+    // Build the where clause for activities
+    const whereClause: any = {
+      "coreInfo.category": {
+        in: [categoryId],
       },
-      limit: 1,
-    });
-
-    const locationId = locationResults.docs[0]?.id;
-
-    if (!locationId) {
-      return NextResponse.json(
-        { error: "Location not found" },
-        { status: 404, headers }
-      );
-    }
-
-    // Build query - use proper PayloadCMS query format for relationships
-    const query = {
-      and: [
-        {
-          "status.isActive": {
-            equals: true,
-          },
-        },
-        // Match activities where the category relationship includes the category ID
-        {
-          "coreInfo.category": {
-            contains: categoryId,
-          },
-        },
-        // Match activities where the location relationship includes the specific location ID
-        {
-          "coreInfo.location": {
-            contains: locationId,
-          },
-        },
-      ],
+      "status.isActive": { equals: true },
     };
 
-    // Search for activities in Payload
-    const results = await payload.find({
+    // Add location filter only if provided
+    if (location) {
+      // Find the location by slug to get its ID
+      const locationResults = await payload.find({
+        collection: "locations",
+        where: {
+          slug: {
+            equals: location,
+          },
+        },
+        limit: 1,
+      });
+
+      const locationId = locationResults.docs[0]?.id;
+
+      if (!locationId) {
+        return NextResponse.json(
+          { error: "Location not found" },
+          { status: 404, headers }
+        );
+      }
+
+      whereClause["coreInfo.location"] = {
+        in: [locationId],
+      };
+    }
+
+    // Add capacity filter based on total passengers
+    const totalPassengers = adults + children + infants;
+    if (totalPassengers > 0) {
+      whereClause["coreInfo.maxCapacity"] = {
+        greater_than_equal: totalPassengers,
+      };
+    }
+
+    // Search for activities
+    const activities = await payload.find({
       collection: "activities",
-      where: query as any, // Use type assertion to avoid TypeScript errors
-      depth: 2, // Adjust depth as needed for related data
-      limit: 20,
+      where: whereClause,
+      limit: 50, // Reasonable limit
+      sort: "-status.priority",
+      depth: 2, // Include related data
     });
 
-    console.log("Results found:", results.docs.length);
-    console.log("Location ID used:", locationId);
-    console.log("Category ID used:", categoryId);
-
-    // Return response WITH the CORS headers
-    return NextResponse.json(results.docs, { headers });
+    return NextResponse.json(activities.docs, { headers });
   } catch (error) {
     console.error("Search API error:", error);
-    // Include headers in error response too
-    const headers = new Headers();
-    headers.set("Access-Control-Allow-Origin", "*");
-
     return NextResponse.json(
-      { error: "Failed to search activities" },
-      { status: 500, headers }
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
 }

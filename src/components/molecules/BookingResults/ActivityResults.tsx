@@ -61,15 +61,40 @@ export const ActivityResults = memo<ActivityResultsProps>(
         if (selectedActivity) {
           // Check if we're in edit mode
           if (state.editingItemId) {
-            // Save the edited item with the new activity
-            saveEditedItem(state.editingItemId, selectedActivity, optionId);
+            // Get the current cart item being edited
+            const currentItem = getCartItemById(state.editingItemId);
+
+            // Check if user is selecting the same activity with the same option
+            const isSameActivity =
+              currentItem &&
+              currentItem.activity.id === activityId &&
+              currentItem.activityOptionId === optionId;
+
+            if (isSameActivity) {
+              // User is confirming the edit with the same activity - just save the search param changes
+              saveEditedItem(
+                state.editingItemId,
+                currentItem.activity,
+                currentItem.activityOptionId
+              );
+            } else {
+              // User is changing to a different activity or option - save with new activity
+              saveEditedItem(state.editingItemId, selectedActivity, optionId);
+            }
           } else {
             // Add new activity to cart with current search params
             addToCart(selectedActivity, 1, optionId, searchParams);
           }
         }
       },
-      [activities, state.editingItemId, saveEditedItem, addToCart, searchParams]
+      [
+        activities,
+        state.editingItemId,
+        saveEditedItem,
+        addToCart,
+        searchParams,
+        getCartItemById,
+      ]
     );
 
     // Memoized price calculation helper

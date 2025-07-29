@@ -51,6 +51,7 @@ export function ActivitySearchForm({
     searchActivities,
     loadFormOptions,
     cancelEditing,
+    saveEditedItem,
   } = useActivity();
 
   // Get form options from Zustand store
@@ -120,18 +121,23 @@ export function ActivitySearchForm({
         return;
       }
 
-      if (!data.activityLocation) {
-        setError("activityLocation", {
+      // Additional validation for adults
+      if (data.passengers.adults === 0) {
+        setError("passengers.adults", {
           type: "manual",
-          message: "Please select a location",
+          message: "At least 1 adult is required",
         });
         return;
       }
 
-      // Create search params with slugs
+      // Location is optional - users can browse all activities in a category
+      // Only show location error if user is trying to do a specific search
+      // For now, we'll allow empty location for category browsing
+
+      // Convert form data to search params format
       const searchParams = {
         activityType: data.selectedActivity,
-        location: data.activityLocation,
+        location: data.activityLocation || "", // Allow empty location
         date: data.selectedDate.toISOString().split("T")[0],
         time: data.selectedSlot,
         adults: data.passengers.adults,
@@ -139,11 +145,15 @@ export function ActivitySearchForm({
         infants: data.passengers.infants,
       };
 
-      // Update search params in Zustand store
+      // Update search params (this will update editingSearchParams in edit mode)
       updateSearchParams(searchParams);
 
-      // Trigger search with the search params
+      // Search for activities with new params
       await searchActivities(searchParams);
+
+      // Note: We don't call saveEditedItem here because that should only happen
+      // when the user actually selects an activity in the results.
+      // The form submission just updates the search criteria.
 
       // If in edit mode, just scroll to results instead of navigating away
       if (isEditMode) {
@@ -168,13 +178,20 @@ export function ActivitySearchForm({
         router.push(`/activities/search?${urlParams.toString()}`);
       }
     },
-    [updateSearchParams, searchActivities, setError, router, isEditMode]
+    [
+      updateSearchParams,
+      searchActivities,
+      setError,
+      router,
+      isEditMode,
+      state.editingItemId,
+    ]
   );
 
   // Memoize button text based on variant and edit mode
   const buttonText = useMemo(() => {
     if (isEditMode) {
-      return "Update Selection";
+      return "Search Activities";
     }
     return variant === "compact" ? "Search" : "View Details";
   }, [variant, isEditMode]);
@@ -183,6 +200,23 @@ export function ActivitySearchForm({
   const handleCancelEdit = useCallback(() => {
     cancelEditing();
   }, [cancelEditing]);
+
+  // Add save changes handler for edit mode
+  const handleSaveChanges = useCallback(() => {
+    if (isEditMode && state.editingItemId) {
+      // Get the current cart item to preserve the same activity and option
+      const currentItem = state.cart.find(
+        (item) => item.id === state.editingItemId
+      );
+      if (currentItem) {
+        saveEditedItem(
+          state.editingItemId,
+          currentItem.activity,
+          currentItem.activityOptionId
+        );
+      }
+    }
+  }, [isEditMode, state.editingItemId, state.cart, saveEditedItem]);
 
   // Memoize passenger handler to prevent recreation on each render
   const handlePassengerChange = useCallback(
@@ -373,6 +407,19 @@ export function ActivitySearchForm({
         >
           {isSubmitting || state.isLoading ? "Loading..." : buttonText}
         </Button>
+
+        {/* Save Changes button for edit mode */}
+        {isEditMode && (
+          <Button
+            variant="secondary"
+            className={styles.saveChangesButton}
+            onClick={handleSaveChanges}
+            type="button"
+            disabled={isSubmitting || state.isLoading}
+          >
+            Save Changes
+          </Button>
+        )}
       </div>
 
       {/* Error Display */}
