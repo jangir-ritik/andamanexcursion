@@ -110,7 +110,7 @@
   padding: var(--space-4);
   gap: var(--space-4);
   background: var(--color-white);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-radius: 0 var(--radius-md) var(--radius-md);
   width: 100%;
 }
 
@@ -119,156 +119,112 @@
   display: none;
 }
 
-/* Form Grid */
+/* Form Grid - Using CSS Grid for better control */
 .formGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-2);
   width: 100%;
-  align-items: center;
   color: var(--color-text-primary);
 }
 
-/* Main form content row */
+/* Main form content - Grid layout for different screen sizes */
 .formContent {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  gap: var(--space-2);
   width: 100%;
-  gap: var(--space-2);
-  flex-wrap: nowrap;
-}
-
-/* Location Selectors */
-.locationSelectors {
-  display: flex;
-  flex-direction: row;
-  gap: var(--space-2);
-  height: 100%;
-}
-
-/* Activity Container */
-.activityContainer {
-  display: flex;
-  gap: var(--space-2);
-  height: 100%;
   align-items: center;
 }
 
-/* Location Container for Activity Form */
-.locationContainer {
-  margin-top: var(--space-2);
-}
-
-/* Form Field Container */
-.formFieldContainer {
-  position: relative;
-  max-width: 50%;
-  width: 100%;
-}
-
-.passengerCounterContainer {
-  max-width: unset;
-}
-
-/* Date and Time Section */
-.dateTimeSection {
-  display: flex;
-  gap: var(--space-2);
-  height: 100%;
-}
-
-/* Passenger and Button Section */
-.passengerButtonSection {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  height: 100%;
-}
-
-/* View Details Button */
-.viewDetailsButton {
-  white-space: nowrap;
-  /* margin-left: var(--space-2);
-  margin-top: 1.5rem; */
-  margin: auto;
-}
-
-/* Error Messages */
-.errorMessage {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  font-family: var(--font-family-primary);
-  color: var(--color-alert-error);
-  font-size: var(--font-size-xs);
-  /* margin-top: var(--space-2); */
-  text-align: left;
-}
-
-/* Desktop Responsive Design */
-
-@media (max-width: 1200px) {
-  .formFieldContainer {
-    max-width: unset;
-  }
-}
-
+/* Large screens: Single row layout (6 fields) */
 @media (min-width: 1200px) {
-  .tabsContent {
-    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  .formContent {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+    grid-template-areas: "activity location date time passengers buttons";
+  }
+
+  .formField:nth-child(1) {
+    grid-area: activity;
+  }
+  .formField:nth-child(2) {
+    grid-area: location;
+  }
+  .formField:nth-child(3) {
+    grid-area: date;
+  }
+  .formField:nth-child(4) {
+    grid-area: time;
+  }
+  .formField:nth-child(5) {
+    grid-area: passengers;
+  }
+  .buttonContainer {
+    grid-area: buttons;
   }
 }
 
-/* Tablet Responsive Design */
+/* Medium screens: 2x3 layout */
 @media (min-width: 851px) and (max-width: 1199px) {
-  .tabsContent {
-    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  .formContent {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+      "activity location date"
+      "time passengers passengers"
+      "buttons buttons buttons";
+    align-items: end;
   }
 
-  .formGrid {
-    /* flex-wrap: wrap; */
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: unset;
+  .formField:nth-child(1) {
+    grid-area: activity;
   }
-
-  .dateTimeSection {
-    flex-direction: column;
+  .formField:nth-child(2) {
+    grid-area: location;
   }
-
-  .passengerButtonSection {
-    flex-direction: column;
-    align-items: flex-start;
+  .formField:nth-child(3) {
+    grid-area: date;
   }
-
-  .viewDetailsButton {
-    margin-left: 0;
+  .formField:nth-child(4) {
+    grid-area: time;
+  }
+  .formField:nth-child(5) {
+    grid-area: passengers;
+  }
+  .buttonContainer {
+    grid-area: buttons;
   }
 }
 
-/* Small Tablet Responsive Design */
-@media (max-width: 850px) {
-  .bookingForm {
-    max-width: 80vw;
-  }
-  .formGrid {
-    flex-wrap: wrap;
+/* Small tablets: 2 columns */
+@media (min-width: 769px) and (max-width: 850px) {
+  .formContent {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "activity location"
+      "date time"
+      "passengers passengers"
+      "buttons buttons";
+    align-items: end;
   }
 
-  .locationSelectors,
-  .activityContainer,
-  .dateTimeSection,
-  .passengerButtonSection {
-    flex-basis: 100%;
-    flex-direction: column;
-    align-items: stretch;
+  .formField:nth-child(1) {
+    grid-area: activity;
+  }
+  .formField:nth-child(2) {
+    grid-area: location;
+  }
+  .formField:nth-child(3) {
+    grid-area: date;
+  }
+  .formField:nth-child(4) {
+    grid-area: time;
+  }
+  .formField:nth-child(5) {
+    grid-area: passengers;
+  }
+  .buttonContainer {
+    grid-area: buttons;
   }
 }
 
-/* Mobile Responsive Design */
+/* Mobile: Single column stacked layout */
 @media (max-width: 768px) {
   .bookingForm {
     max-width: unset;
@@ -305,58 +261,84 @@
 
   .tabsContent {
     padding: var(--space-2);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
   }
 
   .formGrid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    align-items: stretch;
+    gap: var(--space-2);
   }
 
   .formContent {
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .locationSelectors {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "activity"
+      "location"
+      "date"
+      "time"
+      "passengers"
+      "buttons";
     gap: var(--space-2);
   }
 
-  .activityContainer {
+  .formField:nth-child(1) {
+    grid-area: activity;
+  }
+  .formField:nth-child(2) {
+    grid-area: location;
+  }
+  .formField:nth-child(3) {
+    grid-area: date;
+  }
+  .formField:nth-child(4) {
+    grid-area: time;
+  }
+  .formField:nth-child(5) {
+    grid-area: passengers;
+  }
+  .buttonContainer {
+    grid-area: buttons;
+    display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    align-items: stretch;
   }
+}
 
-  .dateTimeSection {
-    flex-direction: column;
-    gap: var(--space-2);
-  }
+/* Simplified component containers */
+.formField {
+  position: relative;
+  width: 100%;
+}
 
-  .passengerButtonSection {
-    flex-direction: column;
-    gap: var(--space-3);
-    align-items: stretch;
-  }
+.buttonContainer {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  white-space: nowrap;
+}
 
-  .formFieldContainer {
-    max-width: unset;
-    width: 100%;
-  }
+/* Buttons */
+.searchButton {
+  white-space: nowrap;
+  min-width: fit-content;
+  width: 100%;
+}
 
-  .viewDetailsButton {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 0;
-  }
+.saveButton {
+  white-space: nowrap;
+  min-width: fit-content;
+}
 
-  .cancelButton {
-    width: 100%;
-    margin-left: 0;
-    margin-top: var(--space-2);
-  }
+/* Error Messages */
+.errorMessage {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  font-family: var(--font-family-primary);
+  color: var(--color-alert-error);
+  font-size: var(--font-size-xs);
+  text-align: left;
+  z-index: 10;
 }
 
 /* Small Mobile Responsive Design */
@@ -386,70 +368,15 @@
   .formContent {
     gap: var(--space-2);
   }
-
-  .locationSelectors,
-  .activityContainer,
-  .dateTimeSection,
-  .passengerButtonSection {
-    gap: var(--space-1-5);
-  }
-}
-
-/* Edit Mode Styles */
-.editModeIndicator {
-  grid-column: 1 / -1;
-  background: var(--color-primary-light);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--border-radius-md);
-  padding: var(--space-2) var(--space-3);
-  margin-top: var(--space-2);
-  text-align: center;
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  color: var(--color-primary-dark);
-  font-weight: 500;
-}
-
-.cancelButton {
-  margin-left: var(--space-2);
-  white-space: nowrap;
-}
-
-.passengerButtonSection {
-  display: flex;
-  align-items: end;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  .editModeIndicator {
-    font-size: var(--font-size-xs);
-    padding: var(--space-1) var(--space-2);
-  }
-
-  .cancelButton {
-    margin-left: 0;
-    margin-top: var(--space-2);
-    width: 100%;
-  }
-
-  .passengerButtonSection {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 
 /* Edit Mode Banner Styles */
 .editModeBanner {
-  grid-column: 1 / -1; /* Span full width of form grid */
-  /* background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); */
+  grid-column: 1 / -1;
   border: 1px solid var(--color-secondary);
   border-radius: var(--radius-md);
   padding: var(--space-3);
   margin-bottom: var(--space-3);
-  /* box-shadow: 0 4px 12px rgba(255, 138, 52, 0.2); */
-  /* animation: editModePulse 2s ease-in-out infinite alternate; */
 }
 
 .editModeContent {
@@ -508,15 +435,6 @@
 }
 
 /* Animations */
-@keyframes editModePulse {
-  0% {
-    box-shadow: 0 4px 12px rgba(255, 138, 52, 0.2);
-  }
-  100% {
-    box-shadow: 0 6px 20px rgba(255, 138, 52, 0.3);
-  }
-}
-
 @keyframes editModeIconBounce {
   0%,
   20%,

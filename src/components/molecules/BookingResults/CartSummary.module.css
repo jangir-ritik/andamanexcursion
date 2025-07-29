@@ -786,10 +786,6 @@
     font-size: var(--font-size-sm);
   }
 
-  /* .columnLabel {
-    font-size: 10px;
-  } */
-
   .mainPrice {
     font-size: var(--font-size-base);
   }

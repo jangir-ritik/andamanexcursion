@@ -128,10 +128,10 @@
 @media (max-width: 480px) {
   .passengerCounter {
     flex-direction: row; /* Keep in a single row */
-    gap: var(--space-4);
+    gap: var(--space-2);
   }
 
   .counterWrapper {
-    width: calc(50% - var(--space-2));
+    width: calc(50% - var(--space-1));
   }
 }

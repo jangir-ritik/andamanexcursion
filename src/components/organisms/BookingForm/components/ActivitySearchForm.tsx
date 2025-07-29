@@ -191,9 +191,16 @@ export function ActivitySearchForm({
   // Memoize button text based on variant and edit mode
   const buttonText = useMemo(() => {
     if (isEditMode) {
-      return "Search Activities";
+      return "Update Search";
     }
-    return variant === "compact" ? "Search" : "View Details";
+    switch (variant) {
+      case "compact":
+        return "Search";
+      case "embedded":
+        return "Find Activities";
+      default:
+        return "Search Activities";
+    }
   }, [variant, isEditMode]);
 
   // Add cancel edit handler
@@ -262,164 +269,139 @@ export function ActivitySearchForm({
       aria-live="polite"
       className={cn(styles.formGrid, className)}
     >
-      {/* Edit Mode Banner - Prominent at top */}
-      {isEditMode && (
-        <div className={styles.editModeBanner}>
-          <div className={styles.editModeContent}>
-            <div className={styles.editModeIcon}>✏️</div>
-            <div className={styles.editModeText}>
-              <h3 className={styles.editModeTitle}>Editing Activity</h3>
-              <p className={styles.editModeSubtitle}>
-                You are editing an activity selection
-              </p>
-            </div>
-            <Button
-              variant="secondary"
-              className={styles.cancelEditButton}
-              onClick={handleCancelEdit}
-              type="button"
-              size="small"
-            >
-              Cancel Edit
-            </Button>
-          </div>
-        </div>
-      )}
-
       <div className={styles.formContent}>
-        <div className={styles.activityContainer}>
-          <div className={styles.formFieldContainer}>
-            <Controller
-              control={control}
-              name="selectedActivity"
-              render={({ field }) => (
-                <ActivitySelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={activityOptions}
-                  placeholder="Select Activity"
-                  hasError={!!errors.selectedActivity}
-                />
-              )}
-            />
-            {errors.selectedActivity && (
-              <div className={styles.errorMessage}>
-                {errors.selectedActivity.message}
-              </div>
+        {/* Activity Type */}
+        <div className={styles.formField}>
+          <Controller
+            control={control}
+            name="selectedActivity"
+            render={({ field }) => (
+              <ActivitySelect
+                value={field.value}
+                onChange={field.onChange}
+                options={activityOptions}
+                placeholder="Select Type"
+                hasError={!!errors.selectedActivity}
+              />
             )}
-          </div>
-
-          <div className={styles.formFieldContainer}>
-            <Controller
-              control={control}
-              name="activityLocation"
-              render={({ field }) => (
-                <LocationSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={locationOptions}
-                  placeholder="Select Location"
-                  label="Location"
-                  hasError={!!errors.activityLocation}
-                />
-              )}
-            />
-            {errors.activityLocation && (
-              <div className={styles.errorMessage}>
-                {errors.activityLocation.message}
-              </div>
-            )}
-          </div>
+          />
+          {errors.selectedActivity && (
+            <div className={styles.errorMessage}>
+              {errors.selectedActivity.message}
+            </div>
+          )}
         </div>
 
-        <div className={styles.dateTimeSection}>
-          <div className={styles.formFieldContainer}>
-            <Controller
-              control={control}
-              name="selectedDate"
-              render={({ field }) => (
-                <DateSelect
-                  selected={field.value}
-                  onChange={(date) => field.onChange(date)}
-                  hasError={!!errors.selectedDate}
-                />
-              )}
-            />
-            {errors.selectedDate && (
-              <div className={styles.errorMessage}>
-                {errors.selectedDate.message}
-              </div>
+        {/* Location */}
+        <div className={styles.formField}>
+          <Controller
+            control={control}
+            name="activityLocation"
+            render={({ field }) => (
+              <LocationSelect
+                label="Location"
+                value={field.value}
+                onChange={field.onChange}
+                options={locationOptions}
+                placeholder="Select Location"
+                hasError={!!errors.activityLocation}
+              />
             )}
-          </div>
-
-          <div className={styles.formFieldContainer}>
-            <Controller
-              control={control}
-              name="selectedSlot"
-              render={({ field }) => (
-                <SlotSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={timeSlotOptions}
-                  hasError={!!errors.selectedSlot}
-                />
-              )}
-            />
-            {errors.selectedSlot && (
-              <div className={styles.errorMessage}>
-                {errors.selectedSlot.message}
-              </div>
-            )}
-          </div>
+          />
+          {errors.activityLocation && (
+            <div className={styles.errorMessage}>
+              {errors.activityLocation.message}
+            </div>
+          )}
         </div>
 
-        <div className={styles.passengerButtonSection}>
-          <div
-            className={cn(
-              styles.formFieldContainer,
-              styles.passengerCounterContainer
+        {/* Date */}
+        <div className={styles.formField}>
+          <Controller
+            control={control}
+            name="selectedDate"
+            render={({ field }) => (
+              <DateSelect
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+                hasError={!!errors.selectedDate}
+              />
             )}
-          >
-            <Controller
-              control={control}
-              name="passengers"
-              render={({ field }) => (
-                <PassengerCounter
-                  value={field.value}
-                  onChange={handlePassengerChange(field)}
-                  hasError={!!errors.passengers}
-                />
-              )}
-            />
-            {errors.passengers && (
-              <div className={styles.errorMessage}>
-                {errors.passengers.message}
-              </div>
-            )}
-          </div>
+          />
+          {errors.selectedDate && (
+            <div className={styles.errorMessage}>
+              {errors.selectedDate.message}
+            </div>
+          )}
         </div>
-        <Button
-          variant="primary"
-          className={styles.viewDetailsButton}
-          showArrow
-          type="submit"
-          disabled={isSubmitting || state.isLoading}
-        >
-          {isSubmitting || state.isLoading ? "Loading..." : buttonText}
-        </Button>
 
-        {/* Save Changes button for edit mode */}
-        {isEditMode && (
+        {/* Time Slot */}
+        <div className={styles.formField}>
+          <Controller
+            control={control}
+            name="selectedSlot"
+            render={({ field }) => (
+              <SlotSelect
+                value={field.value}
+                onChange={field.onChange}
+                options={timeSlotOptions}
+                placeholder="Select Time"
+                hasError={!!errors.selectedSlot}
+              />
+            )}
+          />
+          {errors.selectedSlot && (
+            <div className={styles.errorMessage}>
+              {errors.selectedSlot.message}
+            </div>
+          )}
+        </div>
+
+        {/* Passengers */}
+        <div className={styles.formField}>
+          <Controller
+            control={control}
+            name="passengers"
+            render={({ field }) => (
+              <PassengerCounter
+                value={field.value}
+                onChange={handlePassengerChange(field)}
+                hasError={!!errors.passengers}
+              />
+            )}
+          />
+          {errors.passengers && (
+            <div className={styles.errorMessage}>
+              {errors.passengers.message}
+            </div>
+          )}
+        </div>
+
+        {/* Search Button */}
+        <div className={styles.buttonContainer}>
           <Button
-            variant="secondary"
-            className={styles.saveChangesButton}
-            onClick={handleSaveChanges}
-            type="button"
+            variant="primary"
+            className={styles.searchButton}
+            showArrow
+            type="submit"
             disabled={isSubmitting || state.isLoading}
           >
-            Save Changes
+            {isSubmitting || state.isLoading ? "Searching..." : buttonText}
           </Button>
-        )}
+
+          {/* Save Changes button for edit mode */}
+          {isEditMode && (
+            <Button
+              variant="secondary"
+              className={styles.saveButton}
+              onClick={handleSaveChanges}
+              type="button"
+              disabled={isSubmitting || state.isLoading}
+            >
+              Save Changes
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Error Display */}
