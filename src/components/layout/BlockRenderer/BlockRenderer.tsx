@@ -8,7 +8,7 @@ import {
   SecondaryBanner,
   Trivia,
   ServiceTeaser,
-  TopActivities,
+  TopActivityCategories,
 } from "@/components/sectionBlocks/common";
 
 import {
@@ -34,7 +34,7 @@ const blockComponentsMap = {
   largeCard: LargeCardSection,
   partners: Partners,
   story: Story,
-  topActivities: TopActivities,
+  topActivityCategories: TopActivityCategories,
   topAdventures: TopAdventures,
   testimonials: Testimonials,
   // Add more block types as needed

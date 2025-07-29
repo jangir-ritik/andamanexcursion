@@ -1,5 +1,4 @@
 import { getCachedPayload } from "../base/client";
-import { getPublishedQuery } from "../base/utils";
 
 /**
  * Navigation Services
@@ -74,26 +73,6 @@ export const navigationService = {
       return [];
     }
   },
-
-  /**
-   * Get active special categories for navigation (assuming similar structure)
-   */
-  // async getActiveSpecialCategories() {
-  //   try {
-  //     const payload = await getCachedPayload();
-  //     const { docs } = await payload.find({
-  //       collection: "special-categories", // Update with your actual collection slug
-  //       where: { isActive: { equals: true } },
-  //       sort: "order",
-  //       limit: 20,
-  //       depth: 0,
-  //     });
-  //     return docs;
-  //   } catch (error) {
-  //     console.error("Error fetching special categories:", error);
-  //     return [];
-  //   }
-  // },
 };
 
 // Export individual category services for reuse

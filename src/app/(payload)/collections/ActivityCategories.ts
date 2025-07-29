@@ -72,12 +72,13 @@ const ActivityCategories: CollectionConfig = {
       },
     },
     {
-      name: "icon",
+      name: "image",
       type: "upload",
       relationTo: "media",
+      required: true,
       admin: {
         description:
-          "Icon/image representing this category (recommended: square format, min 64x64px)",
+          "Image representing this category (recommended: square format, min 64x64px)",
       },
     },
     {

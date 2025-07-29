@@ -434,7 +434,7 @@ export interface Page {
               /**
                * Select the activities to display in the top activities section
                */
-              activities: (string | Activity)[];
+              activityCategories: (string | ActivityCategory)[];
               /**
                * Maximum number of activities to display
                */
@@ -445,7 +445,7 @@ export interface Page {
               showCustomerFavorite?: boolean | null;
               id?: string | null;
               blockName?: string | null;
-              blockType: 'topActivities';
+              blockType: 'topActivityCategories';
             }
           | {
               title: string;
@@ -565,103 +565,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activities".
- */
-export interface Activity {
-  id: string;
-  title: string;
-  /**
-   * URL-friendly version of the title
-   */
-  slug: string;
-  coreInfo: {
-    description: string;
-    /**
-     * Brief description for cards and listings
-     */
-    shortDescription?: string | null;
-    category: (string | ActivityCategory)[];
-    location: (string | Location)[];
-    /**
-     * Base price per person
-     */
-    basePrice: number;
-    /**
-     * e.g., '2 hours', '1 day'
-     */
-    duration: string;
-    /**
-     * Maximum number of participants per session
-     */
-    maxCapacity?: number | null;
-  };
-  media: {
-    featuredImage: string | Media;
-    gallery?:
-      | {
-          image: string | Media;
-          alt: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  activityOptions?:
-    | {
-        /**
-         * e.g., 'Shore Diving for Beginners', 'Boat Scuba Diving'
-         */
-        optionTitle: string;
-        optionDescription: string;
-        /**
-         * Price for this specific option
-         */
-        price: number;
-        /**
-         * Duration specific to this option (if different from base)
-         */
-        duration?: string | null;
-        /**
-         * Max capacity for this option (if different from base)
-         */
-        maxCapacity?: number | null;
-        /**
-         * Optional icon for the amenity
-         */
-        icon?: (string | null) | Media;
-        isActive?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Search engine optimization settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    /**
-     * Comma-separated keywords
-     */
-    keywords?: string | null;
-  };
-  /**
-   * Status and visibility settings
-   */
-  status?: {
-    isActive?: boolean | null;
-    /**
-     * Show this activity in featured sections
-     */
-    isFeatured?: boolean | null;
-    /**
-     * Higher numbers appear first in listings
-     */
-    priority?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "activity-categories".
  */
 export interface ActivityCategory {
@@ -691,9 +594,9 @@ export interface ActivityCategory {
    */
   parentCategory?: (string | null) | ActivityCategory;
   /**
-   * Icon/image representing this category (recommended: square format, min 64x64px)
+   * Image representing this category (recommended: square format, min 64x64px)
    */
-  icon?: (string | null) | Media;
+  image: string | Media;
   /**
    * Search engine optimization settings
    */
@@ -707,55 +610,6 @@ export interface ActivityCategory {
      */
     metaDescription?: string | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "locations".
- */
-export interface Location {
-  id: string;
-  /**
-   * e.g., 'Port Blair', 'Havelock Island', 'Neil Island'
-   */
-  name: string;
-  slug: string;
-  /**
-   * What type of location is this?
-   */
-  type:
-    | 'ferry_port'
-    | 'activity_location'
-    | 'boat_departure'
-    | 'package_destination'
-    | 'accommodation'
-    | 'attraction'
-    | 'general';
-  /**
-   * Brief description of the location
-   */
-  description?: string | null;
-  media?: {
-    featuredImage?: (string | null) | Media;
-    gallery?:
-      | {
-          image: string | Media;
-          alt: string;
-          caption?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-  };
-  isActive?: boolean | null;
-  /**
-   * Priority for sorting (higher numbers appear first)
-   */
-  priority?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1034,6 +888,152 @@ export interface PackagePeriod {
    * Whether this period is active in the selector
    */
   isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: string;
+  /**
+   * e.g., 'Port Blair', 'Havelock Island', 'Neil Island'
+   */
+  name: string;
+  slug: string;
+  /**
+   * What type of location is this?
+   */
+  type:
+    | 'ferry_port'
+    | 'activity_location'
+    | 'boat_departure'
+    | 'package_destination'
+    | 'accommodation'
+    | 'attraction'
+    | 'general';
+  /**
+   * Brief description of the location
+   */
+  description?: string | null;
+  media?: {
+    featuredImage?: (string | null) | Media;
+    gallery?:
+      | {
+          image: string | Media;
+          alt: string;
+          caption?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  isActive?: boolean | null;
+  /**
+   * Priority for sorting (higher numbers appear first)
+   */
+  priority?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities".
+ */
+export interface Activity {
+  id: string;
+  title: string;
+  /**
+   * URL-friendly version of the title
+   */
+  slug: string;
+  coreInfo: {
+    description: string;
+    /**
+     * Brief description for cards and listings
+     */
+    shortDescription?: string | null;
+    category: (string | ActivityCategory)[];
+    location: (string | Location)[];
+    /**
+     * Base price per person
+     */
+    basePrice: number;
+    /**
+     * e.g., '2 hours', '1 day'
+     */
+    duration: string;
+    /**
+     * Maximum number of participants per session
+     */
+    maxCapacity?: number | null;
+  };
+  media: {
+    featuredImage: string | Media;
+    gallery?:
+      | {
+          image: string | Media;
+          alt: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  activityOptions?:
+    | {
+        /**
+         * e.g., 'Shore Diving for Beginners', 'Boat Scuba Diving'
+         */
+        optionTitle: string;
+        optionDescription: string;
+        /**
+         * Price for this specific option
+         */
+        price: number;
+        /**
+         * Duration specific to this option (if different from base)
+         */
+        duration?: string | null;
+        /**
+         * Max capacity for this option (if different from base)
+         */
+        maxCapacity?: number | null;
+        /**
+         * Optional icon for the amenity
+         */
+        icon?: (string | null) | Media;
+        isActive?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Search engine optimization settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    /**
+     * Comma-separated keywords
+     */
+    keywords?: string | null;
+  };
+  /**
+   * Status and visibility settings
+   */
+  status?: {
+    isActive?: boolean | null;
+    /**
+     * Show this activity in featured sections
+     */
+    isFeatured?: boolean | null;
+    /**
+     * Higher numbers appear first in listings
+     */
+    priority?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1455,13 +1455,13 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
-              topActivities?:
+              topActivityCategories?:
                 | T
                 | {
                     title?: T;
                     specialWord?: T;
                     description?: T;
-                    activities?: T;
+                    activityCategories?: T;
                     maxActivities?: T;
                     showCustomerFavorite?: T;
                     id?: T;
@@ -1791,7 +1791,7 @@ export interface ActivityCategoriesSelect<T extends boolean = true> {
   isActive?: T;
   sortOrder?: T;
   parentCategory?: T;
-  icon?: T;
+  image?: T;
   seo?:
     | T
     | {

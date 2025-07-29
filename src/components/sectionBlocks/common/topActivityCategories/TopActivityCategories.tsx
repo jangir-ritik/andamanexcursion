@@ -3,11 +3,13 @@ import { Column, Grid, Section } from "@/components/layout";
 import { SmallCard } from "@/components/molecules/Cards";
 import React from "react";
 import { Media } from "@payload-types";
-import { TopActivitiesProps } from "./TopActivities.types";
+import { TopActivityCategoriesProps } from "./TopActivityCategoriesProps.types";
 
-export function TopActivities({ content }: TopActivitiesProps) {
+export const TopActivityCategories = ({
+  content,
+}: TopActivityCategoriesProps) => {
   return (
-    <Section id="activities" noPadding>
+    <Section id="activityCategories" noPadding>
       <Column
         gap={3}
         alignItems="start"
@@ -20,7 +22,7 @@ export function TopActivities({ content }: TopActivitiesProps) {
         <SectionTitle
           text={content.title}
           specialWord={content.specialWord}
-          id="activities-title"
+          id="activity-category-title"
         />
         <DescriptionText text={content.description} />
         <Grid
@@ -55,4 +57,4 @@ export function TopActivities({ content }: TopActivitiesProps) {
       </Column>
     </Section>
   );
-}
+};

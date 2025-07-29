@@ -9,10 +9,10 @@ import { SmallCard } from "@/components/molecules/Cards";
 import { activityCategoryService } from "@/services/payload/collections/navigation";
 import { BookingForm } from "@/components/organisms";
 import styles from "./page.module.css";
-import { Media } from "@payload-types";
 
 // Import hero image
 import activitiesHeroImage from "@public/media/activities-hero.png";
+import { Media } from "@payload-types";
 
 const ActivitiesPage = async () => {
   // Fetch active activity categories
@@ -61,7 +61,7 @@ const ActivitiesPage = async () => {
             {categories.map((category) => (
               <SmallCard
                 key={category.id}
-                image={category.icon as Media}
+                image={category.image as Media}
                 imageAlt={`${category.name} activities`}
                 title={category.name}
                 description={

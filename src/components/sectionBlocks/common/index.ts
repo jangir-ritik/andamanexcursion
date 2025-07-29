@@ -6,4 +6,4 @@ export * from "./trivia/Trivia";
 export * from "./secondaryBanner/SecondaryBanner";
 export * from "./visualCategoryGrid/VisualCategoryGrid";
 export * from "./serviceTeaser/ServiceTeaser";
-export * from "./topActivities/TopActivities";
+export * from "./topActivityCategories/TopActivityCategories";

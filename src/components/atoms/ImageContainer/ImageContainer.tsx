@@ -61,7 +61,7 @@ export const ImageContainer = ({
           <div className={styles.errorIcon}>
             <ImageOff stroke={"var(--color-gray-400)"} size={32} />
           </div>
-          <div className={styles.errorText}>No images to show</div>
+          <div className={styles.errorText}>Preview not available</div>
         </div>
       </div>
     );
