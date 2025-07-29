@@ -71,7 +71,7 @@
 .errorIcon {
   font-size: 2rem;
   margin-bottom: var(--space-2);
-  opacity: 0.5;
+  opacity: 0.9;
 }
 
 .errorText {

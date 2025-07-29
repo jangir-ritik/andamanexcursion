@@ -102,9 +102,9 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     [isExpanded]
   );
 
-  // Memoize image URLs for slider
-  const sliderImages = React.useMemo(
-    () => images.map((image) => image.src),
+  // Separate gallery images from featured image for slider
+  const galleryImages = React.useMemo(
+    () => images.slice(1).map((image) => image.src), // Skip the first image (featured)
     [images]
   );
 
@@ -205,12 +205,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             ))}
           </div>
 
-          {sliderImages.length > 1 && (
-            <ImageSlider
-              images={sliderImages}
-              altText={`${title} activity images`}
-            />
-          )}
+          {/* Only show ImageSlider if there are gallery images, otherwise show placeholder */}
+          <ImageSlider
+            images={galleryImages}
+            altText={`${title} activity gallery`}
+          />
         </section>
       )}
     </article>

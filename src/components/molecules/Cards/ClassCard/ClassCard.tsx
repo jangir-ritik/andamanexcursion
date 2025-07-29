@@ -6,7 +6,6 @@ import { AlertCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 import styles from "./ClassCard.module.css";
 import { Button } from "@/components/atoms";
-import snorkelingIcon from "@public/icons/misc/snorkeling.svg";
 import poolIcon from "@public/icons/misc/poolLadder.svg";
 import { Plus } from "lucide-react";
 

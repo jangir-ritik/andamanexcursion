@@ -391,15 +391,15 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                     </div>
 
                     {/* Column 3: Date */}
-                    <div className={styles.gridDate}>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDateClick(item.id);
+                      }}
+                      className={styles.gridDate}
+                    >
                       <div className={styles.columnLabel}>Date</div>
-                      <div
-                        className={`${styles.editableField}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDateClick(item.id);
-                        }}
-                      >
+                      <div className={`${styles.editableField}`}>
                         <Calendar size={16} />
                         <span>{formatDate(searchParams.date)}</span>
                         <Edit2 size={12} className={styles.editIcon} />
@@ -407,15 +407,15 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                     </div>
 
                     {/* Column 4: Time */}
-                    <div className={styles.gridTime}>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTimeClick(item.id);
+                      }}
+                      className={styles.gridTime}
+                    >
                       <div className={styles.columnLabel}>Time</div>
-                      <div
-                        className={`${styles.editableField}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTimeClick(item.id);
-                        }}
-                      >
+                      <div className={`${styles.editableField}`}>
                         <Clock size={16} />
                         <span>{formatTime(searchParams.time)}</span>
                         <Edit2 size={12} className={styles.editIcon} />
@@ -423,16 +423,18 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                     </div>
 
                     {/* Column 5: Price & Guests */}
-                    <div className={styles.gridPricing}>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePassengerClick(item.id);
+                      }}
+                      className={styles.gridPricing}
+                    >
                       <div className={styles.mainPrice}>
                         ₹{item.totalPrice.toLocaleString()}
                       </div>
                       <div
                         className={`${styles.editableField} ${styles.guestCountClickable} ${styles.quantityInfo}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePassengerClick(item.id);
-                        }}
                       >
                         <Users size={14} />
                         <span>

@@ -444,7 +444,6 @@
   position: relative;
   width: 38%;
   height: auto;
-  background-color: red;
   border-radius: var(--radius-card);
   overflow: hidden;
 }
@@ -457,6 +456,8 @@
 
 .ferryImage {
   object-fit: cover;
+  height: 100%;
+  border-radius: var(--radius-md);
 }
 
 .sliderButton {

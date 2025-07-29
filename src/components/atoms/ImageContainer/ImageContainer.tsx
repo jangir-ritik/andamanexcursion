@@ -4,6 +4,7 @@ import Image from "next/image";
 import styles from "./ImageContainer.module.css";
 import type { ImageContainerProps } from "./ImageContainer.types";
 import { useImageSrc, useImageMetadata } from "@/hooks/useImageSrc";
+import { ImageOff } from "lucide-react";
 
 export const ImageContainer = ({
   src,
@@ -57,8 +58,10 @@ export const ImageContainer = ({
     return (
       <div className={containerClasses} role="img" aria-label={alt}>
         <div className={styles.errorFallback}>
-          <div className={styles.errorIcon}>📷</div>
-          <div className={styles.errorText}>Image not available</div>
+          <div className={styles.errorIcon}>
+            <ImageOff stroke={"var(--color-gray-400)"} size={32} />
+          </div>
+          <div className={styles.errorText}>No images to show</div>
         </div>
       </div>
     );

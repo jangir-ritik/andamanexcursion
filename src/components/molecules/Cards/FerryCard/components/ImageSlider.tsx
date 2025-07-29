@@ -1,8 +1,7 @@
 import React, { useState, memo, useCallback } from "react";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import styles from "../FerryCard.module.css";
-import { Button } from "@/components/atoms";
+import { Button, ImageContainer } from "@/components/atoms";
 import { ferryCardContent } from "../FerryCard.content";
 
 interface ImageSliderProps {
@@ -33,23 +32,36 @@ export const ImageSlider = memo<ImageSliderProps>(({ images, altText }) => {
     [images.length]
   );
 
+  // Render placeholder when no images are available
   if (images.length === 0) {
-    return null;
+    return (
+      <div className={styles.imageSliderContainer}>
+        <div className={styles.imageContainer}>
+          <ImageContainer
+            src=""
+            alt="No images available"
+            className={styles.ferryImage}
+            aspectRatio="auto"
+            objectFit="cover"
+            fullWidth={true}
+          />
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className={styles.imageSliderContainer}>
       <div className={styles.imageContainer}>
-        <Image
+        <ImageContainer
           src={images[currentIndex]}
           alt={altText}
-          fill
           className={styles.ferryImage}
-          sizes="(max-width: 768px) 100vw, 38%"
-          priority
+          aspectRatio="auto"
+          objectFit="cover"
+          fullWidth={true}
         />
       </div>
-
       {images.length > 1 && (
         <>
           <Button
@@ -62,7 +74,6 @@ export const ImageSlider = memo<ImageSliderProps>(({ images, altText }) => {
           >
             <ChevronLeft size={16} aria-hidden="true" />
           </Button>
-
           <Button
             variant="secondary"
             size="small"
