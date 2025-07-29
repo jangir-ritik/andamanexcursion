@@ -578,7 +578,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         <div className={styles.actionSection}>
           <Button
             className={styles.enhancedNextButton}
-            onClick={() => router.push("/contact")}
+            onClick={() => router.push("/checkout")}
           >
             Proceed to Booking
           </Button>

@@ -1,0 +1,270 @@
+.header {
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.title {
+  margin-bottom: var(--space-4);
+}
+
+.description {
+  font-size: var(--font-size-body-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* Members Section */
+.membersSection {
+  margin-bottom: var(--space-8);
+}
+
+.memberCard {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+  transition: box-shadow var(--duration-fast) var(--easing-standard);
+}
+
+.memberCard:hover {
+  box-shadow: var(--shadow-xs);
+}
+
+.memberCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6);
+  background-color: var(--color-bg-tertiary);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--easing-standard);
+}
+
+.memberCardHeader:hover {
+  background-color: var(--color-bg-quaternary);
+}
+
+.memberInfo {
+  flex: 1;
+}
+
+.memberTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.primaryBadge {
+  font-size: var(--font-size-xs);
+  background-color: var(--color-secondary);
+  color: var(--color-text-inverse);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.memberName {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: var(--space-1) 0 0 0;
+}
+
+.expandIcon {
+  color: var(--color-text-secondary);
+  transition: color var(--duration-fast) var(--easing-standard);
+}
+
+.memberCardHeader:hover .expandIcon {
+  color: var(--color-text-primary);
+}
+
+.memberCardContent {
+  padding: var(--space-6);
+  border-top: 1px solid var(--color-border-secondary);
+}
+
+/* Form Sections */
+.formSection {
+  margin-bottom: var(--space-6);
+}
+
+.formSection:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-4) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.requiredNote {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-4);
+}
+
+.formField {
+  min-width: 0; /* Prevent overflow */
+}
+
+.formField.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.fieldNote {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-secondary);
+  margin-top: var(--space-1);
+  margin-left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Terms Section */
+.termsSection {
+  margin-bottom: var(--space-8);
+}
+
+.termsCard {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+
+.termsTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.termsList {
+  list-style: disc;
+  padding-left: var(--space-4);
+  margin: 0 0 var(--space-6) 0;
+}
+
+.termsList li {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  line-height: 1.5;
+}
+
+.termsCheckbox {
+  border-top: 1px solid var(--color-border-secondary);
+  padding-top: var(--space-4);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.checkboxText {
+  color: var(--color-text-primary);
+}
+
+.termsLink {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color var(--duration-fast) var(--easing-standard);
+}
+
+.termsLink:hover {
+  color: var(--color-primary-hover);
+}
+
+.errorMessage {
+  color: var(--color-alert-error);
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-2);
+}
+
+/* Button Section */
+.buttonSection {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-secondary);
+}
+
+.continueButton {
+  min-width: 200px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .memberCardHeader {
+    padding: var(--space-4);
+  }
+
+  .memberCardContent {
+    padding: var(--space-4);
+  }
+
+  .termsCard {
+    padding: var(--space-4);
+  }
+
+  .checkboxLabel {
+    gap: var(--space-2);
+  }
+
+  .description {
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .memberTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .primaryBadge {
+    font-size: var(--font-size-xs);
+    padding: 2px var(--space-1);
+  }
+
+  .continueButton {
+    width: 100%;
+    min-width: auto;
+  }
+}

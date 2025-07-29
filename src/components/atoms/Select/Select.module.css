@@ -51,13 +51,12 @@
 
 .selectLabel {
   font-family: var(--font-family-primary);
-  font-weight: 500;
-  font-size: var(--font-size-xs);
-  color: #64748b;
+  font-size: 14px;
+  color: var(--color-text-secondary);
 }
 
 .selectValue {
-  color: #1e293b;
+  color: var(--color-text-primary);
 }
 
 /* Chevron icon styling */

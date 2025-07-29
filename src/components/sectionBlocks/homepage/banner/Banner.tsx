@@ -44,6 +44,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
           )}
         </Row>
         <ImageContainer
+          className={styles.heroImage}
           src={content.image}
           alt={content.image?.alt || ""}
           aspectRatio="banner"

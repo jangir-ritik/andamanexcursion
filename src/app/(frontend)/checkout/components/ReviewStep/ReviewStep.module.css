@@ -1,0 +1,472 @@
+.header {
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.title {
+  margin-bottom: var(--space-4);
+}
+
+.description {
+  font-size: var(--font-size-body-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.bookingItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
+/* Updated Cards - Match design */
+.summaryCard,
+.membersCard,
+.priceCard,
+.instructionsCard {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-card);
+}
+
+/* Card Headers */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-5);
+  background-color: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-primary);
+  margin-bottom: 0;
+}
+
+.cardTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 25px;
+}
+
+.editButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-primary);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+}
+
+/* Member Cards Content */
+.membersList {
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.memberCard {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background-color: transparent;
+  margin-bottom: var(--space-6);
+}
+
+.memberHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.memberName {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 25px;
+}
+
+.memberMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.ageGender {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.primaryBadge {
+  font-size: var(--font-size-xs);
+  background-color: var(--color-secondary);
+  color: var(--color-text-inverse);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+/* Member Details Grid */
+.memberDetails {
+  margin-top: var(--space-4);
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4) var(--space-8);
+  margin-bottom: 0;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.value {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 25px;
+}
+
+/* Contact Details Section */
+.memberCard:last-child .detailsGrid {
+  margin-top: var(--space-4);
+}
+
+.memberCard:last-child .detailsGrid::before {
+  content: "Contact Details";
+  grid-column: 1 / -1;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+}
+
+/* Billing Summary Card */
+.summaryCard .cardHeader {
+  background-color: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.summaryCard .cardTitle {
+  color: var(--color-text-inverse);
+}
+
+/* Booking Summary Content */
+.bookingInfo {
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.bookingImage {
+  width: var(--space-18);
+  height: var(--space-18);
+  border-radius: var(--radius-image-xl);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bookingDetails {
+  flex: 1;
+}
+
+.bookingTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 25px;
+}
+
+/* Booking Info Row */
+.bookingInfo .detailsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.bookingInfo .detailItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bookingInfo .label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  min-width: var(--space-20);
+}
+
+.bookingInfo .value {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.passengerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-secondary);
+}
+
+.passengerCount {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.passengerBreakdown {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+/* Price Summary */
+.priceCard {
+  background-color: var(--color-bg-primary);
+}
+
+.priceDetails {
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.priceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+.priceLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+.priceValue {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+.priceTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) 0 0 0;
+  border-top: 1px solid var(--color-border-tertiary);
+  margin-top: var(--space-2);
+}
+
+.totalLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.totalValue {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Instructions */
+.instructionsCard .cardHeader {
+  background-color: var(--color-bg-tertiary);
+}
+
+.instructionsList {
+  list-style: disc;
+  padding: var(--space-6) var(--space-5) var(--space-6) var(--space-10);
+  margin: 0;
+}
+
+.instructionsList li {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  line-height: 1.5;
+}
+
+/* Action Buttons */
+.buttonSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-secondary);
+  gap: var(--space-4);
+}
+
+.backButton,
+.proceedButton {
+  min-width: var(--size-form-field-min-width);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-base);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+}
+
+.proceedButton {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .rightColumn {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .summaryCard,
+  .membersCard,
+  .priceCard,
+  .instructionsCard {
+    margin-bottom: var(--space-4);
+  }
+
+  .membersList,
+  .bookingInfo,
+  .priceDetails {
+    padding: var(--space-4);
+  }
+
+  .cardHeader {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .memberHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .memberMeta {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: var(--space-3);
+  }
+
+  .buttonSection {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .backButton,
+  .proceedButton {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .bookingInfo .detailItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bookingInfo .label {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .editButton {
+    align-self: flex-end;
+  }
+
+  .memberDetails .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bookingImage {
+    width: var(--space-14);
+    height: var(--space-14);
+  }
+}

@@ -12,7 +12,7 @@
 }
 
 .noPadding {
-  padding: 0;
+  padding: 0 !important;
 }
 
 /* Tablet Responsive Design */

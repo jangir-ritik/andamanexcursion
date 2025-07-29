@@ -10,6 +10,11 @@
 .heroDescription {
   text-align: right;
 }
+
+.heroImage {
+  border-radius: var(--radius-xl);
+}
+
 /* When the hero row wraps */
 @media (max-width: 992px) {
   .heroDescription {

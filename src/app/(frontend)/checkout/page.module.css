@@ -1,0 +1,24 @@
+.checkoutPage {
+  min-height: 100vh;
+  padding-block: var(--space-16);
+}
+
+.emptyCart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+.emptyCart h1 {
+  font-size: var(--font-size-heading-3);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.emptyCart p {
+  font-size: var(--font-size-body-base);
+  color: var(--color-text-secondary);
+}
