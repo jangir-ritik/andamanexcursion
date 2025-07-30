@@ -65,3 +65,20 @@ button {
   all: unset;
   cursor: pointer;
 }
+
+/* Fix checkbox styling issues */
+input[type="checkbox"] {
+  all: revert;
+  accent-color: var(--color-primary, #3e8cff);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Ensure checkboxes work properly in dark mode */
+@media (prefers-color-scheme: dark) {
+  input[type="checkbox"] {
+    background-color: white;
+    border: 1px solid #ccc;
+  }
+}

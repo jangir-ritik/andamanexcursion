@@ -1,6 +1,13 @@
 "use client";
-import React from "react";
-import { Edit2, ArrowUpRight } from "lucide-react";
+import React, { JSX, useState } from "react";
+import {
+  Edit2,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  Info,
+} from "lucide-react";
 import {
   useCheckoutStore,
   useMembers,
@@ -11,6 +18,22 @@ import { Button } from "@/components/atoms/Button/Button";
 import { cn } from "@/utils/cn";
 import styles from "./ReviewStep.module.css";
 
+// Types for better type safety
+interface BookingDetail {
+  index: number;
+  type: "Activity" | "Ferry";
+  title: string;
+  location: string;
+  date: string;
+  time: string;
+  duration: string;
+  adults: number;
+  children: number;
+  totalPassengers: number;
+  price: number;
+  image: string | null;
+}
+
 export const ReviewStep: React.FC = () => {
   const {
     prevStep,
@@ -19,50 +42,84 @@ export const ReviewStep: React.FC = () => {
     getTotalPrice,
     getTotalPassengers,
     termsAccepted,
+    getTotalActivities,
   } = useCheckoutStore();
   const members = useMembers();
   const checkoutItems = useCheckoutItems();
   const { isSubmitting } = useCheckoutStore();
 
+  // State for collapsible sections
+  const [expandedActivities, setExpandedActivities] = useState<Set<number>>(
+    new Set([0])
+  ); // First activity expanded by default
+  const [showMemberMapping, setShowMemberMapping] = useState(false);
+
+  const totalActivities = getTotalActivities();
+
   // Get booking details from checkout items
-  const getBookingDetails = () => {
-    if (checkoutItems.length === 0) return null;
-
-    const firstItem = checkoutItems[0];
-    if (firstItem.activityBooking) {
-      const { activity, searchParams } = firstItem.activityBooking;
-      return {
-        type: "Activity" as const,
-        title: activity.title,
-        location: activity.coreInfo.location[0]?.name || "N/A",
-        date: searchParams.date,
-        time: searchParams.time,
-        duration: activity.coreInfo.duration,
-        adults: searchParams.adults,
-        children: searchParams.children,
-        infants: searchParams.infants,
-        image: activity.media.featuredImage?.url || null,
-      };
-    } else if (firstItem.ferryBooking) {
-      const ferry = firstItem.ferryBooking;
-      return {
-        type: "Ferry" as const,
-        title: `${ferry.fromLocation} to ${ferry.toLocation}`,
-        location: `${ferry.fromLocation} - ${ferry.toLocation}`,
-        date: ferry.date,
-        time: ferry.time,
-        duration: "N/A",
-        adults: ferry.adults,
-        children: ferry.children,
-        infants: ferry.infants,
-        image: null,
-      };
-    }
-
-    return null;
+  const getAllBookingDetails = (): BookingDetail[] => {
+    return checkoutItems
+      .map((item, index): BookingDetail | null => {
+        if (item.activityBooking) {
+          const { activity, searchParams } = item.activityBooking;
+          return {
+            index,
+            type: "Activity" as const,
+            title: activity.title,
+            location: activity.coreInfo.location[0]?.name || "N/A",
+            date: searchParams.date,
+            time: searchParams.time,
+            duration: activity.coreInfo.duration,
+            adults: searchParams.adults,
+            children: searchParams.children,
+            totalPassengers: searchParams.adults + searchParams.children,
+            price: item.activityBooking.totalPrice,
+            image: activity.media.featuredImage?.url || null,
+          };
+        } else if (item.ferryBooking) {
+          const ferry = item.ferryBooking;
+          return {
+            index,
+            type: "Ferry" as const,
+            title: `${ferry.fromLocation} to ${ferry.toLocation}`,
+            location: `${ferry.fromLocation} - ${ferry.toLocation}`,
+            date: ferry.date,
+            time: ferry.time,
+            duration: "N/A",
+            adults: ferry.adults,
+            children: ferry.children,
+            totalPassengers: ferry.adults + ferry.children,
+            price: ferry.totalPrice,
+            image: null,
+          };
+        }
+        return null;
+      })
+      .filter((item): item is BookingDetail => item !== null);
   };
 
-  const bookingDetails = getBookingDetails();
+  const allBookingDetails = getAllBookingDetails();
+
+  // Calculate total expected passengers across all activities
+  const getTotalExpectedPassengers = () => {
+    return allBookingDetails.reduce(
+      (total, activity) => total + activity.totalPassengers,
+      0
+    );
+  };
+
+  // Toggle activity expansion
+  const toggleActivityExpansion = (activityIndex: number) => {
+    setExpandedActivities((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(activityIndex)) {
+        newSet.delete(activityIndex);
+      } else {
+        newSet.add(activityIndex);
+      }
+      return newSet;
+    });
+  };
 
   // Handle edit member
   const handleEditMember = () => {
@@ -71,7 +128,7 @@ export const ReviewStep: React.FC = () => {
 
   // Handle proceed to booking
   const handleProceedToBooking = async () => {
-    if (!termsAccepted || members.length === 0) {
+    if (!termsAccepted) {
       return;
     }
 
@@ -80,127 +137,217 @@ export const ReviewStep: React.FC = () => {
 
   // Validate that we can proceed
   const canProceed = () => {
-    return (
-      termsAccepted &&
-      members.length > 0 &&
-      members.every(
-        (member) =>
-          member.fullName &&
-          member.age &&
-          member.gender &&
-          member.nationality &&
-          member.passportNumber &&
-          (member.isPrimary ? member.whatsappNumber && member.email : true)
-      )
-    );
+    return termsAccepted && members.length > 0;
   };
 
-  // Group members into basic details and contact details
-  const primaryMember = members.find((member) => member.isPrimary);
-  const otherMembers = members.filter((member) => !member.isPrimary);
+  // Render member details with improved UX
+  const renderMemberDetails = (): JSX.Element[] => {
+    const memberSections: JSX.Element[] = [];
+    const totalExpected = getTotalExpectedPassengers();
 
-  const renderMemberBasicDetails = (memberList: any, title: any) => (
-    <div className={styles.membersCard}>
-      <div className={styles.cardHeader}>
-        <h3 className={styles.cardTitle}>{title}</h3>
-        <button className={styles.editButton} onClick={handleEditMember}>
-          Edit Details
-          <ArrowUpRight size={16} />
-        </button>
+    // Activity-specific member assignment
+    memberSections.push(
+      <div key="member-info" className={styles.memberInfoCard}>
+        <div className={styles.infoHeader}>
+          <Info size={20} className={styles.infoIcon} />
+          <h3>Passenger Assignment</h3>
+        </div>
+        <div className={styles.infoContent}>
+          <p>
+            <strong>Assignment Method:</strong> Activity-specific passenger
+            selection
+          </p>
+          <p>
+            <strong>Total passengers:</strong> {members.length} passengers for{" "}
+            {allBookingDetails.length} activities
+          </p>
+          <button
+            className={styles.mapPassengersButton}
+            onClick={() => setShowMemberMapping(!showMemberMapping)}
+          >
+            {showMemberMapping ? "Hide" : "Show"} Assignment Details
+          </button>
+        </div>
       </div>
+    );
 
-      <div className={styles.membersList}>
-        {memberList.map((member: any, index: any) => (
-          <div key={member.id}>
-            {/* Basic Info Row */}
-            <div className={styles.detailsGrid}>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Full Name as per ID</span>
-                <span className={styles.value}>
-                  {member.fullName || `Member ${index + 1}`}
-                </span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Enter Age</span>
-                <span className={styles.value}>{member.age}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Gender</span>
-                <span className={styles.value}>{member.gender}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Nationality</span>
-                <span className={styles.value}>{member.nationality}</span>
-              </div>
-            </div>
+    // Activity breakdown (collapsible)
+    if (showMemberMapping) {
+      memberSections.push(
+        <div key="activity-breakdown" className={styles.activityBreakdown}>
+          <h4>Activity Assignment Breakdown:</h4>
+          {allBookingDetails.map((activity, activityIndex) => {
+            const assignedMembers = members.filter(
+              (member) =>
+                member.selectedActivities &&
+                member.selectedActivities.includes(activityIndex)
+            );
 
-            {/* Passport Row */}
-            <div className={styles.detailsGrid} style={{ marginTop: "24px" }}>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Passport Number</span>
-                <span className={styles.value}>{member.passportNumber}</span>
-              </div>
-            </div>
-
-            {/* Contact Details for Primary Member */}
-            {member.isPrimary && (
-              <>
-                <div style={{ marginTop: "24px", marginBottom: "16px" }}>
-                  <h4 className={styles.cardTitle}>Contact Details</h4>
+            return (
+              <div key={activityIndex} className={styles.activityRequirement}>
+                <div className={styles.activityInfo}>
+                  <span className={styles.activityName}>{activity.title}</span>
+                  <span className={styles.passengerCount}>
+                    Required: {activity.adults} adults, {activity.children}{" "}
+                    children
+                  </span>
                 </div>
-                <div className={styles.detailsGrid}>
-                  {member.whatsappNumber && (
-                    <div className={styles.detailItem}>
-                      <span className={styles.label}>
-                        <span
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                          }}
-                        >
-                          Whatsapp Number
-                        </span>
-                      </span>
-                      <span className={styles.value}>
-                        {member.whatsappNumber}
-                      </span>
-                    </div>
-                  )}
-                  {member.email && (
-                    <div className={styles.detailItem}>
-                      <span className={styles.label}>Email ID</span>
-                      <span className={styles.value}>{member.email}</span>
-                    </div>
+                <div className={styles.assignedCount}>
+                  Assigned: {assignedMembers.length} passengers
+                  {assignedMembers.length < activity.totalPassengers && (
+                    <span className={styles.warningText}>
+                      {" "}
+                      (⚠️ Insufficient)
+                    </span>
                   )}
                 </div>
-              </>
-            )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // Activity-specific member details sections
+    allBookingDetails.forEach((activity, activityIndex) => {
+      const assignedMembers = members.filter(
+        (member) =>
+          member.selectedActivities &&
+          member.selectedActivities.includes(activityIndex)
+      );
+
+      if (assignedMembers.length === 0) return;
+
+      memberSections.push(
+        <div
+          key={`activity-${activityIndex}`}
+          className={styles.memberDetailsSection}
+        >
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>
+              <Users size={20} />
+              {activity.title} - {assignedMembers.length} Passengers
+            </h3>
+            <button className={styles.editButton} onClick={handleEditMember}>
+              Edit Assignment
+              <Edit2 size={16} />
+            </button>
           </div>
-        ))}
-      </div>
-    </div>
-  );
+
+          <div className={styles.activityDetails}>
+            <div className={styles.activityMeta}>
+              <span>
+                <strong>Date:</strong>{" "}
+                {new Date(activity.date).toLocaleDateString()}
+              </span>
+              <span>
+                <strong>Location:</strong> {activity.location}
+              </span>
+              <span>
+                <strong>Required:</strong> {activity.totalPassengers} passengers
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.membersList}>
+            {assignedMembers.map((member, memberIndex) => (
+              <div key={member.id} className={styles.memberCard}>
+                <div className={styles.memberCardHeader}>
+                  <div className={styles.memberInfo}>
+                    <h4 className={styles.memberName}>
+                      {member.fullName || `Passenger ${memberIndex + 1}`}
+                      {member.isPrimary && (
+                        <span className={styles.primaryBadge}>
+                          Primary Contact
+                        </span>
+                      )}
+                    </h4>
+                    <p className={styles.memberSummary}>
+                      {member.age} years • {member.gender} •{" "}
+                      {member.nationality}
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.memberCardContent}>
+                  <div className={styles.detailsGrid}>
+                    <div className={styles.detailItem}>
+                      <span className={styles.label}>Full Name as per ID</span>
+                      <span className={styles.value}>
+                        {member.fullName || "Not provided"}
+                      </span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.label}>Age</span>
+                      <span className={styles.value}>{member.age}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.label}>Gender</span>
+                      <span className={styles.value}>
+                        {member.gender || "Not specified"}
+                      </span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.label}>Nationality</span>
+                      <span className={styles.value}>{member.nationality}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.label}>Passport Number</span>
+                      <span className={styles.value}>
+                        {member.passportNumber || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {member.isPrimary && (
+                    <div className={styles.contactSection}>
+                      <h5 className={styles.contactTitle}>
+                        Contact Information
+                      </h5>
+                      <div className={styles.contactGrid}>
+                        <div className={styles.detailItem}>
+                          <span className={styles.label}>WhatsApp Number</span>
+                          <span className={styles.value}>
+                            {member.whatsappNumber || "Not provided"}
+                          </span>
+                        </div>
+                        <div className={styles.detailItem}>
+                          <span className={styles.label}>Email ID</span>
+                          <span className={styles.value}>
+                            {member.email || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    });
+
+    return memberSections;
+  };
 
   return (
     <div className={styles.reviewStep}>
       <div className={styles.header}>
         <SectionTitle
-          text="Traveller Details"
-          specialWord="Details"
+          text="Review Your Booking"
+          specialWord="Booking"
           className={styles.title}
         />
         <p className={styles.description}>
-          Almost there! Give your details a quick look
+          Please review your passenger details and booking information
         </p>
       </div>
 
       <div className={styles.content}>
         <div className={styles.leftColumn}>
-          {/* Render member cards separately for each person */}
-          {members.map((member, index) =>
-            renderMemberBasicDetails([member], "Basic Details")
-          )}
+          {/* Improved member details */}
+          {renderMemberDetails()}
 
           {/* Important Instructions */}
           <div className={styles.instructionsCard}>
@@ -208,11 +355,15 @@ export const ReviewStep: React.FC = () => {
               <h3 className={styles.cardTitle}>Important Instructions</h3>
             </div>
             <ul className={styles.instructionsList}>
-              <li>Please carry valid photo ID proof</li>
-              <li>Arrive 30 minutes before departure time</li>
-              <li>E-ticket will be sent to registered WhatsApp</li>
+              <li>Please carry valid photo ID proof for all passengers</li>
+              <li>Arrive 30 minutes before departure time for each activity</li>
+              <li>E-tickets will be sent to registered WhatsApp</li>
               <li>No-show will result in full cancellation charges</li>
               <li>Weather conditions may affect schedule</li>
+              <li>
+                Each passenger is assigned to specific activities as selected
+              </li>
+              <li>Primary contact will receive all communications</li>
             </ul>
           </div>
         </div>
@@ -226,109 +377,58 @@ export const ReviewStep: React.FC = () => {
 
             <div className={styles.bookingInfo}>
               {/* Activity Items */}
-              {checkoutItems.map((item, index) => {
-                if (item.activityBooking) {
-                  const { activity, searchParams } = item.activityBooking;
-                  return (
-                    <div
-                      key={index}
-                      className={styles.bookingItem}
-                    >
-                      {activity.media.featuredImage?.url && (
-                        <div className={styles.bookingImage}>
-                          <img
-                            src={activity.media.featuredImage.url}
-                            alt={activity.title}
-                            className={styles.image}
-                          />
-                        </div>
-                      )}
-                      <div className={styles.bookingDetails}>
-                        <h4 className={styles.bookingTitle}>
-                          {activity.title}
-                        </h4>
+              {allBookingDetails.map((item, index) => {
+                if (!item || item.type !== "Activity") return null;
+
+                return (
+                  <div key={index} className={styles.bookingItem}>
+                    {item.image && (
+                      <div className={styles.bookingImage}>
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className={styles.image}
+                        />
                       </div>
+                    )}
+                    <div className={styles.bookingDetails}>
+                      <h4 className={styles.bookingTitle}>{item.title}</h4>
+                      <p className={styles.bookingLocation}>
+                        Location: {item.location}
+                      </p>
+                      <p className={styles.bookingDateTime}>
+                        Date:{" "}
+                        {new Date(item.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}{" "}
+                        | Time: {item.time}
+                      </p>
                     </div>
-                  );
-                }
-                return null;
+                  </div>
+                );
               })}
-
-              {/* Date and Time Info */}
-              {bookingDetails && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "20px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    📅{" "}
-                    {new Date(bookingDetails.date).toLocaleDateString("en-US", {
-                      weekday: "short",
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    🕐 {bookingDetails.time}
-                  </div>
-                </div>
-              )}
-
-              {/* Type and Duration */}
-              {bookingDetails && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "24px",
-                  }}
-                >
-                  <span>Type: Shore diving</span>
-                  <span>Duration: {bookingDetails.duration}</span>
-                </div>
-              )}
 
               <div
                 style={{ borderTop: "1px solid #E1E1E1", paddingTop: "24px" }}
               >
                 {/* Price Breakdown */}
                 <div className={styles.priceDetails}>
-                  {checkoutItems.map((item, index) => {
-                    if (item.activityBooking) {
-                      return (
-                        <div key={index} className={styles.priceItem}>
-                          <span className={styles.priceLabel}>
-                            {item.activityBooking.activity.title}
-                          </span>
-                          <span className={styles.priceValue}>
-                            ₹
-                            {(
-                              getTotalPrice() / checkoutItems.length
-                            ).toLocaleString()}
-                            .00
-                          </span>
-                        </div>
-                      );
-                    }
-                    return null;
+                  {allBookingDetails.map((item, index) => {
+                    if (!item) return null;
+
+                    return (
+                      <div key={index} className={styles.priceItem}>
+                        <span className={styles.priceLabel}>
+                          {item.title} ({item.totalPassengers} pax)
+                        </span>
+                        <span className={styles.priceValue}>
+                          ₹{item.price.toLocaleString()}.00
+                        </span>
+                      </div>
+                    );
                   })}
 
                   <div

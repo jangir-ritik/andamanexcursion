@@ -19,7 +19,7 @@ export interface ActivitySearchParams {
   time: string;
   adults: number;
   children: number;
-  infants: number;
+  // Removed: infants: number; - now combined into children
 }
 
 export interface Activity {
@@ -320,7 +320,7 @@ const initialState: ActivityState = {
     time: "",
     adults: 2,
     children: 0,
-    infants: 0,
+    // Removed: infants: 0,
   },
   activities: [],
   isLoading: false,
@@ -373,7 +373,7 @@ export const useActivityStore = create<ActivityStore>()(
             time: currentParams.time,
             adults: currentParams.adults,
             children: currentParams.children,
-            infants: currentParams.infants,
+            // Removed: infants: currentParams.infants,
           });
 
           set((state) => {
@@ -581,7 +581,8 @@ export const useActivityStore = create<ActivityStore>()(
       getTotalPassengers: () => {
         const { searchParams } = get();
         return (
-          searchParams.adults + searchParams.children + searchParams.infants
+          searchParams.adults + searchParams.children
+          // Removed: + searchParams.infants
         );
       },
 

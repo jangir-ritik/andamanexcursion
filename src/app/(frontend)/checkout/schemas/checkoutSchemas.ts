@@ -1,11 +1,15 @@
 import { z } from "zod";
 
-// Member details schema based on requirements
-export const memberDetailsSchema = z.object({
+// Base member details schema for common fields
+const baseMemberDetailsSchema = z.object({
   fullName: z
     .string()
     .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must not exceed 100 characters"),
+    .max(100, "Name must not exceed 100 characters")
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "Name must contain only letters, spaces, apostrophes, and hyphens"
+    ),
 
   age: z.coerce
     .number()
@@ -23,37 +27,48 @@ export const memberDetailsSchema = z.object({
     .string()
     .min(6, "Passport number must be at least 6 characters")
     .max(12, "Passport number must not exceed 12 characters")
-    // Made more lenient for development - accepting more characters
     .regex(
       /^[A-Za-z0-9]{6,12}$/,
       "Invalid passport format. Use only letters and numbers"
     )
-    .transform((val) => val.toUpperCase()), // Auto-transform to uppercase
+    .transform((val) => val.toUpperCase()),
 
-  // Optional fields for non-primary members
+  // Activity assignment - required for all members
+  selectedActivities: z
+    .array(z.number().int().min(0))
+    .min(1, "Please select at least one activity for this passenger")
+    .refine(
+      (activities) => activities.length > 0,
+      "Each passenger must be assigned to at least one activity"
+    ),
+
+  // Optional contact fields for non-primary members
   whatsappNumber: z
     .string()
     .optional()
     .refine((val) => {
-      if (!val || val.trim() === "") return true; // Allow empty
-      return /^\+?[0-9\s\-\(\)]{8,20}$/.test(val); // More lenient phone validation
+      if (!val || val.trim() === "") return true;
+      return /^\+?[0-9\s\-\(\)]{8,20}$/.test(val);
     }, "Invalid WhatsApp number format"),
 
   email: z
     .string()
     .optional()
     .refine((val) => {
-      if (!val || val.trim() === "") return true; // Allow empty
+      if (!val || val.trim() === "") return true;
       return z.string().email().safeParse(val).success;
     }, "Invalid email format"),
 });
 
-// Primary member schema (with required contact fields)
-export const primaryMemberDetailsSchema = memberDetailsSchema.extend({
+// Regular member schema
+export const memberDetailsSchema = baseMemberDetailsSchema;
+
+// Primary member schema with required contact fields
+export const primaryMemberDetailsSchema = baseMemberDetailsSchema.extend({
   whatsappNumber: z
     .string()
     .min(1, "WhatsApp number is required for the primary member")
-    .regex(/^\+?[0-9\s\-\(\)]{8,20}$/, "Invalid WhatsApp number format"), // More lenient
+    .regex(/^\+?[0-9\s\-\(\)]{8,20}$/, "Invalid WhatsApp number format"),
 
   email: z
     .string()
@@ -61,34 +76,19 @@ export const primaryMemberDetailsSchema = memberDetailsSchema.extend({
     .email("Invalid email format"),
 });
 
-// Step 1 schema - Member details form with proper primary/secondary member validation
+// Step 1 schema with enhanced validation
 export const step1Schema = z.object({
   members: z
-    .array(memberDetailsSchema)
-    .min(1, "At least one member is required")
+    .array(z.union([memberDetailsSchema, primaryMemberDetailsSchema]))
+    .min(1, "At least one passenger is required")
     .refine((members) => {
-      // Always require the primary member (first member) to be complete
+      // Validate that first member is primary with required fields
       if (members.length === 0) return false;
 
       const primaryMember = members[0];
-
-      // Check if primary member has all required fields
-      const hasRequiredFields =
-        primaryMember.fullName &&
-        primaryMember.age &&
-        primaryMember.gender &&
-        primaryMember.nationality &&
-        primaryMember.passportNumber &&
-        primaryMember.whatsappNumber &&
-        primaryMember.email;
-
-      if (!hasRequiredFields) {
-        return false;
-      }
-
-      // Validate primary member with proper schema
       const primaryValidation =
         primaryMemberDetailsSchema.safeParse(primaryMember);
+
       if (!primaryValidation.success) {
         console.error(
           "Primary member validation failed:",
@@ -97,41 +97,106 @@ export const step1Schema = z.object({
         return false;
       }
 
-      // For other members, only validate if they have any data filled in
+      // Validate other members
       for (let i = 1; i < members.length; i++) {
         const member = members[i];
-        const hasAnyData =
-          member.fullName ||
-          member.passportNumber ||
-          member.whatsappNumber ||
-          member.email ||
-          member.gender;
+        const memberValidation = memberDetailsSchema.safeParse(member);
 
-        // If member has any data, they must have complete basic info
-        if (hasAnyData) {
-          const memberValidation = memberDetailsSchema.safeParse(member);
-          if (!memberValidation.success) {
-            console.error(
-              `Member ${i + 1} validation failed:`,
-              memberValidation.error
-            );
-            return false;
-          }
+        if (!memberValidation.success) {
+          console.error(
+            `Member ${i + 1} validation failed:`,
+            memberValidation.error
+          );
+          return false;
         }
       }
 
       return true;
-    }, "Member details validation failed"),
+    }, "All passenger details must be complete and valid")
+    .superRefine((members, ctx) => {
+      // Check that each member has at least one activity selected
+      members.forEach((member, index) => {
+        if (
+          !member.selectedActivities ||
+          member.selectedActivities.length === 0
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Passenger ${
+              index + 1
+            } must be assigned to at least one activity`,
+            path: ["members", index, "selectedActivities"],
+          });
+        }
+      });
+    }),
 
   termsAccepted: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions to proceed",
   }),
 });
 
-// Step 2 schema - Review (no additional validation needed, just ensure step 1 is valid)
+// Enhanced validation with activity-specific checks
+export const createStep1SchemaWithActivities = (
+  activities: Array<{
+    title: string;
+    totalRequired: number;
+    adults: number;
+    children: number;
+    infants: number;
+  }>
+) => {
+  return step1Schema.extend({
+    members: z
+      .array(z.union([memberDetailsSchema, primaryMemberDetailsSchema]))
+      .min(1, "At least one passenger is required")
+      .superRefine((members, ctx) => {
+        // Check activity assignment counts
+        const assignmentCounts = activities.map(() => 0);
+
+        members.forEach((member, memberIndex) => {
+          if (
+            !member.selectedActivities ||
+            member.selectedActivities.length === 0
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Must select at least one activity",
+              path: ["members", memberIndex, "selectedActivities"],
+            });
+            return;
+          }
+
+          member.selectedActivities.forEach((activityIndex: number) => {
+            if (activityIndex >= 0 && activityIndex < assignmentCounts.length) {
+              assignmentCounts[activityIndex]++;
+            }
+          });
+        });
+
+        // Validate each activity has enough passengers
+        activities.forEach((activity, activityIndex) => {
+          const required = activity.totalRequired || 0;
+          const assigned = assignmentCounts[activityIndex];
+
+          if (assigned < required) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `${activity.title} needs ${
+                required - assigned
+              } more passengers`,
+              path: ["members"],
+            });
+          }
+        });
+      }),
+  });
+};
+
+// Step 2 schema - Review
 export const step2Schema = step1Schema;
 
-// Step 3 schema - Confirmation (no validation needed, read-only)
+// Step 3 schema - Confirmation
 export const step3Schema = z.object({
   bookingConfirmed: z.boolean().optional(),
 });
@@ -142,7 +207,7 @@ export const checkoutFormSchema = z.object({
   currentStep: z.number().min(1).max(3),
 });
 
-// Type inference
+// Type inference with better typing
 export type MemberDetailsForm = z.infer<typeof memberDetailsSchema>;
 export type PrimaryMemberDetailsForm = z.infer<
   typeof primaryMemberDetailsSchema
@@ -150,7 +215,7 @@ export type PrimaryMemberDetailsForm = z.infer<
 export type Step1Form = z.infer<typeof step1Schema>;
 export type CheckoutForm = z.infer<typeof checkoutFormSchema>;
 
-// Validation helpers
+// Enhanced validation helpers
 export const validateMemberDetails = (
   memberData: any,
   isPrimary: boolean = false
@@ -163,7 +228,28 @@ export const validateStep1 = (formData: any) => {
   return step1Schema.safeParse(formData);
 };
 
-// Country list for nationality dropdown
+export const validateStep1WithActivities = (
+  formData: any,
+  activities: any[]
+) => {
+  const schema = createStep1SchemaWithActivities(activities);
+  return schema.safeParse(formData);
+};
+
+// Utility function to get validation errors in a readable format
+export const getValidationErrors = (
+  result: z.SafeParseReturnType<any, any>
+) => {
+  if (result.success) return [];
+
+  return result.error.errors.map((error) => ({
+    path: error.path.join("."),
+    message: error.message,
+    code: error.code,
+  }));
+};
+
+// Country list for nationality dropdown (unchanged)
 export const COUNTRIES = [
   { value: "Indian", label: "Indian" },
   { value: "American", label: "American" },
@@ -206,10 +292,9 @@ export const COUNTRIES = [
   { value: "Portuguese", label: "Portuguese" },
   { value: "Irish", label: "Irish" },
   { value: "New Zealand", label: "New Zealand" },
-  // Add more countries as needed
 ];
 
-// Gender options for dropdown
+// Gender options for dropdown (unchanged)
 export const GENDER_OPTIONS = [
   { value: "Male", label: "Male" },
   { value: "Female", label: "Female" },
