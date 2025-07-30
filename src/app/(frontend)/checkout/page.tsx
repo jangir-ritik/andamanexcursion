@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CheckoutFlow } from "./components/CheckoutFlow";
 import { useActivityStore } from "@/store/ActivityStore";
@@ -10,9 +10,15 @@ import styles from "./page.module.css";
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, getCartTotal } = useActivityStore();
-  const { initializeFromActivityCart, reset } = useCheckoutStore();
+  const {
+    initializeFromActivityCart,
+    updateFromActivityCart,
+    reset,
+    isInitialized,
+  } = useCheckoutStore();
+  const isFirstRender = useRef(true);
 
-  // Initialize checkout from activity cart
+  // Handle cart initialization and updates
   useEffect(() => {
     // Check if cart is empty
     if (!cart || cart.length === 0) {
@@ -21,15 +27,28 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Initialize checkout with cart items
-    initializeFromActivityCart(cart);
+    // On first render or when not initialized, initialize from scratch
+    if (isFirstRender.current || !isInitialized) {
+      initializeFromActivityCart(cart);
+      isFirstRender.current = false;
+    } else {
+      // On subsequent cart changes, update instead of reinitializing
+      // This preserves existing member data while adjusting for new passenger counts
+      updateFromActivityCart(cart);
+    }
 
     // Cleanup on unmount
     return () => {
       // Only reset if navigating away from checkout
       // This prevents reset when just refreshing the page
     };
-  }, [cart, initializeFromActivityCart, router]);
+  }, [
+    cart,
+    initializeFromActivityCart,
+    updateFromActivityCart,
+    router,
+    isInitialized,
+  ]);
 
   // Show loading or redirect if cart is empty
   if (!cart || cart.length === 0) {

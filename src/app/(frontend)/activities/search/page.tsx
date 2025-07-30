@@ -116,8 +116,8 @@ const ActivitySearchContent = () => {
 
   // Memoize total passengers calculation
   const totalPassengers = useMemo(
-    () => currentParams.adults + currentParams.children + currentParams.infants,
-    [currentParams.adults, currentParams.children, currentParams.infants]
+    () => currentParams.adults + currentParams.children,
+    [currentParams.adults, currentParams.children]
   );
 
   // Optimized scroll handler with useCallback

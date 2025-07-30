@@ -28,18 +28,10 @@ const CHECKOUT_STEPS = [
 
 export const CheckoutFlow: React.FC = () => {
   const currentStep = useCurrentStep();
-  const {
-    setCurrentStep,
-    bookingConfirmation,
-    getTotalActivities,
-    getCurrentActivityIndex,
-    isLastActivity,
-    moveToNextActivity,
-    moveToPreviousActivity,
-  } = useCheckoutStore();
+  const { setCurrentStep, bookingConfirmation, getTotalActivities } =
+    useCheckoutStore();
 
   const totalActivities = getTotalActivities();
-  const currentActivityIndex = getCurrentActivityIndex();
 
   // Step completion logic
   const isStepCompleted = (step: number): boolean => {
@@ -69,28 +61,11 @@ export const CheckoutFlow: React.FC = () => {
     }
   };
 
-  // Handle activity navigation
-  const handleNextActivity = () => {
-    const hasNext = moveToNextActivity();
-    if (!hasNext && isLastActivity()) {
-      // All activities completed, move to review
-      setCurrentStep(2);
-    }
-  };
-
-  const handlePreviousActivity = () => {
-    moveToPreviousActivity();
-  };
-
   // Render current step content
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return (
-          <>
-            <MemberDetailsStep />
-          </>
-        );
+        return <MemberDetailsStep />;
       case 2:
         return <ReviewStep />;
       case 3:

@@ -8,11 +8,7 @@ import {
   Users,
   Info,
 } from "lucide-react";
-import {
-  useCheckoutStore,
-  useMembers,
-  useCheckoutItems,
-} from "@/store/CheckoutStore";
+import { useCheckoutStore, useCheckoutItems } from "@/store/CheckoutStore";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
 import { cn } from "@/utils/cn";
@@ -40,13 +36,12 @@ export const ReviewStep: React.FC = () => {
     submitBooking,
     setCurrentStep,
     getTotalPrice,
-    getTotalPassengers,
-    termsAccepted,
     getTotalActivities,
+    isLoading,
+    persistedFormData,
   } = useCheckoutStore();
-  const members = useMembers();
+
   const checkoutItems = useCheckoutItems();
-  const { isSubmitting } = useCheckoutStore();
 
   // State for collapsible sections
   const [expandedActivities, setExpandedActivities] = useState<Set<number>>(
@@ -55,6 +50,10 @@ export const ReviewStep: React.FC = () => {
   const [showMemberMapping, setShowMemberMapping] = useState(false);
 
   const totalActivities = getTotalActivities();
+
+  // Get members from persisted form data
+  const members = persistedFormData?.members || [];
+  const termsAccepted = persistedFormData?.termsAccepted || false;
 
   // Get booking details from checkout items
   const getAllBookingDetails = (): BookingDetail[] => {
@@ -137,8 +136,31 @@ export const ReviewStep: React.FC = () => {
 
   // Validate that we can proceed
   const canProceed = () => {
-    return termsAccepted && members.length > 0;
+    return termsAccepted && members.length > 0 && persistedFormData;
   };
+
+  // Show loading state if no form data
+  if (!persistedFormData) {
+    return (
+      <div className={styles.reviewStep}>
+        <div className={styles.header}>
+          <SectionTitle
+            text="Review Your Booking"
+            specialWord="Booking"
+            className={styles.title}
+          />
+          <p className={styles.description}>
+            No booking data found. Please complete the passenger details first.
+          </p>
+        </div>
+        <div className={styles.content}>
+          <Button onClick={() => setCurrentStep(1)}>
+            Go to Passenger Details
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Render member details with improved UX
   const renderMemberDetails = (): JSX.Element[] => {
@@ -263,7 +285,7 @@ export const ReviewStep: React.FC = () => {
                       )}
                     </h4>
                     <p className={styles.memberSummary}>
-                      {member.age} years • {member.gender} •{" "}
+                      {member.age} years • {member.gender || "Not specified"} •{" "}
                       {member.nationality}
                     </p>
                   </div>
@@ -431,13 +453,7 @@ export const ReviewStep: React.FC = () => {
                     );
                   })}
 
-                  <div
-                    style={{
-                      borderTop: "1px solid #B0B0B0",
-                      paddingTop: "16px",
-                      marginTop: "16px",
-                    }}
-                  >
+                  <div style={{ marginBottom: "16px" }}>
                     <div className={styles.priceTotal}>
                       <span className={styles.totalLabel}>Total</span>
                       <span className={styles.totalValue}>
@@ -448,14 +464,13 @@ export const ReviewStep: React.FC = () => {
                 </div>
 
                 {/* Proceed Button */}
-                <button
-                  className={styles.proceedButton}
+                <Button
                   onClick={handleProceedToBooking}
-                  disabled={!canProceed() || isSubmitting}
+                  disabled={!canProceed() || isLoading}
                 >
-                  {isSubmitting ? "Processing..." : "Proceed to Pay"}
+                  {isLoading ? "Processing..." : "Proceed to Pay"}
                   <ArrowUpRight size={24} />
-                </button>
+                </Button>
               </div>
             </div>
           </div>

@@ -84,7 +84,7 @@ export function ActivitySearchForm({
       passengers: {
         adults: currentSearchParams.adults || 2,
         children: currentSearchParams.children || 0,
-        infants: currentSearchParams.infants || 0,
+        infants: currentSearchParams.children || 0, // Map children to infants for form compatibility
       },
     }),
     [currentSearchParams]
@@ -171,8 +171,7 @@ export function ActivitySearchForm({
           date: searchParams.date,
           time: searchParams.time,
           adults: searchParams.adults.toString(),
-          children: searchParams.children.toString(),
-          infants: searchParams.infants.toString(),
+          children: (searchParams.children + searchParams.infants).toString(), // Combine children and infants
         });
 
         router.push(`/activities/search?${urlParams.toString()}`);

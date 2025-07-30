@@ -12,7 +12,7 @@ import { Button } from "@/components/atoms/Button/Button";
 import styles from "./ConfirmationStep.module.css";
 
 export const ConfirmationStep: React.FC = () => {
-  const { getTotalPrice, getTotalPassengers } = useCheckoutStore();
+  const { getTotalPrice } = useCheckoutStore();
   const members = useMembers();
   const checkoutItems = useCheckoutItems();
   const bookingConfirmation = useBookingConfirmation();

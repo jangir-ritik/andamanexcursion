@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  /* margin-bottom: var(--space-4); */
 }
 
 .content {
@@ -113,7 +113,6 @@
 
 /* Member Cards Content */
 .membersList {
-  padding: var(--space-6) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
@@ -318,7 +317,6 @@
 }
 
 .priceDetails {
-  padding: var(--space-6) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -436,9 +434,7 @@
     margin-bottom: var(--space-4);
   }
 
-  .membersList,
-  .bookingInfo,
-  .priceDetails {
+  .bookingInfo {
     padding: var(--space-4);
   }
 

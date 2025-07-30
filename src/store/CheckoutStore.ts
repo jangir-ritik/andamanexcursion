@@ -61,73 +61,77 @@ export interface BookingConfirmation {
   paymentStatus: "paid" | "pending" | "failed";
 }
 
-// Enhanced checkout state for multi-activity support
+// Form data interface for persistence
+export interface CheckoutFormData {
+  members: MemberDetails[];
+  termsAccepted: boolean;
+}
+
+// Activity metadata for form initialization
+export interface ActivityMetadata {
+  title: string;
+  totalRequired: number;
+  adults: number;
+  children: number;
+  infants: number;
+  date: string;
+  location: string;
+}
+
+// Simplified checkout state - FORM-CENTRIC APPROACH
 interface CheckoutState {
-  currentStep: number;
+  currentStep: number; // 1=Details, 2=Review, 3=Payment
   bookingType: BookingType;
 
-  // Multi-activity support
-  allCheckoutItems: CheckoutItem[]; // All items from cart
-  currentActivityIndex: number; // Which activity we're processing
+  // Business data (READ-ONLY for forms)
+  activities: CheckoutItem[]; // All selected activities
 
-  // Unified member management - simpler approach
-  allMembers: MemberDetails[]; // All members for all activities
+  // Form persistence (updated only on form submission)
+  persistedFormData: CheckoutFormData | null;
 
-  // Legacy - current activity being processed (for backward compatibility)
-  checkoutItems: CheckoutItem[]; // Current single activity
-  members: MemberDetails[]; // Current activity's members (kept in sync with allMembers)
+  // Computed/derived state
+  activityMetadata: ActivityMetadata[]; // Computed from activities for form use
 
-  termsAccepted: boolean;
+  termsAccepted: boolean; // Temporary - will be moved to form persistence
   bookingConfirmation: BookingConfirmation | null;
-  isSubmitting: boolean;
+
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
 }
 
-// Enhanced checkout actions
+// Form-centric checkout actions
 interface CheckoutActions {
-  // Flow navigation
+  // Initialization (from cart)
+  initializeFromActivityCart: (cartItems: any[]) => void;
+  updateFromActivityCart: (cartItems: any[]) => void;
+
+  // Navigation (store responsibility)
   setCurrentStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
 
-  // Multi-activity management
-  initializeFromActivityCart: (cartItems: any[]) => void;
-  getCurrentActivity: () => CheckoutItem | null;
-  moveToNextActivity: () => boolean; // Returns true if more activities exist
-  moveToPreviousActivity: () => boolean;
+  // Form integration points (clear boundaries)
+  getFormDefaults: () => CheckoutFormData;
+  updateFormData: (formData: CheckoutFormData) => void;
+
+  // Business logic & computed values
   getTotalActivities: () => number;
-  getCurrentActivityIndex: () => number;
-  isLastActivity: () => boolean;
-  isFirstActivity: () => boolean;
+  getTotalPrice: () => number;
+  getActivityMetadata: () => ActivityMetadata[];
 
-  // Initialize checkout from ferry booking (future)
-  initializeFromFerryBooking: (ferryBooking: FerryBooking) => void;
-
-  // Member management (unified approach)
-  addMember: (member: Omit<MemberDetails, "id">) => void;
-  updateMember: (memberId: string, updates: Partial<MemberDetails>) => void;
-  removeMember: (memberId: string) => void;
-  getMemberById: (memberId: string) => MemberDetails | undefined;
-  initializeMembersFromPassengerCount: () => void;
-
-  // New unified member management
-  getMinimumMembersNeeded: () => number; // Total passengers across all activities
-  addExtraMember: () => void; // Add member beyond minimum required
-  canRemoveMember: (memberId: string) => boolean; // Check if member can be removed
-
-  // Terms & conditions
-  setTermsAccepted: (accepted: boolean) => void;
+  // Validation helpers
+  getMinimumMembersNeeded: () => number;
+  validateActivityAssignments: (members: MemberDetails[]) => {
+    valid: boolean;
+    errors: string[];
+  };
 
   // Booking submission
   submitBooking: () => Promise<void>;
 
   // Utility actions
   reset: () => void;
-  getTotalPassengers: () => number; // For current activity
-  getAdultCount: () => number; // For current activity
-  getTotalPrice: () => number; // For all activities
-  getPrimaryMember: () => MemberDetails | undefined;
 }
 
 type CheckoutStore = CheckoutState & CheckoutActions;
@@ -137,30 +141,85 @@ const generateMemberId = (): string => {
   return `member-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// Initial state
+// Helper to create initial member defaults
+const createInitialMembers = (
+  activityMetadata: ActivityMetadata[]
+): MemberDetails[] => {
+  if (activityMetadata.length === 0) return [];
+
+  // Calculate total passengers needed across all activities
+  const totalPassengersNeeded = activityMetadata.reduce(
+    (total, activity) => total + activity.totalRequired,
+    0
+  );
+
+  // Create members with smart defaults
+  const members: MemberDetails[] = [];
+
+  for (let i = 0; i < totalPassengersNeeded; i++) {
+    members.push({
+      id: generateMemberId(),
+      fullName: "",
+      age: i === 0 ? 25 : 12, // First member adult, others children by default
+      gender: "",
+      nationality: "Indian",
+      passportNumber: "",
+      whatsappNumber: i === 0 ? "" : undefined, // Only primary gets contact fields
+      email: i === 0 ? "" : undefined,
+      isPrimary: i === 0,
+      selectedActivities: activityMetadata.map((_, index) => index), // Assign to all activities initially
+    });
+  }
+
+  return members;
+};
+
+// Helper to compute activity metadata from activities
+const computeActivityMetadata = (
+  activities: CheckoutItem[]
+): ActivityMetadata[] => {
+  return activities
+    .map((item): ActivityMetadata | null => {
+      if (item.activityBooking) {
+        const { activity, searchParams } = item.activityBooking;
+        return {
+          title: activity.title || "Unknown Activity",
+          totalRequired:
+            (searchParams.adults || 0) + (searchParams.children || 0),
+          adults: searchParams.adults || 0,
+          children: searchParams.children || 0,
+          infants: 0,
+          date: searchParams.date || "Date TBD",
+          location: searchParams.location || "Location TBD",
+        };
+      }
+      return null;
+    })
+    .filter((item): item is ActivityMetadata => item !== null);
+};
+
+// Initial state - FORM-CENTRIC
 const initialState: CheckoutState = {
   currentStep: 1,
   bookingType: "activity",
 
-  // Multi-activity support
-  allCheckoutItems: [],
-  currentActivityIndex: 0,
+  // Business data
+  activities: [],
 
-  // Unified member management - simpler approach
-  allMembers: [],
+  // Form persistence
+  persistedFormData: null,
 
-  // Legacy - current activity being processed
-  checkoutItems: [],
-  members: [],
+  // Computed state
+  activityMetadata: [],
 
-  termsAccepted: false,
+  termsAccepted: false, // TODO: Move to form persistence
   bookingConfirmation: null,
-  isSubmitting: false,
   isLoading: false,
+  isInitialized: false,
   error: null,
 };
 
-// Create the Zustand store
+// Create the Form-Centric Zustand store
 export const useCheckoutStore = create<CheckoutStore>()(
   subscribeWithSelector(
     immer(
@@ -168,8 +227,69 @@ export const useCheckoutStore = create<CheckoutStore>()(
         ({
           ...initialState,
 
-          // Flow navigation
-          setCurrentStep: (step) => {
+          // === INITIALIZATION ===
+          initializeFromActivityCart: (cartItems) => {
+            set((state) => {
+              state.isLoading = true;
+              state.isInitialized = false;
+              state.bookingType = "activity";
+
+              // Set business data
+              state.activities = cartItems.map((cartItem) => ({
+                type: "activity" as BookingType,
+                activityBooking: {
+                  id: cartItem.id,
+                  activity: cartItem.activity,
+                  searchParams: cartItem.searchParams,
+                  quantity: cartItem.quantity,
+                  totalPrice: cartItem.totalPrice,
+                  activityOptionId: cartItem.activityOptionId,
+                },
+              }));
+
+              // Compute metadata for forms
+              state.activityMetadata = computeActivityMetadata(
+                state.activities
+              );
+
+              // Clear any existing form data (fresh start)
+              state.persistedFormData = null;
+              state.currentStep = 1;
+              state.error = null;
+
+              state.isLoading = false;
+              state.isInitialized = true;
+            });
+          },
+
+          updateFromActivityCart: (cartItems) => {
+            set((state) => {
+              // Update business data
+              state.activities = cartItems.map((cartItem) => ({
+                type: "activity" as BookingType,
+                activityBooking: {
+                  id: cartItem.id,
+                  activity: cartItem.activity,
+                  searchParams: cartItem.searchParams,
+                  quantity: cartItem.quantity,
+                  totalPrice: cartItem.totalPrice,
+                  activityOptionId: cartItem.activityOptionId,
+                },
+              }));
+
+              // Update metadata
+              state.activityMetadata = computeActivityMetadata(
+                state.activities
+              );
+
+              // Clear form data if activity requirements changed significantly
+              // Forms will re-initialize with new defaults
+              state.persistedFormData = null;
+            });
+          },
+
+          // === NAVIGATION ===
+          setCurrentStep: (step: number) => {
             set((state) => {
               state.currentStep = step;
             });
@@ -191,407 +311,207 @@ export const useCheckoutStore = create<CheckoutStore>()(
             });
           },
 
-          // Multi-activity management
-          initializeFromActivityCart: (cartItems) => {
+          // === FORM INTEGRATION ===
+          getFormDefaults: (): CheckoutFormData => {
+            const state = get();
+
+            // Return persisted data if available
+            if (state.persistedFormData) {
+              return state.persistedFormData;
+            }
+
+            // Generate fresh defaults based on current activities
+            const defaultMembers = createInitialMembers(state.activityMetadata);
+
+            return {
+              members: defaultMembers,
+              termsAccepted: false,
+            };
+          },
+
+          updateFormData: (formData: CheckoutFormData) => {
             set((state) => {
-              state.bookingType = "activity";
-              state.allCheckoutItems = cartItems.map((cartItem) => ({
-                type: "activity" as BookingType,
-                activityBooking: {
-                  id: cartItem.id,
-                  activity: cartItem.activity,
-                  searchParams: cartItem.searchParams,
-                  quantity: cartItem.quantity,
-                  totalPrice: cartItem.totalPrice,
-                  activityOptionId: cartItem.activityOptionId,
-                },
-              }));
-              state.currentActivityIndex = 0;
-              state.allMembers = []; // Clear all members
-              state.currentStep = 1;
-              state.error = null;
-
-              // Set current activity to first one
-              if (state.allCheckoutItems.length > 0) {
-                state.checkoutItems = [state.allCheckoutItems[0]];
-              }
+              state.persistedFormData = formData;
+              // Also update legacy termsAccepted for backward compatibility
+              state.termsAccepted = formData.termsAccepted;
             });
-
-            // Initialize members for first activity
-            get().initializeMembersFromPassengerCount();
           },
 
-          getCurrentActivity: () => {
-            const { allCheckoutItems, currentActivityIndex } = get();
-            return allCheckoutItems[currentActivityIndex] || null;
-          },
-
-          moveToNextActivity: () => {
-            const state = get();
-            if (
-              state.currentActivityIndex <
-              state.allCheckoutItems.length - 1
-            ) {
-              set((draft) => {
-                draft.currentActivityIndex += 1;
-                draft.checkoutItems = [
-                  draft.allCheckoutItems[draft.currentActivityIndex],
-                ];
-                draft.currentStep = 1; // Reset to member details for new activity
-                // Keep members in sync
-                draft.members = [...draft.allMembers];
-              });
-
-              return true;
-            }
-            return false;
-          },
-
-          moveToPreviousActivity: () => {
-            const state = get();
-            if (state.currentActivityIndex > 0) {
-              set((draft) => {
-                draft.currentActivityIndex -= 1;
-                draft.checkoutItems = [
-                  draft.allCheckoutItems[draft.currentActivityIndex],
-                ];
-                draft.currentStep = 1;
-                // Keep members in sync
-                draft.members = [...draft.allMembers];
-              });
-
-              return true;
-            }
-            return false;
-          },
-
+          // === BUSINESS LOGIC & COMPUTED VALUES ===
           getTotalActivities: () => {
-            return get().allCheckoutItems.length;
+            return get().activities.length;
           },
 
-          getCurrentActivityIndex: () => {
-            return get().currentActivityIndex;
+          getTotalPrice: () => {
+            return get().activities.reduce((total, item) => {
+              return total + (item.activityBooking?.totalPrice || 0);
+            }, 0);
           },
 
-          isLastActivity: () => {
+          getActivityMetadata: () => {
+            return get().activityMetadata;
+          },
+
+          getMinimumMembersNeeded: () => {
             const state = get();
-            return (
-              state.currentActivityIndex >= state.allCheckoutItems.length - 1
+            return state.activityMetadata.reduce(
+              (total, activity) => total + activity.totalRequired,
+              0
             );
           },
 
-          isFirstActivity: () => {
-            return get().currentActivityIndex === 0;
-          },
+          validateActivityAssignments: (members: MemberDetails[]) => {
+            const state = get();
+            const errors: string[] = [];
 
-          // Initialize from ferry booking (future implementation)
-          initializeFromFerryBooking: (ferryBooking) => {
-            set((state) => {
-              state.bookingType = "ferry";
-              state.allCheckoutItems = [
-                {
-                  type: "ferry",
-                  ferryBooking,
-                },
-              ];
-              state.checkoutItems = [state.allCheckoutItems[0]];
-              state.currentActivityIndex = 0;
-              state.allMembers = []; // Clear all members
-              state.currentStep = 1;
-              state.error = null;
-            });
+            // Count assignments per activity
+            const assignmentCounts = state.activityMetadata.map(() => 0);
 
-            // Initialize members based on passenger count
-            get().initializeMembersFromPassengerCount();
-          },
-
-          // Initialize members based on passenger count
-          initializeMembersFromPassengerCount: () => {
-            const minRequired = get().getMinimumMembersNeeded();
-            const adultCount = get().getAdultCount();
-            const childCount = minRequired - adultCount; // Calculate children count
-
-            const members: MemberDetails[] = [];
-
-            // Create adult members first
-            for (let i = 0; i < adultCount; i++) {
-              members.push({
-                id: generateMemberId(),
-                fullName: "",
-                age: 25, // Default adult age
-                gender: "",
-                nationality: "Indian",
-                passportNumber: "",
-                whatsappNumber: i === 0 ? "" : undefined, // Only primary member needs WhatsApp
-                email: i === 0 ? "" : undefined, // Only primary member needs email
-                isPrimary: i === 0,
-                selectedActivities: [], // Initialize with empty array
-              });
-            }
-
-            // Create child members
-            for (let i = 0; i < childCount; i++) {
-              members.push({
-                id: generateMemberId(),
-                fullName: "",
-                age: 12, // Default child age
-                gender: "",
-                nationality: "Indian",
-                passportNumber: "",
-                whatsappNumber: undefined,
-                email: undefined,
-                isPrimary: false,
-                selectedActivities: [], // Initialize with empty array
-              });
-            }
-
-            set((state) => {
-              state.allMembers = members;
-              state.members = [...members]; // Keep legacy members in sync
-            });
-          },
-
-          // Member management (unified approach)
-          addMember: (memberData) => {
-            set((state) => {
-              const newMember: MemberDetails = {
-                ...memberData,
-                id: generateMemberId(),
-                selectedActivities: [], // Initialize selectedActivities
-              };
-              state.allMembers.push(newMember);
-              state.members.push(newMember); // Keep legacy members in sync
-            });
-          },
-
-          updateMember: (memberId, updates) => {
-            set((state) => {
-              const memberIndex = state.allMembers.findIndex(
-                (m) => m.id === memberId
-              );
-              if (memberIndex !== -1) {
-                Object.assign(state.allMembers[memberIndex], updates);
-              }
-              // Keep legacy members in sync
-              const legacyMemberIndex = state.members.findIndex(
-                (m) => m.id === memberId
-              );
-              if (legacyMemberIndex !== -1) {
-                Object.assign(state.members[legacyMemberIndex], updates);
-              }
-            });
-          },
-
-          removeMember: (memberId) => {
-            set((state) => {
-              state.allMembers = state.allMembers.filter(
-                (m) => m.id !== memberId
-              );
-              state.members = state.members.filter((m) => m.id !== memberId); // Keep legacy members in sync
-            });
-          },
-
-          getMemberById: (memberId) => {
-            return get().allMembers.find((m) => m.id === memberId);
-          },
-
-          // New unified member management
-          getMinimumMembersNeeded: () => {
-            const { allCheckoutItems, bookingType } = get();
-            let totalPassengers = 0;
-
-            if (bookingType === "activity") {
-              // Calculate total passengers across ALL activities
-              // Each activity booking has specific passenger requirements
-              for (const item of allCheckoutItems) {
-                if (item.activityBooking) {
-                  totalPassengers +=
-                    item.activityBooking.searchParams.adults +
-                    item.activityBooking.searchParams.children;
+            members.forEach((member) => {
+              member.selectedActivities.forEach((activityIndex) => {
+                if (
+                  activityIndex >= 0 &&
+                  activityIndex < assignmentCounts.length
+                ) {
+                  assignmentCounts[activityIndex]++;
                 }
-              }
-            } else if (bookingType === "ferry") {
-              // For ferry, sum all ferry bookings
-              for (const item of allCheckoutItems) {
-                if (item.ferryBooking) {
-                  totalPassengers +=
-                    item.ferryBooking.adults + item.ferryBooking.children;
-                }
-              }
-            }
+              });
+            });
 
-            return totalPassengers;
-          },
+            // Check each activity has enough passengers
+            state.activityMetadata.forEach((activity, index) => {
+              const required = activity.totalRequired;
+              const assigned = assignmentCounts[index];
 
-          addExtraMember: () => {
-            const newMember: MemberDetails = {
-              id: generateMemberId(),
-              fullName: "",
-              age: 25, // Default age for new members
-              gender: "",
-              nationality: "Indian",
-              passportNumber: "",
-              whatsappNumber: undefined,
-              email: undefined,
-              isPrimary: false,
-              selectedActivities: [], // Initialize selectedActivities
+              if (assigned < required) {
+                errors.push(
+                  `${activity.title} needs ${
+                    required - assigned
+                  } more passengers`
+                );
+              }
+            });
+
+            return {
+              valid: errors.length === 0,
+              errors,
             };
-            set((state) => {
-              state.allMembers.push(newMember);
-              state.members.push(newMember); // Keep legacy members in sync
-            });
           },
 
-          canRemoveMember: (memberId) => {
-            const memberToRemove = get().getMemberById(memberId);
-            if (!memberToRemove) return false;
-
-            const currentMin = get().getMinimumMembersNeeded();
-            const currentTotal = get().allMembers.length;
-
-            // If the member to remove is the primary member, we cannot remove it
-            if (memberToRemove.isPrimary) return false;
-
-            // If removing the member will result in fewer than the minimum required, return false
-            if (currentTotal - 1 < currentMin) return false;
-
-            return true;
-          },
-
-          // Terms & conditions
-          setTermsAccepted: (accepted) => {
-            set((state) => {
-              state.termsAccepted = accepted;
-            });
-          },
-
-          // Booking submission
+          // === BOOKING SUBMISSION ===
           submitBooking: async () => {
-            set((state) => {
-              state.isSubmitting = true;
-              state.error = null;
+            const state = get();
+
+            set((draft) => {
+              draft.isLoading = true;
+              draft.error = null;
             });
 
             try {
-              // Simulate booking API call
+              if (!state.persistedFormData) {
+                throw new Error("No form data to submit");
+              }
+
+              // Validate before submission
+              const validation = get().validateActivityAssignments(
+                state.persistedFormData.members
+              );
+              if (!validation.valid) {
+                throw new Error(
+                  `Validation failed: ${validation.errors.join(", ")}`
+                );
+              }
+
+              // Prepare booking data
+              const bookingData = {
+                activities: state.activities,
+                members: state.persistedFormData.members,
+                termsAccepted: state.persistedFormData.termsAccepted,
+                totalPrice: get().getTotalPrice(),
+              };
+
+              // Simulate API call
               await new Promise((resolve) => setTimeout(resolve, 2000));
 
-              const bookingId = `booking-${Date.now()}`;
-              const totalPrice = get().getTotalPrice();
-
-              set((state) => {
-                state.bookingConfirmation = {
-                  bookingId: bookingId,
+              set((draft) => {
+                draft.bookingConfirmation = {
+                  bookingId: `AE${Date.now()}`,
                   confirmationNumber: `AC${Math.random()
                     .toString(36)
                     .substr(2, 8)
                     .toUpperCase()}`,
                   bookingDate: new Date().toISOString(),
                   status: "confirmed",
-                  paymentStatus: "paid",
+                  paymentStatus: "pending",
                 };
-                state.isSubmitting = false;
-                state.currentStep = 3;
+                draft.currentStep = 3;
+                draft.isLoading = false;
               });
             } catch (error) {
-              set((state) => {
-                state.error =
-                  error instanceof Error
-                    ? error.message
-                    : "Booking submission failed";
-                state.isSubmitting = false;
+              set((draft) => {
+                draft.error =
+                  error instanceof Error ? error.message : "Booking failed";
+                draft.isLoading = false;
               });
             }
           },
 
-          // Utility actions
+          // === UTILITY ===
           reset: () => {
-            set(() => ({ ...initialState }));
+            set(initialState);
           },
 
-          getTotalPassengers: () => {
-            const { allCheckoutItems, bookingType } = get();
-            let totalPassengers = 0;
-
-            if (bookingType === "activity") {
-              // Calculate total passengers across ALL activities
-              for (const item of allCheckoutItems) {
-                if (item.activityBooking) {
-                  const itemPassengers =
-                    item.activityBooking.searchParams.adults +
-                    item.activityBooking.searchParams.children;
-                  totalPassengers += itemPassengers;
-                }
+          // === LEGACY COMPATIBILITY (deprecated - remove gradually) ===
+          members: [], // Computed from persistedFormData.members
+          updateMember: () => {}, // No longer used - forms handle this
+          addMember: () => {}, // No longer used - forms handle this
+          removeMember: () => {}, // No longer used - forms handle this
+          getMemberById: () => undefined, // No longer used
+          initializeMembersFromPassengerCount: () => {}, // No longer used
+          autoAssignMembersToActivities: () => {}, // No longer used
+          addExtraMember: () => {}, // No longer used
+          canRemoveMember: () => false, // No longer used
+          setTermsAccepted: (accepted: boolean) => {
+            // Legacy support - update persisted data if it exists
+            set((state) => {
+              state.termsAccepted = accepted;
+              if (state.persistedFormData) {
+                state.persistedFormData.termsAccepted = accepted;
               }
-            } else if (bookingType === "ferry") {
-              // For ferry, sum all ferry passengers
-              for (const item of allCheckoutItems) {
-                if (item.ferryBooking) {
-                  totalPassengers +=
-                    item.ferryBooking.adults + item.ferryBooking.children;
-                }
-              }
-            }
-
-            return totalPassengers;
-          },
-
-          getAdultCount: () => {
-            const { allCheckoutItems, bookingType } = get();
-            let totalAdults = 0;
-
-            if (bookingType === "activity") {
-              // Calculate total adults across ALL activities
-              for (const item of allCheckoutItems) {
-                if (item.activityBooking) {
-                  totalAdults += item.activityBooking.searchParams.adults;
-                }
-              }
-            } else if (bookingType === "ferry") {
-              // For ferry, sum all ferry adult passengers
-              for (const item of allCheckoutItems) {
-                if (item.ferryBooking) {
-                  totalAdults += item.ferryBooking.adults;
-                }
-              }
-            }
-
-            return totalAdults;
-          },
-
-          getTotalPrice: () => {
-            return get().allCheckoutItems.reduce((total, item) => {
-              if (item.activityBooking) {
-                return total + item.activityBooking.totalPrice;
-              } else if (item.ferryBooking) {
-                return total + item.ferryBooking.totalPrice;
-              }
-              return total;
-            }, 0);
-          },
-
-          getPrimaryMember: () => {
-            return get().allMembers.find((m) => m.isPrimary);
+            });
           },
         } as CheckoutStore)
     )
   )
 );
 
-// Selectors for performance optimization
+// Enhanced selectors for performance optimization
 export const useCurrentStep = () =>
   useCheckoutStore((state) => state.currentStep);
+
 export const useCheckoutItems = () =>
-  useCheckoutStore((state) => state.allCheckoutItems); // Changed from checkoutItems to allCheckoutItems
+  useCheckoutStore((state) => state.activities);
+
 export const useAllCheckoutItems = () =>
-  useCheckoutStore((state) => state.allCheckoutItems); // New explicit selector for all items
+  useCheckoutStore((state) => state.activities);
+
 export const useCurrentCheckoutItem = () =>
-  useCheckoutStore((state) => state.checkoutItems); // Single current activity
-export const useMembers = () => useCheckoutStore((state) => state.members);
+  useCheckoutStore((state) => state.activities);
+
+export const useMembers = () =>
+  useCheckoutStore((state) => state.persistedFormData?.members || []);
+
 export const useBookingConfirmation = () =>
   useCheckoutStore((state) => state.bookingConfirmation);
+
 export const useCheckoutLoading = () =>
   useCheckoutStore((state) => ({
-    isSubmitting: state.isSubmitting,
     isLoading: state.isLoading,
   }));
+
+// New form-centric selectors
+export const useFormDefaults = () =>
+  useCheckoutStore((state) => state.getFormDefaults());
+
+export const useActivityMetadata = () =>
+  useCheckoutStore((state) => state.getActivityMetadata());

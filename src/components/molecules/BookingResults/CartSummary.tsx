@@ -86,8 +86,16 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
   const handlePassengerChange = useCallback(
     (cartItemId: string, type: keyof PassengerCount, value: number) => {
+      // Map the PassengerCounter type to the correct cart property
+      const cartPropertyMap = {
+        adults: "adults",
+        infants: "children", // Map infants counter to children property
+        children: "children",
+      };
+
+      const cartProperty = cartPropertyMap[type] || type;
       updateCartItem(cartItemId, {
-        [type]: value,
+        [cartProperty]: value,
       });
     },
     [updateCartItem]
@@ -143,7 +151,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   // Calculate total price and guest count
   const totalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
   const totalGuests = cart.reduce(
-    (sum, item) => sum + item.searchParams.adults + item.searchParams.infants,
+    (sum, item) => sum + item.searchParams.adults + item.searchParams.children,
     0
   );
 
@@ -244,9 +252,9 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                           alt={activity.title}
                           className={styles.compactImage}
                         />
-                        {searchParams.adults + searchParams.infants > 1 && (
+                        {searchParams.adults + searchParams.children > 1 && (
                           <div className={styles.quantityBadge}>
-                            {searchParams.adults + searchParams.infants}
+                            {searchParams.adults + searchParams.children}
                           </div>
                         )}
                       </div>
@@ -288,7 +296,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                           >
                             <Users size={12} />
                             <span className={styles.guestCount}>
-                              {searchParams.adults + searchParams.infants}{" "}
+                              {searchParams.adults + searchParams.children}{" "}
                               guests
                             </span>
                             <Edit2 size={8} className={styles.editIcon} />
@@ -363,9 +371,9 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                           alt={activity.title}
                           className={styles.activityImage}
                         />
-                        {searchParams.adults + searchParams.infants > 1 && (
+                        {searchParams.adults + searchParams.children > 1 && (
                           <div className={styles.quantityBadge}>
-                            {searchParams.adults + searchParams.infants}
+                            {searchParams.adults + searchParams.children}
                           </div>
                         )}
                       </div>
@@ -438,7 +446,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                       >
                         <Users size={14} />
                         <span>
-                          {searchParams.adults + searchParams.infants} guests
+                          {searchParams.adults + searchParams.children} guests
                         </span>
                         <Edit2 size={12} className={styles.editIcon} />
                       </div>
@@ -531,7 +539,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                         <PassengerCounter
                           value={{
                             adults: searchParams.adults,
-                            infants: searchParams.infants,
+                            infants: searchParams.children, // Map children to infants for the counter
                           }}
                           onChange={(type, value) =>
                             handlePassengerChange(item.id, type, value)
