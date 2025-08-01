@@ -77,6 +77,8 @@ export interface Config {
     'activity-categories': ActivityCategory;
     activities: Activity;
     'time-slots': TimeSlot;
+    bookings: Booking;
+    payments: Payment;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -93,6 +95,8 @@ export interface Config {
     'activity-categories': ActivityCategoriesSelect<false> | ActivityCategoriesSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
+    bookings: BookingsSelect<false> | BookingsSelect<true>;
+    payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -1089,6 +1093,292 @@ export interface TimeSlot {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings".
+ */
+export interface Booking {
+  id: string;
+  /**
+   * Unique booking confirmation number (auto-generated)
+   */
+  confirmationNumber: string;
+  /**
+   * Internal booking ID (auto-generated)
+   */
+  bookingId: string;
+  customerInfo: {
+    /**
+     * Name of the primary contact person
+     */
+    primaryContactName: string;
+    /**
+     * Primary email for booking correspondence
+     */
+    customerEmail: string;
+    /**
+     * WhatsApp number for updates
+     */
+    customerPhone: string;
+    nationality?: string | null;
+  };
+  bookingType: 'activity' | 'ferry' | 'package' | 'mixed';
+  /**
+   * Date when the booking was made
+   */
+  bookingDate: string;
+  /**
+   * Date of the actual service/activity
+   */
+  serviceDate: string;
+  bookedActivities?:
+    | {
+        activity: string | Activity;
+        /**
+         * Specific activity option/variant selected
+         */
+        activityOption?: string | null;
+        quantity: number;
+        /**
+         * Price per unit at the time of booking
+         */
+        unitPrice: number;
+        /**
+         * Total price for this activity (quantity × unitPrice)
+         */
+        totalPrice: number;
+        /**
+         * Scheduled time for this activity (HH:MM format)
+         */
+        scheduledTime?: string | null;
+        /**
+         * Location for this activity
+         */
+        location?: (string | null) | Location;
+        passengers?: {
+          adults?: number | null;
+          children?: number | null;
+          infants?: number | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  passengers?:
+    | {
+        /**
+         * Is this the primary contact person?
+         */
+        isPrimary?: boolean | null;
+        fullName: string;
+        age: number;
+        gender?: ('Male' | 'Female' | 'Other') | null;
+        nationality?: string | null;
+        /**
+         * Passport/ID number for verification
+         */
+        passportNumber?: string | null;
+        /**
+         * WhatsApp number (only for primary contact)
+         */
+        whatsappNumber?: string | null;
+        /**
+         * Email address (only for primary contact)
+         */
+        email?: string | null;
+        assignedActivities?:
+          | {
+              /**
+               * Index of the activity this passenger is assigned to
+               */
+              activityIndex: number;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  pricing: {
+    /**
+     * Subtotal before taxes and fees
+     */
+    subtotal: number;
+    /**
+     * Total tax amount
+     */
+    taxes?: number | null;
+    /**
+     * Processing and other fees
+     */
+    fees?: number | null;
+    /**
+     * Final total amount
+     */
+    totalAmount: number;
+    currency?: string | null;
+  };
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
+  /**
+   * Associated payment transactions
+   */
+  paymentTransactions?: (string | Payment)[] | null;
+  /**
+   * Any special requests or notes from the customer
+   */
+  specialRequests?: string | null;
+  /**
+   * Internal notes for staff (not visible to customer)
+   */
+  internalNotes?: string | null;
+  /**
+   * Customer accepted terms and conditions
+   */
+  termsAccepted: boolean;
+  communicationPreferences?: {
+    sendWhatsAppUpdates?: boolean | null;
+    sendEmailUpdates?: boolean | null;
+    language?: ('en' | 'hi') | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments".
+ */
+export interface Payment {
+  id: string;
+  /**
+   * Internal transaction ID (auto-generated)
+   */
+  transactionId: string;
+  /**
+   * Associated booking
+   */
+  bookingReference: string | Booking;
+  /**
+   * Razorpay specific transaction data
+   */
+  razorpayData?: {
+    /**
+     * Razorpay Order ID
+     */
+    razorpayOrderId?: string | null;
+    /**
+     * Razorpay Payment ID (after successful payment)
+     */
+    razorpayPaymentId?: string | null;
+    /**
+     * Razorpay payment signature for verification
+     */
+    razorpaySignature?: string | null;
+    /**
+     * Raw webhook data from Razorpay
+     */
+    razorpayWebhookData?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  /**
+   * Payment amount in smallest currency unit (paise for INR)
+   */
+  amount: number;
+  currency: string;
+  paymentMethod: 'card' | 'netbanking' | 'upi' | 'wallet' | 'emi' | 'bank_transfer' | 'cash' | 'other';
+  status: 'pending' | 'processing' | 'success' | 'failed' | 'cancelled' | 'refunded' | 'partially_refunded';
+  /**
+   * Date when payment was completed
+   */
+  paymentDate?: string | null;
+  customerDetails?: {
+    /**
+     * Customer name for payment
+     */
+    customerName?: string | null;
+    /**
+     * Customer email for payment receipt
+     */
+    customerEmail?: string | null;
+    /**
+     * Customer phone for payment notifications
+     */
+    customerPhone?: string | null;
+  };
+  /**
+   * Reason for payment failure (if applicable)
+   */
+  failureReason?: string | null;
+  /**
+   * Error code from payment gateway
+   */
+  errorCode?: string | null;
+  /**
+   * Refund information (if applicable)
+   */
+  refundDetails?: {
+    /**
+     * Razorpay refund ID
+     */
+    refundId?: string | null;
+    /**
+     * Refunded amount in smallest currency unit
+     */
+    refundAmount?: number | null;
+    refundDate?: string | null;
+    refundReason?: string | null;
+    refundStatus?: ('pending' | 'processing' | 'processed' | 'failed') | null;
+  };
+  /**
+   * Complete response from payment gateway
+   */
+  gatewayResponse?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Payment attempt number (for retry tracking)
+   */
+  attemptNumber?: number | null;
+  /**
+   * Customer IP address during payment
+   */
+  ipAddress?: string | null;
+  /**
+   * Customer browser/device information
+   */
+  userAgent?: string | null;
+  /**
+   * Internal notes about this payment
+   */
+  internalNotes?: string | null;
+  /**
+   * Payment reconciliation information
+   */
+  reconciliation?: {
+    /**
+     * Has this payment been reconciled?
+     */
+    isReconciled?: boolean | null;
+    reconciledDate?: string | null;
+    /**
+     * Bank settlement reference
+     */
+    settlementId?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -1133,6 +1423,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'time-slots';
         value: string | TimeSlot;
+      } | null)
+    | ({
+        relationTo: 'bookings';
+        value: string | Booking;
+      } | null)
+    | ({
+        relationTo: 'payments';
+        value: string | Payment;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1877,6 +2175,140 @@ export interface TimeSlotsSelect<T extends boolean = true> {
         isActive?: T;
         priority?: T;
         isPopular?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings_select".
+ */
+export interface BookingsSelect<T extends boolean = true> {
+  confirmationNumber?: T;
+  bookingId?: T;
+  customerInfo?:
+    | T
+    | {
+        primaryContactName?: T;
+        customerEmail?: T;
+        customerPhone?: T;
+        nationality?: T;
+      };
+  bookingType?: T;
+  bookingDate?: T;
+  serviceDate?: T;
+  bookedActivities?:
+    | T
+    | {
+        activity?: T;
+        activityOption?: T;
+        quantity?: T;
+        unitPrice?: T;
+        totalPrice?: T;
+        scheduledTime?: T;
+        location?: T;
+        passengers?:
+          | T
+          | {
+              adults?: T;
+              children?: T;
+              infants?: T;
+            };
+        id?: T;
+      };
+  passengers?:
+    | T
+    | {
+        isPrimary?: T;
+        fullName?: T;
+        age?: T;
+        gender?: T;
+        nationality?: T;
+        passportNumber?: T;
+        whatsappNumber?: T;
+        email?: T;
+        assignedActivities?:
+          | T
+          | {
+              activityIndex?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  pricing?:
+    | T
+    | {
+        subtotal?: T;
+        taxes?: T;
+        fees?: T;
+        totalAmount?: T;
+        currency?: T;
+      };
+  status?: T;
+  paymentStatus?: T;
+  paymentTransactions?: T;
+  specialRequests?: T;
+  internalNotes?: T;
+  termsAccepted?: T;
+  communicationPreferences?:
+    | T
+    | {
+        sendWhatsAppUpdates?: T;
+        sendEmailUpdates?: T;
+        language?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments_select".
+ */
+export interface PaymentsSelect<T extends boolean = true> {
+  transactionId?: T;
+  bookingReference?: T;
+  razorpayData?:
+    | T
+    | {
+        razorpayOrderId?: T;
+        razorpayPaymentId?: T;
+        razorpaySignature?: T;
+        razorpayWebhookData?: T;
+      };
+  amount?: T;
+  currency?: T;
+  paymentMethod?: T;
+  status?: T;
+  paymentDate?: T;
+  customerDetails?:
+    | T
+    | {
+        customerName?: T;
+        customerEmail?: T;
+        customerPhone?: T;
+      };
+  failureReason?: T;
+  errorCode?: T;
+  refundDetails?:
+    | T
+    | {
+        refundId?: T;
+        refundAmount?: T;
+        refundDate?: T;
+        refundReason?: T;
+        refundStatus?: T;
+      };
+  gatewayResponse?: T;
+  attemptNumber?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  internalNotes?: T;
+  reconciliation?:
+    | T
+    | {
+        isReconciled?: T;
+        reconciledDate?: T;
+        settlementId?: T;
       };
   updatedAt?: T;
   createdAt?: T;

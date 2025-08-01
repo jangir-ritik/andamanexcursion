@@ -132,6 +132,8 @@ interface CheckoutActions {
 
   // Utility actions
   reset: () => void;
+  resetAfterBooking: () => void;
+  completeReset: () => void;
 }
 
 type CheckoutStore = CheckoutState & CheckoutActions;
@@ -430,6 +432,13 @@ export const useCheckoutStore = create<CheckoutStore>()(
                 totalPrice: get().getTotalPrice(),
               };
 
+              // TODO: Replace with actual API call to create booking in Payload CMS
+              // const response = await fetch('/api/bookings', {
+              //   method: 'POST',
+              //   headers: { 'Content-Type': 'application/json' },
+              //   body: JSON.stringify(bookingData)
+              // });
+
               // Simulate API call
               await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -458,6 +467,26 @@ export const useCheckoutStore = create<CheckoutStore>()(
 
           // === UTILITY ===
           reset: () => {
+            set(initialState);
+          },
+
+          // Reset after successful booking completion
+          resetAfterBooking: () => {
+            set((draft) => {
+              // Keep confirmation data but reset form and business data
+              const confirmation = draft.bookingConfirmation;
+
+              // Reset to initial state
+              Object.assign(draft, initialState);
+
+              // Keep confirmation for the current session (until page refresh)
+              draft.bookingConfirmation = confirmation;
+              draft.currentStep = 3; // Stay on confirmation step
+            });
+          },
+
+          // Complete reset (including confirmation) - for new booking session
+          completeReset: () => {
             set(initialState);
           },
 

@@ -3,15 +3,12 @@ import React, { JSX, useState } from "react";
 import {
   Edit2,
   ArrowUpRight,
-  ChevronDown,
-  ChevronUp,
   Users,
   Info,
 } from "lucide-react";
 import { useCheckoutStore, useCheckoutItems } from "@/store/CheckoutStore";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
-import { cn } from "@/utils/cn";
 import styles from "./ReviewStep.module.css";
 
 // Types for better type safety
@@ -465,6 +462,7 @@ export const ReviewStep: React.FC = () => {
 
                 {/* Proceed Button */}
                 <Button
+                  className={styles.proceedButton}
                   onClick={handleProceedToBooking}
                   disabled={!canProceed() || isLoading}
                 >

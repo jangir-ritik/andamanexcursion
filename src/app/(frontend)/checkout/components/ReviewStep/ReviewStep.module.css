@@ -394,24 +394,9 @@
   gap: var(--space-4);
 }
 
-.backButton,
 .proceedButton {
-  min-width: var(--size-form-field-min-width);
-  padding: var(--space-4) var(--space-6);
-  border-radius: var(--radius-base);
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
-  font-weight: 500;
-}
-
-.proceedButton {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
+  width: 100%;
+  min-width: auto;
 }
 
 /* Responsive Design */
@@ -465,11 +450,6 @@
   }
 
   .backButton,
-  .proceedButton {
-    width: 100%;
-    min-width: auto;
-  }
-
   .bookingInfo .detailItem {
     flex-direction: column;
     align-items: flex-start;

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useLayoutEffect, useEffect } from "react";
 import { useCheckoutStore, useCurrentStep } from "@/store/CheckoutStore";
 import { StepIndicator } from "@/app/(frontend)/plan-your-trip/components/StepIndicator";
 import { MemberDetailsStep } from "../MemberDetailsStep";
@@ -28,25 +28,43 @@ const CHECKOUT_STEPS = [
 
 export const CheckoutFlow: React.FC = () => {
   const currentStep = useCurrentStep();
-  const { setCurrentStep, bookingConfirmation, getTotalActivities } =
+  const { setCurrentStep, bookingConfirmation, persistedFormData } =
     useCheckoutStore();
 
-  const totalActivities = getTotalActivities();
+  // Force scroll function for external use
+  const forceScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  // Step completion logic
+  // Make it available globally (you can call this from ReviewStep)
+  useEffect(() => {
+    (window as any).forceScrollToTop = forceScrollToTop;
+    return () => {
+      delete (window as any).forceScrollToTop;
+    };
+  }, []);
+
+  // Scroll to top whenever step changes
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
+  // Step completion logic - FIXED
   const isStepCompleted = (step: number): boolean => {
     if (step < currentStep) return true;
+    if (step === 1 && persistedFormData) return true; // Step 1 is completed if we have form data
+    if (step === 2 && currentStep > 2) return true; // Step 2 is completed if we're past it
     if (step === 3 && bookingConfirmation) return true;
     return false;
   };
 
-  // Step accessibility logic
+  // Step accessibility logic - FIXED
   const isStepAccessible = (step: number): boolean => {
     // Step 1 is always accessible
     if (step === 1) return true;
 
-    // Step 2 is accessible if we're on step 2 or later
-    if (step === 2) return currentStep >= 2;
+    // Step 2 is accessible if we have completed step 1 (have form data) OR are currently on step 2+
+    if (step === 2) return !!persistedFormData || currentStep >= 2;
 
     // Step 3 is accessible if we're on step 3 or have a confirmed booking
     if (step === 3) return currentStep >= 3 || !!bookingConfirmation;
@@ -58,6 +76,8 @@ export const CheckoutFlow: React.FC = () => {
   const handleStepClick = (step: number) => {
     if (isStepAccessible(step)) {
       setCurrentStep(step);
+    } else {
+      console.log(`❌ Step ${step} is not accessible`);
     }
   };
 

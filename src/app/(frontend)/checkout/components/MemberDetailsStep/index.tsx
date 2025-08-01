@@ -36,6 +36,7 @@ import {
 } from "../../schemas/checkoutSchemas";
 import { cn } from "@/utils/cn";
 import styles from "./MemberDetailsStep.module.css";
+import { DescriptionText, SectionTitle } from "@/components/atoms";
 
 // Generate unique member ID
 const generateMemberId = (): string => {
@@ -216,11 +217,8 @@ export const MemberDetailsStep: React.FC = () => {
   return (
     <div className={styles.memberDetailsStep}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Passenger Details</h2>
-        <p className={styles.description}>
-          Enter details for all passengers. The first passenger will be the
-          primary contact.
-        </p>
+        <SectionTitle text="Add Member Details" specialWord="Member Details" />
+        <DescriptionText text="Enter details for all passengers. The first passenger will be the primary contact." />
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>

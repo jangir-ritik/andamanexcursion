@@ -18,6 +18,8 @@ import Locations from "./app/(payload)/collections/Locations";
 import ActivityCategories from "./app/(payload)/collections/ActivityCategories";
 import Activities from "./app/(payload)/collections/Activities";
 import TimeSlots from "./app/(payload)/collections/TimeSlots";
+import Bookings from "./app/(payload)/collections/Bookings";
+import Payments from "./app/(payload)/collections/Payments";
 import Navigation from "./app/(payload)/globals/Navigation";
 
 export default buildConfig({
@@ -32,6 +34,8 @@ export default buildConfig({
     ActivityCategories,
     Activities,
     TimeSlots,
+    Bookings,
+    Payments,
   ],
   globals: [Navigation],
   secret: process.env.PAYLOAD_SECRET || "",

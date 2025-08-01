@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Download, Printer, CheckCircle } from "lucide-react";
+import { Download } from "lucide-react";
 import {
   useCheckoutStore,
   useMembers,
@@ -10,6 +10,7 @@ import {
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
 import styles from "./ConfirmationStep.module.css";
+import { DescriptionText } from "@/components/atoms";
 
 export const ConfirmationStep: React.FC = () => {
   const { getTotalPrice } = useCheckoutStore();
@@ -17,27 +18,38 @@ export const ConfirmationStep: React.FC = () => {
   const checkoutItems = useCheckoutItems();
   const bookingConfirmation = useBookingConfirmation();
 
-  // Get booking details
-  const getBookingDetails = () => {
-    if (checkoutItems.length === 0) return null;
+  // Get all booking details
+  const getAllBookingDetails = () => {
+    if (checkoutItems.length === 0) return [];
 
-    const firstItem = checkoutItems[0];
-    if (firstItem.activityBooking) {
-      const { activity, searchParams } = firstItem.activityBooking;
-      return {
-        type: "Activity" as const,
-        title: activity.title,
-        location: activity.coreInfo.location[0]?.name || "N/A",
-        date: searchParams.date,
-        time: searchParams.time,
-        duration: activity.coreInfo.duration,
-        image: activity.media.featuredImage?.url || null,
-      };
-    }
-    return null;
+    return checkoutItems
+      .map((item, index) => {
+        if (item.activityBooking) {
+          const { activity, searchParams } = item.activityBooking;
+          return {
+            id: item.activityBooking.id,
+            index: index,
+            type: "Activity" as const,
+            title: activity.title,
+            location: activity.coreInfo.location[0]?.name || "N/A",
+            date: searchParams.date,
+            time: searchParams.time,
+            duration: activity.coreInfo.duration,
+            image: activity.media.featuredImage?.url || null,
+            price: item.activityBooking.totalPrice,
+            passengers: {
+              adults: searchParams.adults || 0,
+              children: searchParams.children || 0,
+              total: (searchParams.adults || 0) + (searchParams.children || 0),
+            },
+          };
+        }
+        return null;
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
   };
 
-  const bookingDetails = getBookingDetails();
+  const allBookingDetails = getAllBookingDetails();
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -70,7 +82,7 @@ export const ConfirmationStep: React.FC = () => {
     window.print();
   };
 
-  if (!bookingConfirmation || !bookingDetails) {
+  if (!bookingConfirmation || allBookingDetails.length === 0) {
     return (
       <div className={styles.confirmationStep}>
         <div className={styles.errorState}>
@@ -85,24 +97,21 @@ export const ConfirmationStep: React.FC = () => {
     <div className={styles.confirmationStep}>
       {/* Success Header */}
       <div className={styles.successHeader}>
-        <div className={styles.successIcon}>
-          <CheckCircle size={48} />
-        </div>
         <SectionTitle
           text="Booking Confirmed!"
           specialWord="Confirmed"
           className={styles.title}
         />
-        <p className={styles.successMessage}>
-          Your booking has been confirmed. You will receive your e-ticket via
-          WhatsApp shortly.
-        </p>
+        <DescriptionText text="Your booking has been confirmed. You will receive your e-ticket via WhatsApp shortly." />
       </div>
 
-      {/* Booking Details Card */}
-      <div className={styles.bookingDetailsCard}>
+      {/* Booking Details Cards */}
+      <div className={styles.bookingDetailsSection}>
         <div className={styles.bookingHeader}>
-          <h3 className={styles.bookingTitle}>Booking Details</h3>
+          <h3 className={styles.bookingTitle}>
+            Booking Details ({allBookingDetails.length}{" "}
+            {allBookingDetails.length === 1 ? "Activity" : "Activities"})
+          </h3>
           <div className={styles.bookingId}>
             <span className={styles.bookingIdLabel}>Booking ID:</span>
             <span className={styles.bookingIdValue}>
@@ -111,44 +120,75 @@ export const ConfirmationStep: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.serviceInfo}>
-          {bookingDetails.image && (
-            <div className={styles.serviceImage}>
-              <img
-                src={bookingDetails.image}
-                alt={bookingDetails.title}
-                className={styles.image}
-              />
+        {allBookingDetails.map((bookingDetail, index) => (
+          <div key={bookingDetail.id} className={styles.bookingDetailsCard}>
+            <div className={styles.serviceInfo}>
+              {bookingDetail.image && (
+                <div className={styles.serviceImage}>
+                  <img
+                    src={bookingDetail.image}
+                    alt={bookingDetail.title}
+                    className={styles.image}
+                  />
+                </div>
+              )}
+              <div className={styles.serviceDetails}>
+                <h4 className={styles.serviceName}>
+                  {bookingDetail.title}
+                  <span className={styles.activityNumber}>#{index + 1}</span>
+                </h4>
+                <div className={styles.tripDetailsGrid}>
+                  <div className={styles.tripDetail}>
+                    <span className={styles.detailLabel}>Location</span>
+                    <span className={styles.detailValue}>
+                      {bookingDetail.location}
+                    </span>
+                  </div>
+                  <div className={styles.tripDetail}>
+                    <span className={styles.detailLabel}>Time</span>
+                    <span className={styles.detailValue}>
+                      {formatTime(bookingDetail.time)}
+                    </span>
+                  </div>
+                  <div className={styles.tripDetail}>
+                    <span className={styles.detailLabel}>Date</span>
+                    <span className={styles.detailValue}>
+                      {formatDate(bookingDetail.date)}
+                    </span>
+                  </div>
+                  <div className={styles.tripDetail}>
+                    <span className={styles.detailLabel}>Duration</span>
+                    <span className={styles.detailValue}>
+                      {bookingDetail.duration}
+                    </span>
+                  </div>
+                  <div className={styles.tripDetail}>
+                    <span className={styles.detailLabel}>Passengers</span>
+                    <span className={styles.detailValue}>
+                      {bookingDetail.passengers.adults} Adults
+                      {bookingDetail.passengers.children > 0 &&
+                        `, ${bookingDetail.passengers.children} Children`}
+                    </span>
+                  </div>
+                  <div className={styles.tripDetail}>
+                    <span className={styles.detailLabel}>Price</span>
+                    <span className={styles.detailValue}>
+                      ₹{bookingDetail.price.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-          <div className={styles.serviceDetails}>
-            <h4 className={styles.serviceName}>{bookingDetails.title}</h4>
-            <div className={styles.tripDetailsGrid}>
-              <div className={styles.tripDetail}>
-                <span className={styles.detailLabel}>Location</span>
-                <span className={styles.detailValue}>
-                  {bookingDetails.location}
-                </span>
-              </div>
-              <div className={styles.tripDetail}>
-                <span className={styles.detailLabel}>Time</span>
-                <span className={styles.detailValue}>
-                  {formatTime(bookingDetails.time)}
-                </span>
-              </div>
-              <div className={styles.tripDetail}>
-                <span className={styles.detailLabel}>Date</span>
-                <span className={styles.detailValue}>
-                  {formatDate(bookingDetails.date)}
-                </span>
-              </div>
-              <div className={styles.tripDetail}>
-                <span className={styles.detailLabel}>Duration</span>
-                <span className={styles.detailValue}>
-                  {bookingDetails.duration}
-                </span>
-              </div>
-            </div>
+          </div>
+        ))}
+
+        {/* Total Price Summary */}
+        <div className={styles.totalPriceCard}>
+          <div className={styles.totalPriceRow}>
+            <span className={styles.totalLabel}>Total Amount:</span>
+            <span className={styles.totalValue}>
+              ₹{getTotalPrice().toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
