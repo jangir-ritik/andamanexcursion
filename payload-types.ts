@@ -77,8 +77,10 @@ export interface Config {
     'activity-categories': ActivityCategory;
     activities: Activity;
     'time-slots': TimeSlot;
+    'activity-inventory': ActivityInventory;
     bookings: Booking;
     payments: Payment;
+    'booking-sessions': BookingSession;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -95,8 +97,10 @@ export interface Config {
     'activity-categories': ActivityCategoriesSelect<false> | ActivityCategoriesSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
+    'activity-inventory': ActivityInventorySelect<false> | ActivityInventorySelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
+    'booking-sessions': BookingSessionsSelect<false> | BookingSessionsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -1093,6 +1097,76 @@ export interface TimeSlot {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity-inventory".
+ */
+export interface ActivityInventory {
+  id: string;
+  title?: string | null;
+  /**
+   * The activity this inventory is for
+   */
+  activity: string | Activity;
+  /**
+   * Specific activity option/variant (if applicable)
+   */
+  activityOption?: string | null;
+  /**
+   * Service date (YYYY-MM-DD)
+   */
+  date: string;
+  /**
+   * Time slot for this inventory (optional for full-day activities)
+   */
+  timeSlot?: (string | null) | TimeSlot;
+  /**
+   * Maximum number of people that can be accommodated
+   */
+  totalCapacity: number;
+  /**
+   * Number of people currently booked
+   */
+  bookedCapacity?: number | null;
+  /**
+   * Remaining capacity (auto-calculated)
+   */
+  availableCapacity?: number | null;
+  /**
+   * Temporarily held capacity (for pending payments)
+   */
+  reservedCapacity?: number | null;
+  status: 'available' | 'fully_booked' | 'cancelled' | 'suspended';
+  /**
+   * Is this inventory slot active for booking?
+   */
+  isActive?: boolean | null;
+  /**
+   * Optional price overrides for this specific date/time
+   */
+  priceOverrides?: {
+    hasOverride?: boolean | null;
+    /**
+     * Override price for adults
+     */
+    adultPrice?: number | null;
+    /**
+     * Override price for children
+     */
+    childPrice?: number | null;
+  };
+  /**
+   * Special notes for this date/time (weather, equipment, etc.)
+   */
+  operationalNotes?: string | null;
+  weatherDependency?: ('no' | 'dependent' | 'indoor') | null;
+  /**
+   * Override location for this specific date/time (if different from activity default)
+   */
+  locationOverride?: (string | null) | Location;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings".
  */
 export interface Booking {
@@ -1100,11 +1174,11 @@ export interface Booking {
   /**
    * Unique booking confirmation number (auto-generated)
    */
-  confirmationNumber: string;
+  confirmationNumber?: string | null;
   /**
    * Internal booking ID (auto-generated)
    */
-  bookingId: string;
+  bookingId?: string | null;
   customerInfo: {
     /**
      * Name of the primary contact person
@@ -1122,9 +1196,9 @@ export interface Booking {
   };
   bookingType: 'activity' | 'ferry' | 'package' | 'mixed';
   /**
-   * Date when the booking was made
+   * Date when the booking was made (auto-generated)
    */
-  bookingDate: string;
+  bookingDate?: string | null;
   /**
    * Date of the actual service/activity
    */
@@ -1249,11 +1323,11 @@ export interface Payment {
   /**
    * Internal transaction ID (auto-generated)
    */
-  transactionId: string;
+  transactionId?: string | null;
   /**
-   * Associated booking
+   * Associated booking (set after booking creation)
    */
-  bookingReference: string | Booking;
+  bookingReference?: (string | null) | Booking;
   /**
    * Razorpay specific transaction data
    */
@@ -1379,6 +1453,173 @@ export interface Payment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "booking-sessions".
+ */
+export interface BookingSession {
+  id: string;
+  /**
+   * Unique session identifier (auto-generated)
+   */
+  sessionId: string;
+  /**
+   * User ID if user is logged in (future implementation)
+   */
+  userId?: string | null;
+  /**
+   * Browser/device information
+   */
+  userAgent?: string | null;
+  /**
+   * User's IP address
+   */
+  ipAddress?: string | null;
+  /**
+   * How the user reached the site
+   */
+  referrer?: string | null;
+  /**
+   * User's email (captured during checkout process)
+   */
+  userEmail?: string | null;
+  /**
+   * User's phone number
+   */
+  userPhone?: string | null;
+  /**
+   * User's name
+   */
+  userName?: string | null;
+  cartItems?:
+    | {
+        activity: string | Activity;
+        /**
+         * Selected activity option/variant
+         */
+        activityOptionId?: string | null;
+        /**
+         * Search parameters (date, time, passengers, location)
+         */
+        searchParams?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        quantity: number;
+        /**
+         * Price per unit at time of adding to cart
+         */
+        unitPrice: number;
+        /**
+         * Total price for this item
+         */
+        totalPrice: number;
+        /**
+         * When this item was added to cart
+         */
+        addedAt?: string | null;
+        /**
+         * Is inventory reserved for this item?
+         */
+        inventoryReserved?: boolean | null;
+        /**
+         * When the inventory reservation expires
+         */
+        reservationExpiry?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Partially filled member details from checkout form
+   */
+  memberDetails?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Last completed checkout step (1=Details, 2=Review, 3=Payment)
+   */
+  checkoutStep?: number | null;
+  status: 'active' | 'abandoned' | 'converted' | 'expired';
+  /**
+   * When this session expires
+   */
+  expiresAt: string;
+  /**
+   * Conversion and analytics data
+   */
+  conversionData?: {
+    /**
+     * The booking this session converted to
+     */
+    convertedBookingId?: (string | null) | Booking;
+    /**
+     * When the conversion happened
+     */
+    convertedAt?: string | null;
+    /**
+     * Final booking amount
+     */
+    totalAmount?: number | null;
+    /**
+     * Time from session start to conversion (minutes)
+     */
+    conversionTimeMinutes?: number | null;
+  };
+  analytics?: {
+    /**
+     * Number of pages viewed in this session
+     */
+    pageViews?: number | null;
+    /**
+     * Total time spent on site (minutes)
+     */
+    timeSpentMinutes?: number | null;
+    /**
+     * Did user abandon cart during checkout?
+     */
+    cartAbandoned?: boolean | null;
+    /**
+     * At which checkout step was cart abandoned
+     */
+    abandonedAtStep?: number | null;
+  };
+  /**
+   * Total number of items in cart
+   */
+  itemCount?: number | null;
+  /**
+   * Total cart amount
+   */
+  totalAmount?: number | null;
+  /**
+   * Abandoned cart recovery attempts
+   */
+  recoveryAttempts?:
+    | {
+        attemptDate: string;
+        method: 'email' | 'whatsapp' | 'sms' | 'push';
+        success?: boolean | null;
+        /**
+         * User response or engagement
+         */
+        response?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -1425,12 +1666,20 @@ export interface PayloadLockedDocument {
         value: string | TimeSlot;
       } | null)
     | ({
+        relationTo: 'activity-inventory';
+        value: string | ActivityInventory;
+      } | null)
+    | ({
         relationTo: 'bookings';
         value: string | Booking;
       } | null)
     | ({
         relationTo: 'payments';
         value: string | Payment;
+      } | null)
+    | ({
+        relationTo: 'booking-sessions';
+        value: string | BookingSession;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2181,6 +2430,35 @@ export interface TimeSlotsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity-inventory_select".
+ */
+export interface ActivityInventorySelect<T extends boolean = true> {
+  title?: T;
+  activity?: T;
+  activityOption?: T;
+  date?: T;
+  timeSlot?: T;
+  totalCapacity?: T;
+  bookedCapacity?: T;
+  availableCapacity?: T;
+  reservedCapacity?: T;
+  status?: T;
+  isActive?: T;
+  priceOverrides?:
+    | T
+    | {
+        hasOverride?: T;
+        adultPrice?: T;
+        childPrice?: T;
+      };
+  operationalNotes?: T;
+  weatherDependency?: T;
+  locationOverride?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings_select".
  */
 export interface BookingsSelect<T extends boolean = true> {
@@ -2309,6 +2587,67 @@ export interface PaymentsSelect<T extends boolean = true> {
         isReconciled?: T;
         reconciledDate?: T;
         settlementId?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "booking-sessions_select".
+ */
+export interface BookingSessionsSelect<T extends boolean = true> {
+  sessionId?: T;
+  userId?: T;
+  userAgent?: T;
+  ipAddress?: T;
+  referrer?: T;
+  userEmail?: T;
+  userPhone?: T;
+  userName?: T;
+  cartItems?:
+    | T
+    | {
+        activity?: T;
+        activityOptionId?: T;
+        searchParams?: T;
+        quantity?: T;
+        unitPrice?: T;
+        totalPrice?: T;
+        addedAt?: T;
+        inventoryReserved?: T;
+        reservationExpiry?: T;
+        id?: T;
+      };
+  memberDetails?: T;
+  checkoutStep?: T;
+  status?: T;
+  expiresAt?: T;
+  conversionData?:
+    | T
+    | {
+        convertedBookingId?: T;
+        convertedAt?: T;
+        totalAmount?: T;
+        conversionTimeMinutes?: T;
+      };
+  analytics?:
+    | T
+    | {
+        pageViews?: T;
+        timeSpentMinutes?: T;
+        cartAbandoned?: T;
+        abandonedAtStep?: T;
+      };
+  itemCount?: T;
+  totalAmount?: T;
+  recoveryAttempts?:
+    | T
+    | {
+        attemptDate?: T;
+        method?: T;
+        success?: T;
+        response?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -74,9 +74,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
               // index < steps.length - 1 &&
               <div
                 className={cn(styles.separator, {
-                  [styles.completedSeparator]: isStepCompleted(
-                    steps[index + 1]?.id
-                  ),
+                  [styles.completedSeparator]: isStepCompleted(step.id),
                   [styles.lastSeparator]: index === steps.length - 1,
                 })}
                 aria-hidden="true"

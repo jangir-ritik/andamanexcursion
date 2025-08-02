@@ -47,6 +47,10 @@ export const CheckoutFlow: React.FC = () => {
   // Scroll to top whenever step changes
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    // Add a small delay to ensure DOM updates have completed
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
   }, [currentStep]);
 
   // Step completion logic - FIXED

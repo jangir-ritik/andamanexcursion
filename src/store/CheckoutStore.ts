@@ -128,7 +128,7 @@ interface CheckoutActions {
   };
 
   // Booking submission
-  submitBooking: () => Promise<void>;
+  submitBooking: () => Promise<any>;
 
   // Utility actions
   reset: () => void;
@@ -192,7 +192,10 @@ const computeActivityMetadata = (
           children: searchParams.children || 0,
           infants: 0,
           date: searchParams.date || "Date TBD",
-          location: searchParams.location || "Location TBD",
+          location:
+            activity.coreInfo.location[0]?.name ||
+            searchParams.location ||
+            "Location TBD",
         };
       }
       return null;
@@ -424,44 +427,75 @@ export const useCheckoutStore = create<CheckoutStore>()(
                 );
               }
 
-              // Prepare booking data
+              // Prepare booking data for payment
               const bookingData = {
                 activities: state.activities,
                 members: state.persistedFormData.members,
                 termsAccepted: state.persistedFormData.termsAccepted,
                 totalPrice: get().getTotalPrice(),
+                bookingType: state.bookingType,
               };
 
-              // TODO: Replace with actual API call to create booking in Payload CMS
-              // const response = await fetch('/api/bookings', {
-              //   method: 'POST',
-              //   headers: { 'Content-Type': 'application/json' },
-              //   body: JSON.stringify(bookingData)
-              // });
+              // Set up payment success callback
+              window.onPaymentSuccess = (paymentResult: any) => {
+                set((draft) => {
+                  draft.bookingConfirmation = {
+                    bookingId: paymentResult.booking.bookingId,
+                    confirmationNumber:
+                      paymentResult.booking.confirmationNumber,
+                    bookingDate: new Date().toISOString(),
+                    status: paymentResult.booking.status,
+                    paymentStatus: paymentResult.booking.paymentStatus,
+                  };
+                  draft.currentStep = 3;
+                  // Keep loading for a brief moment to show transition feedback
+                });
 
-              // Simulate API call
-              await new Promise((resolve) => setTimeout(resolve, 2000));
+                // Call resetAfterBooking to clear form data but keep confirmation
+                get().resetAfterBooking();
 
+                // Set loading to false after a brief delay to show transition
+                setTimeout(() => {
+                  set((draft) => {
+                    draft.isLoading = false;
+                  });
+                }, 1000);
+              };
+
+              // Set up payment error callback
+              window.onPaymentError = (error: any) => {
+                set((draft) => {
+                  draft.error =
+                    error instanceof Error ? error.message : "Payment failed";
+                  draft.isLoading = false;
+                });
+              };
+
+              // Set up payment cancel callback
+              window.onPaymentCancel = () => {
+                set((draft) => {
+                  draft.error = "Payment was cancelled";
+                  draft.isLoading = false;
+                });
+              };
+
+              // Payment will be initiated by the component using useRazorpay hook
+              // The booking submission is now complete - payment handling is separate
               set((draft) => {
-                draft.bookingConfirmation = {
-                  bookingId: `AE${Date.now()}`,
-                  confirmationNumber: `AC${Math.random()
-                    .toString(36)
-                    .substr(2, 8)
-                    .toUpperCase()}`,
-                  bookingDate: new Date().toISOString(),
-                  status: "confirmed",
-                  paymentStatus: "pending",
-                };
-                draft.currentStep = 3;
                 draft.isLoading = false;
               });
+
+              // Return booking data for payment initiation
+              return bookingData;
             } catch (error) {
               set((draft) => {
                 draft.error =
-                  error instanceof Error ? error.message : "Booking failed";
+                  error instanceof Error
+                    ? error.message
+                    : "Booking preparation failed";
                 draft.isLoading = false;
               });
+              throw error;
             }
           },
 
@@ -473,15 +507,18 @@ export const useCheckoutStore = create<CheckoutStore>()(
           // Reset after successful booking completion
           resetAfterBooking: () => {
             set((draft) => {
-              // Keep confirmation data but reset form and business data
-              const confirmation = draft.bookingConfirmation;
+              // Selectively reset only non-essential fields
+              // Keep: bookingConfirmation, persistedFormData, activities, currentStep
 
-              // Reset to initial state
-              Object.assign(draft, initialState);
+              // Reset form-related state
+              draft.isLoading = false;
+              draft.error = null;
 
-              // Keep confirmation for the current session (until page refresh)
-              draft.bookingConfirmation = confirmation;
-              draft.currentStep = 3; // Stay on confirmation step
+              // Reset temporary state (but keep essential data)
+              // DON'T reset: persistedFormData, activities, bookingConfirmation
+
+              // Stay on confirmation step
+              draft.currentStep = 3;
             });
           },
 
@@ -528,7 +565,15 @@ export const useCurrentCheckoutItem = () =>
   useCheckoutStore((state) => state.activities);
 
 export const useMembers = () =>
-  useCheckoutStore((state) => state.persistedFormData?.members || []);
+  useCheckoutStore((state) => {
+    // Defensive programming: ensure we always return an array
+    try {
+      return state?.persistedFormData?.members || [];
+    } catch (error) {
+      console.warn("Error accessing members from store:", error);
+      return [];
+    }
+  });
 
 export const useBookingConfirmation = () =>
   useCheckoutStore((state) => state.bookingConfirmation);

@@ -11,6 +11,7 @@ import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
 import styles from "./ConfirmationStep.module.css";
 import { DescriptionText } from "@/components/atoms";
+import { slotIdToTimeString } from "@/utils/timeUtils";
 
 export const ConfirmationStep: React.FC = () => {
   const { getTotalPrice } = useCheckoutStore();
@@ -64,11 +65,19 @@ export const ConfirmationStep: React.FC = () => {
   // Format time for display
   const formatTime = (timeString: string) => {
     if (!timeString) return "N/A";
+
+    // Handle slug format (e.g., "07-00", "14-30")
+    if (timeString.includes("-")) {
+      return slotIdToTimeString(timeString);
+    }
+
+    // Handle HH:MM format
     const [hours, minutes] = timeString.split(":");
+    if (!hours || !minutes) return "N/A";
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    return `${displayHour}:${minutes.padStart(2, "0")} ${ampm}`;
   };
 
   // Handle download PDF
@@ -99,7 +108,7 @@ export const ConfirmationStep: React.FC = () => {
       <div className={styles.successHeader}>
         <SectionTitle
           text="Booking Confirmed!"
-          specialWord="Confirmed"
+          specialWord="Confirmed!"
           className={styles.title}
         />
         <DescriptionText text="Your booking has been confirmed. You will receive your e-ticket via WhatsApp shortly." />

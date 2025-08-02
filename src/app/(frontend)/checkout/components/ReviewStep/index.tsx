@@ -1,15 +1,11 @@
 "use client";
 import React, { JSX, useState } from "react";
-import {
-  Edit2,
-  ArrowUpRight,
-  Users,
-  Info,
-} from "lucide-react";
+import { Edit2, Users, Info } from "lucide-react";
 import { useCheckoutStore, useCheckoutItems } from "@/store/CheckoutStore";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
 import styles from "./ReviewStep.module.css";
+import PaymentButton from "@/components/checkout/PaymentButton";
 
 // Types for better type safety
 interface BookingDetail {
@@ -28,26 +24,12 @@ interface BookingDetail {
 }
 
 export const ReviewStep: React.FC = () => {
-  const {
-    prevStep,
-    submitBooking,
-    setCurrentStep,
-    getTotalPrice,
-    getTotalActivities,
-    isLoading,
-    persistedFormData,
-  } = useCheckoutStore();
+  const { setCurrentStep, getTotalPrice, isLoading, persistedFormData } =
+    useCheckoutStore();
 
   const checkoutItems = useCheckoutItems();
 
-  // State for collapsible sections
-  const [expandedActivities, setExpandedActivities] = useState<Set<number>>(
-    new Set([0])
-  ); // First activity expanded by default
   const [showMemberMapping, setShowMemberMapping] = useState(false);
-
-  const totalActivities = getTotalActivities();
-
   // Get members from persisted form data
   const members = persistedFormData?.members || [];
   const termsAccepted = persistedFormData?.termsAccepted || false;
@@ -96,39 +78,9 @@ export const ReviewStep: React.FC = () => {
 
   const allBookingDetails = getAllBookingDetails();
 
-  // Calculate total expected passengers across all activities
-  const getTotalExpectedPassengers = () => {
-    return allBookingDetails.reduce(
-      (total, activity) => total + activity.totalPassengers,
-      0
-    );
-  };
-
-  // Toggle activity expansion
-  const toggleActivityExpansion = (activityIndex: number) => {
-    setExpandedActivities((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(activityIndex)) {
-        newSet.delete(activityIndex);
-      } else {
-        newSet.add(activityIndex);
-      }
-      return newSet;
-    });
-  };
-
   // Handle edit member
   const handleEditMember = () => {
     setCurrentStep(1);
-  };
-
-  // Handle proceed to booking
-  const handleProceedToBooking = async () => {
-    if (!termsAccepted) {
-      return;
-    }
-
-    await submitBooking();
   };
 
   // Validate that we can proceed
@@ -162,7 +114,6 @@ export const ReviewStep: React.FC = () => {
   // Render member details with improved UX
   const renderMemberDetails = (): JSX.Element[] => {
     const memberSections: JSX.Element[] = [];
-    const totalExpected = getTotalExpectedPassengers();
 
     // Activity-specific member assignment
     memberSections.push(
@@ -352,6 +303,20 @@ export const ReviewStep: React.FC = () => {
 
   return (
     <div className={styles.reviewStep}>
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <h3>Processing Payment...</h3>
+            <p>
+              Please wait while we process your booking. Do not refresh the
+              page.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className={styles.header}>
         <SectionTitle
           text="Review Your Booking"
@@ -370,20 +335,42 @@ export const ReviewStep: React.FC = () => {
 
           {/* Important Instructions */}
           <div className={styles.instructionsCard}>
-            <div className={styles.cardHeader}>
-              <h3 className={styles.cardTitle}>Important Instructions</h3>
+            <h3 className={styles.instructionsTitle}>Important Instructions</h3>
+
+            <div className={styles.instructionsGrid}>
+              <div className={styles.instructionCategory}>
+                <h4 className={styles.categoryTitle}>Arrival</h4>
+                <ul className={styles.instructionsList}>
+                  <li>
+                    Arrive 30 minutes before departure time for each activity
+                  </li>
+                  <li>
+                    Report to the designated boarding point with valid ID proof
+                  </li>
+                </ul>
+              </div>
+
+              <div className={styles.instructionCategory}>
+                <h4 className={styles.categoryTitle}>Requirements</h4>
+                <ul className={styles.instructionsList}>
+                  <li>Please carry valid photo ID proof for all passengers</li>
+                  <li>
+                    Each passenger is assigned to specific activities as
+                    selected
+                  </li>
+                </ul>
+              </div>
+
+              <div className={styles.instructionCategory}>
+                <h4 className={styles.categoryTitle}>Updates</h4>
+                <ul className={styles.instructionsList}>
+                  <li>E-tickets will be sent to registered WhatsApp</li>
+                  <li>Primary contact will receive all communications</li>
+                  <li>Weather conditions may affect schedule</li>
+                  <li>No-show will result in full cancellation charges</li>
+                </ul>
+              </div>
             </div>
-            <ul className={styles.instructionsList}>
-              <li>Please carry valid photo ID proof for all passengers</li>
-              <li>Arrive 30 minutes before departure time for each activity</li>
-              <li>E-tickets will be sent to registered WhatsApp</li>
-              <li>No-show will result in full cancellation charges</li>
-              <li>Weather conditions may affect schedule</li>
-              <li>
-                Each passenger is assigned to specific activities as selected
-              </li>
-              <li>Primary contact will receive all communications</li>
-            </ul>
           </div>
         </div>
 
@@ -431,7 +418,10 @@ export const ReviewStep: React.FC = () => {
               })}
 
               <div
-                style={{ borderTop: "1px solid #E1E1E1", paddingTop: "24px" }}
+                style={{
+                  borderTop: "1px solid var(--color-border)",
+                  paddingTop: "var(--space-6)",
+                }}
               >
                 {/* Price Breakdown */}
                 <div className={styles.priceDetails}>
@@ -450,7 +440,7 @@ export const ReviewStep: React.FC = () => {
                     );
                   })}
 
-                  <div style={{ marginBottom: "16px" }}>
+                  <div style={{ marginBottom: "var(--space-6)" }}>
                     <div className={styles.priceTotal}>
                       <span className={styles.totalLabel}>Total</span>
                       <span className={styles.totalValue}>
@@ -461,14 +451,10 @@ export const ReviewStep: React.FC = () => {
                 </div>
 
                 {/* Proceed Button */}
-                <Button
+                <PaymentButton
                   className={styles.proceedButton}
-                  onClick={handleProceedToBooking}
                   disabled={!canProceed() || isLoading}
-                >
-                  {isLoading ? "Processing..." : "Proceed to Pay"}
-                  <ArrowUpRight size={24} />
-                </Button>
+                />
               </div>
             </div>
           </div>

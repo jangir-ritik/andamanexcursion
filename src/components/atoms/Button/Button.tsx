@@ -24,6 +24,7 @@ export const Button = ({
     styles[variant] || styles.primary,
     styles[size] || styles.medium,
     disabled ? styles.disabled : "",
+    loading ? styles.loading : "",
     className || "",
   ]
     .join(" ")
@@ -31,14 +32,22 @@ export const Button = ({
 
   const content = (
     <>
-      {children}
-      {showArrow && (
-        <span className={styles.icon}>
-          <MoveRight size={16} aria-hidden="true" />
+      {loading ? (
+        <span className={styles.loading}>
+          <span className={styles.spinner}></span>
+          Processing...
         </span>
+      ) : (
+        <>
+          {children}
+          {showArrow && (
+            <span className={styles.icon}>
+              <MoveRight size={16} aria-hidden="true" />
+            </span>
+          )}
+          {icon && <span className={styles.icon}>{icon}</span>}
+        </>
       )}
-      {icon && <span className={styles.icon}>{icon}</span>}
-      {loading && <span className={styles.loading}>Loading...</span>}
     </>
   );
 

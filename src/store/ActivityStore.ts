@@ -396,10 +396,17 @@ export const useActivityStore = create<ActivityStore>()(
       // Cart actions
       addToCart: (activity, quantity, activityOptionId, customSearchParams) => {
         const searchParams = customSearchParams || get().searchParams;
+
+        // Ensure time is set - if not, use a default time slot
+        const finalSearchParams = {
+          ...searchParams,
+          time: searchParams.time || "09-00", // Default to 9:00 AM if no time selected
+        };
+
         const cartItemId = generateCartItemId();
         const totalPrice = calculateTotalPrice(
           activity,
-          searchParams,
+          finalSearchParams,
           activityOptionId,
           quantity
         );
@@ -411,7 +418,7 @@ export const useActivityStore = create<ActivityStore>()(
             quantity,
             totalPrice,
             activityOptionId,
-            searchParams: { ...searchParams },
+            searchParams: { ...finalSearchParams },
             addedAt: new Date().toISOString(),
           };
 
