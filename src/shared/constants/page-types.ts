@@ -6,4 +6,6 @@ export const pageTypeOptions = [
   { label: "Specials", value: "specials" },
   { label: "Packages", value: "packages" },
   { label: "Destinations", value: "destinations" },
+  { label: "Ferry", value: "ferry" },
+  { label: "Boat", value: "boat" },
 ];

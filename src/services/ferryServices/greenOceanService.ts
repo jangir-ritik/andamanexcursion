@@ -265,9 +265,9 @@ export class GreenOceanService {
             lastUpdated: new Date().toISOString(),
           },
           pricing: {
-            baseFare: primaryClass.adult_seat_rate,
+            baseFare: primaryRoute.adult_seat_rate,
             taxes: 0, // Green Ocean doesn't seem to have separate taxes
-            portFee: primaryClass.port_fee_status ? primaryClass.port_fee : 0,
+            portFee: primaryRoute.port_fee_status ? primaryRoute.port_fee : 0,
             total: minPrice,
             currency: "INR" as const,
           },

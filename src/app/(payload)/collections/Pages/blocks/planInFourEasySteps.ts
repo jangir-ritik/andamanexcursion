@@ -1,7 +1,7 @@
 import { Block } from "payload";
 
-export const experienceBlock: Block = {
-  slug: "experience",
+export const planInFourEasyStepsBlock: Block = {
+  slug: "planInFourEasySteps",
   fields: [
     {
       name: "title",
@@ -17,7 +17,7 @@ export const experienceBlock: Block = {
       type: "textarea",
     },
     {
-      name: "cards",
+      name: "steps",
       type: "array",
       fields: [
         {

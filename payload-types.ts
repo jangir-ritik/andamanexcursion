@@ -249,7 +249,16 @@ export interface Page {
     /**
      * Type of page this is
      */
-    pageType: 'home' | 'activities' | 'fishing' | 'live-volcanos' | 'specials' | 'packages' | 'destinations';
+    pageType:
+      | 'home'
+      | 'activities'
+      | 'fishing'
+      | 'live-volcanos'
+      | 'specials'
+      | 'packages'
+      | 'destinations'
+      | 'ferry'
+      | 'boat';
   };
   /**
    * Search engine optimization settings
@@ -352,7 +361,7 @@ export interface Page {
                 | {
                     title: string;
                     description?: string | null;
-                    icon?: (string | null) | Media;
+                    icon: string | Media;
                     id?: string | null;
                   }[]
                 | null;
@@ -551,6 +560,41 @@ export interface Page {
               id?: string | null;
               blockName?: string | null;
               blockType: 'secondaryBanner';
+            }
+          | {
+              title: string;
+              specialWord?: string | null;
+              description?: string | null;
+              steps?:
+                | {
+                    title: string;
+                    description?: string | null;
+                    icon: string | Media;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'planInFourEasySteps';
+            }
+          | {
+              title: string;
+              specialWord?: string | null;
+              description?: string | null;
+              ferries?:
+                | {
+                    image: string | Media;
+                    imageAlt: string;
+                    title: string;
+                    price: string;
+                    rating: number;
+                    href: string;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'trustedFerries';
             }
         )[]
       | null;
@@ -2099,6 +2143,43 @@ export interface PagesSelect<T extends boolean = true> {
                     subtitle?: T;
                     description?: T;
                     image?: T;
+                    id?: T;
+                    blockName?: T;
+                  };
+              planInFourEasySteps?:
+                | T
+                | {
+                    title?: T;
+                    specialWord?: T;
+                    description?: T;
+                    steps?:
+                      | T
+                      | {
+                          title?: T;
+                          description?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                    blockName?: T;
+                  };
+              trustedFerries?:
+                | T
+                | {
+                    title?: T;
+                    specialWord?: T;
+                    description?: T;
+                    ferries?:
+                      | T
+                      | {
+                          image?: T;
+                          imageAlt?: T;
+                          title?: T;
+                          price?: T;
+                          rating?: T;
+                          href?: T;
+                          id?: T;
+                        };
                     id?: T;
                     blockName?: T;
                   };

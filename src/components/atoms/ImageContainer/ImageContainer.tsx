@@ -15,7 +15,10 @@ export const ImageContainer = ({
   priority = false,
   fullWidth = false,
   decorative = false,
-  preferredSize, // New prop for preferred image size
+  preferredSize,
+  width,
+  height,
+  fixedSize = false,
 }: ImageContainerProps) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -42,24 +45,47 @@ export const ImageContainer = ({
     setImageLoading(false);
   }, []);
 
+  // Determine if we should use fixed sizing
+  const useFixedSize = fixedSize || (width && height);
+
+  // Build container classes - exclude aspect ratio classes if using fixed size
   const containerClasses = [
     styles.container,
-    styles[aspectRatio],
-    fullWidth && styles.fullWidth,
+    !useFixedSize && styles[aspectRatio], // Only apply aspect ratio if not using fixed size
+    fullWidth && !useFixedSize && styles.fullWidth, // fullWidth doesn't make sense with fixed size
     imageLoading && styles.loading,
     imageError && styles.error,
+    useFixedSize && styles.fixedSize, // New class for fixed size styling
     className,
   ]
     .filter(Boolean)
     .join(" ");
 
+  // Generate inline styles for fixed dimensions
+  const containerStyle =
+    useFixedSize && width && height
+      ? {
+          width: `${width}px`,
+          height: `${height}px`,
+          minHeight: `${height}px`, // Override the auto aspect ratio min-height
+        }
+      : undefined;
+
   // Show error fallback if image failed to load or source is invalid
   if (imageError || !isValid || !processedSrc) {
     return (
-      <div className={containerClasses} role="img" aria-label={alt}>
+      <div
+        className={containerClasses}
+        style={containerStyle}
+        role="img"
+        aria-label={alt}
+      >
         <div className={styles.errorFallback}>
           <div className={styles.errorIcon}>
-            <ImageOff stroke={"var(--color-gray-400)"} size={32} />
+            <ImageOff
+              stroke={"var(--color-gray-400)"}
+              size={useFixedSize ? Math.min(width || 32, height || 32, 32) : 32}
+            />
           </div>
           <div className={styles.errorText}>Preview not available</div>
         </div>
@@ -76,8 +102,8 @@ export const ImageContainer = ({
     >
       <div className={styles.fallbackContent}>
         <svg
-          width="48"
-          height="48"
+          width={useFixedSize ? Math.min(width || 48, height || 48, 48) : 48}
+          height={useFixedSize ? Math.min(width || 48, height || 48, 48) : 48}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -104,11 +130,18 @@ export const ImageContainer = ({
 
   // Don't render anything if src is invalid
   if (!isValid) {
-    return renderFallback();
+    return (
+      <div className={containerClasses} style={containerStyle}>
+        {renderFallback()}
+      </div>
+    );
   }
 
   // Generate sizes based on metadata or defaults
   const generateSizes = () => {
+    if (useFixedSize && width) {
+      return `${width}px`;
+    }
     if (fullWidth) return "100vw";
     if (metadata?.width && metadata.width < 768) return `${metadata.width}px`;
     return "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw";
@@ -117,6 +150,7 @@ export const ImageContainer = ({
   return (
     <div
       className={containerClasses}
+      style={containerStyle}
       role={decorative ? "presentation" : "img"}
       aria-label={decorative ? undefined : alt}
     >
@@ -127,7 +161,9 @@ export const ImageContainer = ({
           <Image
             src={processedSrc}
             alt={alt || ""}
-            fill
+            fill={!useFixedSize} // Only use fill when not using fixed size
+            width={useFixedSize ? width : undefined}
+            height={useFixedSize ? height : undefined}
             className={styles[objectFit]}
             priority={priority}
             onError={handleImageError}

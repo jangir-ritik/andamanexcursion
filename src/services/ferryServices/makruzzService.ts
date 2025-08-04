@@ -230,7 +230,7 @@ export class MakruzzService {
         operatorData: {
           originalResponse: schedule,
           bookingEndpoint: `${this.BASE_URL}save_passengers`,
-          authToken: this.authToken,
+          authToken: this.authToken || undefined,
         },
         isActive: true,
       };

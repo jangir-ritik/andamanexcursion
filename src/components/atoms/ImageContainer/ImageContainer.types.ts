@@ -15,5 +15,9 @@ export interface ImageContainerProps {
   priority?: boolean;
   fullWidth?: boolean;
   decorative?: boolean;
-  preferredSize?: keyof Media["sizes"]; // New prop for image size selection
+  preferredSize?: keyof Media["sizes"];
+  // New props for fixed dimensions (ideal for icons)
+  width?: number;
+  height?: number;
+  fixedSize?: boolean; // When true, uses width/height instead of aspect ratios
 }

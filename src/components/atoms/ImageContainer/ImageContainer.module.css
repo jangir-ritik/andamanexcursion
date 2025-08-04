@@ -3,11 +3,18 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--gray-50, #f9fafb);
 }
 
 .fullWidth {
   width: 100%;
+}
+
+/* Fixed size styling - overrides responsive behavior */
+.fixedSize {
+  width: auto !important; /* Will be set via inline styles */
+  height: auto !important; /* Will be set via inline styles */
+  flex-shrink: 0; /* Prevent flex containers from shrinking fixed size images */
+  position: relative;
 }
 
 /* Loading state */
@@ -35,6 +42,13 @@
   border-top: 2px solid var(--gray-400, #9ca3af);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+/* Smaller spinner for fixed size containers */
+.fixedSize .loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border-width: 1px;
 }
 
 @keyframes spin {
@@ -67,10 +81,22 @@
   min-height: 120px;
 }
 
+/* Smaller error fallback for fixed size containers */
+.fixedSize .errorFallback {
+  min-height: auto;
+  border-radius: var(--radius-sm);
+  padding: 8px;
+}
+
 .errorIcon {
   font-size: 2rem;
   margin-bottom: var(--space-2);
   opacity: 0.9;
+}
+
+.fixedSize .errorIcon {
+  font-size: 1rem;
+  margin-bottom: 4px;
 }
 
 .errorText {
@@ -78,6 +104,11 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   text-align: center;
+}
+
+.fixedSize .errorText {
+  font-size: var(--font-size-xs);
+  display: none; /* Hide text in very small fixed containers */
 }
 
 .fallback {
@@ -102,6 +133,11 @@
   padding: 16px;
 }
 
+.fixedSize .fallbackContent {
+  gap: 4px;
+  padding: 8px;
+}
+
 .fallbackIcon {
   opacity: 0.5;
   color: var(--gray-400, #9ca3af);
@@ -114,29 +150,34 @@
   word-wrap: break-word;
 }
 
-/* Aspect ratios */
-.auto {
+.fixedSize .fallbackText {
+  font-size: 10px;
+  max-width: 100px;
+}
+
+/* Aspect ratios - only apply when not using fixed size */
+.auto:not(.fixedSize) {
   /* No specific aspect ratio */
   min-height: 200px;
 }
 
-.square {
+.square:not(.fixedSize) {
   aspect-ratio: 1 / 1;
 }
 
-.video {
+.video:not(.fixedSize) {
   aspect-ratio: 16 / 9;
 }
 
-.portrait {
+.portrait:not(.fixedSize) {
   aspect-ratio: 3 / 4;
 }
 
-.landscape {
+.landscape:not(.fixedSize) {
   aspect-ratio: 4 / 3;
 }
 
-.banner {
+.banner:not(.fixedSize) {
   aspect-ratio: 21 / 9;
 }
 
@@ -159,7 +200,7 @@
     border-radius: var(--radius-sm);
   }
 
-  .banner {
+  .banner:not(.fixedSize) {
     aspect-ratio: 16 / 9; /* Adjust banner aspect ratio for mobile */
   }
 

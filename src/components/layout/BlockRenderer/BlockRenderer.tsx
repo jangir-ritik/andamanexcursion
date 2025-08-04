@@ -10,6 +10,8 @@ import {
   ServiceTeaser,
   TopActivityCategories,
 } from "@/components/sectionBlocks/common";
+import { PlanInFourEasySteps } from "@/components/sectionBlocks/ferry/planInfourEasySteps/PlanInFourEasySteps";
+import { TrustedFerriesBlock } from "@/components/sectionBlocks/ferry";
 
 import {
   Banner,
@@ -43,6 +45,8 @@ const blockComponentsMap = {
   experience: ExperienceSection,
   howToReach: null, // Add component when available
   visualCategoryGrid: VisualCategoryGrid, // Add component when available
+  planInFourEasySteps: PlanInFourEasySteps,
+  trustedFerries: TrustedFerriesBlock,
 } as const;
 
 interface BlockRendererProps {
