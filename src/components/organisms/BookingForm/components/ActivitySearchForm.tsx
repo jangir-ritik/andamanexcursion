@@ -198,7 +198,7 @@ export function ActivitySearchForm({
       case "embedded":
         return "Find Activities";
       default:
-        return "Search Activities";
+        return "Search";
     }
   }, [variant, isEditMode]);
 

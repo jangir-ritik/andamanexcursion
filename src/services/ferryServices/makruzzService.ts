@@ -5,6 +5,7 @@ import {
 } from "@/types/FerryBookingSession.types";
 import { FerryApiService } from "./ferryApiService";
 import { FerryCache } from "@/utils/ferryCache";
+import { LocationMappingService } from "./locationMappingService";
 
 interface MakruzzLoginResponse {
   data: {
@@ -58,6 +59,20 @@ export class MakruzzService {
   static async searchTrips(
     params: FerrySearchParams
   ): Promise<UnifiedFerryResult[]> {
+    // Check if route is supported
+    if (
+      !LocationMappingService.isRouteSupported(
+        "makruzz",
+        params.from,
+        params.to
+      )
+    ) {
+      console.log(
+        `Makruzz does not support route: ${params.from} → ${params.to}`
+      );
+      return [];
+    }
+
     // Check cache first
     const cacheKey = FerryCache.generateKey(params, "makruzz");
     const cached = FerryCache.get(cacheKey);
@@ -65,21 +80,30 @@ export class MakruzzService {
       return cached;
     }
 
-    // Ensure we have a valid token
+    // Ensure we're authenticated
     await this.ensureAuthenticated();
 
     const apiCall = async (): Promise<MakruzzScheduleResponse> => {
+      // Use centralized location mapping
+      const fromLocation = LocationMappingService.getMakruzzLocation(
+        params.from
+      );
+      const toLocation = LocationMappingService.getMakruzzLocation(params.to);
+
       const requestBody = {
         data: {
           trip_type: "single_trip",
-          from_location: this.mapLocationToMakruzz(params.from),
-          to_location: this.mapLocationToMakruzz(params.to),
-          travel_date: params.date, // Already in yyyy-mm-dd format
-          no_of_passenger: (params.adults + params.children).toString(),
+          from_location: fromLocation,
+          to_location: toLocation,
+          travel_date: params.date, // Already in YYYY-MM-DD format
+          no_of_passenger: params.adults.toString(),
         },
       };
 
-      const response = await fetch(`${this.BASE_URL}search_schedule`, {
+      console.log(`Makruzz request body:`, requestBody);
+      console.log(`Makruzz URL: ${this.BASE_URL}schedule_search`);
+
+      const response = await fetch(`${this.BASE_URL}schedule_search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,11 +112,28 @@ export class MakruzzService {
         body: JSON.stringify(requestBody),
       });
 
+      console.log(`Makruzz response status: ${response.status}`);
+
       if (!response.ok) {
-        throw new Error(`Makruzz API error: ${response.status}`);
+        const errorText = await response.text();
+        console.log(`Makruzz error response:`, errorText);
+        throw new Error(`Makruzz API error: ${response.status} - ${errorText}`);
       }
 
-      return response.json();
+      const responseText = await response.text();
+      console.log(`Makruzz raw response:`, responseText);
+
+      try {
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`Makruzz JSON parse error:`, parseError);
+        throw new Error(
+          `Makruzz API returned invalid JSON: ${responseText.substring(
+            0,
+            100
+          )}...`
+        );
+      }
     };
 
     try {
@@ -102,14 +143,17 @@ export class MakruzzService {
         throw new Error(`Makruzz API error: ${response.msg}`);
       }
 
-      const unifiedResults = this.transformToUnified(response.data, params);
+      const results = this.transformToUnified(response.data, params);
+      console.log(
+        `Makruzz found ${response.data.length} schedules, transformed to ${results.length} unified results`
+      );
 
       // Cache results
-      FerryCache.set(cacheKey, unifiedResults);
+      FerryCache.set(cacheKey, results);
 
-      return unifiedResults;
+      return results;
     } catch (error) {
-      console.error("Makruzz search failed:", error);
+      console.error("Error searching Makruzz:", error);
       throw error;
     }
   }
@@ -121,7 +165,7 @@ export class MakruzzService {
     }
 
     const loginCall = async (): Promise<MakruzzLoginResponse> => {
-      const response = await fetch(`${this.BASE_URL}agent_login`, {
+      const response = await fetch(`${this.BASE_URL}login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -134,11 +178,35 @@ export class MakruzzService {
         }),
       });
 
+      console.log(`Makruzz login response status: ${response.status}`);
+      console.log(
+        `Makruzz login response headers:`,
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        throw new Error(`Makruzz login failed: ${response.status}`);
+        const errorText = await response.text();
+        console.log(`Makruzz login error response:`, errorText);
+        throw new Error(
+          `Makruzz login failed: ${response.status} - ${errorText}`
+        );
       }
 
-      return response.json();
+      const responseText = await response.text();
+      console.log(`Makruzz login raw response:`, responseText);
+
+      try {
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`Makruzz login JSON parse error:`, parseError);
+        console.error(`Raw response that failed to parse:`, responseText);
+        throw new Error(
+          `Makruzz login returned invalid JSON: ${responseText.substring(
+            0,
+            100
+          )}...`
+        );
+      }
     };
 
     try {
@@ -189,11 +257,11 @@ export class MakruzzService {
         ferryName: schedule.ship_title,
         route: {
           from: {
-            name: this.getLocationName(schedule.source_location_id),
+            name: LocationMappingService.getDisplayName(params.from),
             code: this.getLocationCode(schedule.source_location_id),
           },
           to: {
-            name: this.getLocationName(schedule.destination_location_id),
+            name: LocationMappingService.getDisplayName(params.to),
             code: this.getLocationCode(schedule.destination_location_id),
           },
           fromCode: this.getLocationCode(schedule.source_location_id),
@@ -275,33 +343,7 @@ export class MakruzzService {
     return `${hours}h ${minutes}m`;
   }
 
-  private static mapLocationToMakruzz(location: string): string {
-    const locationMap: Record<string, string> = {
-      "port-blair": "1",
-      havelock: "2",
-      neil: "3",
-      baratang: "4",
-    };
-    return locationMap[location] || "1";
-  }
-
-  private static getLocationName(locationId: string): string {
-    const nameMap: Record<string, string> = {
-      "1": "Port Blair",
-      "2": "Swaraj Deep (Havelock)",
-      "3": "Shaheed Deep (Neil Island)",
-      "4": "Baratang",
-    };
-    return nameMap[locationId] || "Unknown";
-  }
-
   private static getLocationCode(locationId: string): string {
-    const codeMap: Record<string, string> = {
-      "1": "PB",
-      "2": "HL",
-      "3": "NL",
-      "4": "BT",
-    };
-    return codeMap[locationId] || "??";
+    return LocationMappingService.getPortCode(locationId);
   }
 }

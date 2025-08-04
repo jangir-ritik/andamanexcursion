@@ -26,7 +26,7 @@ This document consolidates the API documentation for three ferry operators in An
 ### Base Configuration
 
 - **Dev URL**: `http://api.dev.gonautika.com:8012/`
-- **Production URL**: `https://api.gonautika.com:8012/`
+- **Production URL**: `http://api.gonautika.com:8012/`
 - **Authentication**: Username + Token
 - **Date Format**: dd-mm-yyyy
 - **Vessels**: Sealink (ID: 1), Nautika (ID: 2)
@@ -1001,9 +1001,10 @@ export class FerryCache {
 
 ```env
 # Ferry API Credentials
+# Sealink Configuration
 SEALINK_USERNAME=your_username
 SEALINK_TOKEN=your_token
-SEALINK_API_URL=https://api.gonautika.com:8012/
+SEALINK_API_URL=http://api.gonautika.com:8012/
 
 MAKRUZZ_USERNAME=your_username
 MAKRUZZ_PASSWORD=your_password
@@ -1184,6 +1185,7 @@ This approach provides a seamless experience while accommodating the different c
 
 ```env
 # Ferry API Credentials (add to existing .env)
+# Sealink Configuration
 SEALINK_USERNAME=
 SEALINK_TOKEN=
 MAKRUZZ_USERNAME=
@@ -1192,7 +1194,7 @@ GREEN_OCEAN_PUBLIC_KEY=
 GREEN_OCEAN_PRIVATE_KEY=
 
 # API URLs
-SEALINK_API_URL=https://api.gonautika.com:8012/
+SEALINK_API_URL=http://api.gonautika.com:8012/
 MAKRUZZ_API_URL=https://staging.makruzz.com/booking_api/
 GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/api/v1/
 

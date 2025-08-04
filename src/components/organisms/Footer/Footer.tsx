@@ -9,7 +9,8 @@ import Threads from "@icons/socials/threads.svg";
 import Youtube from "@icons/socials/youtube.svg";
 import Linkedin from "@icons/socials/linkedin.svg";
 import Link from "next/link";
-import type { FooterProps  } from "./Footer.types";
+import type { FooterProps } from "./Footer.types";
+import { FerryStatusIndicator } from "@/components/atoms";
 
 // Create a mapping object outside component to avoid recreation
 const socialIconMap = {
@@ -132,6 +133,7 @@ export const Footer = memo<FooterProps>(({ className, ...props }) => {
                     Email : {footerItems.contactInfo.email}
                   </p>
                 </div>
+                <FerryStatusIndicator variant="compact" showLabels />
               </div>
             </div>
 

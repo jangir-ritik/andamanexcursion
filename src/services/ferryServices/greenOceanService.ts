@@ -6,7 +6,8 @@ import {
 } from "@/types/FerryBookingSession.types";
 import { FerryApiService } from "./ferryApiService";
 import { FerryCache } from "@/utils/ferryCache";
-import crypto from "crypto";
+import { LocationMappingService } from "./locationMappingService";
+import * as crypto from "crypto";
 
 interface GreenOceanRouteData {
   departure: string;
@@ -58,6 +59,20 @@ export class GreenOceanService {
   static async searchTrips(
     params: FerrySearchParams
   ): Promise<UnifiedFerryResult[]> {
+    // Check if route is supported
+    if (
+      !LocationMappingService.isRouteSupported(
+        "greenocean",
+        params.from,
+        params.to
+      )
+    ) {
+      console.log(
+        `Green Ocean does not support route: ${params.from} → ${params.to}`
+      );
+      return [];
+    }
+
     // Check cache first
     const cacheKey = FerryCache.generateKey(params, "greenocean");
     const cached = FerryCache.get(cacheKey);
@@ -68,15 +83,22 @@ export class GreenOceanService {
     const apiCall = async (): Promise<GreenOceanRouteResponse> => {
       const hashString = this.generateSearchHash(params);
 
+      // Use centralized location mapping
+      const fromId = LocationMappingService.getGreenOceanLocation(params.from);
+      const toId = LocationMappingService.getGreenOceanLocation(params.to);
+
       const requestBody = {
-        from_id: this.mapLocationToGreenOcean(params.from),
-        dest_to: this.mapLocationToGreenOcean(params.to),
+        from_id: fromId,
+        dest_to: toId,
         number_of_adults: params.adults,
         number_of_infants: params.infants,
         travel_date: this.formatDate(params.date),
         public_key: this.PUBLIC_KEY,
         hash_string: hashString,
       };
+
+      console.log(`Green Ocean request body:`, requestBody);
+      console.log(`Green Ocean URL: ${this.BASE_URL}route-details`);
 
       const response = await fetch(`${this.BASE_URL}route-details`, {
         method: "POST",
@@ -86,11 +108,30 @@ export class GreenOceanService {
         body: JSON.stringify(requestBody),
       });
 
+      console.log(`Green Ocean response status: ${response.status}`);
+
       if (!response.ok) {
-        throw new Error(`Green Ocean API error: ${response.status}`);
+        const errorText = await response.text();
+        console.log(`Green Ocean error response:`, errorText);
+        throw new Error(
+          `Green Ocean API error: ${response.status} - ${errorText}`
+        );
       }
 
-      return response.json();
+      const responseText = await response.text();
+      console.log(`Green Ocean raw response:`, responseText);
+
+      try {
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`Green Ocean JSON parse error:`, parseError);
+        throw new Error(
+          `Green Ocean API returned invalid JSON: ${responseText.substring(
+            0,
+            100
+          )}...`
+        );
+      }
     };
 
     try {
@@ -103,17 +144,17 @@ export class GreenOceanService {
         throw new Error(`Green Ocean API error: ${response.message}`);
       }
 
-      const unifiedResults = await this.transformToUnified(
-        response.data,
-        params
+      const results = this.transformToUnified(response.data, params);
+      console.log(
+        `Green Ocean found routes, transformed to ${results.length} unified results`
       );
 
       // Cache results
-      FerryCache.set(cacheKey, unifiedResults);
+      FerryCache.set(cacheKey, results);
 
-      return unifiedResults;
+      return results;
     } catch (error) {
-      console.error("Green Ocean search failed:", error);
+      console.error("Error searching Green Ocean:", error);
       throw error;
     }
   }
@@ -239,15 +280,15 @@ export class GreenOceanService {
           ferryName: primaryRoute.ferry_name,
           route: {
             from: {
-              name: this.getLocationName(params.from),
-              code: this.getLocationCode(params.from),
+              name: LocationMappingService.getDisplayName(params.from),
+              code: LocationMappingService.getPortCode(params.from),
             },
             to: {
-              name: this.getLocationName(params.to),
-              code: this.getLocationCode(params.to),
+              name: LocationMappingService.getDisplayName(params.to),
+              code: LocationMappingService.getPortCode(params.to),
             },
-            fromCode: this.getLocationCode(params.from),
-            toCode: this.getLocationCode(params.to),
+            fromCode: LocationMappingService.getPortCode(params.from),
+            toCode: LocationMappingService.getPortCode(params.to),
           },
           schedule: {
             departureTime: this.formatTime(primaryRoute.departure),
@@ -345,20 +386,15 @@ export class GreenOceanService {
   }
 
   private static generateSearchHash(params: FerrySearchParams): string {
-    const hashString = [
-      this.mapLocationToGreenOcean(params.from),
-      this.mapLocationToGreenOcean(params.to),
-      params.adults,
-      params.infants,
-      this.formatDate(params.date),
-      this.PUBLIC_KEY,
-      this.PRIVATE_KEY,
-    ].join("|");
+    // Use centralized location mapping for hash generation
+    const fromId = LocationMappingService.getGreenOceanLocation(params.from);
+    const toId = LocationMappingService.getGreenOceanLocation(params.to);
 
-    return crypto
-      .createHash("sha512")
-      .update(hashString, "utf-8")
-      .digest("hex");
+    const hashString = `${fromId}|${toId}|${params.adults}|${
+      params.infants
+    }|${this.formatDate(params.date)}|${this.PUBLIC_KEY}|${this.PRIVATE_KEY}`;
+    const hash = crypto.createHash("sha512");
+    return hash.update(hashString, "utf-8").digest("hex");
   }
 
   private static generateSeatLayoutHash(
@@ -367,16 +403,13 @@ export class GreenOceanService {
     classId: number,
     travelDate: string
   ): string {
-    const hashString = [
-      this.mapLocationToGreenOcean("port-blair"), // from_id - placeholder
-      this.mapLocationToGreenOcean("havelock"), // dest_to - placeholder
-      ferryId,
-      routeId,
-      classId,
-      travelDate,
-      this.PUBLIC_KEY,
-      this.PRIVATE_KEY,
-    ].join("|");
+    const hashString = `${LocationMappingService.getGreenOceanLocation(
+      "port-blair"
+    )}|${LocationMappingService.getGreenOceanLocation(
+      "havelock"
+    )}|1|0|${this.formatDate(new Date().toISOString().split("T")[0])}|${
+      this.PUBLIC_KEY
+    }|${this.PRIVATE_KEY}`;
 
     return crypto
       .createHash("sha512")
@@ -423,32 +456,5 @@ export class GreenOceanService {
     const minutes = diffMinutes % 60;
 
     return `${hours}h ${minutes}m`;
-  }
-
-  private static mapLocationToGreenOcean(location: string): number {
-    const locationMap: Record<string, number> = {
-      "port-blair": 1,
-      havelock: 2,
-      neil: 3,
-    };
-    return locationMap[location] || 1;
-  }
-
-  private static getLocationName(location: string): string {
-    const nameMap: Record<string, string> = {
-      "port-blair": "Port Blair",
-      havelock: "Havelock",
-      neil: "Neil",
-    };
-    return nameMap[location] || location;
-  }
-
-  private static getLocationCode(location: string): string {
-    const codeMap: Record<string, string> = {
-      "port-blair": "PB",
-      havelock: "HL",
-      neil: "NL",
-    };
-    return codeMap[location] || location.substring(0, 2).toUpperCase();
   }
 }

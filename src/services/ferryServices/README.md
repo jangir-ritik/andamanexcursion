@@ -195,7 +195,7 @@ Add these to your `.env` file:
 # Sealink Configuration
 SEALINK_USERNAME=your_sealink_username
 SEALINK_TOKEN=your_sealink_token
-SEALINK_API_URL=https://api.gonautika.com:8012/
+SEALINK_API_URL=http://api.gonautika.com:8012/
 
 # Makruzz Configuration
 MAKRUZZ_USERNAME=your_makruzz_username

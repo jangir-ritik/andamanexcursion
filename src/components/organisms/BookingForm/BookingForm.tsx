@@ -5,6 +5,7 @@ import styles from "./BookingForm.module.css";
 import { TAB_CONFIG } from "./config/formConfig";
 import type { BookingFormProps } from "./BookingForm.types";
 import { ActivitySearchForm } from "./components/ActivitySearchForm";
+import { FerrySearchForm } from "./components/FerrySearchForm";
 
 export function BookingForm({
   className,
@@ -28,7 +29,7 @@ export function BookingForm({
           className || ""
         }`}
       >
-        {/* {selectedTab === "ferry" && <FerryBookingForm variant={variant} />} */}
+        {initialTab === "ferry" && <FerrySearchForm variant={variant} />}
         {/* {selectedTab === "local-boat" && <BoatBookingForm variant={variant} />} */}
         {initialTab === "activities" && (
           <ActivitySearchForm variant={variant} />
@@ -59,8 +60,7 @@ export function BookingForm({
         </Tabs.List>
 
         <Tabs.Content className={styles.tabsContent} value="ferry">
-          {/* <FerryBookingForm variant={variant} /> */}
-          null
+          <FerrySearchForm variant={variant} />
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="local-boat">

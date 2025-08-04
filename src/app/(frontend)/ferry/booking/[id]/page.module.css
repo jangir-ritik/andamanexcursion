@@ -1,0 +1,276 @@
+.main {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+/* Loading and Error States */
+.loadingSection,
+.errorSection {
+  padding: var(--space-16) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading,
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-neutral-200);
+  border-top: 4px solid var(--color-primary-500);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ferry Header */
+.ferryHeader {
+  background: var(--color-primary-50);
+  border-bottom: 1px solid var(--color-primary-200);
+  padding: var(--space-8) 0;
+}
+
+.backButton {
+  align-self: flex-start;
+}
+
+.ferryInfo {
+  text-align: center;
+}
+
+.ferryName {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-900);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.routeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.route {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-800);
+}
+
+.schedule {
+  font-size: var(--font-size-lg);
+  color: var(--color-neutral-700);
+}
+
+.duration {
+  font-size: var(--font-size-base);
+  color: var(--color-neutral-600);
+}
+
+.operator {
+  font-size: var(--font-size-base);
+  color: var(--color-neutral-600);
+  text-transform: capitalize;
+}
+
+/* Class Selection */
+.classGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+.classCard {
+  background: var(--color-white);
+  border: 2px solid var(--color-neutral-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.classCard:hover {
+  border-color: var(--color-primary-300);
+  box-shadow: var(--shadow-md);
+}
+
+.classCard.selected {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-50);
+  box-shadow: var(--shadow-lg);
+}
+
+.classHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.className {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-900);
+  margin: 0;
+}
+
+.classPrice {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-600);
+}
+
+.classInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.seatsAvailable {
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-600);
+  font-weight: var(--font-weight-medium);
+}
+
+.amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.amenity {
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-700);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.classCard.selected .amenity {
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+}
+
+/* Seat Selection */
+.seatSelection {
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.seatInfo {
+  color: var(--color-neutral-600);
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+/* Booking Summary */
+.bookingSummary {
+  background: var(--color-neutral-50);
+  padding: var(--space-8) 0;
+}
+
+.summaryCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-8);
+  max-width: 500px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+}
+
+.summaryCard h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-900);
+  margin: 0 0 var(--space-6) 0;
+  text-align: center;
+}
+
+.summaryDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.summaryRow:last-child {
+  border-bottom: none;
+}
+
+.summaryRowTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-top: 2px solid var(--color-neutral-200);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-600);
+}
+
+.checkoutButton {
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ferryName {
+    font-size: var(--font-size-2xl);
+  }
+
+  .routeInfo {
+    align-items: center;
+  }
+
+  .route {
+    font-size: var(--font-size-lg);
+  }
+
+  .classGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .classHeader {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .summaryCard {
+    margin: 0 var(--space-4);
+    padding: var(--space-6);
+  }
+}

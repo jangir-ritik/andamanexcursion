@@ -1,11 +1,12 @@
+import { FerryApiService } from "./ferryApiService";
+import { FerryCache } from "@/utils/ferryCache";
 import {
   FerrySearchParams,
   UnifiedFerryResult,
   FerryClass,
   SeatLayout,
 } from "@/types/FerryBookingSession.types";
-import { FerryApiService } from "./ferryApiService";
-import { FerryCache } from "@/utils/ferryCache";
+import { LocationMappingService } from "./locationMappingService";
 
 interface SealinkTripData {
   id: string;
@@ -15,18 +16,8 @@ interface SealinkTripData {
   dTime: { hour: number; minute: number };
   from: string;
   to: string;
-  pClass: Array<{
-    isBlocked: number;
-    isBooked: number;
-    number: string;
-    tier: string;
-  }>;
-  bClass: Array<{
-    isBlocked: number;
-    isBooked: number;
-    number: string;
-    tier: string;
-  }>;
+  pClass: SealinkSeat[];
+  bClass: SealinkSeat[];
   fares: {
     pBaseFare: number;
     bBaseFare: number;
@@ -34,20 +25,42 @@ interface SealinkTripData {
   };
 }
 
+interface SealinkSeat {
+  isBlocked: number;
+  isBooked: number;
+  number: string;
+  tier: string;
+}
+
 interface SealinkApiResponse {
-  err: null | any;
+  err: null | string;
   data: SealinkTripData[];
 }
 
 export class SealinkService {
   private static readonly BASE_URL =
-    process.env.SEALINK_API_URL || "https://api.gonautika.com:8012/";
+    process.env.SEALINK_API_URL ||
+    "http://api.dev.gonautika.com:8012/getTripData";
   private static readonly USERNAME = process.env.SEALINK_USERNAME;
   private static readonly TOKEN = process.env.SEALINK_TOKEN;
 
   static async searchTrips(
     params: FerrySearchParams
   ): Promise<UnifiedFerryResult[]> {
+    // Check if route is supported
+    if (
+      !LocationMappingService.isRouteSupported(
+        "sealink",
+        params.from,
+        params.to
+      )
+    ) {
+      console.log(
+        `Sealink does not support route: ${params.from} → ${params.to}`
+      );
+      return [];
+    }
+
     // Check cache first
     const cacheKey = FerryCache.generateKey(params, "sealink");
     const cached = FerryCache.get(cacheKey);
@@ -56,13 +69,26 @@ export class SealinkService {
     }
 
     const apiCall = async (): Promise<SealinkApiResponse> => {
+      // Convert date format from YYYY-MM-DD to DD-MM-YYYY
+      const [year, month, day] = params.date.split("-");
+      const sealinkDate = `${day}-${month}-${year}`;
+
+      // Use centralized location mapping
+      const fromLocation = LocationMappingService.getSealinkLocation(
+        params.from
+      );
+      const toLocation = LocationMappingService.getSealinkLocation(params.to);
+
       const requestBody = {
-        date: this.formatDate(params.date), // Convert to dd-mm-yyyy
-        from: this.mapLocationToSealink(params.from),
-        to: this.mapLocationToSealink(params.to),
+        date: sealinkDate,
+        from: fromLocation,
+        to: toLocation,
         userName: this.USERNAME,
         token: this.TOKEN,
       };
+
+      console.log(`Sealink request body:`, requestBody);
+      console.log(`Sealink URL: ${this.BASE_URL}getTripData`);
 
       const response = await fetch(`${this.BASE_URL}getTripData`, {
         method: "POST",
@@ -72,11 +98,33 @@ export class SealinkService {
         body: JSON.stringify(requestBody),
       });
 
+      console.log(`Sealink response status: ${response.status}`);
+      console.log(
+        `Sealink response headers:`,
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        throw new Error(`Sealink API error: ${response.status}`);
+        const errorText = await response.text();
+        console.log(`Sealink error response:`, errorText);
+        throw new Error(`Sealink API error: ${response.status} - ${errorText}`);
       }
 
-      return response.json();
+      const responseText = await response.text();
+      console.log(`Sealink raw response:`, responseText);
+
+      try {
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`Sealink JSON parse error:`, parseError);
+        console.error(`Raw response that failed to parse:`, responseText);
+        throw new Error(
+          `Sealink API returned invalid JSON: ${responseText.substring(
+            0,
+            100
+          )}...`
+        );
+      }
     };
 
     try {
@@ -86,14 +134,17 @@ export class SealinkService {
         throw new Error(`Sealink API error: ${response.err}`);
       }
 
-      const unifiedResults = this.transformToUnified(response.data, params);
+      const results = this.transformToUnified(response.data, params);
+      console.log(
+        `Sealink found ${response.data.length} trips, transformed to ${results.length} unified results`
+      );
 
-      // Cache results
-      FerryCache.set(cacheKey, unifiedResults);
+      // Cache the results
+      FerryCache.set(cacheKey, results);
 
-      return unifiedResults;
+      return results;
     } catch (error) {
-      console.error("Sealink search failed:", error);
+      console.error("Error searching Sealink:", error);
       throw error;
     }
   }
@@ -103,36 +154,35 @@ export class SealinkService {
     params: FerrySearchParams
   ): UnifiedFerryResult[] {
     return data.map((trip) => {
-      const ferryName = trip.vesselID === 1 ? "Sealink" : "Nautika";
-
-      // Transform classes
       const classes: FerryClass[] = [];
 
-      // Luxury class (pClass)
-      if (trip.pClass.length > 0) {
+      // Add Luxury class if available
+      if (trip.pClass && trip.pClass.length > 0) {
+        const availableSeats = trip.pClass.filter(
+          (seat) => !seat.isBlocked && !seat.isBooked
+        ).length;
+
         classes.push({
-          id: "luxury",
+          id: `${trip.id}-luxury`,
           name: "Luxury",
           price: trip.fares.pBaseFare,
-          availableSeats: trip.pClass.filter(
-            (seat) => seat.isBooked === 0 && seat.isBlocked === 0
-          ).length,
-          amenities: ["AC", "Comfortable Seating"],
-          seatLayout: this.createSeatLayout(trip.pClass, "L"),
+          availableSeats,
+          amenities: ["AC", "Comfortable Seating", "Refreshments"],
         });
       }
 
-      // Royal class (bClass)
-      if (trip.bClass.length > 0) {
+      // Add Royal class if available
+      if (trip.bClass && trip.bClass.length > 0) {
+        const availableSeats = trip.bClass.filter(
+          (seat) => !seat.isBlocked && !seat.isBooked
+        ).length;
+
         classes.push({
-          id: "royal",
+          id: `${trip.id}-royal`,
           name: "Royal",
           price: trip.fares.bBaseFare,
-          availableSeats: trip.bClass.filter(
-            (seat) => seat.isBooked === 0 && seat.isBlocked === 0
-          ).length,
-          amenities: ["AC", "Premium Seating", "Priority Boarding"],
-          seatLayout: this.createSeatLayout(trip.bClass, "R"),
+          availableSeats,
+          amenities: ["AC", "Premium Seating", "Priority Boarding", "Meal"],
         });
       }
 
@@ -145,12 +195,18 @@ export class SealinkService {
         id: `sealink-${trip.id}`,
         operator: "sealink" as const,
         operatorFerryId: trip.id,
-        ferryName,
+        ferryName: trip.vesselID === 1 ? "Sealink" : "Nautika",
         route: {
-          from: { name: trip.from, code: this.getPortCode(trip.from) },
-          to: { name: trip.to, code: this.getPortCode(trip.to) },
-          fromCode: this.getPortCode(trip.from),
-          toCode: this.getPortCode(trip.to),
+          from: {
+            name: trip.from,
+            code: this.getLocationCode(trip.from),
+          },
+          to: {
+            name: trip.to,
+            code: this.getLocationCode(trip.to),
+          },
+          fromCode: this.getLocationCode(trip.from),
+          toCode: this.getLocationCode(trip.to),
         },
         schedule: {
           departureTime: this.formatTime(trip.dTime),
@@ -175,6 +231,7 @@ export class SealinkService {
           supportsSeatSelection: true,
           supportsAutoAssignment: true,
           hasAC: true,
+          hasWiFi: trip.vesselID === 2, // Nautika has WiFi
         },
         operatorData: {
           originalResponse: trip,
@@ -233,21 +290,17 @@ export class SealinkService {
     return `${hours}h ${minutes}m`;
   }
 
-  private static mapLocationToSealink(location: string): string {
-    const locationMap: Record<string, string> = {
-      "port-blair": "Port Blair",
-      havelock: "Swaraj Dweep",
-      neil: "Shaheed Dweep",
-    };
-    return locationMap[location] || location;
+  private static getPortCode(location: string): string {
+    return LocationMappingService.getPortCode(location);
   }
 
-  private static getPortCode(location: string): string {
+  private static getLocationCode(locationName: string): string {
     const codeMap: Record<string, string> = {
       "Port Blair": "PB",
       "Swaraj Dweep": "HL",
       "Shaheed Dweep": "NL",
+      Baratang: "BT",
     };
-    return codeMap[location] || location.substring(0, 2).toUpperCase();
+    return codeMap[locationName] || "??";
   }
 }

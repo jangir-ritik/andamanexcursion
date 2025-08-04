@@ -20,6 +20,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
         responsive
         responsiveAlignItems="start"
         responsiveGap="var(--space-4)"
+        alignItems="center"
       >
         <Row
           justifyContent="between"
@@ -29,16 +30,16 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
           wrap
         >
           {content.title && (
-          <HeroTitle
-            primaryText={content.title}
-            secondaryText={content.subtitle || ""}
+            <HeroTitle
+              primaryText={content.title}
+              secondaryText={content.subtitle || ""}
               id="hero-title"
             />
           )}
           {content.description && (
-          <DescriptionText
-            text={content.description || ""}
-            className={`${styles.descriptionText} ${styles.heroDescription}`}
+            <DescriptionText
+              text={content.description || ""}
+              className={`${styles.descriptionText} ${styles.heroDescription}`}
               align="right"
             />
           )}

@@ -4,6 +4,7 @@ export * from "./Chip/Chip";
 export * from "./CustomLink/CustomLink";
 export * from "./DateSelect/DateSelect";
 export * from "./DescriptionText/DescriptionText";
+export * from "./FerryStatusIndicator/FerryStatusIndicator";
 export * from "./HeroTitle/HeroTitle";
 export * from "./ImageContainer/ImageContainer";
 export * from "./Input/Input";

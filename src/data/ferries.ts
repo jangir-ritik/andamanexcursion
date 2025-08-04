@@ -36,6 +36,7 @@ export interface FerryRoute {
 
 /**
  * Available ferry locations
+ * Updated to match ferry operator documentation
  */
 export const FERRY_LOCATIONS: Location[] = [
   {
@@ -47,31 +48,24 @@ export const FERRY_LOCATIONS: Location[] = [
   },
   {
     id: "havelock",
-    name: "Havelock",
+    name: "Swaraj Dweep (Havelock Island)",
     slug: "havelock",
     value: "havelock",
-    label: "Havelock",
+    label: "Swaraj Dweep (Havelock Island)",
   },
   {
     id: "neil-island",
-    name: "Neil Island",
+    name: "Shaheed Dweep (Neil Island)",
     slug: "neil-island",
-    value: "neil-island",
-    label: "Neil Island",
+    value: "neil",
+    label: "Shaheed Dweep (Neil Island)",
   },
   {
-    id: "diglipur",
-    name: "Diglipur",
-    slug: "diglipur",
-    value: "diglipur",
-    label: "Diglipur",
-  },
-  {
-    id: "rangat",
-    name: "Rangat",
-    slug: "rangat",
-    value: "rangat",
-    label: "Rangat",
+    id: "baratang",
+    name: "Baratang Island",
+    slug: "baratang",
+    value: "baratang",
+    label: "Baratang Island",
   },
 ];
 
