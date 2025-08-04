@@ -7,7 +7,7 @@ import styles from "../page.module.css";
 import { SectionTitle, Button } from "@/components/atoms";
 import { FerryCard } from "@/components/molecules/Cards";
 import { Partners } from "@/components/sectionBlocks/common";
-import { fetchFerryDetails } from "@/services/ferryService";
+// import { fetchFerryDetails } from "@/services/ferryService";
 import { FerryCardProps } from "@/components/molecules/Cards/FerryCard/FerryCard.types";
 import { content } from "../../page.content";
 
@@ -21,8 +21,8 @@ export default function FerryDetailPage() {
   useEffect(() => {
     async function loadFerryDetails() {
       setLoading(true);
-      const data = await fetchFerryDetails(ferryId);
-      setFerry(data);
+      // const data = await fetchFerryDetails(ferryId);
+      // setFerry(data);
       setLoading(false);
     }
 
