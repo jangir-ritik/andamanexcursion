@@ -3,22 +3,37 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "../FerryCard.module.css";
 import star from "@public/icons/misc/star.svg";
-import { ferryCardContent } from "../FerryCard.content";
 
 interface FerryHeaderProps {
   ferryName: string;
   rating: number;
   detailsUrl?: string;
+  operator: "sealink" | "makruzz" | "greenocean";
 }
 
+// Operator icon mapping - using existing files
+const operatorIcons = {
+  sealink: "/icons/partners/nautika.svg", // Use nautika for sealink since they're the same company
+  makruzz: "/icons/partners/makruzz.svg",
+  greenocean: "/icons/partners/greenOcean.svg", // Note the capital O
+} as const;
+
+// Fallback to makruzz icon if operator icon not found
+const getOperatorIcon = (operator: string): string => {
+  return (
+    operatorIcons[operator as keyof typeof operatorIcons] ||
+    "/icons/partners/makruzz.svg"
+  );
+};
+
 export const FerryHeader = memo<FerryHeaderProps>(
-  ({ ferryName, rating, detailsUrl }) => {
+  ({ ferryName, rating, detailsUrl, operator }) => {
     return (
       <div className={styles.ferryInfo}>
         <div className={styles.logoContainer}>
           <Image
-            src="/icons/partners/makruzz.svg"
-            alt={`${ferryName} logo`}
+            src={getOperatorIcon(operator)}
+            alt={`${operator} logo`}
             width={48}
             height={48}
             className={styles.ferryLogo}
@@ -31,7 +46,7 @@ export const FerryHeader = memo<FerryHeaderProps>(
                 href={detailsUrl}
                 className={styles.ferryNameLink}
                 onClick={(e) => e.stopPropagation()}
-                aria-label={`${ferryCardContent.aria.viewDetails} ${ferryName}`}
+                aria-label={`View details for ${ferryName}`}
               >
                 {ferryName}
               </Link>
@@ -47,7 +62,7 @@ export const FerryHeader = memo<FerryHeaderProps>(
               className={styles.ratingText}
               aria-label={`${rating} out of 5 stars`}
             >
-              {rating} {ferryCardContent.stars}
+              {rating} stars
             </span>
           </div>
         </div>

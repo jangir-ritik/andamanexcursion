@@ -1,6 +1,5 @@
-export * from "./FerryHeader";
-export * from "./SeatsInfo";
-export * from "./JourneyInfo";
-export * from "./PriceInfo";
-export * from "./FerryClassCard";
-export * from "./ImageSlider";
+export { FerryHeader } from "./FerryHeader";
+export { SeatsInfo } from "./SeatsInfo";
+export { JourneyInfo } from "./JourneyInfo";
+export { PriceInfo } from "./PriceInfo";
+export { FerryClassCard } from "./FerryClassCard";

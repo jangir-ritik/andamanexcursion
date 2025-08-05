@@ -11,9 +11,8 @@ import {
   JourneyInfo,
   PriceInfo,
   FerryClassCard,
-  ImageSlider,
 } from "./components";
-import { ferryCardContent } from "./FerryCard.content";
+
 import Image from "next/image"; // Added for the checker
 
 export const FerryCard = memo<FerryCardProps>(
@@ -28,11 +27,11 @@ export const FerryCard = memo<FerryCardProps>(
     totalPrice,
     seatsLeft,
     ferryClasses,
-    ferryImages = [],
     onChooseSeats,
     className,
     ferryIndex,
     detailsUrl,
+    operator, // Add operator prop
   }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedClassIndex, setSelectedClassIndex] = useState(0);
@@ -63,16 +62,6 @@ export const FerryCard = memo<FerryCardProps>(
       setSelectedClassIndex(index);
     }, []);
 
-    // Default ferry image if none provided - moved outside render
-    const imagesToUse =
-      ferryImages.length > 0
-        ? ferryImages
-        : [
-            "/images/ferry/ferryBanner.png",
-            "/images/ferry/trustedFerries/goNautica.png",
-            "/images/ferry/ferryBannera.png",
-          ];
-
     // This is a hidden component just to satisfy the component checker
     // that looks for alt text in files that import Image
     if (false) {
@@ -84,7 +73,7 @@ export const FerryCard = memo<FerryCardProps>(
         className={cn(styles.ferryCard, className)}
         role="article"
         aria-expanded={isExpanded}
-        aria-label={`${ferryCardContent.ferryOption} ${ferryName}`}
+        aria-label={`Ferry option ${ferryName}`}
       >
         {/* Clickable main content area */}
         <div
@@ -94,10 +83,8 @@ export const FerryCard = memo<FerryCardProps>(
           role="button"
           tabIndex={0}
           aria-label={`${
-            isExpanded
-              ? ferryCardContent.collapseExpand.collapse
-              : ferryCardContent.collapseExpand.expand
-          } ${ferryCardContent.expandFerry} ${ferryName}`}
+            isExpanded ? "Collapse" : "Expand"
+          } ferry ${ferryName}`}
         >
           {/* Header row with ferry info and seats */}
           <div className={styles.headerRow}>
@@ -105,6 +92,7 @@ export const FerryCard = memo<FerryCardProps>(
               ferryName={ferryName}
               rating={rating}
               detailsUrl={detailsUrl}
+              operator={operator}
             />
             <SeatsInfo seatsLeft={seatsLeft} />
           </div>
@@ -125,7 +113,7 @@ export const FerryCard = memo<FerryCardProps>(
           </div>
         </div>
 
-        {/* Ferry classes and images - only shown when expanded */}
+        {/* Ferry classes - only shown when expanded, gallery removed */}
         {isExpanded && (
           <div className={styles.classesContainer}>
             <div className={styles.classesWrapper}>
@@ -140,10 +128,6 @@ export const FerryCard = memo<FerryCardProps>(
                 />
               ))}
             </div>
-            <ImageSlider
-              images={imagesToUse}
-              altText={`${ferryName} ferry images`}
-            />
           </div>
         )}
       </article>

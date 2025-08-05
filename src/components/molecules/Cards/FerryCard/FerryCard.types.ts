@@ -9,6 +9,7 @@ export interface FerryCardProps {
   totalPrice: number;
   seatsLeft: number;
   ferryClasses: FerryClassOption[];
+  operator: "sealink" | "makruzz" | "greenocean"; // Add operator prop
   ferryImages?: string[];
   onChooseSeats?: (classType: string) => void;
   className?: string;
@@ -21,7 +22,7 @@ export interface FerryClassOption {
   price: number;
   totalPrice: number;
   seatsLeft: number;
-  amenities: FerryAmenity[];
+  amenities: { icon: React.ReactNode; label: string }[];
 }
 
 export interface FerryAmenity {

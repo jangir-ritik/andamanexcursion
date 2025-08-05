@@ -356,7 +356,7 @@ This document consolidates the API documentation for three ferry operators in An
 
 ### Base Configuration
 
-- **Base URL**: `https://tickets.greenoceanseaways.com/api/v1/`
+- **Base URL**: `https://tickets.greenoceanseaways.com/test-v-1.0-api/`
 - **Authentication**: Public Key + SHA-512 Hash
 - **Date Format**: dd-mm-yyyy
 - **Vessels**: Green Ocean 1, Green Ocean 2
@@ -1010,9 +1010,10 @@ MAKRUZZ_USERNAME=your_username
 MAKRUZZ_PASSWORD=your_password
 MAKRUZZ_API_URL=https://staging.makruzz.com/booking_api/
 
-GREEN_OCEAN_PUBLIC_KEY=your_public_key
-GREEN_OCEAN_PRIVATE_KEY=your_private_key
-GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/api/v1/
+# Green Ocean Configuration
+GREEN_OCEAN_PUBLIC_KEY=public-HGTBlexrva
+GREEN_OCEAN_PRIVATE_KEY=private-vpFg9TP9D8
+GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/test-v-1.0-api/
 
 # Rate Limiting
 FERRY_API_RATE_LIMIT=100 # requests per minute
@@ -1196,7 +1197,7 @@ GREEN_OCEAN_PRIVATE_KEY=
 # API URLs
 SEALINK_API_URL=http://api.gonautika.com:8012/
 MAKRUZZ_API_URL=https://staging.makruzz.com/booking_api/
-GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/api/v1/
+GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/test-v-1.0-api/
 
 # Rate Limiting
 FERRY_API_RATE_LIMIT=100

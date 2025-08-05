@@ -1,5 +1,6 @@
 import React from "react";
 import { FerrySearchParams } from "@/types/FerryBookingSession.types";
+import { Info } from "lucide-react";
 import styles from "./SearchSummary.module.css";
 
 interface SearchSummaryProps {
@@ -16,10 +17,10 @@ export function SearchSummary({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
+      weekday: "short",
+      month: "short",
       day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -33,8 +34,61 @@ export function SearchSummary({
     return locationMap[location] || location;
   };
 
-  const totalPassengers =
-    searchParams.adults + searchParams.children + searchParams.infants;
+  const formatPassengerInfo = () => {
+    const totalPassengers =
+      searchParams.adults + searchParams.children + searchParams.infants;
+
+    const parts = [
+      `${totalPassengers} passenger${totalPassengers !== 1 ? "s" : ""}`,
+    ];
+
+    if (searchParams.children > 0) {
+      parts.push(
+        `${searchParams.children} child${
+          searchParams.children !== 1 ? "ren" : ""
+        }`
+      );
+    }
+
+    if (searchParams.infants > 0) {
+      parts.push(
+        `${searchParams.infants} infant${searchParams.infants !== 1 ? "s" : ""}`
+      );
+    }
+
+    return parts.join(", ");
+  };
+
+  const getResultsInfo = () => {
+    if (loading) {
+      return (
+        <div className={styles.loading}>
+          <div className={styles.loadingSpinner} />
+          <span>Searching...</span>
+        </div>
+      );
+    }
+
+    if (ferryCount === 0) {
+      return (
+        <div className={styles.resultsInfo}>
+          <Info size={16} className={styles.infoIcon} />
+          <span className={`${styles.count} ${styles.noResults}`}>
+            No ferries found
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.resultsInfo}>
+        <Info size={16} className={styles.infoIcon} />
+        <span className={`${styles.count} ${styles.hasResults}`}>
+          {ferryCount} ferry{ferryCount !== 1 ? "s" : ""} found
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className={styles.searchSummary}>
@@ -46,36 +100,13 @@ export function SearchSummary({
           <span className={styles.arrow}>→</span>
           <span className={styles.to}>{formatLocation(searchParams.to)}</span>
         </div>
-
         <div className={styles.details}>
           <span className={styles.date}>{formatDate(searchParams.date)}</span>
-          <span className={styles.passengers}>
-            {totalPassengers} passenger{totalPassengers !== 1 ? "s" : ""}
-            {searchParams.children > 0 &&
-              ` (${searchParams.children} child${
-                searchParams.children !== 1 ? "ren" : ""
-              })`}
-            {searchParams.infants > 0 &&
-              ` (${searchParams.infants} infant${
-                searchParams.infants !== 1 ? "s" : ""
-              })`}
-          </span>
+          <span className={styles.separator}>•</span>
+          <span className={styles.passengers}>{formatPassengerInfo()}</span>
         </div>
       </div>
-
-      <div className={styles.resultsInfo}>
-        {loading ? (
-          <span className={styles.loading}>Searching...</span>
-        ) : (
-          <span className={styles.count}>
-            {ferryCount === 0
-              ? "No ferries found"
-              : `${ferryCount} ferry option${
-                  ferryCount !== 1 ? "s" : ""
-                } available`}
-          </span>
-        )}
-      </div>
+      {getResultsInfo()}
     </div>
   );
 }

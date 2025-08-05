@@ -11,7 +11,8 @@ import * as crypto from "crypto";
 
 interface GreenOceanRouteData {
   departure: string;
-  arrival: string;
+  arraival: string; // Note: API has typo "arraival" instead of "arrival"
+  arrival?: string; // Optional fallback in case they fix the typo
   ferry_name: string;
   ferry_id: number;
   class_name: string;
@@ -52,7 +53,7 @@ interface GreenOceanSeatLayoutResponse {
 export class GreenOceanService {
   private static readonly BASE_URL =
     process.env.GREEN_OCEAN_API_URL ||
-    "https://tickets.greenoceanseaways.com/api/v1/";
+    "https://tickets.greenoceanseaways.com/test-v-1.0-api/";
   private static readonly PUBLIC_KEY = process.env.GREEN_OCEAN_PUBLIC_KEY;
   private static readonly PRIVATE_KEY = process.env.GREEN_OCEAN_PRIVATE_KEY;
 
@@ -81,26 +82,36 @@ export class GreenOceanService {
     }
 
     const apiCall = async (): Promise<GreenOceanRouteResponse> => {
-      const hashString = this.generateSearchHash(params);
-
       // Use centralized location mapping
       const fromId = LocationMappingService.getGreenOceanLocation(params.from);
       const toId = LocationMappingService.getGreenOceanLocation(params.to);
+      const travelDate = this.formatDate(params.date);
 
-      const requestBody = {
+      // Create request data object first
+      const requestData = {
         from_id: fromId,
         dest_to: toId,
         number_of_adults: params.adults,
         number_of_infants: params.infants,
-        travel_date: this.formatDate(params.date),
+        travel_date: travelDate,
         public_key: this.PUBLIC_KEY,
+      };
+
+      // Generate hash according to Green Ocean documentation
+      const hashString = this.generateHash(requestData);
+      console.log(`Green Ocean generated hash: ${hashString}`);
+
+      // Add hash to request data
+      const requestBody = {
+        ...requestData,
         hash_string: hashString,
       };
 
       console.log(`Green Ocean request body:`, requestBody);
-      console.log(`Green Ocean URL: ${this.BASE_URL}route-details`);
+      // Fixed: Add v1/ prefix to the endpoint
+      console.log(`Green Ocean URL: ${this.BASE_URL}v1/route-details`);
 
-      const response = await fetch(`${this.BASE_URL}route-details`, {
+      const response = await fetch(`${this.BASE_URL}v1/route-details`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +155,7 @@ export class GreenOceanService {
         throw new Error(`Green Ocean API error: ${response.message}`);
       }
 
-      const results = this.transformToUnified(response.data, params);
+      const results = await this.transformToUnified(response.data, params);
       console.log(
         `Green Ocean found routes, transformed to ${results.length} unified results`
       );
@@ -166,24 +177,43 @@ export class GreenOceanService {
     travelDate: string
   ): Promise<SeatLayout> {
     const apiCall = async (): Promise<GreenOceanSeatLayoutResponse> => {
-      const hashString = this.generateSeatLayoutHash(
-        routeId,
-        ferryId,
-        classId,
-        travelDate
-      );
+      // Format travel date for the API
+      const formattedDate = this.formatDate(travelDate);
 
-      const requestBody = {
+      // Get location IDs for the hash (you might need to pass these as parameters)
+      const fromId = 1; // You'll need to get this from the route context
+      const toId = 2; // You'll need to get this from the route context
+
+      const requestData = {
+        from_id: fromId,
+        dest_to: toId,
+        ship_id: ferryId, // Note: API expects ship_id in request body
+        ferry_id: ferryId, // But we use ferry_id for hash generation
         route_id: routeId,
-        ferry_id: ferryId,
         class_id: classId,
+        travel_date: formattedDate,
         public_key: this.PUBLIC_KEY,
-        hash_string: hashString,
         bootstrap_css: true,
         html_response: false,
       };
 
-      const response = await fetch(`${this.BASE_URL}seat-layout`, {
+      const hashString = this.generateSeatLayoutHash(requestData);
+
+      const requestBody = {
+        from_id: requestData.from_id,
+        dest_to: requestData.dest_to,
+        ship_id: requestData.ship_id, // Use ship_id in the actual request
+        route_id: requestData.route_id,
+        class_id: requestData.class_id,
+        travel_date: requestData.travel_date,
+        public_key: requestData.public_key,
+        bootstrap_css: requestData.bootstrap_css,
+        html_response: requestData.html_response,
+        hash_string: hashString,
+      };
+
+      // Fixed: Add v1/ prefix to the endpoint
+      const response = await fetch(`${this.BASE_URL}v1/seat-layout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -192,8 +222,10 @@ export class GreenOceanService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Green Ocean seat layout error response:`, errorText);
         throw new Error(
-          `Green Ocean seat layout API error: ${response.status}`
+          `Green Ocean seat layout API error: ${response.status} - ${errorText}`
         );
       }
 
@@ -210,6 +242,41 @@ export class GreenOceanService {
     }
 
     return this.transformSeatLayout(response.data.layout);
+  }
+
+  // Fixed: Proper hash generation following PHP example
+  private static generateHash(requestData: any): string {
+    // Hash sequence as per documentation
+    const hashSequence =
+      "from_id|dest_to|number_of_adults|number_of_infants|travel_date|public_key";
+    const sequenceArray = hashSequence.split("|");
+
+    let hashString = "";
+
+    // Build hash string according to sequence
+    sequenceArray.forEach((key) => {
+      const value = requestData[key];
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          hashString += value.join(",");
+        } else {
+          hashString += value.toString();
+        }
+      }
+      hashString += "|";
+    });
+
+    // Add private key at the end
+    hashString += this.PRIVATE_KEY;
+
+    console.log(`Green Ocean hash string: ${hashString}`);
+
+    // Create SHA512 hash and convert to lowercase
+    const hash = crypto.createHash("sha512");
+    hash.update(hashString, "utf-8");
+    const generatedHash = hash.digest("hex").toLowerCase();
+
+    return generatedHash;
   }
 
   private static async transformToUnified(
@@ -292,10 +359,13 @@ export class GreenOceanService {
           },
           schedule: {
             departureTime: this.formatTime(primaryRoute.departure),
-            arrivalTime: this.formatTime(primaryRoute.arrival),
+            // Handle the API typo: "arraival" instead of "arrival"
+            arrivalTime: this.formatTime(
+              primaryRoute.arraival || primaryRoute.arrival || ""
+            ),
             duration: this.calculateDuration(
               primaryRoute.departure,
-              primaryRoute.arrival
+              primaryRoute.arraival || primaryRoute.arrival || ""
             ),
             date: params.date,
           },
@@ -319,7 +389,7 @@ export class GreenOceanService {
           },
           operatorData: {
             originalResponse: { routeId, routes: ferryRoutes },
-            bookingEndpoint: `${this.BASE_URL}book-ticket`,
+            bookingEndpoint: `${this.BASE_URL}v1/book-ticket`,
           },
           isActive: true,
         });
@@ -385,36 +455,35 @@ export class GreenOceanService {
     return baseAmenities;
   }
 
-  private static generateSearchHash(params: FerrySearchParams): string {
-    // Use centralized location mapping for hash generation
-    const fromId = LocationMappingService.getGreenOceanLocation(params.from);
-    const toId = LocationMappingService.getGreenOceanLocation(params.to);
+  private static generateSeatLayoutHash(requestData: any): string {
+    // Hash sequence as per PHP example for seat layout
+    const hashSequence =
+      "from_id|dest_to|ship_id|route_id|class_id|travel_date|public_key";
+    const sequenceArray = hashSequence.split("|");
 
-    const hashString = `${fromId}|${toId}|${params.adults}|${
-      params.infants
-    }|${this.formatDate(params.date)}|${this.PUBLIC_KEY}|${this.PRIVATE_KEY}`;
+    let hashString = "";
+
+    sequenceArray.forEach((key) => {
+      // Map ferry_id to ship_id for the hash
+      const actualKey = key === "ship_id" ? "ferry_id" : key;
+      const value = requestData[actualKey];
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          hashString += value.join(",");
+        } else {
+          hashString += value.toString();
+        }
+      }
+      hashString += "|";
+    });
+
+    hashString += this.PRIVATE_KEY;
+
+    console.log(`Green Ocean seat layout hash string: ${hashString}`);
+
     const hash = crypto.createHash("sha512");
-    return hash.update(hashString, "utf-8").digest("hex");
-  }
-
-  private static generateSeatLayoutHash(
-    routeId: number,
-    ferryId: number,
-    classId: number,
-    travelDate: string
-  ): string {
-    const hashString = `${LocationMappingService.getGreenOceanLocation(
-      "port-blair"
-    )}|${LocationMappingService.getGreenOceanLocation(
-      "havelock"
-    )}|1|0|${this.formatDate(new Date().toISOString().split("T")[0])}|${
-      this.PUBLIC_KEY
-    }|${this.PRIVATE_KEY}`;
-
-    return crypto
-      .createHash("sha512")
-      .update(hashString, "utf-8")
-      .digest("hex");
+    hash.update(hashString, "utf-8");
+    return hash.digest("hex").toLowerCase();
   }
 
   private static formatDate(isoDate: string): string {
@@ -428,9 +497,25 @@ export class GreenOceanService {
   }
 
   private static formatTime(time: string): string {
+    // Handle the typo in API response: "arraival" instead of "arrival"
+    if (!time || typeof time !== "string") {
+      console.warn("Invalid time format received:", time);
+      return "00:00";
+    }
+
     // Convert "06:30 AM" to "06:30"
     const [timePart, period] = time.split(" ");
+    if (!timePart || !period) {
+      console.warn("Invalid time format:", time);
+      return "00:00";
+    }
+
     const [hours, minutes] = timePart.split(":");
+    if (!hours || !minutes) {
+      console.warn("Invalid time parts:", timePart);
+      return "00:00";
+    }
+
     let hour = parseInt(hours);
 
     if (period === "PM" && hour !== 12) {

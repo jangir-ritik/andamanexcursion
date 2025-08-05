@@ -1,11 +1,9 @@
 import React, { memo, useCallback } from "react";
-import Image from "next/image";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 import styles from "../FerryCard.module.css";
 import type { FerryClassOption } from "../FerryCard.types";
 import { Button } from "@/components/atoms";
-import { ferryCardContent } from "../FerryCard.content";
 
 interface FerryClassCardProps {
   ferryClass: FerryClassOption;
@@ -36,14 +34,10 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
     );
 
     // Simplified ARIA label
-    const ariaLabel = `${ferryClass.type} ${
-      ferryCardContent.aria.ferryTicketOption
-    } ${ferryClass.price} ${ferryCardContent.price.perAdult}, ${
-      ferryCardContent.price.totalPrice
-    } ${ferryClass.totalPrice} ${ferryCardContent.price.rupees}. ${
-      shouldShowAlert
-        ? `${ferryCardContent.only} ${seatText} ${ferryCardContent.aria.remaining}.`
-        : ""
+    const ariaLabel = `${ferryClass.type} ferry ticket option ₹${
+      ferryClass.price
+    } per adult, total price ₹${ferryClass.totalPrice}. ${
+      shouldShowAlert ? `Only ${seatText} remaining.` : ""
     }`;
 
     // Build ARIA description directly
@@ -93,7 +87,7 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
         <header className={styles.classHeader}>
           <div className={styles.classInfo}>
             <h3 className={styles.className} id={`${cardId}-title`}>
-              {ferryClass.type} {ferryCardContent.class}
+              {ferryClass.type} Class
             </h3>
             {shouldShowAlert && (
               <div
@@ -109,29 +103,20 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
                   aria-hidden="true"
                 />
                 <span className={styles.alertText}>
-                  <strong>{ferryCardContent.hurry}</strong>{" "}
-                  {ferryCardContent.only} {seatText} {ferryCardContent.left}
+                  <strong>Hurry!</strong> Only {seatText} left
                 </span>
               </div>
             )}
           </div>
           <div className={styles.classPriceInfo} id={priceId}>
             <div className={styles.pricePerAdult}>
-              <span
-                aria-label={`${ferryClass.price} ${ferryCardContent.price.perAdult}`}
-              >
-                {ferryCardContent.price.rupeeSymbol}
-                {ferryClass.price}
-                {ferryCardContent.perAdult}
+              <span aria-label={`₹${ferryClass.price} per adult`}>
+                ₹{ferryClass.price}/adult
               </span>
             </div>
             <div className={styles.totalPrice}>
-              <span
-                aria-label={`${ferryCardContent.price.totalPrice} ${ferryClass.totalPrice} ${ferryCardContent.price.rupees}`}
-              >
-                {ferryCardContent.price.rupeeSymbol}
-                {ferryClass.totalPrice}
-                {ferryCardContent.total}
+              <span aria-label={`Total price ₹${ferryClass.totalPrice}`}>
+                ₹{ferryClass.totalPrice} total
               </span>
             </div>
           </div>
@@ -142,7 +127,7 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
             className={styles.amenitiesGroup}
             role="list"
             id={amenitiesId}
-            aria-label={`${ferryCardContent.amenitiesIncluded} ${ferryClass.type} class`}
+            aria-label={`Amenities included in ${ferryClass.type} class`}
           >
             {ferryClass.amenities.map((amenity, i) => (
               <AmenityItem
@@ -160,7 +145,7 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
               aria-describedby={`${cardId}-title ${priceId}`}
               onClick={handleChooseSeats}
             >
-              {ferryCardContent.chooseSeats}
+              Choose Seats
             </Button>
           )}
         </section>
@@ -169,28 +154,34 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
   }
 );
 
-// Simplified AmenityItem component
+// Fixed AmenityItem component to properly render icons with colors
 const AmenityItem = memo<{
-  amenity: { icon: string; label: string };
+  amenity: { icon: React.ReactNode; label: string };
   classType: string;
-}>(({ amenity, classType }) => (
-  <div
-    className={styles.amenityItem}
-    role="listitem"
-    aria-label={`${amenity.label} ${ferryCardContent.amenitiesIncluded} ${classType} class`}
-  >
-    <div className={styles.amenityIcon} aria-hidden="true">
-      <Image
-        src={amenity.icon}
-        alt=""
-        width={18}
-        height={18}
-        aria-hidden="true"
-      />
+}>(({ amenity, classType }) => {
+  // Clone the icon element to ensure proper rendering with colors
+  const iconElement = React.isValidElement(amenity.icon)
+    ? React.cloneElement(amenity.icon as React.ReactElement, {
+        key: `icon-${amenity.label}`,
+        className: `${styles.amenityIconSvg} ${
+          (amenity.icon as any)?.props?.className || ""
+        }`,
+      })
+    : amenity.icon;
+
+  return (
+    <div
+      className={styles.amenityItem}
+      role="listitem"
+      aria-label={`${amenity.label} included in ${classType} class`}
+    >
+      <div className={styles.amenityIcon} aria-hidden="true">
+        {iconElement}
+      </div>
+      <span className={styles.amenityLabel}>{amenity.label}</span>
     </div>
-    <span className={styles.amenityLabel}>{amenity.label}</span>
-  </div>
-));
+  );
+});
 
 AmenityItem.displayName = "AmenityItem";
 FerryClassCard.displayName = "FerryClassCard";

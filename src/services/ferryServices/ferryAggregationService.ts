@@ -138,12 +138,42 @@ export class FerryAggregationService {
     results: UnifiedFerryResult[];
     errors: { operator: string; error: string }[];
   }> {
+    console.log(`🔍 Ferry Search: Starting search for all operators`);
+    console.log(`   Route: ${params.from} → ${params.to}`);
+    console.log(`   Date: ${params.date}`);
+    console.log(
+      `   Passengers: ${params.adults} adults, ${params.children} children, ${params.infants} infants`
+    );
+
     // Execute all searches in parallel
     const [sealinkResult, makruzzResult, greenOceanResult] = await Promise.all([
       this.searchSealink(params),
       this.searchMakruzz(params),
       this.searchGreenOcean(params),
     ]);
+
+    console.log(`📊 Operator Results Summary:`);
+    console.log(
+      `   Sealink: ${
+        sealinkResult.results
+          ? `✅ ${sealinkResult.results.length} results`
+          : `❌ ${sealinkResult.error}`
+      }`
+    );
+    console.log(
+      `   Makruzz: ${
+        makruzzResult.results
+          ? `✅ ${makruzzResult.results.length} results`
+          : `❌ ${makruzzResult.error}`
+      }`
+    );
+    console.log(
+      `   Green Ocean: ${
+        greenOceanResult.results
+          ? `✅ ${greenOceanResult.results.length} results`
+          : `❌ ${greenOceanResult.error}`
+      }`
+    );
 
     const results: UnifiedFerryResult[] = [];
     const errors: { operator: string; error: string }[] = [];
@@ -166,6 +196,16 @@ export class FerryAggregationService {
     results.sort((a, b) =>
       a.schedule.departureTime.localeCompare(b.schedule.departureTime)
     );
+
+    console.log(
+      `🎯 Final Results: ${results.length} ferries found, ${errors.length} operator errors`
+    );
+    if (errors.length > 0) {
+      console.log(`❌ Operator Errors:`);
+      errors.forEach((error) => {
+        console.log(`   ${error.operator}: ${error.error}`);
+      });
+    }
 
     return {
       results,
@@ -281,27 +321,61 @@ export class FerryAggregationService {
         return { status: "offline", message: "Credentials not configured" };
       }
 
-      // Simple ping to check if the API is reachable
+      // Create a proper test request with valid hash
+      const requestData = {
+        from_id: 1,
+        dest_to: 2,
+        number_of_adults: 1,
+        number_of_infants: 0,
+        travel_date: new Date()
+          .toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+          .replace(/\//g, "-"),
+        public_key: process.env.GREEN_OCEAN_PUBLIC_KEY,
+      };
+
+      // Generate proper hash
+      const hashSequence =
+        "from_id|dest_to|number_of_adults|number_of_infants|travel_date|public_key";
+      const sequenceArray = hashSequence.split("|");
+
+      let hashString = "";
+      sequenceArray.forEach((key) => {
+        const value = requestData[key as keyof typeof requestData];
+        if (value !== undefined && value !== null) {
+          hashString += value.toString();
+        }
+        hashString += "|";
+      });
+      hashString += process.env.GREEN_OCEAN_PRIVATE_KEY;
+
+      const crypto = require("crypto");
+      const hash = crypto.createHash("sha512");
+      hash.update(hashString, "utf-8");
+      const generatedHash = hash.digest("hex").toLowerCase();
+
+      const requestBody = {
+        ...requestData,
+        hash_string: generatedHash,
+      };
+
+      // Fixed: Use v1/route-details endpoint
       const response = await fetch(
-        `${process.env.GREEN_OCEAN_API_URL}route-details`,
+        `${process.env.GREEN_OCEAN_API_URL}v1/route-details`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from_id: 1,
-            dest_to: 2,
-            number_of_adults: 1,
-            number_of_infants: 0,
-            travel_date: new Date().toLocaleDateString("en-GB"),
-            public_key: process.env.GREEN_OCEAN_PUBLIC_KEY,
-            hash_string: "test", // Invalid hash for health check
-          }),
+          body: JSON.stringify(requestBody),
           signal: AbortSignal.timeout(5000),
         }
       );
 
-      // Even if auth fails, if we get a response, API is online
-      return { status: "online" };
+      return response.ok
+        ? { status: "online" }
+        : { status: "error", message: `HTTP ${response.status}` };
     } catch (error) {
       return {
         status: "offline",

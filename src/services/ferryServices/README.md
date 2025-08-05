@@ -203,9 +203,9 @@ MAKRUZZ_PASSWORD=your_makruzz_password
 MAKRUZZ_API_URL=https://staging.makruzz.com/booking_api/
 
 # Green Ocean Configuration
-GREEN_OCEAN_PUBLIC_KEY=your_public_key
-GREEN_OCEAN_PRIVATE_KEY=your_private_key
-GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/api/v1/
+GREEN_OCEAN_PUBLIC_KEY=public-HGTBlexrva
+GREEN_OCEAN_PRIVATE_KEY=private-vpFg9TP9D8
+GREEN_OCEAN_API_URL=https://tickets.greenoceanseaways.com/test-v-1.0-api/
 
 # Rate Limiting
 FERRY_API_RATE_LIMIT=100

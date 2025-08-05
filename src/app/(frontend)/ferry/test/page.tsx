@@ -196,6 +196,61 @@ export default function FerryTestPage() {
     }
   };
 
+  const testGreenOceanAPI = async () => {
+    try {
+      console.log("🌊 Testing Green Ocean API directly");
+
+      // Test the route-details endpoint directly
+      const requestBody = {
+        from_id: 1, // Port Blair
+        dest_to: 2, // Havelock
+        number_of_adults: 1,
+        number_of_infants: 0,
+        travel_date: "05-08-2025",
+        public_key: "public-HGTBlexrva",
+        hash_string: "test_hash", // We'll generate proper hash in the service
+      };
+
+      console.log("Green Ocean test request:", requestBody);
+
+      const response = await fetch("/api/ferry/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "port-blair",
+          to: "havelock",
+          date: "2025-08-05",
+          adults: 1,
+          children: 0,
+          infants: 0,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("✅ Green Ocean test response:", data);
+
+      // Check specifically for Green Ocean results
+      const greenOceanResults =
+        data.results?.filter((r: any) => r.operator === "greenocean") || [];
+      const greenOceanError = data.errors?.find(
+        (e: any) => e.operator === "greenocean"
+      );
+
+      if (greenOceanResults.length > 0) {
+        alert(
+          `✅ Green Ocean SUCCESS: Found ${greenOceanResults.length} results`
+        );
+      } else if (greenOceanError) {
+        alert(`❌ Green Ocean ERROR: ${greenOceanError.error}`);
+      } else {
+        alert("🤷 Green Ocean: No results or errors reported");
+      }
+    } catch (error) {
+      console.error("❌ Green Ocean test failed:", error);
+      alert("Green Ocean test failed - check console");
+    }
+  };
+
   const testLocationMappings = () => {
     console.log("🗺️ Testing Location Mappings:");
 
@@ -261,6 +316,9 @@ export default function FerryTestPage() {
               </Button>
               <Button onClick={testSealinkHTTP} variant="primary">
                 Test Sealink HTTP
+              </Button>
+              <Button onClick={testGreenOceanAPI} variant="secondary">
+                Test Green Ocean API
               </Button>
               <Button onClick={testLocationMappings} variant="outline">
                 Debug Location Mappings

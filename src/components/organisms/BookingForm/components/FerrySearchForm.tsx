@@ -403,19 +403,19 @@ export function FerrySearchForm({
           <div className={styles.errorMessage}>{error}</div>
 
           {/* Show ferry API status to provide context */}
-          <div className={styles.apiStatusContainer}>
+          {/* <div className={styles.apiStatusContainer}>
             <span className={styles.apiStatusLabel}>Ferry API Status:</span>
             <FerryStatusIndicator
               variant="compact"
               showLabels={true}
               className={styles.apiStatusIndicator}
             />
-          </div>
+          </div> */}
         </div>
       )}
 
       {/* Always show API status in development mode */}
-      {process.env.NODE_ENV === "development" && !error && (
+      {/* {process.env.NODE_ENV === "development" && !error && (
         <div className={styles.devStatusContainer}>
           <span className={styles.devStatusLabel}>API Status:</span>
           <FerryStatusIndicator
@@ -424,7 +424,7 @@ export function FerrySearchForm({
             className={styles.devStatusIndicator}
           />
         </div>
-      )}
+      )} */}
     </form>
   );
 }

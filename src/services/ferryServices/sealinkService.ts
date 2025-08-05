@@ -16,8 +16,8 @@ interface SealinkTripData {
   dTime: { hour: number; minute: number };
   from: string;
   to: string;
-  pClass: SealinkSeat[];
-  bClass: SealinkSeat[];
+  pClass: Record<string, SealinkSeat>; // Object with seat keys, not array
+  bClass: Record<string, SealinkSeat>; // Object with seat keys, not array
   fares: {
     pBaseFare: number;
     bBaseFare: number;
@@ -39,14 +39,25 @@ interface SealinkApiResponse {
 
 export class SealinkService {
   private static readonly BASE_URL =
-    process.env.SEALINK_API_URL ||
-    "http://api.dev.gonautika.com:8012/getTripData";
+    process.env.SEALINK_API_URL || "http://api.dev.gonautika.com:8012/";
   private static readonly USERNAME = process.env.SEALINK_USERNAME;
   private static readonly TOKEN = process.env.SEALINK_TOKEN;
 
   static async searchTrips(
     params: FerrySearchParams
   ): Promise<UnifiedFerryResult[]> {
+    console.log(
+      `🚢 Sealink Service: Starting search for ${params.from} → ${params.to} on ${params.date}`
+    );
+
+    // Validate credentials
+    if (!this.USERNAME || !this.TOKEN) {
+      console.error(`❌ Sealink credentials missing:`);
+      console.error(`   USERNAME: ${this.USERNAME ? "✅ Set" : "❌ Missing"}`);
+      console.error(`   TOKEN: ${this.TOKEN ? "✅ Set" : "❌ Missing"}`);
+      throw new Error("Sealink credentials not configured");
+    }
+
     // Check if route is supported
     if (
       !LocationMappingService.isRouteSupported(
@@ -56,7 +67,7 @@ export class SealinkService {
       )
     ) {
       console.log(
-        `Sealink does not support route: ${params.from} → ${params.to}`
+        `❌ Sealink does not support route: ${params.from} → ${params.to}`
       );
       return [];
     }
@@ -65,6 +76,7 @@ export class SealinkService {
     const cacheKey = FerryCache.generateKey(params, "sealink");
     const cached = FerryCache.get(cacheKey);
     if (cached) {
+      console.log(`📦 Sealink: Using cached results for ${cacheKey}`);
       return cached;
     }
 
@@ -87,10 +99,14 @@ export class SealinkService {
         token: this.TOKEN,
       };
 
-      console.log(`Sealink request body:`, requestBody);
-      console.log(`Sealink URL: ${this.BASE_URL}getTripData`);
+      const fullUrl = `${this.BASE_URL}getTripData`;
+      console.log(`🔗 Sealink API URL: ${fullUrl}`);
+      console.log(`📝 Sealink request body:`, {
+        ...requestBody,
+        token: this.TOKEN ? `${this.TOKEN.substring(0, 10)}...` : "MISSING",
+      });
 
-      const response = await fetch(`${this.BASE_URL}getTripData`, {
+      const response = await fetch(fullUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,26 +114,26 @@ export class SealinkService {
         body: JSON.stringify(requestBody),
       });
 
-      console.log(`Sealink response status: ${response.status}`);
+      console.log(`📊 Sealink response status: ${response.status}`);
       console.log(
-        `Sealink response headers:`,
+        `📋 Sealink response headers:`,
         Object.fromEntries(response.headers.entries())
       );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log(`Sealink error response:`, errorText);
+        console.error(`❌ Sealink error response:`, errorText);
         throw new Error(`Sealink API error: ${response.status} - ${errorText}`);
       }
 
       const responseText = await response.text();
-      console.log(`Sealink raw response:`, responseText);
+      console.log(`📨 Sealink raw response:`, responseText);
 
       try {
         return JSON.parse(responseText);
       } catch (parseError) {
-        console.error(`Sealink JSON parse error:`, parseError);
-        console.error(`Raw response that failed to parse:`, responseText);
+        console.error(`❌ Sealink JSON parse error:`, parseError);
+        console.error(`📄 Raw response that failed to parse:`, responseText);
         throw new Error(
           `Sealink API returned invalid JSON: ${responseText.substring(
             0,
@@ -131,12 +147,16 @@ export class SealinkService {
       const response = await FerryApiService.callWithRetry(apiCall, "Sealink");
 
       if (response.err) {
+        console.error(`❌ Sealink API returned error: ${response.err}`);
         throw new Error(`Sealink API error: ${response.err}`);
       }
 
+      console.log(
+        `✅ Sealink API success: Found ${response.data?.length || 0} trips`
+      );
       const results = this.transformToUnified(response.data, params);
       console.log(
-        `Sealink found ${response.data.length} trips, transformed to ${results.length} unified results`
+        `🔄 Sealink transformation: ${response.data.length} trips → ${results.length} unified results`
       );
 
       // Cache the results
@@ -144,7 +164,7 @@ export class SealinkService {
 
       return results;
     } catch (error) {
-      console.error("Error searching Sealink:", error);
+      console.error("💥 Error searching Sealink:", error);
       throw error;
     }
   }
@@ -154,36 +174,91 @@ export class SealinkService {
     params: FerrySearchParams
   ): UnifiedFerryResult[] {
     return data.map((trip) => {
+      console.log("🚢 Raw Sealink trip data:", JSON.stringify(trip, null, 2));
+
+      // Convert objects to arrays for processing
+      const pClassSeats = trip.pClass ? Object.values(trip.pClass) : [];
+      const bClassSeats = trip.bClass ? Object.values(trip.bClass) : [];
+
+      console.log(`📊 pClass seats count: ${pClassSeats.length}`);
+      console.log(`📊 bClass seats count: ${bClassSeats.length}`);
+
       const classes: FerryClass[] = [];
 
-      // Add Luxury class if available
-      if (trip.pClass && trip.pClass.length > 0) {
-        const availableSeats = trip.pClass.filter(
-          (seat) => !seat.isBlocked && !seat.isBooked
-        ).length;
-
-        classes.push({
-          id: `${trip.id}-luxury`,
-          name: "Luxury",
-          price: trip.fares.pBaseFare,
-          availableSeats,
-          amenities: ["AC", "Comfortable Seating", "Refreshments"],
-        });
+      // Debug: Show sample seats from each class
+      if (pClassSeats.length > 0) {
+        console.log(`🔍 Sample pClass seats:`, pClassSeats.slice(0, 3));
+      }
+      if (bClassSeats.length > 0) {
+        console.log(`🔍 Sample bClass seats:`, bClassSeats.slice(0, 3));
       }
 
-      // Add Royal class if available
-      if (trip.bClass && trip.bClass.length > 0) {
-        const availableSeats = trip.bClass.filter(
-          (seat) => !seat.isBlocked && !seat.isBooked
+      // Add Luxury class (pClass) if available
+      if (pClassSeats.length > 0) {
+        const availableSeats = pClassSeats.filter(
+          (seat) => seat.isBlocked !== 1 && seat.isBooked !== 1
         ).length;
 
-        classes.push({
-          id: `${trip.id}-royal`,
-          name: "Royal",
-          price: trip.fares.bBaseFare,
-          availableSeats,
-          amenities: ["AC", "Premium Seating", "Priority Boarding", "Meal"],
-        });
+        console.log(
+          `✨ Luxury class: ${
+            pClassSeats.length
+          } total seats, ${availableSeats} available, price: ${
+            trip.fares?.pBaseFare || "N/A"
+          }`
+        );
+
+        if (trip.fares?.pBaseFare) {
+          classes.push({
+            id: `${trip.id}-luxury`,
+            name: "Luxury",
+            price: trip.fares.pBaseFare,
+            availableSeats,
+            amenities: ["AC", "Comfortable Seating", "Refreshments"],
+          });
+        }
+      }
+
+      // Add Royal class (bClass) if available
+      if (bClassSeats.length > 0) {
+        const availableSeats = bClassSeats.filter(
+          (seat) => seat.isBlocked !== 1 && seat.isBooked !== 1
+        ).length;
+
+        console.log(
+          `👑 Royal class: ${
+            bClassSeats.length
+          } total seats, ${availableSeats} available, price: ${
+            trip.fares?.bBaseFare || "N/A"
+          }`
+        );
+
+        if (trip.fares?.bBaseFare) {
+          classes.push({
+            id: `${trip.id}-royal`,
+            name: "Royal",
+            price: trip.fares.bBaseFare,
+            availableSeats,
+            amenities: ["AC", "Premium Seating", "Priority Boarding", "Meal"],
+          });
+        }
+      }
+
+      console.log(
+        `🎯 Sealink ferry ${trip.vesselID === 1 ? "Sealink" : "Nautika"} has ${
+          classes.length
+        } classes available`
+      );
+
+      // If no classes were created, let's investigate why
+      if (classes.length === 0) {
+        console.log(`❌ No classes created for trip ${trip.id}:`);
+        console.log(`   - pClass exists: ${!!trip.pClass}`);
+        console.log(`   - bClass exists: ${!!trip.bClass}`);
+        console.log(`   - pClass seats count: ${pClassSeats.length}`);
+        console.log(`   - bClass seats count: ${bClassSeats.length}`);
+        console.log(`   - pBaseFare: ${trip.fares?.pBaseFare}`);
+        console.log(`   - bBaseFare: ${trip.fares?.bBaseFare}`);
+        console.log(`   - fares object:`, trip.fares);
       }
 
       const totalAvailableSeats = classes.reduce(
@@ -216,15 +291,21 @@ export class SealinkService {
         },
         classes,
         availability: {
-          totalSeats: trip.pClass.length + trip.bClass.length,
+          totalSeats: pClassSeats.length + bClassSeats.length,
           availableSeats: totalAvailableSeats,
           lastUpdated: new Date().toISOString(),
         },
         pricing: {
-          baseFare: Math.min(...classes.map((c) => c.price)),
+          baseFare:
+            classes.length > 0
+              ? Math.min(...classes.map((c) => c.price))
+              : trip.fares?.pBaseFare || trip.fares?.bBaseFare || 0,
           taxes: 0, // Sealink doesn't specify separate taxes
           portFee: 0,
-          total: Math.min(...classes.map((c) => c.price)),
+          total:
+            classes.length > 0
+              ? Math.min(...classes.map((c) => c.price))
+              : trip.fares?.pBaseFare || trip.fares?.bBaseFare || 0,
           currency: "INR" as const,
         },
         features: {

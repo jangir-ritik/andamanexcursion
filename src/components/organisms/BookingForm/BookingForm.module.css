@@ -15,6 +15,7 @@
   width: 100%;
   overflow: hidden;
   border: 1px solid var(--color-gray-100);
+  max-width: unset;
 }
 
 .compact .tabsList {
@@ -330,9 +331,7 @@
 
 /* Error Messages */
 .errorMessage {
-  position: absolute;
-  top: 100%;
-  left: 0;
+  position: relative;
   width: 100%;
   font-family: var(--font-family-primary);
   color: var(--color-alert-error);
