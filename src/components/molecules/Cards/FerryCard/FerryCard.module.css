@@ -32,11 +32,6 @@
   box-shadow: none !important;
 }
 
-.ferryCard:hover {
-  /* box-shadow: var(--shadow-card); */
-  /* background-color: var(--color-focus-blue); */
-}
-
 .clickableArea {
   width: 100%;
   cursor: pointer;
@@ -169,7 +164,7 @@
   padding: 0;
   gap: var(--space-2);
   width: 100%;
-  max-width: 725px;
+  max-width: 80%;
 }
 
 .departureInfo {
@@ -178,7 +173,7 @@
   align-items: flex-start;
   padding: 0;
   gap: var(--space-2);
-  flex: 1;
+  /* flex: 1; */
 }
 
 .timeText {
@@ -204,6 +199,7 @@
   width: 100%;
   margin: 0 var(--space-5);
   height: var(--space-6);
+  max-width: 40%;
   /* margin-top: auto;
   margin-bottom: var(--space-3);
   margin-left: var(--space-2);
@@ -236,7 +232,7 @@
 }
 
 .ferryCard:hover .ferryIcon {
-  background-color: var(--color-gray-100);
+  background-color: var(--color-gray-50);
 }
 
 .ferryCard:hover .priceInfo .expandIcon {
@@ -602,7 +598,7 @@
   .departureInfo {
     gap: var(--space-1);
     min-width: 0;
-    flex: 1;
+    /* flex: 1; */
   }
 
   .timeText {

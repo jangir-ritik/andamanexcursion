@@ -6,45 +6,6 @@
   gap: var(--space-6);
 }
 
-/* Search Summary - Based on booking results style */
-.searchSummary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: var(--space-4);
-  background-color: var(--color-white);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-gray-200);
-}
-
-.searchInfo {
-  display: flex;
-  color: var(--color-gray-800);
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.searchSummary h2 {
-  font-size: var(--font-size-lg);
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.resultCount {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-gray-700);
-  font-size: var(--font-size-sm);
-}
-
-.infoIcon {
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
 /* Loading state - Consistent with booking results */
 .loadingContainer {
   display: flex;
@@ -53,12 +14,11 @@
   justify-content: center;
   gap: var(--space-6);
   padding: var(--space-8);
-  min-height: 200px;
-  width: 100%;
   background-color: var(--color-white);
   border-radius: var(--radius-md);
-  text-align: center;
-  border: 2px dashed var(--color-gray-200);
+  min-height: 200px;
+  width: 100%;
+  font-family: var(--font-family-primary);
 }
 
 .loadingSpinner {
@@ -95,9 +55,8 @@
 
 /* Error state - Matching activities style */
 .errorContainer {
-  background: var(--color-background-secondary);
-  border: 2px dashed var(--color-border-light);
-  border-radius: var(--border-radius-md);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
   padding: var(--space-6);
   text-align: center;
   color: var(--color-text-secondary);

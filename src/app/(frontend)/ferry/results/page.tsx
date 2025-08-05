@@ -7,7 +7,7 @@ import { useFerryStore } from "@/store/FerryStore";
 import { BookingForm } from "@/components/organisms";
 import { FerryResults } from "./components/FerryResults";
 import { SearchSummary } from "./components/SearchSummary";
-import { TimeFilters } from "@/app/(frontend)/ferry/booking/components/TimeFilters";
+import { TimeFilters } from "./components/TimeFilters";
 import { UnifiedFerryResult } from "@/types/FerryBookingSession.types";
 import styles from "./page.module.css";
 

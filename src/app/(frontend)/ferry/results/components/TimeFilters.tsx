@@ -1,114 +1,86 @@
-import React, { useState, useMemo } from "react";
-import { UnifiedFerryResult } from "@/types/FerryBookingSession.types";
+import React, { memo, useCallback, useMemo } from "react";
+import { Clock } from "lucide-react";
+import { Chip } from "@/components/atoms";
 import styles from "./TimeFilters.module.css";
 
+// Define time filters as a constant to prevent recreation on each render
+export const TIME_FILTERS = [
+  { id: "morning", text: "Morning", value: "0600-1200" },
+  { id: "afternoon", text: "Afternoon", value: "1200-1800" },
+  { id: "evening", text: "Evening", value: "1800-2359" },
+];
+
 interface TimeFiltersProps {
-  results: UnifiedFerryResult[];
-  onFilterChange?: (filteredResults: UnifiedFerryResult[]) => void;
+  timeFilter: string | null;
+  setTimeFilter: (filter: string | null) => void;
 }
 
-type TimeFilter = "all" | "morning" | "afternoon" | "evening";
+// Memoized chip component to prevent unnecessary re-renders
+const FilterChip = memo<{
+  text: string;
+  isSelected: boolean;
+  onClick: () => void;
+}>(({ text, isSelected, onClick }) => (
+  <div
+    className={`${styles.clickableChip} ${isSelected ? styles.selected : ""}`}
+    onClick={onClick}
+  >
+    <Chip
+      className={styles.timeFilterChip}
+      iconComponent={<Clock size={16} />}
+      text={text}
+    />
+  </div>
+));
 
-export function TimeFilters({ results, onFilterChange }: TimeFiltersProps) {
-  const [activeFilter, setActiveFilter] = useState<TimeFilter>("all");
+FilterChip.displayName = "FilterChip";
 
-  // Group ferries by time periods
-  const timeGroups = useMemo(() => {
-    const groups = {
-      morning: results.filter((ferry) => {
-        const hour = parseInt(ferry.schedule.departureTime.split(":")[0]);
-        return hour >= 6 && hour < 12;
-      }),
-      afternoon: results.filter((ferry) => {
-        const hour = parseInt(ferry.schedule.departureTime.split(":")[0]);
-        return hour >= 12 && hour < 17;
-      }),
-      evening: results.filter((ferry) => {
-        const hour = parseInt(ferry.schedule.departureTime.split(":")[0]);
-        return hour >= 17 || hour < 6;
-      }),
-    };
+export const TimeFilters = memo<TimeFiltersProps>(
+  ({ timeFilter, setTimeFilter }) => {
+    // Create a stable callback for clearing the filter
+    const handleClearFilter = useCallback(() => {
+      setTimeFilter(null);
+    }, [setTimeFilter]);
 
-    return groups;
-  }, [results]);
+    // Create a factory function to generate stable callbacks for each filter
+    const createFilterHandler = useCallback(
+      (value: string) => () => {
+        setTimeFilter(value);
+      },
+      [setTimeFilter]
+    );
 
-  const filteredResults = useMemo(() => {
-    switch (activeFilter) {
-      case "morning":
-        return timeGroups.morning;
-      case "afternoon":
-        return timeGroups.afternoon;
-      case "evening":
-        return timeGroups.evening;
-      default:
-        return results;
-    }
-  }, [activeFilter, results, timeGroups]);
+    // Memoize the filter chips to prevent unnecessary re-renders
+    const filterChips = useMemo(() => {
+      return TIME_FILTERS.map((filter) => {
+        const isSelected = timeFilter === filter.value;
+        const onClick = createFilterHandler(filter.value);
 
-  // Notify parent component of filter changes
-  React.useEffect(() => {
-    onFilterChange?.(filteredResults);
-  }, [filteredResults, onFilterChange]);
+        return (
+          <FilterChip
+            key={filter.id}
+            text={filter.text}
+            isSelected={isSelected}
+            onClick={onClick}
+          />
+        );
+      });
+    }, [timeFilter, createFilterHandler]);
 
-  const handleFilterChange = (filter: TimeFilter) => {
-    setActiveFilter(filter);
-  };
-
-  if (results.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className={styles.timeFilters}>
-      <h3 className={styles.title}>Filter by departure time</h3>
-
-      <div className={styles.filterButtons}>
-        <button
-          className={`${styles.filterButton} ${
-            activeFilter === "all" ? styles.active : ""
-          }`}
-          onClick={() => handleFilterChange("all")}
-        >
-          All Times
-          <span className={styles.count}>({results.length})</span>
-        </button>
-
-        <button
-          className={`${styles.filterButton} ${
-            activeFilter === "morning" ? styles.active : ""
-          }`}
-          onClick={() => handleFilterChange("morning")}
-          disabled={timeGroups.morning.length === 0}
-        >
-          Morning
-          <span className={styles.timeRange}>6AM - 12PM</span>
-          <span className={styles.count}>({timeGroups.morning.length})</span>
-        </button>
-
-        <button
-          className={`${styles.filterButton} ${
-            activeFilter === "afternoon" ? styles.active : ""
-          }`}
-          onClick={() => handleFilterChange("afternoon")}
-          disabled={timeGroups.afternoon.length === 0}
-        >
-          Afternoon
-          <span className={styles.timeRange}>12PM - 5PM</span>
-          <span className={styles.count}>({timeGroups.afternoon.length})</span>
-        </button>
-
-        <button
-          className={`${styles.filterButton} ${
-            activeFilter === "evening" ? styles.active : ""
-          }`}
-          onClick={() => handleFilterChange("evening")}
-          disabled={timeGroups.evening.length === 0}
-        >
-          Evening
-          <span className={styles.timeRange}>5PM onwards</span>
-          <span className={styles.count}>({timeGroups.evening.length})</span>
-        </button>
+    return (
+      <div className={styles.timeFilters}>
+        <span className={styles.filterLabel}>Filter by time:</span>
+        <div className={styles.chipContainer}>
+          <FilterChip
+            text="All Times"
+            isSelected={!timeFilter}
+            onClick={handleClearFilter}
+          />
+          {filterChips}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+
+TimeFilters.displayName = "TimeFilters";

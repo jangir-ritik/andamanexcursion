@@ -4,6 +4,17 @@ import { cn } from "@/utils/cn";
 import styles from "../FerryCard.module.css";
 import type { FerryClassOption } from "../FerryCard.types";
 import { Button } from "@/components/atoms";
+import { LucideProps } from "lucide-react";
+
+interface Amenity {
+  icon: React.ReactNode;
+  label: string;
+}
+
+interface AmenityItemProps {
+  amenity: Amenity;
+  classType: string;
+}
 
 interface FerryClassCardProps {
   ferryClass: FerryClassOption;
@@ -154,18 +165,16 @@ export const FerryClassCard: React.FC<FerryClassCardProps> = memo(
   }
 );
 
-// Fixed AmenityItem component to properly render icons with colors
-const AmenityItem = memo<{
-  amenity: { icon: React.ReactNode; label: string };
-  classType: string;
-}>(({ amenity, classType }) => {
-  // Clone the icon element to ensure proper rendering with colors
+const AmenityItem = memo<AmenityItemProps>(({ amenity, classType }) => {
+  // Clone the icon element with proper typing and className handling
   const iconElement = React.isValidElement(amenity.icon)
-    ? React.cloneElement(amenity.icon as React.ReactElement, {
+    ? React.cloneElement(amenity.icon as React.ReactElement<LucideProps>, {
         key: `icon-${amenity.label}`,
-        className: `${styles.amenityIconSvg} ${
-          (amenity.icon as any)?.props?.className || ""
-        }`,
+        className: cn(
+          styles.amenityIconSvg,
+          (amenity.icon as React.ReactElement<LucideProps>)?.props?.className ||
+            ""
+        ),
       })
     : amenity.icon;
 
@@ -182,6 +191,5 @@ const AmenityItem = memo<{
     </div>
   );
 });
-
 AmenityItem.displayName = "AmenityItem";
 FerryClassCard.displayName = "FerryClassCard";

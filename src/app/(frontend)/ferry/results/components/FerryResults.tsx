@@ -61,19 +61,19 @@ export function FerryResults({
         totalPrice:
           cls.price + (ferry.pricing.portFee || 0) + (ferry.pricing.taxes || 0),
         seatsLeft: cls.availableSeats,
-        amenities: (cls.amenities || []).map((amenity) => {
-          const amenityMapping = getAmenityIcon(amenity.toString());
+        amenities: (cls.amenities || []).map((amenity: string) => {
+          const amenityMapping = getAmenityIcon(amenity);
           const IconComponent = amenityMapping.icon;
           return {
             icon: React.createElement(IconComponent, {
               size: 16,
               className: `${amenityMapping.color}`,
             }),
-            label: amenity.toString(),
+            label: amenity,
           };
         }),
       })),
-      operator: ferry.operator, // Add operator prop
+      operator: ferry.operator,
       onChooseSeats: (classType: string) => {
         // Find the selected class
         const selectedClass = ferry.classes.find(
@@ -86,23 +86,8 @@ export function FerryResults({
         }
       },
       ferryIndex: index,
-      detailsUrl: `/ferry/${ferry.id}`,
+      detailsUrl: `/ferry/booking/${ferry.id}`,
     };
-  };
-
-  const formatSearchSummary = () => {
-    if (!searchParams) return "Ferry Search Results";
-
-    const parts = [];
-    if (searchParams.from && searchParams.to) {
-      parts.push(`${searchParams.from} → ${searchParams.to}`);
-    }
-    if (searchParams.date) {
-      const date = new Date(searchParams.date);
-      parts.push(date.toLocaleDateString());
-    }
-
-    return parts.length > 0 ? parts.join(" • ") : "Ferry Search Results";
   };
 
   // Loading state
@@ -165,38 +150,22 @@ export function FerryResults({
   // Success state with results
   return (
     <div className={styles.ferryResultsContainer}>
-      {/* Search Summary */}
-      <div className={styles.searchSummary}>
-        <div className={styles.searchInfo}>
-          <h2>{formatSearchSummary()}</h2>
-          <div className={styles.resultCount}>
-            <Info size={16} className={styles.infoIcon} />
-            <span>
-              {results.length} ferry{results.length !== 1 ? "s" : ""} found
-            </span>
-          </div>
-        </div>
+      {/* Ferry Results List */}
+      <div className={styles.ferryList}>
+        {results.map((ferry, index) => (
+          <FerryCard
+            key={`${ferry.operator}-${ferry.id}-${index}`}
+            {...transformToFerryCardProps(ferry, index)}
+          />
+        ))}
       </div>
 
-      {/* Results Container */}
-      <div className={styles.resultsContainer}>
-        <div className={styles.ferryList}>
-          {results.map((ferry, index) => (
-            <FerryCard
-              key={ferry.id}
-              {...transformToFerryCardProps(ferry, index)}
-            />
-          ))}
-        </div>
-
-        {/* Results Footer */}
-        <div className={styles.resultsFooter}>
-          <p className={styles.resultsNote}>
-            Prices shown are starting from and may vary based on availability
-            and selected amenities. All times are local to departure and arrival
-            ports.
-          </p>
-        </div>
+      {/* Results Footer */}
+      <div className={styles.resultsFooter}>
+        <p className={styles.resultsNote}>
+          Prices include all taxes and fees. Final booking confirmation will be
+          sent to your email.
+        </p>
       </div>
     </div>
   );
