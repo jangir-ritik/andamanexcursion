@@ -95,16 +95,33 @@ export const useFerryStore = create<FerryStore>()(
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const { results, errors } = await response.json();
+        const responseData = await response.json();
 
         set((state) => {
-          state.searchResults = results || [];
-          state.isLoading = false;
+          // Handle the new API response format
+          if (responseData.success && responseData.data) {
+            state.searchResults = responseData.data.results || [];
+            state.isLoading = false;
 
-          if (errors && errors.length > 0) {
-            state.error = `Some ferry operators failed: ${errors
-              .map((e: { operator: string; error: string }) => e.operator)
-              .join(", ")}`;
+            // Check for operator errors in the meta data
+            if (
+              responseData.data.meta?.operatorErrors &&
+              responseData.data.meta.operatorErrors.length > 0
+            ) {
+              state.error = `Some ferry operators failed: ${responseData.data.meta.operatorErrors
+                .map((e: { operator: string; error: string }) => e.operator)
+                .join(", ")}`;
+            }
+          } else {
+            // Fallback for old format or error responses
+            state.searchResults = responseData.results || [];
+            state.isLoading = false;
+
+            if (responseData.errors && responseData.errors.length > 0) {
+              state.error = `Some ferry operators failed: ${responseData.errors
+                .map((e: { operator: string; error: string }) => e.operator)
+                .join(", ")}`;
+            }
           }
         });
       } catch (error) {

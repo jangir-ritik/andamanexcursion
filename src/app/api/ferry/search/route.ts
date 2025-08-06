@@ -1,71 +1,80 @@
-//src/app/api/ferry/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { FerryAggregationService } from "@/services/ferryServices/ferryAggregationService";
-import { z } from "zod";
-import { validateApiAccess } from "@/middleware/ferryApiSecurity";
-
-// Request validation schema
-const searchRequestSchema = z.object({
-  from: z.string().min(1, "From location is required"),
-  to: z.string().min(1, "To location is required"),
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
-  adults: z.number().min(1).max(10),
-  children: z.number().min(0).max(10),
-  infants: z.number().min(0).max(5),
-});
+import { FerrySearchParams } from "@/types/FerryBookingSession.types";
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply rate limiting middleware
-    const rateLimitCheck = validateApiAccess("ferry-search");
-    rateLimitCheck(request);
-
-    // Parse and validate request body
     const body = await request.json();
-    const validatedData = searchRequestSchema.parse(body);
 
-    // Call ferry aggregation service
-    const { results, errors } =
-      await FerryAggregationService.searchAllOperators(validatedData);
+    // Validate required parameters
+    const { from, to, date, adults, children = 0, infants = 0 } = body;
 
-    // Return results with any operator errors
-    return NextResponse.json({
-      results,
-      errors,
-      searchParams: validatedData,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error("Ferry search API error:", error);
-
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
+    if (!from || !to || !date || !adults) {
       return NextResponse.json(
-        {
-          error: "Invalid request data",
-          details: error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          })),
-        },
+        { error: "Missing required parameters: from, to, date, adults" },
         { status: 400 }
       );
     }
 
-    // Handle rate limiting errors
-    if (error instanceof Error && error.message === "Rate limit exceeded") {
+    // Validate date format
+    const searchDate = new Date(date);
+    if (isNaN(searchDate.getTime())) {
       return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
-        { status: 429 }
+        { error: "Invalid date format. Use YYYY-MM-DD" },
+        { status: 400 }
       );
     }
 
-    // Handle other errors
+    // Check if date is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (searchDate < today) {
+      return NextResponse.json(
+        { error: "Cannot search for dates in the past" },
+        { status: 400 }
+      );
+    }
+
+    const searchParams: FerrySearchParams = {
+      from,
+      to,
+      date,
+      adults: parseInt(adults),
+      children: parseInt(children),
+      infants: parseInt(infants),
+    };
+
+    console.log(`🔍 API: Ferry search requested`, searchParams);
+
+    const { results, errors } =
+      await FerryAggregationService.searchAllOperators(searchParams);
+
+    // Return results with metadata
+    const response = {
+      success: true,
+      data: {
+        results,
+        searchParams,
+        meta: {
+          totalResults: results.length,
+          searchTime: new Date().toISOString(),
+          operatorErrors: errors,
+        },
+      },
+    };
+
+    console.log(
+      `✅ API: Ferry search completed - ${results.length} results found`
+    );
+
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error("❌ API: Ferry search error:", error);
+
     return NextResponse.json(
       {
-        error: "Failed to search ferries",
+        success: false,
+        error: "Internal server error",
         message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
@@ -73,14 +82,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Handle preflight requests for CORS
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST to search ferries." },
+    { status: 405 }
+  );
 }

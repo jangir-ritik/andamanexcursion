@@ -244,17 +244,17 @@ export class GreenOceanService {
     return this.transformSeatLayout(response.data.layout);
   }
 
-  // Fixed: Proper hash generation following PHP example
+  // Fixed: Proper hash generation following PHP example exactly
   private static generateHash(requestData: any): string {
-    // Hash sequence as per documentation
+    // Hash sequence as per Green Ocean documentation
     const hashSequence =
       "from_id|dest_to|number_of_adults|number_of_infants|travel_date|public_key";
     const sequenceArray = hashSequence.split("|");
 
     let hashString = "";
 
-    // Build hash string according to sequence
-    sequenceArray.forEach((key) => {
+    // Build hash string according to exact sequence - no extra pipes
+    sequenceArray.forEach((key, index) => {
       const value = requestData[key];
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -263,19 +263,23 @@ export class GreenOceanService {
           hashString += value.toString();
         }
       }
-      hashString += "|";
+      // Add pipe separator except for the last element
+      if (index < sequenceArray.length - 1) {
+        hashString += "|";
+      }
     });
 
-    // Add private key at the end
-    hashString += this.PRIVATE_KEY;
+    // Add private key at the end with a pipe separator
+    hashString += "|" + this.PRIVATE_KEY;
 
-    console.log(`Green Ocean hash string: ${hashString}`);
+    console.log(`Green Ocean hash string for validation: ${hashString}`);
 
     // Create SHA512 hash and convert to lowercase
     const hash = crypto.createHash("sha512");
     hash.update(hashString, "utf-8");
     const generatedHash = hash.digest("hex").toLowerCase();
 
+    console.log(`Green Ocean generated hash: ${generatedHash}`);
     return generatedHash;
   }
 
@@ -305,21 +309,9 @@ export class GreenOceanService {
         let totalAvailableSeats = 0;
 
         for (const route of ferryRoutes) {
-          // Get seat layout for this class
+          // Note: Seat layout will be fetched on-demand during booking phase
+          // This improves search performance significantly
           let seatLayout: SeatLayout | undefined;
-          try {
-            seatLayout = await this.getSeatLayout(
-              route.route_id,
-              route.ferry_id,
-              route.class_id,
-              this.formatDate(params.date)
-            );
-          } catch (error) {
-            console.warn(
-              `Failed to get seat layout for ${route.class_name}:`,
-              error
-            );
-          }
 
           const classPrice =
             route.adult_seat_rate +
@@ -464,9 +456,7 @@ export class GreenOceanService {
     let hashString = "";
 
     sequenceArray.forEach((key) => {
-      // Map ferry_id to ship_id for the hash
-      const actualKey = key === "ship_id" ? "ferry_id" : key;
-      const value = requestData[actualKey];
+      const value = requestData[key];
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
           hashString += value.join(",");

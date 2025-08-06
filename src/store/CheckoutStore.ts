@@ -3,6 +3,11 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
 import type { Activity, ActivitySearchParams } from "./ActivityStore";
+import type {
+  FerryBookingSession,
+  UnifiedFerryResult,
+  FerryClass,
+} from "@/types/FerryBookingSession.types";
 
 // Member details interface
 export interface MemberDetails {
@@ -21,18 +26,27 @@ export interface MemberDetails {
 // Booking types
 export type BookingType = "activity" | "ferry";
 
-// Ferry booking interface (for future ferry implementation)
+// Ferry booking interface
 export interface FerryBooking {
   id: string;
+  sessionId: string;
+  ferry: UnifiedFerryResult;
+  selectedClass: FerryClass;
+  selectedSeats: string[];
+  // Structure needed for ReviewStep compatibility
   fromLocation: string;
   toLocation: string;
   date: string;
   time: string;
-  operator: string;
-  class: string;
   adults: number;
   children: number;
+  passengers: {
+    adults: number;
+    children: number;
+    infants: number;
+  };
   totalPrice: number;
+  bookingDate: string;
 }
 
 // Activity booking interface (from cart)
@@ -78,6 +92,21 @@ export interface ActivityMetadata {
   location: string;
 }
 
+// Ferry metadata for form initialization (similar to ActivityMetadata)
+export interface FerryMetadata {
+  title: string;
+  fromLocation: string;
+  toLocation: string;
+  date: string;
+  time: string;
+  operator: string;
+  className: string;
+  totalRequired: number;
+  adults: number;
+  children: number;
+  infants: number;
+}
+
 // Simplified checkout state - FORM-CENTRIC APPROACH
 interface CheckoutState {
   currentStep: number; // 1=Details, 2=Review, 3=Payment
@@ -85,12 +114,14 @@ interface CheckoutState {
 
   // Business data (READ-ONLY for forms)
   activities: CheckoutItem[]; // All selected activities
+  ferries: CheckoutItem[]; // All selected ferries
 
   // Form persistence (updated only on form submission)
   persistedFormData: CheckoutFormData | null;
 
   // Computed/derived state
   activityMetadata: ActivityMetadata[]; // Computed from activities for form use
+  ferryMetadata: FerryMetadata[]; // Computed from ferries for form use
 
   termsAccepted: boolean; // Temporary - will be moved to form persistence
   bookingConfirmation: BookingConfirmation | null;
@@ -105,6 +136,11 @@ interface CheckoutActions {
   // Initialization (from cart)
   initializeFromActivityCart: (cartItems: any[]) => void;
   updateFromActivityCart: (cartItems: any[]) => void;
+  initializeFromFerryBooking: (ferryBooking: FerryBooking) => void;
+  initializeFromMixedBookings: (
+    activities: any[],
+    ferries: FerryBooking[]
+  ) => void;
 
   // Navigation (store responsibility)
   setCurrentStep: (step: number) => void;
@@ -117,12 +153,19 @@ interface CheckoutActions {
 
   // Business logic & computed values
   getTotalActivities: () => number;
+  getTotalFerries: () => number;
   getTotalPrice: () => number;
   getActivityMetadata: () => ActivityMetadata[];
+  getFerryMetadata: () => FerryMetadata[];
+  getAllMetadata: () => (ActivityMetadata | FerryMetadata)[];
 
   // Validation helpers
   getMinimumMembersNeeded: () => number;
   validateActivityAssignments: (members: MemberDetails[]) => {
+    valid: boolean;
+    errors: string[];
+  };
+  validateFerryAssignments: (members: MemberDetails[]) => {
     valid: boolean;
     errors: string[];
   };
@@ -203,6 +246,67 @@ const computeActivityMetadata = (
     .filter((item): item is ActivityMetadata => item !== null);
 };
 
+// Helper to compute ferry metadata from ferries
+const computeFerryMetadata = (ferries: CheckoutItem[]): FerryMetadata[] => {
+  return ferries
+    .map((item): FerryMetadata | null => {
+      if (item.ferryBooking) {
+        const { ferry, selectedClass, passengers } = item.ferryBooking;
+        return {
+          title: `${ferry.ferryName} - ${selectedClass.name}`,
+          fromLocation: ferry.route.from.name,
+          toLocation: ferry.route.to.name,
+          date: item.ferryBooking.bookingDate,
+          time: ferry.schedule.departureTime,
+          operator: ferry.operator,
+          className: selectedClass.name,
+          totalRequired:
+            passengers.adults + passengers.children + passengers.infants,
+          adults: passengers.adults,
+          children: passengers.children,
+          infants: passengers.infants,
+        };
+      }
+      return null;
+    })
+    .filter((item): item is FerryMetadata => item !== null);
+};
+
+// Helper to create initial members for mixed bookings
+const createMixedInitialMembers = (
+  activityMetadata: ActivityMetadata[],
+  ferryMetadata: FerryMetadata[]
+): MemberDetails[] => {
+  const allMetadata = [...activityMetadata, ...ferryMetadata];
+  if (allMetadata.length === 0) return [];
+
+  // Calculate total passengers needed across all bookings
+  const totalPassengersNeeded = allMetadata.reduce(
+    (total, booking) => total + booking.totalRequired,
+    0
+  );
+
+  // Create members with smart defaults
+  const members: MemberDetails[] = [];
+
+  for (let i = 0; i < totalPassengersNeeded; i++) {
+    members.push({
+      id: generateMemberId(),
+      fullName: "",
+      age: i === 0 ? 25 : 12, // First member adult, others children by default
+      gender: "",
+      nationality: "Indian",
+      passportNumber: "",
+      whatsappNumber: i === 0 ? "" : undefined, // Only primary gets contact fields
+      email: i === 0 ? "" : undefined,
+      isPrimary: i === 0,
+      selectedActivities: allMetadata.map((_, index) => index), // Assign to all bookings initially
+    });
+  }
+
+  return members;
+};
+
 // Initial state - FORM-CENTRIC
 const initialState: CheckoutState = {
   currentStep: 1,
@@ -210,12 +314,14 @@ const initialState: CheckoutState = {
 
   // Business data
   activities: [],
+  ferries: [],
 
   // Form persistence
   persistedFormData: null,
 
   // Computed state
   activityMetadata: [],
+  ferryMetadata: [],
 
   termsAccepted: false, // TODO: Move to form persistence
   bookingConfirmation: null,
@@ -293,6 +399,78 @@ export const useCheckoutStore = create<CheckoutStore>()(
             });
           },
 
+          initializeFromFerryBooking: (ferryBooking: FerryBooking) => {
+            set((state) => {
+              state.isLoading = true;
+              state.isInitialized = false;
+              state.bookingType = "ferry";
+
+              // Set business data
+              state.ferries = [
+                {
+                  type: "ferry" as BookingType,
+                  ferryBooking,
+                },
+              ];
+              state.activities = []; // Clear activities
+
+              // Compute metadata for forms
+              state.ferryMetadata = computeFerryMetadata(state.ferries);
+              state.activityMetadata = [];
+
+              // Clear any existing form data (fresh start)
+              state.persistedFormData = null;
+              state.currentStep = 1;
+              state.error = null;
+
+              state.isLoading = false;
+              state.isInitialized = true;
+            });
+          },
+
+          initializeFromMixedBookings: (
+            activities: any[],
+            ferries: FerryBooking[]
+          ) => {
+            set((state) => {
+              state.isLoading = true;
+              state.isInitialized = false;
+              state.bookingType = "activity"; // Default to activity for mixed
+
+              // Set business data
+              state.activities = activities.map((cartItem) => ({
+                type: "activity" as BookingType,
+                activityBooking: {
+                  id: cartItem.id,
+                  activity: cartItem.activity,
+                  searchParams: cartItem.searchParams,
+                  quantity: cartItem.quantity,
+                  totalPrice: cartItem.totalPrice,
+                  activityOptionId: cartItem.activityOptionId,
+                },
+              }));
+
+              state.ferries = ferries.map((ferryBooking) => ({
+                type: "ferry" as BookingType,
+                ferryBooking,
+              }));
+
+              // Compute metadata for forms
+              state.activityMetadata = computeActivityMetadata(
+                state.activities
+              );
+              state.ferryMetadata = computeFerryMetadata(state.ferries);
+
+              // Clear any existing form data (fresh start)
+              state.persistedFormData = null;
+              state.currentStep = 1;
+              state.error = null;
+
+              state.isLoading = false;
+              state.isInitialized = true;
+            });
+          },
+
           // === NAVIGATION ===
           setCurrentStep: (step: number) => {
             set((state) => {
@@ -325,8 +503,11 @@ export const useCheckoutStore = create<CheckoutStore>()(
               return state.persistedFormData;
             }
 
-            // Generate fresh defaults based on current activities
-            const defaultMembers = createInitialMembers(state.activityMetadata);
+            // Generate fresh defaults based on current bookings (activities + ferries)
+            const defaultMembers = createMixedInitialMembers(
+              state.activityMetadata,
+              state.ferryMetadata
+            );
 
             return {
               members: defaultMembers,
@@ -347,33 +528,60 @@ export const useCheckoutStore = create<CheckoutStore>()(
             return get().activities.length;
           },
 
+          getTotalFerries: () => {
+            return get().ferries.length;
+          },
+
           getTotalPrice: () => {
-            return get().activities.reduce((total, item) => {
+            const state = get();
+            const activityTotal = state.activities.reduce((total, item) => {
               return total + (item.activityBooking?.totalPrice || 0);
             }, 0);
+            const ferryTotal = state.ferries.reduce((total, item) => {
+              return total + (item.ferryBooking?.totalPrice || 0);
+            }, 0);
+            return activityTotal + ferryTotal;
           },
 
           getActivityMetadata: () => {
-            return get().activityMetadata;
+            return get().activityMetadata || [];
+          },
+
+          getFerryMetadata: () => {
+            return get().ferryMetadata || [];
+          },
+
+          getAllMetadata: () => {
+            const state = get();
+            return [
+              ...(state.activityMetadata || []),
+              ...(state.ferryMetadata || []),
+            ];
           },
 
           getMinimumMembersNeeded: () => {
             const state = get();
-            return state.activityMetadata.reduce(
+            const activityMembers = (state.activityMetadata || []).reduce(
               (total, activity) => total + activity.totalRequired,
               0
             );
+            const ferryMembers = (state.ferryMetadata || []).reduce(
+              (total, ferry) => total + ferry.totalRequired,
+              0
+            );
+            return activityMembers + ferryMembers;
           },
 
           validateActivityAssignments: (members: MemberDetails[]) => {
             const state = get();
             const errors: string[] = [];
+            const activityMetadata = state.activityMetadata || [];
 
             // Count assignments per activity
-            const assignmentCounts = state.activityMetadata.map(() => 0);
+            const assignmentCounts = activityMetadata.map(() => 0);
 
             members.forEach((member) => {
-              member.selectedActivities.forEach((activityIndex) => {
+              (member.selectedActivities || []).forEach((activityIndex) => {
                 if (
                   activityIndex >= 0 &&
                   activityIndex < assignmentCounts.length
@@ -384,7 +592,7 @@ export const useCheckoutStore = create<CheckoutStore>()(
             });
 
             // Check each activity has enough passengers
-            state.activityMetadata.forEach((activity, index) => {
+            activityMetadata.forEach((activity, index) => {
               const required = activity.totalRequired;
               const assigned = assignmentCounts[index];
 
@@ -393,6 +601,45 @@ export const useCheckoutStore = create<CheckoutStore>()(
                   `${activity.title} needs ${
                     required - assigned
                   } more passengers`
+                );
+              }
+            });
+
+            return {
+              valid: errors.length === 0,
+              errors,
+            };
+          },
+
+          validateFerryAssignments: (members: MemberDetails[]) => {
+            const state = get();
+            const errors: string[] = [];
+            const activityMetadata = state.activityMetadata || [];
+            const ferryMetadata = state.ferryMetadata || [];
+
+            // For ferries, we need to validate against ferry metadata
+            // Count assignments per ferry (using the same selectedActivities array for now)
+            const totalMetadata = [...activityMetadata, ...ferryMetadata];
+            const ferryStartIndex = activityMetadata.length;
+            const assignmentCounts = totalMetadata.map(() => 0);
+
+            members.forEach((member) => {
+              (member.selectedActivities || []).forEach((index) => {
+                if (index >= 0 && index < assignmentCounts.length) {
+                  assignmentCounts[index]++;
+                }
+              });
+            });
+
+            // Check each ferry has enough passengers
+            ferryMetadata.forEach((ferry, ferryIndex) => {
+              const totalIndex = ferryStartIndex + ferryIndex;
+              const required = ferry.totalRequired;
+              const assigned = assignmentCounts[totalIndex];
+
+              if (assigned < required) {
+                errors.push(
+                  `${ferry.title} needs ${required - assigned} more passengers`
                 );
               }
             });
@@ -417,23 +664,32 @@ export const useCheckoutStore = create<CheckoutStore>()(
                 throw new Error("No form data to submit");
               }
 
-              // Validate before submission
-              const validation = get().validateActivityAssignments(
+              // Validate before submission (activities and ferries)
+              const activityValidation = get().validateActivityAssignments(
                 state.persistedFormData.members
               );
-              if (!validation.valid) {
-                throw new Error(
-                  `Validation failed: ${validation.errors.join(", ")}`
-                );
+              const ferryValidation = get().validateFerryAssignments(
+                state.persistedFormData.members
+              );
+
+              const allErrors = [
+                ...activityValidation.errors,
+                ...ferryValidation.errors,
+              ];
+              if (allErrors.length > 0) {
+                throw new Error(`Validation failed: ${allErrors.join(", ")}`);
               }
 
               // Prepare booking data for payment
               const bookingData = {
                 activities: state.activities,
+                ferries: state.ferries,
                 members: state.persistedFormData.members,
                 termsAccepted: state.persistedFormData.termsAccepted,
                 totalPrice: get().getTotalPrice(),
                 bookingType: state.bookingType,
+                hasActivities: state.activities.length > 0,
+                hasFerries: state.ferries.length > 0,
               };
 
               // Set up payment success callback
@@ -556,13 +812,22 @@ export const useCurrentStep = () =>
   useCheckoutStore((state) => state.currentStep);
 
 export const useCheckoutItems = () =>
-  useCheckoutStore((state) => state.activities);
+  useCheckoutStore((state) => [
+    ...(state.activities || []),
+    ...(state.ferries || []),
+  ]);
 
 export const useAllCheckoutItems = () =>
-  useCheckoutStore((state) => state.activities);
+  useCheckoutStore((state) => [
+    ...(state.activities || []),
+    ...(state.ferries || []),
+  ]);
 
 export const useCurrentCheckoutItem = () =>
-  useCheckoutStore((state) => state.activities);
+  useCheckoutStore((state) => [
+    ...(state.activities || []),
+    ...(state.ferries || []),
+  ]);
 
 export const useMembers = () =>
   useCheckoutStore((state) => {
@@ -589,3 +854,9 @@ export const useFormDefaults = () =>
 
 export const useActivityMetadata = () =>
   useCheckoutStore((state) => state.getActivityMetadata());
+
+export const useFerryMetadata = () =>
+  useCheckoutStore((state) => state.getFerryMetadata());
+
+export const useAllMetadata = () =>
+  useCheckoutStore((state) => state.getAllMetadata());

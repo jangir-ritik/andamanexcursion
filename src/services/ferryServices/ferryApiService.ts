@@ -1,6 +1,6 @@
 export class FerryApiService {
-  private static readonly TIMEOUT = 10000; // 10 seconds
-  private static readonly MAX_RETRIES = 2;
+  private static readonly TIMEOUT = 5000; // 5 seconds (reduced from 10)
+  private static readonly MAX_RETRIES = 1; // Reduced from 2 for faster response
 
   static async callWithRetry<T>(
     apiCall: () => Promise<T>,

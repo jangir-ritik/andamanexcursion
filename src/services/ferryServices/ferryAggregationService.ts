@@ -138,6 +138,7 @@ export class FerryAggregationService {
     results: UnifiedFerryResult[];
     errors: { operator: string; error: string }[];
   }> {
+    const startTime = Date.now();
     console.log(`🔍 Ferry Search: Starting search for all operators`);
     console.log(`   Route: ${params.from} → ${params.to}`);
     console.log(`   Date: ${params.date}`);
@@ -145,12 +146,21 @@ export class FerryAggregationService {
       `   Passengers: ${params.adults} adults, ${params.children} children, ${params.infants} infants`
     );
 
-    // Execute all searches in parallel
-    const [sealinkResult, makruzzResult, greenOceanResult] = await Promise.all([
+    // Execute all searches in parallel with timeout
+    const searchPromises = [
       this.searchSealink(params),
       this.searchMakruzz(params),
       this.searchGreenOcean(params),
-    ]);
+    ];
+
+    // Add overall timeout to prevent hanging
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Overall search timeout")), 15000)
+    );
+
+    const [sealinkResult, makruzzResult, greenOceanResult] = await Promise.race(
+      [Promise.all(searchPromises), timeoutPromise]
+    );
 
     console.log(`📊 Operator Results Summary:`);
     console.log(
@@ -197,8 +207,9 @@ export class FerryAggregationService {
       a.schedule.departureTime.localeCompare(b.schedule.departureTime)
     );
 
+    const searchTime = Date.now() - startTime;
     console.log(
-      `🎯 Final Results: ${results.length} ferries found, ${errors.length} operator errors`
+      `🎯 Final Results: ${results.length} ferries found, ${errors.length} operator errors (${searchTime}ms)`
     );
     if (errors.length > 0) {
       console.log(`❌ Operator Errors:`);

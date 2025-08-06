@@ -24,6 +24,8 @@ import { Select } from "@/components/atoms/Select/Select";
 import {
   useCheckoutStore,
   useActivityMetadata,
+  useFerryMetadata,
+  useAllMetadata,
   type CheckoutFormData,
   type MemberDetails,
 } from "@/store/CheckoutStore";
@@ -55,31 +57,49 @@ export const MemberDetailsStep: React.FC = () => {
   } = useCheckoutStore();
 
   const activityMetadata = useActivityMetadata();
+  const ferryMetadata = useFerryMetadata();
+  const allMetadata = useAllMetadata();
+
+  // Debug logging to identify the issue
+  console.log("MemberDetailsStep - Store state:", {
+    activityMetadata,
+    ferryMetadata,
+    allMetadata,
+    isInitialized,
+  });
 
   // Get form defaults from store (single source of truth)
   const formDefaults = useMemo(() => {
-    const defaults = getFormDefaults();
-    // Convert MemberDetails to Step1Form format
-    return {
-      members: defaults.members.map((member) => ({
-        fullName: member.fullName || "",
-        age: member.age || 25,
-        gender: (member.gender as "Male" | "Female" | "Other") || "Male",
-        nationality: member.nationality || "Indian",
-        passportNumber: member.passportNumber || "",
-        whatsappNumber: member.whatsappNumber || "",
-        email: member.email || "",
-        selectedActivities: member.selectedActivities || [],
-      })),
-      termsAccepted: defaults.termsAccepted,
-    };
+    try {
+      const defaults = getFormDefaults();
+      // Convert MemberDetails to Step1Form format
+      return {
+        members: (defaults.members || []).map((member) => ({
+          fullName: member.fullName || "",
+          age: member.age || 25,
+          gender: (member.gender as "Male" | "Female" | "Other") || "Male",
+          nationality: member.nationality || "Indian",
+          passportNumber: member.passportNumber || "",
+          whatsappNumber: member.whatsappNumber || "",
+          email: member.email || "",
+          selectedActivities: member.selectedActivities || [],
+        })),
+        termsAccepted: defaults.termsAccepted || false,
+      };
+    } catch (error) {
+      console.error("Error getting form defaults:", error);
+      return {
+        members: [],
+        termsAccepted: false,
+      };
+    }
   }, [getFormDefaults]);
 
   // Setup form with Zod validation
   const form = useForm<Step1Form>({
     resolver: zodResolver(
-      activityMetadata.length > 0
-        ? createStep1SchemaWithActivities(activityMetadata)
+      allMetadata && allMetadata.length > 0
+        ? createStep1SchemaWithActivities(allMetadata)
         : step1Schema
     ),
     defaultValues: formDefaults,
@@ -101,7 +121,14 @@ export const MemberDetailsStep: React.FC = () => {
 
   // Watch for UI updates
   const watchedMembers = watch("members");
-  const minimumMembersNeeded = getMinimumMembersNeeded();
+  const minimumMembersNeeded = (() => {
+    try {
+      return getMinimumMembersNeeded();
+    } catch (error) {
+      console.error("Error getting minimum members needed:", error);
+      return 0;
+    }
+  })();
 
   // Handle form submission (Form → Store)
   const onSubmit: SubmitHandler<Step1Form> = async (data) => {
@@ -203,13 +230,16 @@ export const MemberDetailsStep: React.FC = () => {
     );
   }
 
-  // No activities state
-  if (activityMetadata.length === 0) {
+  // No bookings state
+  if (allMetadata.length === 0) {
     return (
       <div className={styles.errorState}>
         <AlertCircle className={styles.errorIcon} />
-        <h3>No Activities Found</h3>
-        <p>Please add activities to your cart before proceeding to checkout.</p>
+        <h3>No Bookings Found</h3>
+        <p>
+          Please add activities or ferry bookings to your cart before proceeding
+          to checkout.
+        </p>
       </div>
     );
   }
@@ -222,17 +252,17 @@ export const MemberDetailsStep: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-        {/* Activity Requirements Info */}
+        {/* Booking Requirements Info */}
         <div className={styles.activityInfo}>
           <div className={styles.infoHeader}>
             <Info size={20} className={styles.infoIcon} />
-            <h3>Activity Requirements</h3>
+            <h3>Booking Requirements</h3>
           </div>
           <div className={styles.activitiesList}>
             {activityMetadata.map((activity, index) => (
-              <div key={index} className={styles.activityItem}>
+              <div key={`activity-${index}`} className={styles.activityItem}>
                 <div className={styles.activityDetails}>
-                  <h4>{activity.title}</h4>
+                  <h4>🎯 {activity.title}</h4>
                   <span className={styles.activityMeta}>
                     {activity.adults} adults, {activity.children} children ·{" "}
                     {activity.date} · {activity.location}
@@ -240,6 +270,21 @@ export const MemberDetailsStep: React.FC = () => {
                 </div>
                 <div className={styles.passengerCount}>
                   {activity.totalRequired} passengers needed
+                </div>
+              </div>
+            ))}
+            {ferryMetadata.map((ferry, index) => (
+              <div key={`ferry-${index}`} className={styles.activityItem}>
+                <div className={styles.activityDetails}>
+                  <h4>🚢 {ferry.title}</h4>
+                  <span className={styles.activityMeta}>
+                    {ferry.adults} adults, {ferry.children} children
+                    {ferry.infants > 0 && `, ${ferry.infants} infants`} ·{" "}
+                    {ferry.date} · {ferry.fromLocation} → {ferry.toLocation}
+                  </span>
+                </div>
+                <div className={styles.passengerCount}>
+                  {ferry.totalRequired} passengers needed
                 </div>
               </div>
             ))}
@@ -409,14 +454,13 @@ export const MemberDetailsStep: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Activity Assignment */}
+                  {/* Booking Assignment */}
                   <div className={styles.activityAssignment}>
                     <h4 className={styles.assignmentTitle}>
-                      Activity Assignment
+                      Booking Assignment
                     </h4>
                     <p className={styles.assignmentDescription}>
-                      Select which activities this passenger will participate
-                      in:
+                      Select which bookings this passenger will be included in:
                     </p>
 
                     <div className={styles.activityCheckboxes}>
@@ -427,7 +471,7 @@ export const MemberDetailsStep: React.FC = () => {
 
                         return (
                           <div
-                            key={activityIndex}
+                            key={`activity-${activityIndex}`}
                             className={cn(
                               styles.activityCheckbox,
                               isAssigned && styles.assigned
@@ -448,10 +492,50 @@ export const MemberDetailsStep: React.FC = () => {
                               </div>
                               <div className={styles.activityLabel}>
                                 <span className={styles.activityName}>
-                                  {activity.title}
+                                  🎯 {activity.title}
                                 </span>
                                 <span className={styles.activityMeta}>
                                   {activity.date} · {activity.location}
+                                </span>
+                              </div>
+                            </button>
+                          </div>
+                        );
+                      })}
+                      {ferryMetadata.map((ferry, ferryIndex) => {
+                        const totalIndex = activityMetadata.length + ferryIndex;
+                        const isAssigned =
+                          member?.selectedActivities?.includes(totalIndex) ||
+                          false;
+
+                        return (
+                          <div
+                            key={`ferry-${ferryIndex}`}
+                            className={cn(
+                              styles.activityCheckbox,
+                              isAssigned && styles.assigned
+                            )}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleActivityAssignment(
+                                  memberIndex,
+                                  totalIndex
+                                )
+                              }
+                              className={styles.checkboxButton}
+                            >
+                              <div className={styles.checkbox}>
+                                {isAssigned && <Check size={16} />}
+                              </div>
+                              <div className={styles.activityLabel}>
+                                <span className={styles.activityName}>
+                                  🚢 {ferry.title}
+                                </span>
+                                <span className={styles.activityMeta}>
+                                  {ferry.date} · {ferry.fromLocation} →{" "}
+                                  {ferry.toLocation}
                                 </span>
                               </div>
                             </button>
