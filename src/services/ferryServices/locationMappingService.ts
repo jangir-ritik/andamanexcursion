@@ -27,7 +27,7 @@ export const LOCATION_MAPPINGS: Record<string, LocationMapping> = {
   },
   havelock: {
     formValue: "havelock",
-    displayName: "Swaraj Dweep (Havelock Island)",
+    displayName: "Havelock",
     sealinkName: "Swaraj Dweep",
     makruzzId: "2",
     greenOceanId: 2,
@@ -35,7 +35,7 @@ export const LOCATION_MAPPINGS: Record<string, LocationMapping> = {
   },
   neil: {
     formValue: "neil",
-    displayName: "Shaheed Dweep (Neil Island)",
+    displayName: "Neil Island",
     sealinkName: "Shaheed Dweep",
     makruzzId: "3",
     greenOceanId: 3,

@@ -235,8 +235,8 @@ This document consolidates the API documentation for three ferry operators in An
 {
     data: [
         {id: "1", title: "Port Blair", code: "PB"},
-        {id: "2", title: "Swaraj Deep(Havelock)", code: "SW(HL)"},
-        {id: "3", title: "Shaheed Deep(Neil island)", code: "SH(NL)"},
+        {id: "2", title: "Havelock", code: "SW(HL)"}, // Swaraj dweep
+        {id: "3", title: "Neil island", code: "SH(NL)"}, // Shaheed dweep
         {id: "4", title: "Baratang", code: "BT"}
     ],
     msg: "Sectors Successfully listed",

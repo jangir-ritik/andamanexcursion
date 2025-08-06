@@ -48,17 +48,17 @@ export const FERRY_LOCATIONS: Location[] = [
   },
   {
     id: "havelock",
-    name: "Swaraj Dweep (Havelock Island)",
+    name: "Havelock", // Swaraj dweep
     slug: "havelock",
     value: "havelock",
-    label: "Swaraj Dweep (Havelock Island)",
+    label: "Havelock",
   },
   {
     id: "neil-island",
-    name: "Shaheed Dweep (Neil Island)",
+    name: "Neil Island", // Shaheed dweep
     slug: "neil-island",
     value: "neil",
-    label: "Shaheed Dweep (Neil Island)",
+    label: "Neil Island",
   },
   {
     id: "baratang",

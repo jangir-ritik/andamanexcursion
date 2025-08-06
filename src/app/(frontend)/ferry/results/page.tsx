@@ -241,7 +241,7 @@ const FerryResultsLoader = () => (
 
 export default function FerryResultsPage() {
   return (
-    <Section backgroundColor="light" className={styles.ferryResultsPage}>
+    <Section className={styles.ferryResultsPage}>
       <Suspense fallback={<FerryResultsLoader />}>
         <FerryResultsContent />
       </Suspense>
