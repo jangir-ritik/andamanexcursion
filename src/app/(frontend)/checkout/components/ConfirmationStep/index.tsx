@@ -1,48 +1,87 @@
 "use client";
 import React from "react";
 import { Download } from "lucide-react";
-import {
-  useCheckoutStore,
-  useMembers,
-  useCheckoutItems,
-  useBookingConfirmation,
-} from "@/store/CheckoutStore";
+import { useSimpleCheckoutStore } from "@/store/SimpleCheckoutStore";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
 import styles from "./ConfirmationStep.module.css";
 import { DescriptionText } from "@/components/atoms";
 import { slotIdToTimeString } from "@/utils/timeUtils";
+import type {
+  UnifiedBookingData,
+  PassengerRequirements,
+} from "@/utils/CheckoutAdapter";
 
-export const ConfirmationStep: React.FC = () => {
-  const { getTotalPrice } = useCheckoutStore();
-  const members = useMembers();
-  const checkoutItems = useCheckoutItems();
-  const bookingConfirmation = useBookingConfirmation();
+interface ConfirmationStepProps {
+  bookingData: UnifiedBookingData;
+  requirements: PassengerRequirements;
+}
 
-  // Get all booking details
+export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
+  bookingData,
+  requirements,
+}) => {
+  const { bookingConfirmation, formData, resetAfterBooking } =
+    useSimpleCheckoutStore();
+
+  // Get all booking details from the new unified data structure
   const getAllBookingDetails = () => {
-    if (checkoutItems.length === 0) return [];
+    if (!bookingData?.items || bookingData.items.length === 0) return [];
 
-    return checkoutItems
+    return bookingData.items
       .map((item, index) => {
-        if (item.activityBooking) {
-          const { activity, searchParams } = item.activityBooking;
+        if (item.type === "activity") {
           return {
-            id: item.activityBooking.id,
+            id: item.id,
             index: index,
             type: "Activity" as const,
-            title: activity.title,
-            location: activity.coreInfo.location[0]?.name || "N/A",
-            date: searchParams.date,
-            time: searchParams.time,
-            duration: activity.coreInfo.duration,
-            image: activity.media.featuredImage?.url || null,
-            price: item.activityBooking.totalPrice,
+            title: item.title,
+            location:
+              item.location ||
+              item.activity?.coreInfo?.location?.[0]?.name ||
+              "N/A",
+            date: item.date,
+            time: item.time,
+            duration: item.activity?.coreInfo?.duration || "N/A",
+            image: item.activity?.media?.featuredImage?.url || null,
+            price: item.price,
             passengers: {
-              adults: searchParams.adults || 0,
-              children: searchParams.children || 0,
-              total: (searchParams.adults || 0) + (searchParams.children || 0),
+              adults: item.passengers.adults || 0,
+              children: item.passengers.children || 0,
+              total:
+                (item.passengers.adults || 0) + (item.passengers.children || 0),
             },
+          };
+        } else if (item.type === "ferry") {
+          return {
+            id: item.id,
+            index: index,
+            type: "Ferry" as const,
+            title: item.title,
+            location: `${item.ferry?.fromLocation || "N/A"} → ${
+              item.ferry?.toLocation || "N/A"
+            }`,
+            date: item.date,
+            time: item.ferry?.schedule?.departureTime || item.time || "N/A",
+            duration:
+              item.ferry?.schedule?.duration ||
+              item.ferry?.duration ||
+              "2h 30m",
+            image: null,
+            price: item.price,
+            passengers: {
+              adults: item.passengers.adults || 0,
+              children: item.passengers.children || 0,
+              total:
+                (item.passengers.adults || 0) + (item.passengers.children || 0),
+            },
+            // Add ferry-specific details
+            seats: item.ferry?.selectedSeats || [],
+            ferryName: item.ferry?.ferryName || "Ferry",
+            class:
+              item.ferry?.selectedClass?.className ||
+              item.ferry?.selectedClass?.name ||
+              "N/A",
           };
         }
         return null;
@@ -51,6 +90,11 @@ export const ConfirmationStep: React.FC = () => {
   };
 
   const allBookingDetails = getAllBookingDetails();
+
+  // Calculate total price from booking data
+  const getTotalPrice = () => {
+    return bookingData?.totalPrice || 0;
+  };
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -171,6 +215,27 @@ export const ConfirmationStep: React.FC = () => {
                       {bookingDetail.duration}
                     </span>
                   </div>
+                  {/* Ferry-specific details */}
+                  {bookingDetail.type === "Ferry" && (
+                    <>
+                      {(bookingDetail as any).class && (
+                        <div className={styles.tripDetail}>
+                          <span className={styles.detailLabel}>Class</span>
+                          <span className={styles.detailValue}>
+                            {(bookingDetail as any).class}
+                          </span>
+                        </div>
+                      )}
+                      {(bookingDetail as any).seats?.length > 0 && (
+                        <div className={styles.tripDetail}>
+                          <span className={styles.detailLabel}>Seats</span>
+                          <span className={styles.detailValue}>
+                            {(bookingDetail as any).seats.join(", ")}
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className={styles.tripDetail}>
                     <span className={styles.detailLabel}>Passengers</span>
                     <span className={styles.detailValue}>
@@ -206,12 +271,12 @@ export const ConfirmationStep: React.FC = () => {
       <div className={styles.guestInfoCard}>
         <div className={styles.guestInfoHeader}>
           <h3 className={styles.sectionTitleOrange}>
-            Guests Information ({members.length})
+            Guests Information ({formData?.members?.length || 0})
           </h3>
         </div>
 
         <div className={styles.guestCards}>
-          {members.map((member) => (
+          {(formData?.members || []).map((member) => (
             <div key={member.id} className={styles.guestCard}>
               <div className={styles.guestHeader}>
                 <h4 className={styles.guestName}>{member.fullName}</h4>
@@ -257,6 +322,22 @@ export const ConfirmationStep: React.FC = () => {
           className={styles.downloadButton}
         >
           Download PDF
+        </Button>
+
+        <Button
+          variant="secondary"
+          size="large"
+          onClick={() => {
+            resetAfterBooking();
+            // Navigate back to home or booking page
+            window.location.href =
+              bookingData?.items?.[0]?.type === "ferry"
+                ? "/ferry"
+                : "/activities";
+          }}
+          className={styles.newBookingButton}
+        >
+          Make Another Booking
         </Button>
       </div>
 

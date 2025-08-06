@@ -6,7 +6,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate required parameters
-    const { routeId, ferryId, classId, travelDate, operator } = body;
+    const { routeId, ferryId, classId, travelDate, operator, forceRefresh } =
+      body;
 
     if (!routeId || !ferryId || !classId || !travelDate) {
       return NextResponse.json(
@@ -27,14 +28,17 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `🪑 API: Fetching seat layout for ferry ${ferryId}, class ${classId}`
+      `🪑 API: Fetching seat layout for ferry ${ferryId}, class ${classId}${
+        forceRefresh ? " (force refresh)" : ""
+      }`
     );
 
     const seatLayout = await GreenOceanService.getSeatLayout(
       parseInt(routeId),
       parseInt(ferryId),
       parseInt(classId),
-      travelDate
+      travelDate,
+      forceRefresh
     );
 
     const response = {

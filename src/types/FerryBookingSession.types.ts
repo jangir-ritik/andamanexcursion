@@ -11,7 +11,17 @@ export interface FerryBookingSession {
   selectedFerry?: {
     operator: "sealink" | "makruzz" | "greenocean";
     ferryId: string;
+    ferryName: string;
     routeData: any;
+    fromLocation: string;
+    toLocation: string;
+    schedule: {
+      departureTime: string;
+      arrivalTime: string;
+      duration: string;
+      date: string;
+    };
+    duration: string;
   };
   selectedClass?: {
     classId: string;

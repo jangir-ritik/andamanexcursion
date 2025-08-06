@@ -679,3 +679,19 @@ export const useEditingState = () =>
     editingItemId: state.editingItemId,
     editingSearchParams: state.editingSearchParams,
   }));
+
+// Global access for CheckoutAdapter
+if (typeof window !== "undefined") {
+  (window as any).__ACTIVITY_STORE__ = {
+    get cart() {
+      return useActivityStore.getState().cart;
+    },
+    get searchParams() {
+      return useActivityStore.getState().searchParams;
+    },
+    getState: () => useActivityStore.getState(),
+    clearCart: () => {
+      useActivityStore.getState().clearCart();
+    },
+  };
+}

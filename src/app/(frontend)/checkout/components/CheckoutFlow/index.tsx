@@ -93,7 +93,8 @@ export const CheckoutFlow: React.FC = () => {
       case 2:
         return <ReviewStep />;
       case 3:
-        return <ConfirmationStep />;
+        // This is the old checkout flow - redirect to new one
+        return <div>Please use the new checkout flow</div>;
       default:
         return <MemberDetailsStep />;
     }

@@ -174,7 +174,8 @@ export class GreenOceanService {
     routeId: number,
     ferryId: number,
     classId: number,
-    travelDate: string
+    travelDate: string,
+    forceRefresh: boolean = false
   ): Promise<SeatLayout> {
     const apiCall = async (): Promise<GreenOceanSeatLayoutResponse> => {
       // Format travel date for the API
@@ -236,6 +237,11 @@ export class GreenOceanService {
       apiCall,
       "GreenOcean-SeatLayout"
     );
+
+    // If force refresh, bypass any internal caching
+    if (forceRefresh) {
+      console.log("🔄 Force refresh requested for seat layout");
+    }
 
     if (response.status !== "success") {
       throw new Error(`Green Ocean seat layout error: ${response.message}`);
@@ -531,5 +537,168 @@ export class GreenOceanService {
     const minutes = diffMinutes % 60;
 
     return `${hours}h ${minutes}m`;
+  }
+
+  /**
+   * Book ticket using Green Ocean API based on 4-book-ticket.php
+   */
+  async bookTicket(bookingData: {
+    ship_id: number;
+    from_id: number;
+    dest_to: number;
+    route_id: number;
+    class_id: number;
+    number_of_adults: number;
+    number_of_infants: number;
+    travel_date: string; // DD-MM-YYYY format
+    seat_id: number[];
+    passenger_prefix: string[];
+    passenger_name: string[];
+    passenger_age: string[];
+    gender: string[];
+    nationality: string[];
+    passport_numb: string[];
+    passport_expiry: string[];
+    country: string[];
+    infant_prefix: string[];
+    infant_name: string[];
+    infant_age: string[];
+    infant_gender: string[];
+  }): Promise<any> {
+    try {
+      console.log("🎫 Green Ocean: Creating ticket booking...", {
+        ship_id: bookingData.ship_id,
+        passengers: bookingData.number_of_adults,
+        seats: bookingData.seat_id,
+      });
+
+      // Generate hash according to PHP example
+      const hashSequence =
+        "ship_id|from_id|dest_to|route_id|class_id|number_of_adults|number_of_infants|travel_date|seat_id|public_key";
+
+      const requestData: any = {
+        ship_id: bookingData.ship_id,
+        from_id: bookingData.from_id,
+        dest_to: bookingData.dest_to,
+        route_id: bookingData.route_id,
+        class_id: bookingData.class_id,
+        number_of_adults: bookingData.number_of_adults,
+        number_of_infants: bookingData.number_of_infants,
+        travel_date: bookingData.travel_date,
+        seat_id: bookingData.seat_id,
+        passenger_prefix: bookingData.passenger_prefix,
+        passenger_name: bookingData.passenger_name,
+        passenger_age: bookingData.passenger_age,
+        gender: bookingData.gender,
+        nationality: bookingData.nationality,
+        passport_numb: bookingData.passport_numb,
+        passport_expiry: bookingData.passport_expiry,
+        country: bookingData.country,
+        infant_prefix: bookingData.infant_prefix,
+        infant_name: bookingData.infant_name,
+        infant_age: bookingData.infant_age,
+        infant_gender: bookingData.infant_gender,
+        public_key: GreenOceanService.PUBLIC_KEY,
+      };
+
+      // Add hash after requestData is defined
+      requestData.hash_string = this.generateBookingHash(
+        requestData,
+        hashSequence
+      );
+
+      console.log(
+        "🔐 Green Ocean booking hash string:",
+        requestData.hash_string
+      );
+
+      const response = await FerryApiService.callWithRetry(async () => {
+        const apiResponse = await fetch(
+          `${GreenOceanService.BASE_URL}v1/book-ticket`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
+
+        if (!apiResponse.ok) {
+          throw new Error(
+            `HTTP ${apiResponse.status}: ${apiResponse.statusText}`
+          );
+        }
+
+        return await apiResponse.json();
+      }, "GreenOcean-BookTicket");
+
+      if (response.status === "success") {
+        console.log("✅ Green Ocean booking successful:", response);
+        return {
+          success: true,
+          booking_id: response.data?.booking_id,
+          tickets: response.data?.tickets,
+          message: response.message,
+          data: response.data,
+        };
+      } else {
+        console.error("❌ Green Ocean booking failed:", response);
+        return {
+          success: false,
+          message: response.message || "Booking failed",
+          error: response.errorlist || [],
+        };
+      }
+    } catch (error) {
+      console.error("🚨 Green Ocean booking error:", error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "Booking failed",
+        error: error,
+      };
+    }
+  }
+
+  /**
+   * Generate booking hash for Green Ocean API
+   */
+  private generateBookingHash(requestData: any, hashSequence: string): string {
+    const keys = hashSequence.split("|");
+    let hashString = "";
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      let value = "";
+
+      if (key === "seat_id") {
+        // Handle seat_id array - join with commas
+        value = Array.isArray(requestData[key])
+          ? requestData[key].join(",")
+          : "";
+      } else {
+        value = requestData[key] ? requestData[key].toString() : "";
+      }
+
+      hashString += value;
+
+      // Add pipe separator except for the last element
+      if (i < keys.length - 1) {
+        hashString += "|";
+      }
+    }
+
+    // Add private key at the end
+    hashString += "|" + GreenOceanService.PRIVATE_KEY;
+
+    console.log("🔐 Green Ocean booking hash components:", {
+      sequence: hashSequence,
+      hashString: hashString.substring(0, 100) + "...", // Log first 100 chars
+    });
+
+    return require("crypto")
+      .createHash("sha256")
+      .update(hashString)
+      .digest("hex");
   }
 }

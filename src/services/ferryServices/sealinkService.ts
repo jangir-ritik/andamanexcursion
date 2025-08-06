@@ -384,4 +384,146 @@ export class SealinkService {
     };
     return codeMap[locationName] || "??";
   }
+
+  /**
+   * Book seats using Sealink API following the provided documentation
+   */
+  static async bookSeats(bookingData: {
+    id: string;
+    tripId: number;
+    vesselID: number;
+    from: string;
+    to: string;
+    bookingTS: number;
+    paxDetail: {
+      email: string;
+      phone: string;
+      gstin: string;
+      pax: Array<{
+        name: string;
+        age: number;
+        gender: string;
+        nationality: string;
+        photoId: string;
+        expiry: string;
+        seat: string;
+        tier: string;
+      }>;
+      infantPax: any[];
+    };
+    userData: {
+      apiUser: {
+        userName: string;
+        agency: string;
+        token: string;
+        walletBalance: number;
+      };
+    };
+    paymentData: {
+      gstin: string;
+    };
+    token: string;
+    userName: string;
+  }): Promise<{
+    seatStatus: boolean;
+    pnr: string;
+    index: number;
+    requestData: any;
+  }> {
+    try {
+      console.log("🎫 Sealink: Creating seat booking...", {
+        tripId: bookingData.tripId,
+        passengers: bookingData.paxDetail.pax.length,
+        seats: bookingData.paxDetail.pax.map((p) => p.seat),
+      });
+
+      // Validate credentials
+      if (!this.USERNAME || !this.TOKEN) {
+        throw new Error("Sealink credentials not configured");
+      }
+
+      const apiCall = async () => {
+        const requestBody = [
+          {
+            id: bookingData.id,
+            tripId: bookingData.tripId,
+            vesselID: bookingData.vesselID,
+            from: bookingData.from,
+            to: bookingData.to,
+            bookingTS: bookingData.bookingTS,
+            paxDetail: bookingData.paxDetail,
+            userData: {
+              apiUser: {
+                userName: this.USERNAME,
+                agency: bookingData.userData.apiUser.agency,
+                token: this.TOKEN,
+                walletBalance: bookingData.userData.apiUser.walletBalance,
+              },
+            },
+            paymentData: bookingData.paymentData,
+            token: this.TOKEN,
+            userName: this.USERNAME,
+          },
+        ];
+
+        console.log(
+          "📝 Sealink booking request:",
+          JSON.stringify(requestBody, null, 2)
+        );
+
+        const response = await fetch(`${this.BASE_URL}bookSeats`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("❌ Sealink booking error response:", errorText);
+          throw new Error(
+            `Sealink booking API error: ${response.status} - ${errorText}`
+          );
+        }
+
+        const responseText = await response.text();
+        console.log("📨 Sealink booking raw response:", responseText);
+
+        try {
+          const result = JSON.parse(responseText);
+          return Array.isArray(result) ? result[0] : result;
+        } catch (parseError) {
+          console.error("❌ Sealink booking JSON parse error:", parseError);
+          throw new Error(
+            `Sealink API returned invalid JSON: ${responseText.substring(
+              0,
+              100
+            )}...`
+          );
+        }
+      };
+
+      const response = await FerryApiService.callWithRetry(
+        apiCall,
+        "Sealink-BookSeats"
+      );
+
+      if (response.seatStatus) {
+        console.log("✅ Sealink booking successful:", response);
+        return {
+          seatStatus: response.seatStatus,
+          pnr: response.pnr,
+          index: response.index || 0,
+          requestData: response.requestData,
+        };
+      } else {
+        console.error("❌ Sealink booking failed:", response);
+        throw new Error(`Sealink booking failed: ${JSON.stringify(response)}`);
+      }
+    } catch (error) {
+      console.error("🚨 Sealink booking error:", error);
+      throw error;
+    }
+  }
 }

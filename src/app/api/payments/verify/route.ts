@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@/payload.config";
+import { FerryBookingService } from "@/services/ferryServices/ferryBookingService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -100,107 +101,123 @@ export async function POST(request: NextRequest) {
             customerPhone: bookingData.members?.[0]?.whatsappNumber || "",
             nationality: bookingData.members?.[0]?.nationality || "Indian",
           },
-          bookingType: "activity",
+          bookingType: bookingData.bookingType || "activity",
           serviceDate:
-            bookingData.activities?.[0]?.activityBooking?.searchParams?.date ||
-            new Date().toISOString(),
-          bookedActivities: await Promise.all(
-            bookingData.activities?.map(
-              async (activity: any, index: number) => {
-                // Look up activity by slug to get ObjectId
-                let activityId = null;
-                if (activity.activityBooking?.activity?.slug) {
-                  try {
-                    const activityDoc = await payload.find({
-                      collection: "activities",
-                      where: {
-                        slug: {
-                          equals: activity.activityBooking.activity.slug,
-                        },
-                      },
-                      limit: 1,
-                    });
-                    activityId = activityDoc.docs[0]?.id || null;
-                    console.log(
-                      `Activity lookup: slug=${activity.activityBooking.activity.slug}, found_id=${activityId}`
-                    );
-                  } catch (error) {
-                    console.error(
-                      `Failed to find activity with slug ${activity.activityBooking.activity.slug}:`,
-                      error
-                    );
-                  }
-                } else if (activity.activityBooking?.activity?.id) {
-                  activityId = activity.activityBooking.activity.id;
-                  console.log(`Using existing activity ID: ${activityId}`);
-                }
+            bookingData.bookingType === "ferry"
+              ? bookingData.items?.[0]?.date
+              : bookingData.activities?.[0]?.activityBooking?.searchParams
+                  ?.date || new Date().toISOString(),
+          bookedActivities:
+            bookingData.bookingType === "activity"
+              ? await Promise.all(
+                  bookingData.activities?.map(
+                    async (activity: any, index: number) => {
+                      // Look up activity by slug to get ObjectId
+                      let activityId = null;
+                      if (activity.activityBooking?.activity?.slug) {
+                        try {
+                          const activityDoc = await payload.find({
+                            collection: "activities",
+                            where: {
+                              slug: {
+                                equals: activity.activityBooking.activity.slug,
+                              },
+                            },
+                            limit: 1,
+                          });
+                          activityId = activityDoc.docs[0]?.id || null;
+                          console.log(
+                            `Activity lookup: slug=${activity.activityBooking.activity.slug}, found_id=${activityId}`
+                          );
+                        } catch (error) {
+                          console.error(
+                            `Failed to find activity with slug ${activity.activityBooking.activity.slug}:`,
+                            error
+                          );
+                        }
+                      } else if (activity.activityBooking?.activity?.id) {
+                        activityId = activity.activityBooking.activity.id;
+                        console.log(
+                          `Using existing activity ID: ${activityId}`
+                        );
+                      }
 
-                if (!activityId) {
-                  console.error(
-                    `No activity ID found for:`,
-                    activity.activityBooking?.activity
-                  );
-                  throw new Error(
-                    `Activity not found: ${
-                      activity.activityBooking?.activity?.slug ||
-                      activity.activityBooking?.activity?.title ||
-                      "Unknown"
-                    }`
-                  );
-                }
+                      if (!activityId) {
+                        console.error(
+                          `No activity ID found for:`,
+                          activity.activityBooking?.activity
+                        );
+                        throw new Error(
+                          `Activity not found: ${
+                            activity.activityBooking?.activity?.slug ||
+                            activity.activityBooking?.activity?.title ||
+                            "Unknown"
+                          }`
+                        );
+                      }
 
-                // Look up location by slug/id if provided
-                let locationId = null;
-                const locationData =
-                  activity.activityBooking?.activity?.coreInfo?.location?.[0];
-                if (locationData) {
-                  if (locationData.slug) {
-                    try {
-                      const locationDoc = await payload.find({
-                        collection: "locations",
-                        where: {
-                          slug: {
-                            equals: locationData.slug,
-                          },
+                      // Look up location by slug/id if provided
+                      let locationId = null;
+                      const locationData =
+                        activity.activityBooking?.activity?.coreInfo
+                          ?.location?.[0];
+                      if (locationData) {
+                        if (locationData.slug) {
+                          try {
+                            const locationDoc = await payload.find({
+                              collection: "locations",
+                              where: {
+                                slug: {
+                                  equals: locationData.slug,
+                                },
+                              },
+                              limit: 1,
+                            });
+                            locationId = locationDoc.docs[0]?.id || null;
+                            console.log(
+                              `Location lookup: slug=${locationData.slug}, found_id=${locationId}`
+                            );
+                          } catch (error) {
+                            console.error(
+                              `Failed to find location with slug ${locationData.slug}:`,
+                              error
+                            );
+                          }
+                        } else if (locationData.id) {
+                          locationId = locationData.id;
+                          console.log(
+                            `Using existing location ID: ${locationId}`
+                          );
+                        }
+                      }
+
+                      return {
+                        activity: activityId,
+                        activityOption:
+                          activity.activityBooking?.activityOptionId,
+                        quantity: activity.activityBooking?.quantity,
+                        unitPrice:
+                          activity.activityBooking?.totalPrice /
+                          activity.activityBooking?.quantity,
+                        totalPrice: activity.activityBooking?.totalPrice,
+                        scheduledTime:
+                          activity.activityBooking?.searchParams?.time,
+                        location: locationId,
+                        passengers: {
+                          adults:
+                            activity.activityBooking?.searchParams?.adults || 0,
+                          children:
+                            activity.activityBooking?.searchParams?.children ||
+                            0,
+                          infants: 0,
                         },
-                        limit: 1,
-                      });
-                      locationId = locationDoc.docs[0]?.id || null;
-                      console.log(
-                        `Location lookup: slug=${locationData.slug}, found_id=${locationId}`
-                      );
-                    } catch (error) {
-                      console.error(
-                        `Failed to find location with slug ${locationData.slug}:`,
-                        error
-                      );
+                      };
                     }
-                  } else if (locationData.id) {
-                    locationId = locationData.id;
-                    console.log(`Using existing location ID: ${locationId}`);
-                  }
-                }
-
-                return {
-                  activity: activityId,
-                  activityOption: activity.activityBooking?.activityOptionId,
-                  quantity: activity.activityBooking?.quantity,
-                  unitPrice:
-                    activity.activityBooking?.totalPrice /
-                    activity.activityBooking?.quantity,
-                  totalPrice: activity.activityBooking?.totalPrice,
-                  scheduledTime: activity.activityBooking?.searchParams?.time,
-                  location: locationId,
-                  passengers: {
-                    adults: activity.activityBooking?.searchParams?.adults || 0,
-                    children:
-                      activity.activityBooking?.searchParams?.children || 0,
-                    infants: 0,
-                  },
-                };
-              }
-            ) || []
-          ),
+                  ) || []
+                )
+              : [],
+          // Note: bookedFerries field removed due to schema constraints
+          // Ferry booking details are stored in the providerBookingResult instead
           passengers:
             bookingData.members?.map((member: any) => ({
               isPrimary: member.isPrimary,
@@ -235,12 +252,83 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Update payment record with booking reference
+      // Handle ferry provider booking if this is a ferry booking
+      let providerBookingResult = null;
+      if (bookingData.bookingType === "ferry" && bookingData.items?.[0]) {
+        try {
+          const ferryItem = bookingData.items[0];
+          const bookingRequest = {
+            operator: ferryItem.ferry?.operator || "unknown",
+            ferryId: ferryItem.ferry?.ferryId || ferryItem.id,
+            fromLocation: ferryItem.ferry?.fromLocation || "",
+            toLocation: ferryItem.ferry?.toLocation || "",
+            date: ferryItem.date,
+            time: ferryItem.time,
+            classId: ferryItem.ferry?.selectedClass?.id || "",
+            passengers: {
+              adults: ferryItem.passengers?.adults || 0,
+              children: ferryItem.passengers?.children || 0,
+              infants: ferryItem.passengers?.infants || 0,
+            },
+            selectedSeats: ferryItem.ferry?.selectedSeats || [],
+            passengerDetails: bookingData.members || [],
+            paymentReference: razorpay_payment_id,
+            totalAmount: bookingData.totalPrice,
+          };
+
+          console.log(
+            "🚢 Initiating ferry provider booking:",
+            bookingRequest.operator
+          );
+          providerBookingResult = await FerryBookingService.bookFerry(
+            bookingRequest as any
+          );
+
+          if (!providerBookingResult.success) {
+            console.error(
+              "Ferry provider booking failed:",
+              providerBookingResult.error
+            );
+            // Note: Payment was successful but ferry booking failed
+            // This needs to be handled carefully - maybe refund or manual intervention
+          }
+        } catch (ferryBookingError) {
+          console.error("Ferry booking service error:", ferryBookingError);
+          // Payment successful but ferry booking failed
+          providerBookingResult = {
+            success: false,
+            error:
+              ferryBookingError instanceof Error
+                ? ferryBookingError.message
+                : "Ferry booking failed",
+          };
+        }
+      }
+
+      // Update payment record with booking reference and provider booking result
       await payload.update({
         collection: "payments",
         id: paymentRecord.id,
         data: {
           bookingReference: bookingRecord.id,
+          // Note: providerBookingResult field removed due to schema constraints
+          // Provider booking result is stored in internalNotes instead
+          // Store ferry booking result in the gatewayResponse field
+          gatewayResponse: {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            verified_at: new Date().toISOString(),
+            // Add ferry provider booking result
+            ...(providerBookingResult && {
+              ferryProviderBooking: {
+                success: providerBookingResult.success,
+                providerBookingId: providerBookingResult.providerBookingId,
+                bookingReference: providerBookingResult.bookingReference,
+                error: providerBookingResult.error,
+              },
+            }),
+          },
         },
       });
 
@@ -291,6 +379,13 @@ export async function POST(request: NextRequest) {
           status: bookingRecord.status,
           paymentStatus: bookingRecord.paymentStatus,
           totalAmount: bookingRecord.pricing.totalAmount,
+          providerBooking: providerBookingResult
+            ? {
+                success: providerBookingResult.success,
+                providerBookingId: providerBookingResult.providerBookingId,
+                error: providerBookingResult.error,
+              }
+            : null,
         },
         payment: {
           transactionId: paymentRecord.transactionId,

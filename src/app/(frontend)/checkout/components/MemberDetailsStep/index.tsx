@@ -60,13 +60,15 @@ export const MemberDetailsStep: React.FC = () => {
   const ferryMetadata = useFerryMetadata();
   const allMetadata = useAllMetadata();
 
-  // Debug logging to identify the issue
-  console.log("MemberDetailsStep - Store state:", {
-    activityMetadata,
-    ferryMetadata,
-    allMetadata,
-    isInitialized,
-  });
+  // Debug logging (development only)
+  if (process.env.NODE_ENV === "development") {
+    console.log("MemberDetailsStep - Store state:", {
+      activityMetadata,
+      ferryMetadata,
+      allMetadata,
+      isInitialized,
+    });
+  }
 
   // Get form defaults from store (single source of truth)
   const formDefaults = useMemo(() => {

@@ -177,7 +177,13 @@ export const useFerryStore = create<FerryStore>()(
         selectedFerry: {
           operator: selectedFerry.operator,
           ferryId: selectedFerry.id,
+          ferryName: selectedFerry.ferryName,
           routeData: selectedFerry.operatorData.originalResponse,
+          // Preserve complete ferry data including schedule
+          fromLocation: selectedFerry.route.from.name,
+          toLocation: selectedFerry.route.to.name,
+          schedule: selectedFerry.schedule,
+          duration: selectedFerry.schedule.duration,
         },
         selectedClass: {
           classId: selectedClass.id,
@@ -281,3 +287,19 @@ export const useFerryStore = create<FerryStore>()(
     },
   }))
 );
+
+// Global access for CheckoutAdapter
+if (typeof window !== "undefined") {
+  (window as any).__FERRY_STORE__ = {
+    get bookingSession() {
+      return useFerryStore.getState().bookingSession;
+    },
+    get searchParams() {
+      return useFerryStore.getState().searchParams;
+    },
+    getState: () => useFerryStore.getState(),
+    resetBookingSession: () => {
+      useFerryStore.setState({ bookingSession: null });
+    },
+  };
+}

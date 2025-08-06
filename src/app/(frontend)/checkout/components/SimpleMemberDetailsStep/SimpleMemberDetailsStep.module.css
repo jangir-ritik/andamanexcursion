@@ -1,0 +1,194 @@
+.memberDetailsStep {
+  padding: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.header p {
+  color: var(--color-text-secondary);
+}
+
+.bookingInfo {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+}
+
+.bookingInfo h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+}
+
+.bookingsList {
+  space: 1rem 0;
+}
+
+.bookingItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.bookingIcon {
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  border-radius: 50%;
+}
+
+.bookingDetails {
+  flex: 1;
+}
+
+.bookingDetails h4 {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-primary);
+}
+
+.bookingDetails p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.bookingPrice {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-primary);
+}
+
+.form {
+  space: 2rem 0;
+}
+
+.membersContainer {
+  space: 1.5rem 0;
+}
+
+.memberCard {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.memberHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.memberHeader h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.removeButton {
+  padding: 0.5rem 1rem;
+  background: var(--color-error);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.removeButton:hover {
+  background: var(--color-error-dark);
+}
+
+.memberFields {
+  display: grid;
+  gap: 1rem;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .fieldRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.addMemberSection {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.addMemberButton {
+  padding: 0.75rem 1.5rem;
+}
+
+.termsSection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+}
+
+.termsLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.termsCheckbox {
+  margin-top: 0.125rem;
+}
+
+.termsLink {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.termsLink:hover {
+  color: var(--color-primary-dark);
+}
+
+.termsError {
+  margin-top: 0.5rem;
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+.submitSection {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.submitButton {
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+}

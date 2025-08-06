@@ -106,7 +106,7 @@ export default function FerryBookingDetailPage() {
     }
   };
 
-  const loadSeatLayout = async (classId: string) => {
+  const loadSeatLayout = async (classId: string, forceRefresh = false) => {
     if (!ferry) return;
 
     setLoadingSeatLayout(true);
@@ -120,12 +120,22 @@ export default function FerryBookingDetailPage() {
           classId,
           travelDate: ferry.schedule.date,
           operator: ferry.operator,
+          forceRefresh, // Add cache-busting parameter
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setSeatLayout(data.data.seatLayout);
+        console.log(
+          `🪑 Seat layout updated: ${
+            data.data.seatLayout.seats.length
+          } total seats, available: ${
+            data.data.seatLayout.seats.filter(
+              (s: any) => s.status === "available"
+            ).length
+          }`
+        );
       } else {
         console.error("Failed to load seat layout");
       }
@@ -159,9 +169,50 @@ export default function FerryBookingDetailPage() {
   };
 
   const handleProceedToCheckout = () => {
+    // Validate seat selection for ferries that support seat selection
+    if (ferry?.features.supportsSeatSelection && selectedSeatIds.length === 0) {
+      alert("Please select your seats before proceeding to checkout.");
+      return;
+    }
+
+    // Validate required passenger count matches selected seats
+    const totalPassengers =
+      ferrySearchParams.adults + ferrySearchParams.children;
+    if (
+      ferry?.features.supportsSeatSelection &&
+      selectedSeatIds.length !== totalPassengers
+    ) {
+      alert(
+        `Please select ${totalPassengers} seat(s) for your ${totalPassengers} passenger(s).`
+      );
+      return;
+    }
+
     createBookingSession();
     router.push("/checkout?type=ferry");
   };
+
+  // Add function to refresh seat layout after returning from booking
+  const refreshSeatLayout = () => {
+    if (currentClassId) {
+      loadSeatLayout(currentClassId, true); // Force refresh
+    }
+  };
+
+  // Listen for when user returns to this page (e.g., after booking)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && currentClassId) {
+        // Page became visible - refresh seat layout
+        console.log("🔄 Page visible again, refreshing seat layout...");
+        refreshSeatLayout();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [currentClassId]);
 
   const handleBackToResults = () => {
     router.back();
@@ -322,25 +373,6 @@ export default function FerryBookingDetailPage() {
                 </h2>
 
                 <div className={styles.seatSelectionContainer}>
-                  {/* Seat Selection Progress */}
-                  {selectedClass && (
-                    <div className={styles.seatSelectionProgress}>
-                      <p>
-                        Selected {selectedSeatIds.length} of{" "}
-                        {ferrySearchParams.adults + ferrySearchParams.children}{" "}
-                        required seats
-                        {selectedSeatIds.length <
-                          ferrySearchParams.adults +
-                            ferrySearchParams.children &&
-                          ` (${
-                            ferrySearchParams.adults +
-                            ferrySearchParams.children -
-                            selectedSeatIds.length
-                          } more needed)`}
-                      </p>
-                    </div>
-                  )}
-
                   {loadingSeatLayout && (
                     <div className={styles.seatLoading}>
                       <div className={styles.spinner} />

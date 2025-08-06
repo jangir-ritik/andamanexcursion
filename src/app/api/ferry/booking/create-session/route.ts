@@ -7,18 +7,30 @@ import { v4 as uuidv4 } from "uuid";
 
 // In a real application, this would be stored in a database
 // For now, we'll use in-memory storage with expiration
-const bookingSessions = new Map<string, FerryBookingSession>();
+let bookingSessions: Map<string, FerryBookingSession>;
 
-// Clean up expired sessions every 5 minutes
-setInterval(() => {
-  const now = new Date();
-  for (const [sessionId, session] of bookingSessions.entries()) {
-    if (session.expiresAt < now) {
-      bookingSessions.delete(sessionId);
-      console.log(`🧹 Cleaned up expired booking session: ${sessionId}`);
-    }
+// Initialize sessions map
+if (typeof global !== "undefined") {
+  if (!global.bookingSessions) {
+    global.bookingSessions = new Map<string, FerryBookingSession>();
+
+    // Clean up expired sessions every 5 minutes
+    setInterval(() => {
+      const now = new Date();
+      for (const [sessionId, session] of global.bookingSessions?.entries() ||
+        []) {
+        if (session.expiresAt < now) {
+          global.bookingSessions?.delete(sessionId);
+          console.log(`🧹 Cleaned up expired booking session: ${sessionId}`);
+        }
+      }
+    }, 5 * 60 * 1000);
   }
-}, 5 * 60 * 1000);
+  bookingSessions =
+    global.bookingSessions || new Map<string, FerryBookingSession>();
+} else {
+  bookingSessions = new Map<string, FerryBookingSession>();
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -143,5 +155,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Export the sessions map for use in other API routes
-export { bookingSessions };
+// Helper function for internal use
+function getBookingSessions() {
+  return typeof global !== "undefined"
+    ? global.bookingSessions || bookingSessions
+    : bookingSessions;
+}

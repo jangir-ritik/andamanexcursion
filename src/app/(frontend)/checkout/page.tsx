@@ -1,157 +1,155 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+
+import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckoutFlow } from "./components/CheckoutFlow";
-import { useActivityStore } from "@/store/ActivityStore";
-import { useFerryStore } from "@/store/FerryStore";
-import { useCheckoutStore } from "@/store/CheckoutStore";
+import { useCheckoutAdapter } from "@/utils/CheckoutAdapter";
+import {
+  useSimpleCheckoutStore,
+  createDefaultFormData,
+} from "@/store/SimpleCheckoutStore";
+import { SimpleCheckoutFlow } from "./components/SimpleCheckoutFlow";
 import { Container } from "@/components/layout";
 import styles from "./page.module.css";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { cart, getCartTotal } = useActivityStore();
-  const { bookingSession } = useFerryStore();
-  const {
-    initializeFromActivityCart,
-    initializeFromFerryBooking,
-    initializeFromMixedBookings,
-    updateFromActivityCart,
-    reset,
-    isInitialized,
-  } = useCheckoutStore();
-  const isFirstRender = useRef(true);
 
-  // Get booking type from URL params
-  const bookingType = searchParams.get("type"); // "ferry" | "activity" | "mixed"
+  // Use the new adapter pattern - eliminates complex state management
+  const { bookingType, bookingData, requirements, isLoading, error } =
+    useCheckoutAdapter(searchParams);
 
-  // Handle different booking types initialization
+  // Use simplified store - only form state and navigation
+  const { formData, updateFormData, setError, reset } =
+    useSimpleCheckoutStore();
+
   useEffect(() => {
-    if (bookingType === "ferry") {
-      // Ferry-only checkout
-      if (!bookingSession) {
+    console.log("CheckoutPage - Strategic Adapter Pattern", {
+      bookingType,
+      bookingData,
+      requirements,
+      error,
+    });
+
+    // Handle errors gracefully
+    if (error) {
+      console.error("Checkout initialization error:", error);
+      setError(error);
+
+      // Redirect to appropriate page based on booking type
+      setTimeout(() => {
+        if (bookingType === "ferry") {
+          router.push("/ferry");
+        } else {
+          router.push("/activities");
+        }
+      }, 2000); // Give user time to see the error
+      return;
+    }
+
+    // Ensure we have valid booking data
+    if (!bookingData || bookingData.items.length === 0) {
+      console.warn("No booking data found, redirecting...");
+      if (bookingType === "ferry") {
         router.push("/ferry");
-        return;
-      }
-
-      // Convert ferry booking session to checkout format
-      // Create ferry booking structure compatible with ReviewStep
-      const ferryBooking = {
-        id: bookingSession.sessionId,
-        sessionId: bookingSession.sessionId,
-        ferry: {
-          id: bookingSession.selectedFerry?.ferryId || "",
-          operator: bookingSession.selectedFerry?.operator || "greenocean",
-          ferryName: `Ferry ${bookingSession.selectedFerry?.ferryId}`,
-          route: {
-            from: { name: bookingSession.searchParams.from, code: "" },
-            to: { name: bookingSession.searchParams.to, code: "" },
-          },
-          schedule: {
-            departureTime: "",
-            arrivalTime: "",
-            duration: "",
-            date: bookingSession.searchParams.date,
-          },
-        },
-        selectedClass: {
-          id: bookingSession.selectedClass?.classId || "",
-          name: bookingSession.selectedClass?.className || "",
-          price: bookingSession.selectedClass?.price || 0,
-          availableSeats: 100,
-          amenities: [],
-        },
-        selectedSeats: bookingSession.seatReservation?.seats || [],
-        // Structure needed for ReviewStep compatibility
-        fromLocation: bookingSession.searchParams.from,
-        toLocation: bookingSession.searchParams.to,
-        date: bookingSession.searchParams.date,
-        time: "", // We don't have this from the session
-        adults: bookingSession.searchParams.adults,
-        children: bookingSession.searchParams.children,
-        passengers: {
-          adults: bookingSession.searchParams.adults,
-          children: bookingSession.searchParams.children,
-          infants: bookingSession.searchParams.infants,
-        },
-        totalPrice: bookingSession.totalAmount,
-        bookingDate: bookingSession.createdAt.toISOString(),
-      };
-
-      if (isFirstRender.current || !isInitialized) {
-        initializeFromFerryBooking(ferryBooking);
-        isFirstRender.current = false;
-      }
-    } else if (bookingType === "mixed") {
-      // Mixed activity + ferry checkout (future enhancement)
-      // TODO: Implement mixed bookings
-      const hasActivities = cart && cart.length > 0;
-      const hasFerries = !!bookingSession;
-
-      if (!hasActivities && !hasFerries) {
-        router.push("/activities");
-        return;
-      }
-
-      // For now, handle as activity-only
-      if (hasActivities) {
-        initializeFromActivityCart(cart);
-      }
-    } else {
-      // Default: Activity-only checkout
-      if (!cart || cart.length === 0) {
-        router.push("/activities");
-        return;
-      }
-
-      if (isFirstRender.current || !isInitialized) {
-        initializeFromActivityCart(cart);
-        isFirstRender.current = false;
       } else {
-        updateFromActivityCart(cart);
+        router.push("/activities");
       }
+      return;
+    }
+
+    // Initialize form data if not already set
+    if (!formData && requirements) {
+      console.log(
+        "Creating default form data for",
+        requirements.totalRequired,
+        "passengers"
+      );
+      const defaultFormData = createDefaultFormData(requirements.totalRequired);
+      updateFormData(defaultFormData);
+    }
+
+    // Clear any existing errors if we have valid data
+    if (bookingData && !error) {
+      setError(null);
     }
   }, [
     bookingType,
-    cart,
-    bookingSession,
-    initializeFromActivityCart,
-    initializeFromFerryBooking,
-    updateFromActivityCart,
+    bookingData,
+    requirements,
+    error,
+    formData,
+    updateFormData,
+    setError,
     router,
-    isInitialized,
   ]);
 
-  // Show loading state for different booking types
-  const isLoading = () => {
-    if (bookingType === "ferry") {
-      return !bookingSession || !isInitialized;
-    } else if (bookingType === "mixed") {
-      return !isInitialized;
-    } else {
-      return !cart || cart.length === 0 || !isInitialized;
-    }
-  };
-
-  if (isLoading()) {
+  // Loading state - clean and simple
+  if (isLoading || !bookingData) {
     return (
-      <div className={styles.checkoutPage}>
-        <Container>
-          <div className={styles.emptyCart}>
-            <h1>Loading...</h1>
-            <p>Preparing your checkout...</p>
+      <Container>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold mb-2">
+              Initializing Checkout
+            </h2>
+            <p className="text-gray-600">
+              Setting up your {bookingType} booking...
+            </p>
           </div>
-        </Container>
-      </div>
+        </div>
+      </Container>
     );
   }
 
+  // Error state - user-friendly
+  if (error) {
+    return (
+      <Container>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <div className="text-red-600 mb-6">
+              <h2 className="text-2xl font-semibold mb-2">Checkout Error</h2>
+              <p className="text-gray-700">{error}</p>
+            </div>
+            <div className="space-x-4">
+              <button
+                onClick={() => router.back()}
+                className="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={() => router.push("/")}
+                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Home
+              </button>
+            </div>
+          </div>
+        </div>
+      </Container>
+    );
+  }
+
+  // Success state - render checkout flow
   return (
     <div className={styles.checkoutPage}>
-      <Container noPadding>
-        <CheckoutFlow />
+      <Container>
+        <SimpleCheckoutFlow
+          bookingData={bookingData}
+          requirements={requirements}
+        />
       </Container>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div>Loading checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
