@@ -136,3 +136,24 @@ input[type="checkbox"] {
 .text-blue-600 {
   color: #2563eb !important;
 }
+
+input[type="checkbox"] {
+  all: revert;
+  appearance: checkbox;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  background-color: #ffffff !important;
+  accent-color: var(--color-primary, #3e8cff);
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  color-scheme: light !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="checkbox"] {
+    color-scheme: light !important;
+    background-color: #ffffff !important;
+    border-color: #d1d5db !important;
+  }
+}

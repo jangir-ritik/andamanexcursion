@@ -4,7 +4,6 @@ import { useCheckoutStore, useCurrentStep } from "@/store/CheckoutStore";
 import { StepIndicator } from "@/app/(frontend)/plan-your-trip/components/StepIndicator";
 import { MemberDetailsStep } from "../MemberDetailsStep";
 import { ReviewStep } from "../ReviewStep";
-import { ConfirmationStep } from "../ConfirmationStep";
 import styles from "./CheckoutFlow.module.css";
 
 // Checkout steps configuration

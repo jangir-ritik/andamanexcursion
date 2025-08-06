@@ -1,17 +1,9 @@
-.memberDetailsStep {
-  padding: 2rem;
-}
-
 .header {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 2rem;
-  text-align: center;
-}
-
-.header h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-primary);
 }
 
 .header p {
@@ -30,10 +22,6 @@
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--color-text-primary);
-}
-
-.bookingsList {
-  space: 1rem 0;
 }
 
 .bookingItem {
@@ -166,6 +154,11 @@
 
 .termsCheckbox {
   margin-top: 0.125rem;
+}
+
+.termsText {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
 }
 
 .termsLink {

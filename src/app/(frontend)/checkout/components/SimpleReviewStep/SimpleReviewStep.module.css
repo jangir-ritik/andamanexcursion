@@ -1,18 +1,17 @@
-.reviewStep {
-  padding: 2rem;
-}
-
 .header {
-  text-align: center;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 2rem;
 }
 
-.header h2 {
+/* .header h2 {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-text-primary);
-}
+} */
 
 .header p {
   color: var(--color-text-secondary);
@@ -30,10 +29,6 @@
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--color-text-primary);
-}
-
-.bookingItems {
-  space: 1rem 0;
 }
 
 .bookingItem {
@@ -87,6 +82,9 @@
 .passengerInfo {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .itemPrice {
@@ -157,7 +155,7 @@
   font-weight: 500;
 }
 
-.passengerInfo {
+.passengerInfoGrid {
   display: grid;
   gap: 0.5rem;
 }

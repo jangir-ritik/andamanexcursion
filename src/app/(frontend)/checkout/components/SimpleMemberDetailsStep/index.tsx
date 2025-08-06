@@ -18,13 +18,11 @@ import type {
   UnifiedBookingData,
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
-import type {
-  MemberDetails,
-  CheckoutFormData,
-} from "@/store/SimpleCheckoutStore";
+import type { CheckoutFormData } from "@/store/SimpleCheckoutStore";
 import { COUNTRIES, GENDER_OPTIONS } from "../../schemas/checkoutSchemas";
-import { cn } from "@/utils/cn";
 import styles from "./SimpleMemberDetailsStep.module.css";
+import { SectionTitle } from "@/components/atoms";
+import { Ship, Target } from "lucide-react";
 
 // Simplified schema for member details
 const memberSchema = z.object({
@@ -183,7 +181,7 @@ export const SimpleMemberDetailsStep: React.FC<
   return (
     <div className={styles.memberDetailsStep}>
       <div className={styles.header}>
-        <h2>Passenger Details</h2>
+        <SectionTitle text="Passenger Details" specialWord="Passenger" />
         <p>
           Enter details for all passengers. The first passenger will be the
           primary contact.
@@ -197,7 +195,11 @@ export const SimpleMemberDetailsStep: React.FC<
           {bookingData.items.map((item, index) => (
             <div key={item.id} className={styles.bookingItem}>
               <div className={styles.bookingIcon}>
-                {item.type === "ferry" ? "🚢" : "🎯"}
+                {item.type === "ferry" ? (
+                  <Ship color="var(--color-primary)" size={24} />
+                ) : (
+                  <Target size={24} />
+                )}
               </div>
               <div className={styles.bookingDetails}>
                 <h4>{item.title}</h4>
@@ -353,7 +355,7 @@ export const SimpleMemberDetailsStep: React.FC<
                   onChange={(e) => onChange(e.target.checked)}
                   className={styles.termsCheckbox}
                 />
-                <span>
+                <span className={styles.termsText}>
                   I accept the{" "}
                   <a href="/terms" target="_blank" className={styles.termsLink}>
                     Terms and Conditions

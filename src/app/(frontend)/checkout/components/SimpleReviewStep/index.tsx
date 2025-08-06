@@ -9,6 +9,20 @@ import type {
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import styles from "./SimpleReviewStep.module.css";
+import { SectionTitle } from "@/components/atoms";
+import {
+  Ship,
+  Target,
+  Calendar,
+  Clock,
+  MapPin,
+  Ticket,
+  Armchair,
+  Users,
+  Phone,
+  Mail,
+  Loader2,
+} from "lucide-react";
 
 interface SimpleReviewStepProps {
   bookingData: UnifiedBookingData;
@@ -179,8 +193,8 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
   return (
     <div className={styles.reviewStep}>
       <div className={styles.header}>
-        <h2>Review Your Booking</h2>
-        <p>Please review all details before proceeding to payment</p>
+        <SectionTitle text="Review Your Booking" specialWord="Review" />
+        <p>Almost there! Give your details a quick look</p>
       </div>
 
       {/* Booking Summary */}
@@ -190,18 +204,32 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
           {bookingData.items.map((item, index) => (
             <div key={item.id} className={styles.bookingItem}>
               <div className={styles.itemIcon}>
-                {item.type === "ferry" ? "🚢" : "🎯"}
+                {item.type === "ferry" ? (
+                  <Ship color="var(--color-primary)" size={24} />
+                ) : (
+                  <Target size={24} />
+                )}
               </div>
               <div className={styles.itemDetails}>
                 <h4>{item.title}</h4>
                 <div className={styles.itemMeta}>
-                  <span>📅 {item.date}</span>
-                  {item.time && <span>🕐 {item.time}</span>}
-                  {item.location && <span>📍 {item.location}</span>}
+                  <span>
+                    <Calendar size={16} /> {item.date}
+                  </span>
+                  {item.time && (
+                    <span>
+                      <Clock size={16} /> {item.time}
+                    </span>
+                  )}
+                  {item.location && (
+                    <span>
+                      <MapPin size={16} /> {item.location}
+                    </span>
+                  )}
                   {/* Ferry-specific details */}
                   {item.type === "ferry" && item.ferry?.selectedClass && (
                     <span>
-                      🎫{" "}
+                      <Ticket size={16} />{" "}
                       {item.ferry.selectedClass.className ||
                         item.ferry.selectedClass.name}
                     </span>
@@ -210,15 +238,17 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                     item.ferry?.selectedSeats &&
                     item.ferry.selectedSeats.length > 0 && (
                       <span>
-                        🪑 Seats: {item.ferry.selectedSeats.join(", ")}
+                        <Armchair size={16} /> Seats:{" "}
+                        {item.ferry.selectedSeats.join(", ")}
                       </span>
                     )}
-                </div>
-                <div className={styles.passengerInfo}>
-                  {item.passengers.adults} adults, {item.passengers.children}{" "}
-                  children
-                  {item.passengers.infants > 0 &&
-                    `, ${item.passengers.infants} infants`}
+                  <div className={styles.passengerInfo}>
+                    <Users size={16} />
+                    {item.passengers.adults} adults, {item.passengers.children}{" "}
+                    children
+                    {item.passengers.infants > 0 &&
+                      `, ${item.passengers.infants} infants`}
+                  </div>
                 </div>
               </div>
               <div className={styles.itemPrice}>
@@ -250,7 +280,7 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                 </h4>
                 <span className={styles.passengerAge}>Age {member.age}</span>
               </div>
-              <div className={styles.passengerInfo}>
+              <div className={styles.passengerInfoGrid}>
                 <div className={styles.passengerRow}>
                   <span>Name:</span>
                   <span>{member.fullName}</span>
@@ -270,11 +300,15 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                 {member.isPrimary && (
                   <>
                     <div className={styles.passengerRow}>
-                      <span>WhatsApp:</span>
+                      <span>
+                        <Phone size={16} /> WhatsApp:
+                      </span>
                       <span>{member.whatsappNumber}</span>
                     </div>
                     <div className={styles.passengerRow}>
-                      <span>Email:</span>
+                      <span>
+                        <Mail size={16} /> Email:
+                      </span>
                       <span>{member.email}</span>
                     </div>
                   </>
@@ -303,7 +337,7 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
         >
           {isLoading ? (
             <>
-              <span className={styles.loader}></span>
+              <Loader2 size={16} className={styles.spinner} />
               Processing Payment...
             </>
           ) : (
