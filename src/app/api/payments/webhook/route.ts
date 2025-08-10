@@ -2,6 +2,10 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@/payload.config";
+import {
+  EmailService,
+  BookingStatusUpdate,
+} from "@/services/notifications/emailService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -117,6 +121,14 @@ async function handlePaymentCaptured(paymentEntity: any, payload: any) {
 
     // Update associated booking status if needed
     if (paymentRecord.bookingReference) {
+      // Get current booking to check status before update
+      const currentBooking = await payload.findByID({
+        collection: "bookings",
+        id: paymentRecord.bookingReference,
+      });
+
+      const oldStatus = currentBooking.status;
+
       await payload.update({
         collection: "bookings",
         id: paymentRecord.bookingReference,
@@ -125,6 +137,53 @@ async function handlePaymentCaptured(paymentEntity: any, payload: any) {
           status: "confirmed",
         },
       });
+
+      // Send status update email if status changed
+      if (
+        oldStatus !== "confirmed" &&
+        currentBooking.customerInfo?.customerEmail
+      ) {
+        try {
+          console.log(
+            "Sending booking status update email (payment captured)..."
+          );
+
+          const statusUpdateData: BookingStatusUpdate = {
+            bookingId: currentBooking.bookingId,
+            confirmationNumber: currentBooking.confirmationNumber,
+            customerName: currentBooking.customerInfo.primaryContactName,
+            customerEmail: currentBooking.customerInfo.customerEmail,
+            oldStatus: oldStatus,
+            newStatus: "confirmed",
+            message:
+              "Your payment has been processed successfully and your booking is now confirmed!",
+            updateDate: new Date().toISOString(),
+          };
+
+          const emailResult = await EmailService.sendBookingStatusUpdate(
+            statusUpdateData
+          );
+
+          if (!emailResult.success) {
+            console.error(
+              "Failed to send status update email:",
+              emailResult.error
+            );
+            // Log to booking record for admin visibility
+            await payload.update({
+              collection: "bookings",
+              id: paymentRecord.bookingReference,
+              data: {
+                internalNotes: `${
+                  currentBooking.internalNotes || ""
+                }\nStatus update email failed: ${emailResult.error}`,
+              },
+            });
+          }
+        } catch (emailError) {
+          console.error("Status update email service error:", emailError);
+        }
+      }
     }
 
     console.log("Payment captured successfully updated:", paymentEntity.id);
@@ -156,41 +215,75 @@ async function handlePaymentFailed(paymentEntity: any, payload: any) {
 
     const paymentRecord = payments.docs[0];
 
-    // Update payment record with failure details
+    // Update payment record
     await payload.update({
       collection: "payments",
       id: paymentRecord.id,
       data: {
         status: "failed",
-        failureReason: paymentEntity.error_description || "Payment failed",
-        errorCode: paymentEntity.error_code,
+        paymentMethod: paymentEntity.method || "unknown",
+        paymentDate: new Date(paymentEntity.created_at * 1000).toISOString(),
+        amount: paymentEntity.amount,
         razorpayData: {
           ...paymentRecord.razorpayData,
-          razorpayPaymentId: paymentEntity.id,
           razorpayWebhookData: paymentEntity,
+          failureReason: paymentEntity.error_reason,
+          failureDescription: paymentEntity.error_description,
         },
         gatewayResponse: {
           ...paymentRecord.gatewayResponse,
           webhook_failed_at: new Date().toISOString(),
           error_code: paymentEntity.error_code,
+          error_reason: paymentEntity.error_reason,
           error_description: paymentEntity.error_description,
         },
       },
     });
 
-    // Update associated booking status
+    // Update associated booking status and send email
     if (paymentRecord.bookingReference) {
+      const booking = await payload.findByID({
+        collection: "bookings",
+        id: paymentRecord.bookingReference,
+      });
+
       await payload.update({
         collection: "bookings",
         id: paymentRecord.bookingReference,
         data: {
           paymentStatus: "failed",
-          status: "cancelled",
+          status: "pending", // Keep as pending to allow retry
         },
       });
+
+      // Send payment failed email
+      if (booking.customerInfo?.customerEmail) {
+        try {
+          console.log("Sending payment failed notification email...");
+
+          const emailResult = await EmailService.sendPaymentFailedNotification({
+            customerEmail: booking.customerInfo.customerEmail,
+            customerName: booking.customerInfo.primaryContactName,
+            attemptedAmount: paymentEntity.amount / 100, // Convert from paisa to rupees
+            failureReason:
+              paymentEntity.error_description || paymentEntity.error_reason,
+            bookingType: booking.bookingType || "booking",
+            currency: "INR",
+          });
+
+          if (!emailResult.success) {
+            console.error(
+              "Failed to send payment failed email:",
+              emailResult.error
+            );
+          }
+        } catch (emailError) {
+          console.error("Payment failed email service error:", emailError);
+        }
+      }
     }
 
-    console.log("Payment failure updated:", paymentEntity.id);
+    console.log("Payment failed successfully updated:", paymentEntity.id);
   } catch (error) {
     console.error("Error handling payment failed:", error);
   }
