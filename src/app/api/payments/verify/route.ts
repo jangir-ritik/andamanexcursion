@@ -380,66 +380,93 @@ export async function POST(request: NextRequest) {
         if (bookingRecord.customerInfo?.customerEmail) {
           console.log("Sending booking confirmation email...");
 
-          // Prepare email data
-          const emailData: BookingData = {
-            bookingId: bookingRecord.bookingId,
-            confirmationNumber: bookingRecord.confirmationNumber,
-            customerName: bookingRecord.customerInfo.primaryContactName,
-            customerEmail: bookingRecord.customerInfo.customerEmail,
-            bookingDate: bookingRecord.bookingDate,
-            serviceDate: bookingData.items?.[0]?.date,
-            totalAmount: bookingRecord.pricing.totalAmount,
-            currency: bookingRecord.pricing.currency || "INR",
-            bookingType: bookingData.bookingType || "mixed",
-            items:
-              bookingData.items?.map((item: any) => ({
-                title:
-                  item.title ||
-                  (item.ferry?.ferryName
-                    ? `Ferry: ${item.ferry.ferryName}`
-                    : item.activityBooking?.activity?.title || "Booking Item"),
-                date: item.date || "",
-                time: item.time || "",
-                location: item.ferry
-                  ? `${item.ferry.fromLocation} → ${item.ferry.toLocation}`
-                  : item.activityBooking?.activity?.location?.name,
-                passengers: item.passengers
-                  ? (item.passengers.adults || 0) +
-                    (item.passengers.children || 0) +
-                    (item.passengers.infants || 0)
-                  : undefined,
-              })) || [],
-            passengers:
-              bookingData.members?.map((member: any) => ({
-                fullName: member.fullName,
-                age: member.age,
-                gender: member.gender,
-              })) || [],
-            specialRequests: bookingData.specialRequests,
-            contactPhone: bookingRecord.customerInfo.customerPhone,
-          };
-
-          const emailResult = await EmailService.sendBookingConfirmation(
-            emailData
-          );
-
-          if (emailResult.success) {
-            console.log("Booking confirmation email sent successfully");
-          } else {
-            console.error(
-              "Failed to send booking confirmation email:",
-              emailResult.error
-            );
-            // Log to booking record for admin visibility
+          // Validate required booking data - log warning but don't fail the booking process
+          if (
+            !bookingRecord.bookingId ||
+            !bookingRecord.confirmationNumber ||
+            !bookingRecord.bookingDate
+          ) {
+            console.warn("Missing required booking data for email:", {
+              bookingId: bookingRecord.bookingId,
+              confirmationNumber: bookingRecord.confirmationNumber,
+              bookingDate: bookingRecord.bookingDate,
+            });
+            // Log to booking record for admin visibility but don't fail the process
             await payload.update({
               collection: "bookings",
               id: bookingRecord.id,
               data: {
                 internalNotes: `${
                   bookingRecord.internalNotes || ""
-                }\nEmail notification failed: ${emailResult.error}`,
+                }\nWarning: Email notification skipped due to missing required data (${new Date().toISOString()})`,
               },
             });
+            console.warn(
+              "Skipping email notification due to missing required booking data"
+            );
+          } else {
+            // Prepare email data
+            const emailData: BookingData = {
+              bookingId: bookingRecord.bookingId || "",
+              confirmationNumber: bookingRecord.confirmationNumber || "",
+              customerName: bookingRecord.customerInfo.primaryContactName,
+              customerEmail: bookingRecord.customerInfo.customerEmail,
+              bookingDate: bookingRecord.bookingDate || "",
+              serviceDate: bookingData.items?.[0]?.date || "",
+              totalAmount: bookingRecord.pricing.totalAmount,
+              currency: bookingRecord.pricing.currency || "INR",
+              bookingType: bookingData.bookingType || "mixed",
+              items:
+                bookingData.items?.map((item: any) => ({
+                  title:
+                    item.title ||
+                    (item.ferry?.ferryName
+                      ? `Ferry: ${item.ferry.ferryName}`
+                      : item.activityBooking?.activity?.title ||
+                        "Booking Item"),
+                  date: item.date || "",
+                  time: item.time || "",
+                  location: item.ferry
+                    ? `${item.ferry.fromLocation} → ${item.ferry.toLocation}`
+                    : item.activityBooking?.activity?.location?.name,
+                  passengers: item.passengers
+                    ? (item.passengers.adults || 0) +
+                      (item.passengers.children || 0) +
+                      (item.passengers.infants || 0)
+                    : undefined,
+                })) || [],
+              passengers:
+                bookingData.members?.map((member: any) => ({
+                  fullName: member.fullName,
+                  age: member.age,
+                  gender: member.gender,
+                })) || [],
+              specialRequests: bookingData.specialRequests,
+              contactPhone: bookingRecord.customerInfo.customerPhone,
+            };
+
+            const emailResult = await EmailService.sendBookingConfirmation(
+              emailData
+            );
+
+            if (emailResult.success) {
+              console.log("Booking confirmation email sent successfully");
+            } else {
+              console.error(
+                "Failed to send booking confirmation email:",
+                emailResult.error
+              );
+              // Log to booking record for admin visibility
+              await payload.update({
+                collection: "bookings",
+                id: bookingRecord.id,
+                data: {
+                  internalNotes: `${
+                    bookingRecord.internalNotes || ""
+                  }\nEmail notification failed: ${emailResult.error}`,
+                },
+              });
+            }
           }
         } else {
           console.warn("No customer email found, skipping confirmation email");

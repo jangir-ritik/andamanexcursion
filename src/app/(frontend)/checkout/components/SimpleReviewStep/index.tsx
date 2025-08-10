@@ -227,19 +227,17 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                     </span>
                   )}
                   {/* Ferry-specific details */}
-                  {item.type === "ferry" && item.ferry?.selectedClass && (
+                  {item.type === "ferry" && item.selectedClass && (
                     <span>
-                      <Ticket size={16} />{" "}
-                      {item.ferry.selectedClass.className ||
-                        item.ferry.selectedClass.name}
+                      <Ticket size={16} /> {item.selectedClass.name}
                     </span>
                   )}
                   {item.type === "ferry" &&
-                    item.ferry?.selectedSeats &&
-                    item.ferry.selectedSeats.length > 0 && (
+                    item.selectedSeats &&
+                    item.selectedSeats.length > 0 && (
                       <span>
                         <Armchair size={16} /> Seats:{" "}
-                        {item.ferry.selectedSeats.join(", ")}
+                        {item.selectedSeats.join(", ")}
                       </span>
                     )}
                   <div className={styles.passengerInfo}>

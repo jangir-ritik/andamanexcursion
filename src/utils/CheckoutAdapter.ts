@@ -3,7 +3,20 @@
 // CheckoutAdapter - Unified interface for different booking types
 // Implements the "Source of Truth" pattern to eliminate complex state management
 
-// Remove unused type imports since we access stores via window object
+// Type imports for proper typing
+import type {
+  Activity,
+  ActivitySearchParams,
+  CartItem,
+} from "@/store/ActivityStore";
+import type {
+  UnifiedFerryResult,
+  FerryClass,
+} from "@/types/FerryBookingSession.types";
+import type {
+  MemberDetails,
+  CheckoutFormData,
+} from "@/store/SimpleCheckoutStore";
 
 // Unified interfaces
 export type BookingType = "activity" | "ferry" | "mixed";
@@ -30,11 +43,11 @@ export interface UnifiedBookingItem {
   time?: string;
   location?: string;
   // Activity-specific
-  activity?: any;
-  searchParams?: any;
+  activity?: Activity;
+  searchParams?: ActivitySearchParams;
   // Ferry-specific
-  ferry?: any;
-  selectedClass?: any;
+  ferry?: UnifiedFerryResult;
+  selectedClass?: FerryClass;
   selectedSeats?: string[];
 }
 
@@ -50,7 +63,7 @@ export interface PassengerRequirements {
 export interface PaymentData {
   bookingType: BookingType;
   items: UnifiedBookingItem[];
-  members: any[];
+  members: MemberDetails[];
   totalPrice: number;
   contactDetails: {
     primaryName: string;
@@ -117,7 +130,7 @@ export class CheckoutAdapter {
    */
   static preparePaymentData(
     bookingData: UnifiedBookingData,
-    formData: any
+    formData: CheckoutFormData
   ): PaymentData {
     return {
       bookingType: bookingData.type,
@@ -148,19 +161,19 @@ export class CheckoutAdapter {
     };
 
     const items: UnifiedBookingItem[] = activityStore.cart.map(
-      (cartItem: any) => ({
+      (cartItem: CartItem) => ({
         id: cartItem.id,
         type: "activity" as const,
         title: cartItem.activity.title || "Activity",
         passengers: {
           adults: cartItem.searchParams.adults || 0,
           children: cartItem.searchParams.children || 0,
-          infants: cartItem.searchParams.infants || 0,
+          infants: 0, // Infants are now combined into children in ActivitySearchParams
         },
         price: cartItem.totalPrice,
         date: cartItem.searchParams.date || "",
         time: cartItem.searchParams.time || "",
-        location: cartItem.activity.location || "",
+        location: cartItem.activity.coreInfo?.location?.[0]?.name || "",
         activity: cartItem.activity,
         searchParams: cartItem.searchParams,
       })

@@ -93,10 +93,10 @@ export class NotificationService {
         booking.communicationPreferences?.sendEmailUpdates !== false
       ) {
         const statusUpdateData: BookingStatusUpdate = {
-          bookingId: booking.bookingId,
-          confirmationNumber: booking.confirmationNumber,
-          customerName: booking.customerInfo.primaryContactName,
-          customerEmail: booking.customerInfo.customerEmail,
+          bookingId: booking.bookingId || "",
+          confirmationNumber: booking.confirmationNumber || "",
+          customerName: booking.customerInfo.primaryContactName || "",
+          customerEmail: booking.customerInfo.customerEmail || "",
           oldStatus: oldStatus,
           newStatus: newStatus,
           message: customMessage,
@@ -154,7 +154,7 @@ export class NotificationService {
         customerName,
         attemptedAmount,
         failureReason,
-        bookingType,
+        bookingType: (bookingType as "ferry" | "activity" | "mixed") || "mixed",
         currency: "INR",
       });
     } catch (error) {
@@ -196,10 +196,10 @@ export class NotificationService {
         booking.communicationPreferences?.sendEmailUpdates !== false
       ) {
         const reminderData: BookingStatusUpdate = {
-          bookingId: booking.bookingId,
-          confirmationNumber: booking.confirmationNumber,
-          customerName: booking.customerInfo.primaryContactName,
-          customerEmail: booking.customerInfo.customerEmail,
+          bookingId: booking.bookingId || "",
+          confirmationNumber: booking.confirmationNumber || "",
+          customerName: booking.customerInfo.primaryContactName || "",
+          customerEmail: booking.customerInfo.customerEmail || "",
           oldStatus: booking.status,
           newStatus: booking.status, // Same status, just a reminder
           message:
@@ -256,10 +256,10 @@ export class NotificationService {
    */
   private static transformBookingToEmailData(booking: any): BookingData {
     return {
-      bookingId: booking.bookingId,
-      confirmationNumber: booking.confirmationNumber,
-      customerName: booking.customerInfo.primaryContactName,
-      customerEmail: booking.customerInfo.customerEmail,
+      bookingId: booking.bookingId || "",
+      confirmationNumber: booking.confirmationNumber || "",
+      customerName: booking.customerInfo?.primaryContactName || "",
+      customerEmail: booking.customerInfo?.customerEmail || "",
       bookingDate: booking.bookingDate,
       serviceDate:
         booking.activities?.[0]?.serviceDate ||

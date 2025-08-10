@@ -58,15 +58,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             index: index,
             type: "Ferry" as const,
             title: item.title,
-            location: `${item.ferry?.fromLocation || "N/A"} → ${
-              item.ferry?.toLocation || "N/A"
+            location: `${item.ferry?.route?.from?.name || "N/A"} → ${
+              item.ferry?.route?.to?.name || "N/A"
             }`,
             date: item.date,
             time: item.ferry?.schedule?.departureTime || item.time || "N/A",
-            duration:
-              item.ferry?.schedule?.duration ||
-              item.ferry?.duration ||
-              "2h 30m",
+            duration: item.ferry?.schedule?.duration || "2h 30m",
             image: null,
             price: item.price,
             passengers: {
@@ -76,12 +73,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 (item.passengers.adults || 0) + (item.passengers.children || 0),
             },
             // Add ferry-specific details
-            seats: item.ferry?.selectedSeats || [],
+            seats: item.selectedSeats || [],
             ferryName: item.ferry?.ferryName || "Ferry",
-            class:
-              item.ferry?.selectedClass?.className ||
-              item.ferry?.selectedClass?.name ||
-              "N/A",
+            class: item.selectedClass?.name || "N/A",
           };
         }
         return null;
@@ -107,7 +101,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   };
 
   // Format time for display
-  const formatTime = (timeString: string) => {
+  const formatTime = (timeString: string | undefined) => {
     if (!timeString) return "N/A";
 
     // Handle slug format (e.g., "07-00", "14-30")

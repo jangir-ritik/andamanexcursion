@@ -1,3 +1,4 @@
+import React from "react";
 import { Resend } from "resend";
 import { BookingEmailTemplate } from "@/templates/email/BookingConfirmationTemplate";
 import { BookingStatusUpdateTemplate } from "@/templates/email/BookingStatusUpdateTemplate";
@@ -63,7 +64,7 @@ export class EmailService {
         from: `${this.FROM_NAME} <${this.FROM_EMAIL}>`,
         to: bookingData.customerEmail,
         subject: `Booking Confirmed - ${bookingData.confirmationNumber}`,
-        react: BookingEmailTemplate({ ...bookingData }),
+        react: BookingEmailTemplate({ ...bookingData }) as React.ReactElement,
         headers: {
           "X-Entity-Ref-ID": bookingData.bookingId,
           "X-Booking-Type": bookingData.bookingType,
@@ -107,7 +108,9 @@ export class EmailService {
         from: `${this.FROM_NAME} <${this.FROM_EMAIL}>`,
         to: updateData.customerEmail,
         subject,
-        react: BookingStatusUpdateTemplate({ ...updateData }),
+        react: BookingStatusUpdateTemplate({
+          ...updateData,
+        }) as React.ReactElement,
         headers: {
           "X-Entity-Ref-ID": updateData.bookingId,
           "X-Status-Update": `${updateData.oldStatus}->${updateData.newStatus}`,
@@ -151,7 +154,7 @@ export class EmailService {
         from: `${this.FROM_NAME} <${this.FROM_EMAIL}>`,
         to: bookingData.customerEmail,
         subject: "Payment Failed - Andaman Excursion",
-        react: PaymentFailedTemplate({ ...bookingData }),
+        react: PaymentFailedTemplate({ ...bookingData }) as React.ReactElement,
         headers: {
           "X-Payment-Failed": "true",
           "X-Amount": bookingData.attemptedAmount.toString(),
@@ -190,7 +193,7 @@ export class EmailService {
           from: `${this.FROM_NAME} <${this.FROM_EMAIL}>`,
           to: email,
           subject,
-          react: template(templateData),
+          react: React.createElement(template, templateData),
         });
 
         if (error) {
