@@ -52,6 +52,45 @@ const Pages: CollectionConfig = {
       ],
     },
 
+    // === DESTINATION-SPECIFIC FIELDS ===
+    {
+      name: "destinationInfo",
+      type: "group",
+      label: "Destination Settings",
+      admin: {
+        condition: (data) => data.basicInfo?.pageType === "destinations",
+        description: "Settings specific to destination pages",
+        position: "sidebar",
+      },
+      fields: [
+        {
+          name: "parentDestination",
+          type: "relationship",
+          relationTo: "pages",
+          filterOptions: ({ relationTo, data }) => {
+            return {
+              "basicInfo.pageType": { equals: "destinations" },
+              id: { not_equals: data.id }, // Prevent self-reference
+            };
+          },
+          admin: {
+            description:
+              "Select parent destination (for sub-destinations like beaches)",
+          },
+        },
+        {
+          name: "destinationType",
+          type: "select",
+          options: [
+            { label: "Main Destination", value: "main" },
+            { label: "Beach", value: "beach" },
+            { label: "Island", value: "island" },
+            { label: "Attraction", value: "attraction" },
+          ],
+        },
+      ],
+    },
+
     // === SEO & METADATA ===
     {
       name: "seoMeta",

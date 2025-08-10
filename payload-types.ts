@@ -261,6 +261,16 @@ export interface Page {
       | 'boat';
   };
   /**
+   * Settings specific to destination pages
+   */
+  destinationInfo?: {
+    /**
+     * Select parent destination (for sub-destinations like beaches)
+     */
+    parentDestination?: (string | null) | Page;
+    destinationType?: ('main' | 'beach' | 'island' | 'attraction') | null;
+  };
+  /**
    * Search engine optimization settings
    */
   seoMeta?: {
@@ -1874,6 +1884,12 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         pageType?: T;
+      };
+  destinationInfo?:
+    | T
+    | {
+        parentDestination?: T;
+        destinationType?: T;
       };
   seoMeta?:
     | T
