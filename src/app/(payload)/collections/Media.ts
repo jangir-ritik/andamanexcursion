@@ -1,12 +1,16 @@
+import path from "path";
 import { CollectionConfig } from "payload";
 
 const Media: CollectionConfig = {
   slug: "media",
   access: {
-    read: () => true, // Allow public read access
+    read: () => true,
+    create: ({ req: { user } }) => !!user,
+    update: ({ req: { user } }) => !!user,
+    delete: ({ req: { user } }) => !!user,
   },
   upload: {
-    staticDir: "public/media",
+    staticDir: path.resolve(process.cwd(), "public/media"),
     imageSizes: [
       {
         name: "thumbnail",
