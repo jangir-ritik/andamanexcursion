@@ -21,6 +21,11 @@ const isMongoObjectId = (str: string): boolean => {
   return /^[0-9a-f]{24}$/i.test(str);
 };
 
+// Check if file is a media file (image or video)
+const isMediaFile = (url: string): boolean => {
+  return /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|ogg|avi|mov|wmv)$/i.test(url);
+};
+
 export const useImageSrc = (
   input: string | Media | null | undefined,
   options: UseImageSrcOptions = {}
@@ -60,7 +65,7 @@ export const useImageSrc = (
       // Handle MongoDB ObjectID directly
       if (isMongoObjectId(input)) {
         // First try to check if we have a file with this ID as name in the static directory
-        if (input.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+        if (isMediaFile(input)) {
           return {
             src: `/media/${input}`,
             isValid: true,
@@ -68,9 +73,10 @@ export const useImageSrc = (
             originalSrc: input,
           };
         }
-        // Fallback to API path
-        const mediaPath = `/api/media/file/${input}`;
-        if (debug) console.log("Converting MongoDB ID to path:", mediaPath);
+        // Fallback to converted path (API to direct media path)
+        const mediaPath = `/media/${input}`;
+        if (debug)
+          console.log("Converting MongoDB ID to direct path:", mediaPath);
         return {
           src: mediaPath,
           isValid: true,
@@ -92,10 +98,25 @@ export const useImageSrc = (
     // Process Media objects
     if (isMediaObject(input)) {
       const mediaObj = input as Media;
-      // Try to get preferred size first
       let url = mediaObj.url;
-      if (preferredSize && mediaObj.sizes?.[preferredSize]) {
-        url = mediaObj.sizes[preferredSize];
+
+      // Only use sized versions for images, not videos
+      if (
+        preferredSize &&
+        mediaObj.sizes &&
+        mediaObj.mimeType?.startsWith("image/")
+      ) {
+        const sizes = mediaObj.sizes as Record<string, any>;
+        const sizedVersion = sizes[preferredSize];
+
+        if (sizedVersion) {
+          if (typeof sizedVersion === "string") {
+            url = sizedVersion;
+          } else if (sizedVersion && typeof sizedVersion === "object") {
+            // Handle both { url: string } and direct string formats
+            url = sizedVersion.url || sizedVersion.filename || url;
+          }
+        }
       }
 
       const processedSrc = processApiPath(url || "", baseUrl);
@@ -127,8 +148,8 @@ export const useImageSrc = (
 
 // Helper function to process API paths
 const processApiPath = (url: string, baseUrl: string): string => {
-  // Handle filenames - serve from static directory if they look like filenames
-  if (typeof url === "string" && url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+  // Handle media files - serve from static directory if they look like media files
+  if (typeof url === "string" && isMediaFile(url)) {
     if (url.startsWith("/")) {
       return url; // Already a path
     } else {
@@ -136,14 +157,15 @@ const processApiPath = (url: string, baseUrl: string): string => {
     }
   }
 
-  // Handle MongoDB ObjectID directly - fallback to API
+  // Handle MongoDB ObjectID directly - convert to direct media path
   if (isMongoObjectId(url)) {
-    return `/api/media/file/${url}`;
+    return `/media/${url}`;
   }
 
-  // Handle API paths that need to be converted to direct paths
+  // Convert API paths to direct media paths
   if (url.startsWith("/api/media/file/")) {
-    return url; // Keep API media paths as they are
+    const filename = url.replace("/api/media/file/", "");
+    return `/media/${filename}`;
   }
 
   // Handle relative URLs

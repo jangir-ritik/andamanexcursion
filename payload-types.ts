@@ -174,6 +174,20 @@ export interface Media {
   id: string;
   alt: string;
   caption?: string | null;
+  mediaType: 'image' | 'video';
+  videoSettings?: {
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    /**
+     * Required for autoplay to work in most browsers
+     */
+    muted?: boolean | null;
+    controls?: boolean | null;
+    /**
+     * Thumbnail image shown before video plays
+     */
+    poster?: (string | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -581,7 +595,7 @@ export interface Page {
               /**
                * Upload a video file; should be a .mp4 file; size should be less than 10MB
                */
-              video: string | Media;
+              media: string | Media;
               /**
                * Alt text for the video
                */
@@ -1858,6 +1872,16 @@ export interface UsersSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  mediaType?: T;
+  videoSettings?:
+    | T
+    | {
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        controls?: T;
+        poster?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2202,7 +2226,7 @@ export interface PagesSelect<T extends boolean = true> {
                     title?: T;
                     specialWord?: T;
                     description?: T;
-                    video?: T;
+                    media?: T;
                     alt?: T;
                     id?: T;
                     blockName?: T;

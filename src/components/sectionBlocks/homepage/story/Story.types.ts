@@ -8,6 +8,8 @@ export interface StoryContent {
   title: string;
   specialWord: string;
   description: string;
-  video: Media;
+  media: Media;
   alt: string;
+  mediaType: "video" | "image";
+  poster?: Media | string;
 }

@@ -19,7 +19,7 @@ export const storyBlock: Block = {
       required: true,
     },
     {
-      name: "video",
+      name: "media",
       type: "upload",
       relationTo: "media",
       required: true,

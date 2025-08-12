@@ -44,7 +44,15 @@ const Media: CollectionConfig = {
       },
     ],
     adminThumbnail: "thumbnail",
-    mimeTypes: ["image/*"],
+    mimeTypes: [
+      "image/*",
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/avi",
+      "video/mov",
+      "video/wmv",
+    ],
   },
   fields: [
     {
@@ -56,7 +64,75 @@ const Media: CollectionConfig = {
       name: "caption",
       type: "text",
     },
+    {
+      name: "mediaType",
+      type: "select",
+      options: [
+        { label: "Image", value: "image" },
+        { label: "Video", value: "video" },
+      ],
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    // Video-specific fields
+    {
+      name: "videoSettings",
+      type: "group",
+      admin: {
+        condition: (data) => data.mediaType === "video",
+      },
+      fields: [
+        {
+          name: "autoplay",
+          type: "checkbox",
+          defaultValue: false,
+        },
+        {
+          name: "loop",
+          type: "checkbox",
+          defaultValue: false,
+        },
+        {
+          name: "muted",
+          type: "checkbox",
+          defaultValue: true,
+          admin: {
+            description: "Required for autoplay to work in most browsers",
+          },
+        },
+        {
+          name: "controls",
+          type: "checkbox",
+          defaultValue: true,
+        },
+        {
+          name: "poster",
+          type: "upload",
+          relationTo: "media",
+          admin: {
+            description: "Thumbnail image shown before video plays",
+          },
+        },
+      ],
+    },
   ],
+  hooks: {
+    beforeChange: [
+      ({ data, req }) => {
+        // Auto-detect media type based on MIME type
+        if (req.file && req.file.mimetype) {
+          if (req.file.mimetype.startsWith("image/")) {
+            data.mediaType = "image";
+          } else if (req.file.mimetype.startsWith("video/")) {
+            data.mediaType = "video";
+          }
+        }
+        return data;
+      },
+    ],
+  },
 };
 
 export default Media;
