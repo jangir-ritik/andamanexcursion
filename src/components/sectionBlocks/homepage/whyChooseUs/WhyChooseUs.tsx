@@ -116,15 +116,24 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
               <Chip
                 icon="/icons/misc/smilie.svg"
                 text="Customer Satisfaction"
+                className={styles.chip}
               />
             </div>
 
             <div className={styles.personalizedServiceChip} aria-hidden="true">
-              <Chip icon="/icons/misc/star.svg" text="Personalized Service" />
+              <Chip
+                icon="/icons/misc/star.svg"
+                text="Personalized Service"
+                className={styles.chip}
+              />
             </div>
 
             <div className={styles.localExpertsChip} aria-hidden="true">
-              <Chip icon="/icons/misc/crown.svg" text="Local Experts" />
+              <Chip
+                icon="/icons/misc/crown.svg"
+                text="Local Experts"
+                className={styles.chip}
+              />
             </div>
           </Column>
         </Row>

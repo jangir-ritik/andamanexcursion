@@ -191,31 +191,6 @@ export const pageService = {
         (doc: any) => doc.destinationInfo?.destinationType === "sub"
       );
 
-      console.log(
-        "🔍 DEBUG: PageService - getDestinationsForNavigation result:",
-        {
-          totalDocs: docs.length,
-          mainCount: mainDestinations.length,
-          subCount: subDestinations.length,
-          mainTitles: mainDestinations.map((m: any) => ({
-            id: m.id,
-            title: m.title,
-            mainCategorySlug: m.destinationInfo?.mainCategorySlug,
-            showInNav: m.destinationInfo?.navigationSettings?.showInNavigation,
-            navOrder: m.destinationInfo?.navigationSettings?.navigationOrder,
-          })),
-          subDetails: subDestinations.map((s: any) => ({
-            id: s.id,
-            title: s.title,
-            subcategorySlug: s.destinationInfo?.subcategorySlug,
-            parentMainCategory: s.destinationInfo?.parentMainCategory,
-            parentType: typeof s.destinationInfo?.parentMainCategory,
-            showInNav: s.destinationInfo?.navigationSettings?.showInNavigation,
-            navOrder: s.destinationInfo?.navigationSettings?.navigationOrder,
-          })),
-        }
-      );
-
       return {
         main: mainDestinations,
         sub: subDestinations,

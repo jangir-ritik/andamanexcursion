@@ -120,6 +120,10 @@
   object-fit: cover;
 }
 
+.chip {
+  background-color: var(--color-bg-primary);
+}
+
 /* Chip positioning */
 .customerSatisfactionChip {
   position: absolute;
