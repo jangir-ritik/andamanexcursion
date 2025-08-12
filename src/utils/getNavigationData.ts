@@ -154,7 +154,7 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                       manualConfig.set(mainCat.mainCategorySlug, mainCat);
                     });
 
-                  // Add manual configurations first
+                  // Sort manual configurations alphabetically by mainCategory name
                   item.destinationConfig
                     .filter(
                       (mainCat: DestinationMainCategory) => mainCat.isActive
@@ -163,7 +163,7 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                       (
                         a: DestinationMainCategory,
                         b: DestinationMainCategory
-                      ) => a.order - b.order
+                      ) => a.mainCategory.localeCompare(b.mainCategory)
                     )
                     .forEach((mainCat: DestinationMainCategory) => {
                       const mainCategoryItem: NavigationItem = {
@@ -175,9 +175,16 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                       };
 
                       if (mainCat.subcategories?.length) {
+                        // Sort subcategories alphabetically by name
                         mainCategoryItem.children = mainCat.subcategories
                           .filter(
                             (subCat: DestinationSubcategory) => subCat.isActive
+                          )
+                          .sort(
+                            (
+                              a: DestinationSubcategory,
+                              b: DestinationSubcategory
+                            ) => a.name.localeCompare(b.name)
                           )
                           .map((subCat: DestinationSubcategory) => ({
                             label: subCat.name,
@@ -206,15 +213,9 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                     subsByMain.get(parentId).push(subDest);
                   });
 
-                  // Create navigation structure from page data
+                  // Sort main destinations alphabetically by title
                   destinationsData.main
-                    .sort(
-                      (a: any, b: any) =>
-                        (a.destinationInfo?.navigationSettings
-                          ?.navigationOrder || 0) -
-                        (b.destinationInfo?.navigationSettings
-                          ?.navigationOrder || 0)
-                    )
+                    .sort((a: any, b: any) => a.title.localeCompare(b.title))
                     .slice(0, item.displaySettings?.maxDropdownItems || 10)
                     .forEach((mainDest: any) => {
                       const mainCategoryItem: NavigationItem = {
@@ -237,13 +238,10 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                           5 // Minimum 5 subs per category
                         );
 
+                        // Sort subcategories alphabetically by title
                         mainCategoryItem.children = subs
-                          .sort(
-                            (a: any, b: any) =>
-                              (a.destinationInfo?.navigationSettings
-                                ?.navigationOrder || 0) -
-                              (b.destinationInfo?.navigationSettings
-                                ?.navigationOrder || 0)
+                          .sort((a: any, b: any) =>
+                            a.title.localeCompare(b.title)
                           )
                           .slice(0, maxSubsPerCategory)
                           .map((subDest: any) => ({
@@ -270,7 +268,6 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                 baseItem.categoryType = "destinations";
               }
               break;
-
             case "custom":
               if (item.customItems?.length) {
                 baseItem.children = item.customItems

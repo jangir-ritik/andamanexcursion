@@ -103,27 +103,75 @@ export const MobileNav = React.memo(({ items, className }: MobileNavProps) => {
                         />
                       </NavigationMenuTrigger>
                       <NavigationMenuContent className={styles.dropdownContent}>
-                        <div
-                          className={clsx(
-                            styles.dropdown,
-                            item.children.length > 6 && styles.dropdownGrid
-                          )}
-                        >
-                          {item.children.map((child) => (
-                            <CustomLink
-                              key={child.label}
-                              href={child.href}
-                              className={clsx(
-                                styles.link,
-                                styles.childLink,
-                                pathname === child.href && styles.active
-                              )}
-                              onClick={handleLinkClick}
-                            >
-                              {child.label}
-                            </CustomLink>
-                          ))}
-                        </div>
+                        {item.categoryType === "destinations" ? (
+                          // Special nested layout for destinations in mobile
+                          <div className={styles.nestedDestinationsDropdown}>
+                            {item.children?.map((mainCategory) => (
+                              <div
+                                key={mainCategory.label}
+                                className={styles.mainCategorySection}
+                              >
+                                <CustomLink
+                                  href={mainCategory.href}
+                                  className={clsx(
+                                    styles.link,
+                                    styles.mainCategoryLink,
+                                    pathname === mainCategory.href &&
+                                      styles.active
+                                  )}
+                                  onClick={handleLinkClick}
+                                >
+                                  {mainCategory.label}
+                                </CustomLink>
+                                {mainCategory.children?.length && (
+                                  <div className={styles.subcategoryList}>
+                                    {mainCategory.children.map(
+                                      (subcategory) => (
+                                        <CustomLink
+                                          key={subcategory.label}
+                                          href={subcategory.href}
+                                          className={clsx(
+                                            styles.link,
+                                            styles.childLink,
+                                            styles.subcategoryLink,
+                                            pathname === subcategory.href &&
+                                              styles.active
+                                          )}
+                                          onClick={handleLinkClick}
+                                        >
+                                          {subcategory.label}
+                                        </CustomLink>
+                                      )
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          // Standard dropdown layout for other navigation types
+                          <div
+                            className={clsx(
+                              styles.dropdown,
+                              item.children.length > 6 && styles.dropdownGrid
+                            )}
+                          >
+                            {item.children.map((child) => (
+                              <CustomLink
+                                key={child.label}
+                                href={child.href}
+                                className={clsx(
+                                  styles.link,
+                                  styles.childLink,
+                                  pathname === child.href && styles.active
+                                )}
+                                onClick={handleLinkClick}
+                              >
+                                {child.label}
+                              </CustomLink>
+                            ))}
+                          </div>
+                        )}
                       </NavigationMenuContent>
                     </div>
                   )}

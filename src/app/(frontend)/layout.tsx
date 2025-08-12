@@ -99,7 +99,7 @@ export default async function RootLayout({
 }>) {
   // Fetch data server-side
   const bookingData = await fetchBookingData();
-  const navItems = await getNavigationData();
+  const navItems = await getNavigationData(); // get navigation data from payload
 
   return (
     <html
