@@ -19,10 +19,12 @@ import { testimonialsBlock } from "./testimonials";
 import { secondaryBannerBlock } from "./secondaryBanner";
 import { planInFourEasyStepsBlock } from "./planInFourEasySteps";
 import { trustedFerriesBlock } from "./trustedFerries";
+import { serviceFeatureBlock } from "./serviceFeature";
 
 export const contentBlocks: Block[] = [
   heroBlock,
   serviceTeaserBlock,
+  serviceFeatureBlock,
   faqBlock,
   largeCardBlock,
   triviaBlock,

@@ -239,7 +239,7 @@ export interface Page {
    */
   title: string;
   /**
-   * URL path for this page (e.g., /about-us)
+   * URL path for this page (auto-generated from title, but can be customized)
    */
   slug: string;
   /**
@@ -261,14 +261,44 @@ export interface Page {
       | 'boat';
   };
   /**
-   * Settings specific to destination pages
+   * Configure this destination page. Main destinations appear as bold categories in navigation, sub-destinations appear as indented items underneath their parent.
    */
   destinationInfo?: {
     /**
-     * Select parent destination (for sub-destinations like beaches)
+     * Is this a main category or a sub-destination?
      */
-    parentDestination?: (string | null) | Page;
-    destinationType?: ('main' | 'beach' | 'island' | 'attraction') | null;
+    destinationType: 'main' | 'sub';
+    /**
+     * URL slug for this main category (auto-generated from page title, but can be customized)
+     */
+    mainCategorySlug?: string | null;
+    /**
+     * Select the main destination category this belongs to (Port Blair, Havelock, etc.)
+     */
+    parentMainCategory?: (string | null) | Page;
+    /**
+     * URL slug for this sub-destination (auto-generated from page title, but can be customized)
+     */
+    subcategorySlug?: string | null;
+    /**
+     * What type of destination is this?
+     */
+    subcategoryType?:
+      | ('beach' | 'island' | 'attraction' | 'museum' | 'point' | 'sports' | 'cave' | 'waterfall' | 'other')
+      | null;
+    /**
+     * Control how this destination appears in the header navigation dropdown. Destinations are automatically included in navigation - you can control visibility and order here.
+     */
+    navigationSettings?: {
+      /**
+       * Display this destination in the header navigation
+       */
+      showInNavigation?: boolean | null;
+      /**
+       * Order in navigation dropdown (lower numbers first)
+       */
+      navigationOrder?: number | null;
+    };
   };
   /**
    * Search engine optimization settings
@@ -324,6 +354,20 @@ export interface Page {
               id?: string | null;
               blockName?: string | null;
               blockType: 'serviceTeaser';
+            }
+          | {
+              title: string;
+              /**
+               * Word to highlight in the title
+               */
+              specialWord?: string | null;
+              description?: string | null;
+              image?: (string | null) | Media;
+              ctaText?: string | null;
+              ctaHref?: string | null;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'serviceFeature';
             }
           | {
               title: string;
@@ -493,7 +537,14 @@ export interface Page {
             }
           | {
               title: string;
+              /**
+               * Special word to highlight in the title
+               */
               specialWord?: string | null;
+              /**
+               * Brief overview of reaching the destination
+               */
+              description?: string | null;
               cards?:
                 | {
                     title: string;
@@ -1888,8 +1939,17 @@ export interface PagesSelect<T extends boolean = true> {
   destinationInfo?:
     | T
     | {
-        parentDestination?: T;
         destinationType?: T;
+        mainCategorySlug?: T;
+        parentMainCategory?: T;
+        subcategorySlug?: T;
+        subcategoryType?: T;
+        navigationSettings?:
+          | T
+          | {
+              showInNavigation?: T;
+              navigationOrder?: T;
+            };
       };
   seoMeta?:
     | T
@@ -1918,6 +1978,18 @@ export interface PagesSelect<T extends boolean = true> {
                     blockName?: T;
                   };
               serviceTeaser?:
+                | T
+                | {
+                    title?: T;
+                    specialWord?: T;
+                    description?: T;
+                    image?: T;
+                    ctaText?: T;
+                    ctaHref?: T;
+                    id?: T;
+                    blockName?: T;
+                  };
+              serviceFeature?:
                 | T
                 | {
                     title?: T;
@@ -2097,6 +2169,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     specialWord?: T;
+                    description?: T;
                     cards?:
                       | T
                       | {
@@ -2795,7 +2868,7 @@ export interface Navigation {
         /**
          * Type of navigation item
          */
-        type: 'simple' | 'activities' | 'packages' | 'specials' | 'custom';
+        type: 'simple' | 'activities' | 'packages' | 'specials' | 'destinations' | 'custom';
         /**
          * Display text for the navigation item
          */
@@ -2820,6 +2893,50 @@ export interface Navigation {
          * Select package categories to show in dropdown
          */
         packageCategories?: (string | PackageCategory)[] | null;
+        /**
+         * OPTIONAL: Manual override for destination navigation. Leave empty to auto-populate from destination pages in the Pages collection.
+         */
+        destinationConfig?:
+          | {
+              /**
+               * Main destination category (e.g., Port Blair, Havelock, Neil Island)
+               */
+              mainCategory: string;
+              /**
+               * URL slug for the main category (e.g., port-blair, havelock, neil-island)
+               */
+              mainCategorySlug: string;
+              /**
+               * Subcategories/specific locations within this main category
+               */
+              subcategories?:
+                | {
+                    /**
+                     * Name of the subcategory/location
+                     */
+                    name: string;
+                    /**
+                     * URL slug for the subcategory
+                     */
+                    slug: string;
+                    /**
+                     * Show this subcategory in navigation
+                     */
+                    isActive?: boolean | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              /**
+               * Show this main category in navigation
+               */
+              isActive?: boolean | null;
+              /**
+               * Display order for this main category
+               */
+              order?: number | null;
+              id?: string | null;
+            }[]
+          | null;
         /**
          * Custom dropdown items (use for destinations, etc.)
          */
@@ -2866,6 +2983,23 @@ export interface NavigationSelect<T extends boolean = true> {
         unique?: T;
         activityCategories?: T;
         packageCategories?: T;
+        destinationConfig?:
+          | T
+          | {
+              mainCategory?: T;
+              mainCategorySlug?: T;
+              subcategories?:
+                | T
+                | {
+                    name?: T;
+                    slug?: T;
+                    isActive?: T;
+                    id?: T;
+                  };
+              isActive?: T;
+              order?: T;
+              id?: T;
+            };
         customItems?:
           | T
           | {

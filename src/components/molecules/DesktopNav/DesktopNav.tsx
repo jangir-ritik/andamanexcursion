@@ -84,26 +84,66 @@ export const DesktopNav = React.memo(
                   <NavigationMenuContent
                     className={styles.navigationMenuContent}
                   >
-                    <div
-                      className={clsx(
-                        styles.navigationMenuDropdown,
-                        item.children.length > 6 &&
-                          styles.navigationMenuDropdownGrid
-                      )}
-                    >
-                      {item.children.map((child) => (
-                        <CustomLink
-                          className={clsx(
-                            styles.navigationMenuLink,
-                            pathname === child.href && styles.active
-                          )}
-                          key={child.label}
-                          href={child.href}
-                        >
-                          {child.label}
-                        </CustomLink>
-                      ))}
-                    </div>
+                    {item.categoryType === "destinations" ? (
+                      // Special nested layout for destinations
+                      <div className={styles.nestedDestinationsDropdown}>
+                        {item.children?.map((mainCategory) => (
+                          <div
+                            key={mainCategory.label}
+                            className={styles.mainCategorySection}
+                          >
+                            <CustomLink
+                              href={mainCategory.href}
+                              className={clsx(
+                                styles.mainCategoryLink,
+                                pathname === mainCategory.href && styles.active
+                              )}
+                            >
+                              {mainCategory.label}
+                            </CustomLink>
+                            {mainCategory.children?.length && (
+                              <div className={styles.subcategoryList}>
+                                {mainCategory.children.map((subcategory) => (
+                                  <CustomLink
+                                    key={subcategory.label}
+                                    href={subcategory.href}
+                                    className={clsx(
+                                      styles.subcategoryLink,
+                                      pathname === subcategory.href &&
+                                        styles.active
+                                    )}
+                                  >
+                                    {subcategory.label}
+                                  </CustomLink>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      // Standard dropdown layout for other navigation types
+                      <div
+                        className={clsx(
+                          styles.navigationMenuDropdown,
+                          item.children.length > 6 &&
+                            styles.navigationMenuDropdownGrid
+                        )}
+                      >
+                        {item.children.map((child) => (
+                          <CustomLink
+                            className={clsx(
+                              styles.navigationMenuLink,
+                              pathname === child.href && styles.active
+                            )}
+                            key={child.label}
+                            href={child.href}
+                          >
+                            {child.label}
+                          </CustomLink>
+                        ))}
+                      </div>
+                    )}
                   </NavigationMenuContent>
                 </div>
               )}

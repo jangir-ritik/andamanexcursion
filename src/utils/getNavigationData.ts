@@ -1,4 +1,4 @@
-import { NavigationItem } from "@/components/organisms/Header/Header.types";
+import { NavigationItem } from "@/components/molecules/DesktopNav/DesktopNav.types";
 import { navigationService } from "@/services/payload/collections/navigation";
 import { cache } from "react";
 
@@ -34,6 +34,20 @@ interface CustomItem {
   label: string;
   href: string;
   isActive: boolean;
+}
+
+interface DestinationSubcategory {
+  name: string;
+  slug: string;
+  isActive: boolean;
+}
+
+interface DestinationMainCategory {
+  mainCategory: string;
+  mainCategorySlug: string;
+  subcategories: DestinationSubcategory[];
+  isActive: boolean;
+  order: number;
 }
 
 // Cache the navigation data for the duration of the request
@@ -114,6 +128,146 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                     label: category.name,
                     href: `/specials/${category.slug}`,
                   }));
+              }
+              break;
+
+            case "destinations":
+              // Auto-populate destinations from page data (primary method)
+              try {
+                const { pageService } = await import(
+                  "@/services/payload/collections/pages"
+                );
+                const destinationsData =
+                  await pageService.getDestinationsForNavigation();
+
+                const nestedChildren: NavigationItem[] = [];
+
+                // Use manual configuration as override/supplement if provided
+                if (item.destinationConfig?.length) {
+                  // Manual configuration takes precedence - merge with page data
+                  const manualConfig = new Map();
+                  item.destinationConfig
+                    .filter(
+                      (mainCat: DestinationMainCategory) => mainCat.isActive
+                    )
+                    .forEach((mainCat: DestinationMainCategory) => {
+                      manualConfig.set(mainCat.mainCategorySlug, mainCat);
+                    });
+
+                  // Add manual configurations first
+                  item.destinationConfig
+                    .filter(
+                      (mainCat: DestinationMainCategory) => mainCat.isActive
+                    )
+                    .sort(
+                      (
+                        a: DestinationMainCategory,
+                        b: DestinationMainCategory
+                      ) => a.order - b.order
+                    )
+                    .forEach((mainCat: DestinationMainCategory) => {
+                      const mainCategoryItem: NavigationItem = {
+                        label: mainCat.mainCategory,
+                        href: `/destinations/${mainCat.mainCategorySlug}`,
+                        isMainCategory: true,
+                        categoryType: "destinations",
+                        isClickable: true,
+                      };
+
+                      if (mainCat.subcategories?.length) {
+                        mainCategoryItem.children = mainCat.subcategories
+                          .filter(
+                            (subCat: DestinationSubcategory) => subCat.isActive
+                          )
+                          .map((subCat: DestinationSubcategory) => ({
+                            label: subCat.name,
+                            href: `/destinations/${mainCat.mainCategorySlug}/${subCat.slug}`,
+                            isSubCategory: true,
+                            categoryType: "destinations",
+                          }));
+                      }
+
+                      nestedChildren.push(mainCategoryItem);
+                    });
+                } else if (destinationsData.main.length > 0) {
+                  // Auto-populate from page data when no manual config
+                  const subsByMain = new Map();
+
+                  destinationsData.sub.forEach((subDest: any) => {
+                    const parentId =
+                      typeof subDest.destinationInfo?.parentMainCategory ===
+                      "string"
+                        ? subDest.destinationInfo.parentMainCategory
+                        : subDest.destinationInfo?.parentMainCategory?.id;
+
+                    if (!subsByMain.has(parentId)) {
+                      subsByMain.set(parentId, []);
+                    }
+                    subsByMain.get(parentId).push(subDest);
+                  });
+
+                  // Create navigation structure from page data
+                  destinationsData.main
+                    .sort(
+                      (a: any, b: any) =>
+                        (a.destinationInfo?.navigationSettings
+                          ?.navigationOrder || 0) -
+                        (b.destinationInfo?.navigationSettings
+                          ?.navigationOrder || 0)
+                    )
+                    .slice(0, item.displaySettings?.maxDropdownItems || 10)
+                    .forEach((mainDest: any) => {
+                      const mainCategoryItem: NavigationItem = {
+                        label: mainDest.title,
+                        href: `/destinations/${mainDest.destinationInfo?.mainCategorySlug}`,
+                        isMainCategory: true,
+                        categoryType: "destinations",
+                        isClickable: true,
+                      };
+
+                      // Add subcategories
+                      const subs = subsByMain.get(mainDest.id) || [];
+
+                      if (subs.length > 0) {
+                        const maxSubsPerCategory = Math.max(
+                          Math.floor(
+                            (item.displaySettings?.maxDropdownItems || 10) /
+                              destinationsData.main.length
+                          ),
+                          5 // Minimum 5 subs per category
+                        );
+
+                        mainCategoryItem.children = subs
+                          .sort(
+                            (a: any, b: any) =>
+                              (a.destinationInfo?.navigationSettings
+                                ?.navigationOrder || 0) -
+                              (b.destinationInfo?.navigationSettings
+                                ?.navigationOrder || 0)
+                          )
+                          .slice(0, maxSubsPerCategory)
+                          .map((subDest: any) => ({
+                            label: subDest.title,
+                            href: `/destinations/${mainDest.destinationInfo?.mainCategorySlug}/${subDest.destinationInfo?.subcategorySlug}`,
+                            isSubCategory: true,
+                            categoryType: "destinations",
+                          }));
+                      }
+
+                      nestedChildren.push(mainCategoryItem);
+                    });
+                }
+
+                baseItem.children = nestedChildren;
+                baseItem.categoryType = "destinations";
+              } catch (error) {
+                console.error(
+                  "Error auto-populating destinations from pages:",
+                  error
+                );
+                // Fallback to empty destinations menu
+                baseItem.children = [];
+                baseItem.categoryType = "destinations";
               }
               break;
 

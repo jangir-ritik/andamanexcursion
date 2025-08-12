@@ -38,50 +38,41 @@ export const Trivia = ({
   >([]);
 
   const textRef = useRef<HTMLParagraphElement>(null);
-  const highlightRefs = useRef<(HTMLSpanElement | null)[]>([]);
-
-  // Initialize refs array based on highlightedPhrases length
-  useEffect(() => {
-    highlightRefs.current = highlightRefs.current.slice(
-      0,
-      highlightedPhrases.length
-    );
-  }, [highlightedPhrases]);
+  const highlightRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
 
   // Calculate underline positions
   const calculateUnderlineMetrics = () => {
-    if (textRef.current && highlightRefs.current.length) {
+    if (textRef.current && highlightRefs.current.size > 0) {
       const textRect = textRef.current.getBoundingClientRect();
 
-      const positions = highlightRefs.current
-        .map((ref) => {
-          if (!ref) return null;
+      const positions: Array<{ left: number; top: number; width: number }> = [];
 
-          const highlightRect = ref.getBoundingClientRect();
+      highlightRefs.current.forEach((ref, index) => {
+        if (!ref) return;
 
-          // Calculate position relative to the text container
-          const left = highlightRect.left - textRect.left;
-          const top = highlightRect.bottom - textRect.top;
+        const highlightRect = ref.getBoundingClientRect();
 
-          return {
-            left,
-            top: top - 8,
-            width: highlightRect.width,
-          };
-        })
-        .filter(Boolean) as Array<{ left: number; top: number; width: number }>;
+        // Calculate position relative to the text container
+        const left = highlightRect.left - textRect.left;
+        const top = highlightRect.bottom - textRect.top;
+
+        positions[index] = {
+          left,
+          top: top - 8,
+          width: highlightRect.width,
+        };
+      });
 
       setUnderlinePositions(positions);
     }
   };
 
-  // Calculate underline metrics when component mounts
+  // Calculate underline metrics when component mounts and on resize
   useEffect(() => {
-    const timeoutId = setTimeout(calculateUnderlineMetrics, 0);
+    const timeoutId = setTimeout(calculateUnderlineMetrics, 100);
     return () => clearTimeout(timeoutId);
   }, [highlightedPhrases]);
 
-  // Handle resize for responsive updates
   useEffect(() => {
     const handleResize = () => {
       calculateUnderlineMetrics();
@@ -91,43 +82,85 @@ export const Trivia = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Process text to include highlighted phrases
+  // Improved text processing that handles single and multiple highlights better
   const renderText = () => {
-    let processedText = text;
+    if (!highlightedPhrases.length) {
+      return text;
+    }
 
-    // Create a temporary div to hold our text content
-    return (
-      <p ref={textRef} className={styles.triviaText}>
-        {highlightedPhrases.length === 0
-          ? text
-          : highlightedPhrases.reduce(
-              (acc: React.ReactNode[], phraseObj, index) => {
-                const phrase = phraseObj.phrase;
-                const parts = processedText.split(phrase);
-                if (parts.length === 1) return acc;
-
-                processedText = parts.slice(1).join(phrase);
-
-                return [
-                  ...acc,
-                  parts[0],
-                  <span
-                    key={`highlight-${index}`}
-                    ref={(el) => {
-                      if (el) {
-                        highlightRefs.current[index] = el;
-                      }
-                    }}
-                    className={styles.highlight}
-                  >
-                    {phrase}
-                  </span>,
-                ];
-              },
-              []
-            )}
-      </p>
+    // Sort phrases by length (longest first) to handle overlapping cases
+    const sortedPhrases = [...highlightedPhrases].sort(
+      (a, b) => b.phrase.length - a.phrase.length
     );
+
+    // Create a map to track which parts of text have been highlighted
+    let textParts: Array<{
+      text: string;
+      isHighlight: boolean;
+      index?: number;
+    }> = [{ text, isHighlight: false }];
+
+    // Process each phrase
+    sortedPhrases.forEach((phraseObj, originalIndex) => {
+      const newParts: typeof textParts = [];
+
+      textParts.forEach((part) => {
+        if (part.isHighlight) {
+          // Don't modify already highlighted parts
+          newParts.push(part);
+          return;
+        }
+
+        const parts = part.text.split(phraseObj.phrase);
+        if (parts.length === 1) {
+          // Phrase not found in this part
+          newParts.push(part);
+          return;
+        }
+
+        // Add the parts with highlights
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i]) {
+            newParts.push({ text: parts[i], isHighlight: false });
+          }
+
+          // Add highlight between parts (except after the last part)
+          if (i < parts.length - 1) {
+            newParts.push({
+              text: phraseObj.phrase,
+              isHighlight: true,
+              index: highlightedPhrases.findIndex(
+                (p) => p.phrase === phraseObj.phrase
+              ),
+            });
+          }
+        }
+      });
+
+      textParts = newParts;
+    });
+
+    // Convert to React elements
+    return textParts
+      .map((part, index) => {
+        if (part.isHighlight && part.index !== undefined) {
+          return (
+            <span
+              key={`highlight-${part.index}-${index}`}
+              ref={(el) => {
+                if (el && part.index !== undefined) {
+                  highlightRefs.current.set(part.index, el);
+                }
+              }}
+              className={styles.highlight}
+            >
+              {part.text}
+            </span>
+          );
+        }
+        return part.text || null;
+      })
+      .filter(Boolean);
   };
 
   return (
@@ -135,20 +168,18 @@ export const Trivia = ({
       id={id}
       aria-labelledby={`${id}-title`}
       className={`${styles.triviaSection} ${className}`}
+      noPadding
     >
-      <Column
-        fullWidth
-        gap="var(--space-6)"
-        className={styles.contentContainer}
-        responsive
-        responsiveGap="var(--space-4)"
-        responsiveAlignItems="start"
-      >
-        <h2 id={`${id}-title`} className={styles.triviaTitle}>
-          {title}
-        </h2>
+      <div className={styles.contentContainer}>
+        {title && (
+          <h2 id={`${id}-title`} className={styles.triviaTitle}>
+            {title}
+          </h2>
+        )}
         <div className={styles.triviaContent}>
-          {renderText()}
+          <p ref={textRef} className={styles.triviaText}>
+            {renderText()}
+          </p>
 
           {underlinePositions.map((position, index) => (
             <div
@@ -162,9 +193,9 @@ export const Trivia = ({
             >
               <Image
                 src={underlineGraphic}
-                alt="underline"
+                alt=""
                 width={position.width}
-                height={5}
+                height={6}
                 style={{
                   width: "100%",
                   height: "6px",
@@ -176,7 +207,7 @@ export const Trivia = ({
             </div>
           ))}
         </div>
-      </Column>
+      </div>
     </Section>
   );
 };

@@ -6,4 +6,6 @@ export interface HoverExpandCardProps {
   className?: string;
   isExpanded?: boolean;
   onHover?: () => void;
+  dataPosition?: number;
+  style?: React.CSSProperties;
 }

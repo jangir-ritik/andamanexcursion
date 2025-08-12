@@ -27,7 +27,25 @@ const Pages: CollectionConfig = {
       type: "text",
       required: true,
       admin: {
-        description: "URL path for this page (e.g., /about-us)",
+        description:
+          "URL path for this page (auto-generated from title, but can be customized)",
+        position: "sidebar",
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value, data }) => {
+            // Auto-generate slug from title if not provided
+            if (!value && data?.title) {
+              return data.title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+                .replace(/\s+/g, "-") // Replace spaces with hyphens
+                .replace(/-+/g, "-") // Replace multiple hyphens with single
+                .trim();
+            }
+            return value;
+          },
+        ],
       },
     },
     {
@@ -59,33 +77,154 @@ const Pages: CollectionConfig = {
       label: "Destination Settings",
       admin: {
         condition: (data) => data.basicInfo?.pageType === "destinations",
-        description: "Settings specific to destination pages",
+        description:
+          "Configure this destination page. Main destinations appear as bold categories in navigation, sub-destinations appear as indented items underneath their parent.",
         position: "sidebar",
       },
       fields: [
         {
-          name: "parentDestination",
+          name: "destinationType",
+          type: "select",
+          required: true,
+          options: [
+            { label: "Main Destination Category", value: "main" },
+            { label: "Sub-Destination (Beach/Attraction)", value: "sub" },
+          ],
+          admin: {
+            description: "Is this a main category or a sub-destination?",
+          },
+        },
+        // Fields for MAIN destinations (Port Blair, Havelock, etc.)
+        {
+          name: "mainCategorySlug",
+          type: "text",
+          required: true,
+          admin: {
+            condition: (data, siblingData) =>
+              siblingData?.destinationType === "main",
+            description:
+              "URL slug for this main category (auto-generated from page title, but can be customized)",
+          },
+          hooks: {
+            beforeValidate: [
+              ({ value, data }) => {
+                // Auto-generate mainCategorySlug from title if not provided and this is a main destination
+                if (
+                  !value &&
+                  data?.title &&
+                  data?.destinationInfo?.destinationType === "main"
+                ) {
+                  return data.title
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+                    .replace(/\s+/g, "-") // Replace spaces with hyphens
+                    .replace(/-+/g, "-") // Replace multiple hyphens with single
+                    .trim();
+                }
+                return value;
+              },
+            ],
+          },
+        },
+        // Fields for SUB destinations (specific locations)
+        {
+          name: "parentMainCategory",
           type: "relationship",
           relationTo: "pages",
+          required: true,
           filterOptions: ({ relationTo, data }) => {
             return {
               "basicInfo.pageType": { equals: "destinations" },
+              "destinationInfo.destinationType": { equals: "main" },
               id: { not_equals: data.id }, // Prevent self-reference
             };
           },
           admin: {
+            condition: (data, siblingData) =>
+              siblingData?.destinationType === "sub",
             description:
-              "Select parent destination (for sub-destinations like beaches)",
+              "Select the main destination category this belongs to (Port Blair, Havelock, etc.)",
           },
         },
         {
-          name: "destinationType",
+          name: "subcategorySlug",
+          type: "text",
+          required: true,
+          admin: {
+            condition: (data, siblingData) =>
+              siblingData?.destinationType === "sub",
+            description:
+              "URL slug for this sub-destination (auto-generated from page title, but can be customized)",
+          },
+          hooks: {
+            beforeValidate: [
+              ({ value, data }) => {
+                // Auto-generate subcategorySlug from title if not provided and this is a sub destination
+                if (
+                  !value &&
+                  data?.title &&
+                  data?.destinationInfo?.destinationType === "sub"
+                ) {
+                  return data.title
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+                    .replace(/\s+/g, "-") // Replace spaces with hyphens
+                    .replace(/-+/g, "-") // Replace multiple hyphens with single
+                    .trim();
+                }
+                return value;
+              },
+            ],
+          },
+        },
+        {
+          name: "subcategoryType",
           type: "select",
           options: [
-            { label: "Main Destination", value: "main" },
             { label: "Beach", value: "beach" },
             { label: "Island", value: "island" },
             { label: "Attraction", value: "attraction" },
+            { label: "Museum", value: "museum" },
+            { label: "Point/Viewpoint", value: "point" },
+            { label: "Sports Complex", value: "sports" },
+            { label: "Cave", value: "cave" },
+            { label: "Waterfall", value: "waterfall" },
+            { label: "Other", value: "other" },
+          ],
+          admin: {
+            condition: (data, siblingData) =>
+              siblingData?.destinationType === "sub",
+            description: "What type of destination is this?",
+          },
+        },
+        // Navigation Integration Fields
+        {
+          name: "navigationSettings",
+          type: "group",
+          label: "Navigation Settings",
+          admin: {
+            description:
+              "Control how this destination appears in the header navigation dropdown. Destinations are automatically included in navigation - you can control visibility and order here.",
+          },
+          fields: [
+            {
+              name: "showInNavigation",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description:
+                  "Display this destination in the header navigation",
+              },
+            },
+            {
+              name: "navigationOrder",
+              type: "number",
+              defaultValue: 0,
+              admin: {
+                description:
+                  "Order in navigation dropdown (lower numbers first)",
+              },
+            },
           ],
         },
       ],
@@ -142,7 +281,7 @@ const Pages: CollectionConfig = {
             { label: "Published", value: "published" },
             { label: "Archived", value: "archived" },
           ],
-          defaultValue: "draft",
+          defaultValue: "published",
           admin: {
             description: "Publishing status of this page",
           },
@@ -157,6 +296,83 @@ const Pages: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    beforeValidate: [
+      async ({ data, operation, req }) => {
+        // Guard against undefined data
+        if (!data) return;
+
+        // Validation for destination pages
+        if (
+          data.basicInfo?.pageType === "destinations" &&
+          data.destinationInfo
+        ) {
+          const {
+            destinationType,
+            mainCategorySlug,
+            subcategorySlug,
+            parentMainCategory,
+          } = data.destinationInfo;
+
+          // Validate main category slug format
+          if (destinationType === "main") {
+            if (!mainCategorySlug) {
+              throw new Error(
+                "Main Category Slug is required for main destinations"
+              );
+            }
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(mainCategorySlug)) {
+              throw new Error(
+                "Main Category Slug must be lowercase, alphanumeric, and use hyphens for spaces"
+              );
+            }
+          }
+
+          // Validate subcategory slug format
+          if (destinationType === "sub") {
+            if (!subcategorySlug) {
+              throw new Error(
+                "Subcategory Slug is required for sub-destinations"
+              );
+            }
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(subcategorySlug)) {
+              throw new Error(
+                "Subcategory Slug must be lowercase, alphanumeric, and use hyphens for spaces"
+              );
+            }
+            if (!parentMainCategory) {
+              throw new Error(
+                "Parent Main Category is required for sub-destinations"
+              );
+            }
+          }
+
+          // Sync main slug field with mainCategorySlug for consistency
+          if (destinationType === "main" && mainCategorySlug) {
+            data.slug = mainCategorySlug;
+          } else if (destinationType === "sub" && subcategorySlug) {
+            // For sub-destinations, use the subcategory slug as the main slug
+            data.slug = subcategorySlug;
+          }
+        }
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        // Log navigation updates for cache clearing
+        if (doc.basicInfo?.pageType === "destinations") {
+          console.log(`Destination page ${operation}d: ${doc.title}`, {
+            destinationType: doc.destinationInfo?.destinationType,
+            mainCategorySlug: doc.destinationInfo?.mainCategorySlug,
+            subcategorySlug: doc.destinationInfo?.subcategorySlug,
+          });
+
+          // TODO: Clear navigation cache here if you have caching implemented
+          // await clearNavigationCache();
+        }
+      },
+    ],
+  },
 };
 
 export default Pages;

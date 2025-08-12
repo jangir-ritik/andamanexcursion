@@ -8,7 +8,8 @@ import { DesktopNav } from "@/components/molecules/DesktopNav/DesktopNav";
 import { MobileNav } from "@/components/molecules/MobileNav/MobileNav";
 import styles from "./Header.module.css";
 import logo from "@icons/logo.svg";
-import type { HeaderProps, NavigationItem } from "./Header.types";
+import type { HeaderProps } from "./Header.types";
+import type { NavigationItem } from "@/components/molecules/DesktopNav/DesktopNav.types";
 
 // Throttle function to limit how often a function runs
 const throttle = (callback: Function, delay = 250) => {
@@ -46,7 +47,7 @@ export const Header = React.memo(
     const [prevScrollPos, setPrevScrollPos] = useState(0);
     const [visible, setVisible] = useState(true);
     const [scrolled, setScrolled] = useState(false);
-    
+
     // Memoize the scroll handler with useCallback to prevent unnecessary re-renders
     const handleScroll = useCallback(
       throttle(() => {

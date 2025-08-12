@@ -11,6 +11,8 @@ export const HoverExpandCard: React.FC<HoverExpandCardProps> = ({
   className = "",
   isExpanded = false,
   onHover,
+  dataPosition,
+  style,
 }) => {
   const cardClasses = [
     styles.card,
@@ -21,7 +23,12 @@ export const HoverExpandCard: React.FC<HoverExpandCardProps> = ({
     .join(" ");
 
   return (
-    <div className={cardClasses} onMouseEnter={onHover}>
+    <div
+      className={cardClasses}
+      onMouseEnter={onHover}
+      data-position={dataPosition}
+      style={style}
+    >
       <ImageContainer
         src={image}
         alt={imageAlt}

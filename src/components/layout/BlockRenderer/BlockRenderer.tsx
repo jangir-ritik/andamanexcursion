@@ -24,6 +24,7 @@ import {
   WhyChooseUs,
 } from "@/components/sectionBlocks/homepage";
 import { Page } from "@payload-types";
+import { FeatureSection } from "@/components/molecules/FeatureSection/FeatureSection";
 
 const blockComponentsMap = {
   hero: Banner,
@@ -39,12 +40,12 @@ const blockComponentsMap = {
   topActivityCategories: TopActivityCategories,
   topAdventures: TopAdventures,
   testimonials: Testimonials,
-  // Add more block types as needed
+  serviceFeature: FeatureSection,
   serviceTeaser: ServiceTeaser,
   trivia: Trivia,
   experience: ExperienceSection,
-  howToReach: null, // Add component when available
-  visualCategoryGrid: VisualCategoryGrid, // Add component when available
+  howToReach: null,
+  visualCategoryGrid: VisualCategoryGrid,
   planInFourEasySteps: PlanInFourEasySteps,
   trustedFerries: TrustedFerriesBlock,
 } as const;
@@ -79,7 +80,7 @@ export function BlockRenderer({ blocks }: BlockRendererProps) {
 
         return (
           <Component
-            key={id || `${blockType}-${index}`} // ✅ Use index as fallback
+            key={id || `${blockType}-${index}`}
             id={id || undefined}
             content={content as any}
           />

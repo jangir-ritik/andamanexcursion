@@ -25,6 +25,7 @@ export const Navigation: GlobalConfig = {
             { label: "Activities Dropdown", value: "activities" },
             { label: "Packages Dropdown", value: "packages" },
             { label: "Specials Dropdown", value: "specials" },
+            { label: "Destinations Dropdown", value: "destinations" },
             { label: "Custom Dropdown", value: "custom" },
           ],
           admin: {
@@ -91,6 +92,87 @@ export const Navigation: GlobalConfig = {
           filterOptions: {
             "displaySettings.isActive": { equals: true },
           },
+        },
+        // Destinations Configuration (Optional - Auto-populated from Pages)
+        {
+          name: "destinationConfig",
+          type: "array",
+          admin: {
+            condition: (data, siblingData) =>
+              siblingData?.type === "destinations",
+            description:
+              "OPTIONAL: Manual override for destination navigation. Leave empty to auto-populate from destination pages in the Pages collection.",
+          },
+          fields: [
+            {
+              name: "mainCategory",
+              type: "text",
+              required: true,
+              admin: {
+                description:
+                  "Main destination category (e.g., Port Blair, Havelock, Neil Island)",
+              },
+            },
+            {
+              name: "mainCategorySlug",
+              type: "text",
+              required: true,
+              admin: {
+                description:
+                  "URL slug for the main category (e.g., port-blair, havelock, neil-island)",
+              },
+            },
+            {
+              name: "subcategories",
+              type: "array",
+              admin: {
+                description:
+                  "Subcategories/specific locations within this main category",
+              },
+              fields: [
+                {
+                  name: "name",
+                  type: "text",
+                  required: true,
+                  admin: {
+                    description: "Name of the subcategory/location",
+                  },
+                },
+                {
+                  name: "slug",
+                  type: "text",
+                  required: true,
+                  admin: {
+                    description: "URL slug for the subcategory",
+                  },
+                },
+                {
+                  name: "isActive",
+                  type: "checkbox",
+                  defaultValue: true,
+                  admin: {
+                    description: "Show this subcategory in navigation",
+                  },
+                },
+              ],
+            },
+            {
+              name: "isActive",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show this main category in navigation",
+              },
+            },
+            {
+              name: "order",
+              type: "number",
+              defaultValue: 0,
+              admin: {
+                description: "Display order for this main category",
+              },
+            },
+          ],
         },
         // // Specials Categories Relationship (assuming you have this collection)
         // {
@@ -162,9 +244,12 @@ export const Navigation: GlobalConfig = {
               defaultValue: 10,
               admin: {
                 condition: (data, siblingData) =>
-                  ["activities", "packages", "specials"].includes(
-                    siblingData?.type
-                  ),
+                  [
+                    "activities",
+                    "packages",
+                    "specials",
+                    "destinations",
+                  ].includes(siblingData?.type),
                 description: "Maximum number of items to show in dropdown",
               },
             },

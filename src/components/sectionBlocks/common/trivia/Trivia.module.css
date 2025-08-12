@@ -4,19 +4,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: fit-content;
 }
 
 .contentContainer {
   max-width: var(--layout-container-max-width);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: var(--space-6);
 }
 
 .triviaTitle {
   font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
-  font-size: var(--font-size-2xl);
-  line-height: 30px;
+  /* Responsive title size */
+  font-size: clamp(var(--font-size-xl), 2.5vw, var(--font-size-2xl));
+  line-height: 1.2;
   text-align: center;
   color: var(--color-text-primary);
   margin: 0;
@@ -27,54 +33,80 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .triviaText {
   font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-4xl);
-  line-height: 63px;
+  /* Responsive text size that scales smoothly */
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
+  line-height: 1.4;
   text-align: center;
   color: var(--color-black);
   margin: 0;
+  max-width: 100%;
+  /* word-wrap: break-word; */
+  /* hyphens: auto; */
 }
 
 .highlight {
   position: relative;
   color: var(--color-secondary);
   font-family: var(--font-family-display);
-  white-space: nowrap;
+  /* Allow wrapping for long highlighted phrases */
+  /* white-space: normal; */
+  /* word-break: break-word; */
 }
 
 .underlineWrapper {
   position: absolute;
   z-index: 1;
   pointer-events: none;
+  transform-origin: left bottom;
+  /* Ensure underline stays in place during animations */
+  will-change: transform;
 }
 
+/* Tablet styles */
 @media (max-width: 1200px) {
   .triviaSection {
     padding: var(--space-10) var(--space-8);
   }
-
-  .triviaText {
-    font-size: var(--font-size-3xl);
-    line-height: 48px;
-  }
 }
 
+/* Mobile styles */
 @media (max-width: 768px) {
   .triviaSection {
     padding: var(--space-8) var(--space-4);
   }
 
-  .triviaTitle {
-    font-size: var(--font-size-xl);
+  .contentContainer {
+    gap: var(--space-4);
   }
 
   .triviaText {
-    /* font-size: var(--font-size-2xl); */
-    line-height: 36px;
+    /* Ensure minimum readable size on mobile */
+    font-size: clamp(var(--font-size-lg), 5vw, var(--font-size-2xl));
+    line-height: 1.3;
+  }
+
+  .highlight {
+    /* Better mobile handling for highlights */
+    display: inline;
+    white-space: normal;
+  }
+}
+
+/* Small mobile styles */
+@media (max-width: 480px) {
+  .triviaSection {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .triviaText {
+    /* Smaller but still readable on very small screens */
+    font-size: clamp(var(--font-size-base), 4.5vw, var(--font-size-xl));
   }
 }

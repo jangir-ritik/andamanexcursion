@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Row, Section } from "@/components/layout";
 import { DescriptionText, SectionTitle } from "@/components/atoms";
 import { FeatureCard } from "@/components/molecules/Cards/FeatureCard/FeatureCard";
-import styles from "../page.module.css";
+import styles from "./ExperienceSection.module.css";
 import Image from "next/image";
 import stepsWave from "@public/graphics/stepsWave.svg";
 import { Media } from "@payload-types";

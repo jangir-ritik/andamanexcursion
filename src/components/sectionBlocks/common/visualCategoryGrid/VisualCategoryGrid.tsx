@@ -28,9 +28,17 @@ export const VisualCategoryGrid: React.FC<{
     setExpandedCardIndex(index);
   };
 
+  // Simple class logic
+  const gridClasses = [
+    styles.famousFishesGrid,
+    expandedCardIndex !== null ? styles.hasExpanded : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <Section className={styles.famousFishes}>
-      <Container>
+      <Container noPadding>
         <Row
           fullWidth
           className={styles.famousFishesTitleContainer}
@@ -48,23 +56,20 @@ export const VisualCategoryGrid: React.FC<{
             className={styles.famousFishesDescription}
           />
         </Row>
-        <Row
-          gap="var(--space-6)"
-          className={styles.famousFishesGrid}
-          responsive
-          responsiveGap="var(--space-4)"
-          responsiveAlignItems="center"
-        >
+
+        <div className={gridClasses}>
           {content.categories.map((category, index) => (
             <HoverExpandCard
               key={category.title}
               {...category}
-              className={styles.famousFishesCard}
+              className={`${styles.famousFishesCard} ${
+                index === expandedCardIndex ? styles.expanded : ""
+              }`}
               isExpanded={index === expandedCardIndex}
               onHover={() => handleCardClick(index)}
             />
           ))}
-        </Row>
+        </div>
       </Container>
     </Section>
   );

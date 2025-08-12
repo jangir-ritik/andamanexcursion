@@ -11,6 +11,16 @@ export const howToReachBlock: Block = {
     {
       name: "specialWord",
       type: "text",
+      admin: {
+        description: "Special word to highlight in the title",
+      },
+    },
+    {
+      name: "description",
+      type: "textarea",
+      admin: {
+        description: "Brief overview of reaching the destination",
+      },
     },
     {
       name: "cards",

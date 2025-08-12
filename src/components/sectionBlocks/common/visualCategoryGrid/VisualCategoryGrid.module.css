@@ -1,3 +1,5 @@
+/* Clean & Smooth VisualCategoryGrid.module.css */
+
 .main {
   display: flex;
   flex-direction: column;
@@ -103,21 +105,46 @@
   line-height: 1.6;
 }
 
+/* CLEAN SMOOTH GRID - Maintains layout integrity */
 .famousFishesGrid {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-5);
   width: 100%;
-  justify-content: center;
   max-width: 1200px;
+  margin: 0 auto;
+  /* Smooth but stable */
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 .famousFishesCard {
-  flex: none;
+  /* Equal flexible width */
+  flex: 1 1 0;
+  min-width: 200px;
+  position: relative;
+  /* Smooth transitions without layout disruption */
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+              filter 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  will-change: transform, filter;
+  transform: scale(1);
 }
 
-/* Responsive Design */
+/* Expanded card gets larger scale and higher z-index */
+.famousFishesCard.expanded {
+  transform: scale(1.05);
+  z-index: 10;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+}
+
+/* Subtle effects for non-expanded cards when one is active */
+.famousFishesGrid.hasExpanded .famousFishesCard:not(.expanded) {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+  z-index: 1;
+}
+
+/* Responsive Design - Clean breakpoints */
 @media (max-width: 1024px) {
   .contentContainer {
     padding: 0 var(--space-6);
@@ -128,13 +155,20 @@
   }
 
   .famousFishesGrid {
-    flex-direction: column;
+    max-width: 900px;
     gap: var(--space-4);
   }
 
   .famousFishesCard {
-    width: 100%;
-    max-width: 300px;
+    min-width: 180px;
+  }
+
+  .famousFishesCard.expanded {
+    transform: scale(1.03);
+  }
+
+  .famousFishesGrid.hasExpanded .famousFishesCard:not(.expanded) {
+    transform: scale(0.97);
   }
 }
 
@@ -180,6 +214,14 @@
 
   .famousFishesTitleContainer {
     margin-bottom: var(--space-8);
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .famousFishesDescription {
+    text-align: left;
+    max-width: 100%;
   }
 
   .famousFishesTitle {
@@ -190,14 +232,22 @@
     font-size: var(--font-size-body-md);
   }
 
+  /* Clean mobile layout - vertical stack */
   .famousFishesGrid {
     flex-direction: column;
     gap: var(--space-4);
+    max-width: none;
   }
 
-  .famousFishesCard {
+  .famousFishesCard,
+  .famousFishesCard.expanded,
+  .famousFishesGrid.hasExpanded .famousFishesCard:not(.expanded) {
+    flex: none;
     width: 100%;
-    max-width: 300px;
+    min-width: auto;
+    transform: none;
+    filter: none;
+    will-change: auto;
   }
 }
 
@@ -228,11 +278,6 @@
 
   .famousFishesTitle {
     font-size: var(--font-size-heading-4);
-  }
-
-  .famousFishesCard {
-    width: 100%;
-    max-width: 300px;
   }
 }
 

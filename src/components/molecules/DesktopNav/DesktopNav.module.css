@@ -141,6 +141,10 @@
   box-shadow: var(--shadow-elevated);
   padding: var(--space-6);
   z-index: 100;
+  /* Ensure content doesn't overflow viewport */
+  max-width: calc(100vw - 40px);
+  /* Adjust positioning if it would overflow */
+  margin-left: clamp(-45vw, 0px, 45vw);
 }
 
 .navigationMenuContent::after {
@@ -196,6 +200,7 @@
   padding: 0;
   margin-left: -6px;
 }
+
 .navigationMenuTriggerClickable {
   font-family: inherit;
   font-size: inherit;
@@ -255,4 +260,98 @@
 
 .navigationMenuTriggerClickable[data-state="open"] .navigationMenuTriggerIcon {
   transform: rotate(180deg);
+}
+
+/* FIXED: Nested Destinations Styles - Limited width and consistent styling */
+.nestedDestinationsDropdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-6);
+  /* Limit the width to prevent overflow */
+  width: 800px;
+  max-width: 90vw;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.mainCategorySection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 140px;
+}
+
+/* Match the simple styling of Activities dropdown */
+.mainCategoryLink {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-body-small);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  background-color: transparent;
+  white-space: nowrap;
+}
+
+.mainCategoryLink:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.subcategoryList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-2);
+}
+
+/* Simplified subcategory styling to match the clean look */
+.subcategoryLink {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 400;
+  font-size: var(--font-size-body-small);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.subcategoryLink:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+/* Active state for nested items */
+.mainCategoryLink.active {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.subcategoryLink.active {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Responsive behavior for nested dropdown */
+@media (max-width: 1200px) {
+  .nestedDestinationsDropdown {
+    width: 600px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .nestedDestinationsDropdown {
+    width: 400px;
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

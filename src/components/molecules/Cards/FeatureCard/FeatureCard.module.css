@@ -37,4 +37,6 @@
   font-size: var(--font-size-body-small);
   font-weight: 500;
   color: var(--color-text-secondary);
+  min-height: 5em;
+  text-wrap: balance;
 }

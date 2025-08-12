@@ -1,5 +1,5 @@
 import React from "react";
-import { Column, Row, Section } from "@/components/layout";
+import { Section } from "@/components/layout";
 import {
   Button,
   DecorativeCurlyArrow,
@@ -7,44 +7,39 @@ import {
   ImageContainer,
   SectionTitle,
 } from "@/components/atoms";
-import styles from "../page.module.css";
+import styles from "./FeatureSection.module.css";
+import { Media } from "@payload-types";
 
-interface FeatureSectionProps {
+export interface FeatureSectionContent {
   title: string;
   specialWord: string;
   description: string;
-  image: string;
+  image: Media;
   imageAlt: string;
   ctaText: string;
   ctaHref?: string;
 }
 
-export const FeatureSection: React.FC<FeatureSectionProps> = ({
-  title,
-  specialWord,
-  description,
-  image,
-  imageAlt,
-  ctaText,
-  ctaHref,
-}) => {
+interface FeatureSectionProps {
+  content: FeatureSectionContent;
+}
+
+export const FeatureSection: React.FC<FeatureSectionProps> = ({ content }) => {
+  const { title, specialWord, description, image, imageAlt, ctaText, ctaHref } =
+    content;
+
   return (
     <Section fullBleed className={styles.waveContainer}>
-      <Row fullWidth gap="var(--space-8)" className={styles.contentContainer}>
-        <Column
-          fullWidth
-          gap="var(--space-8)"
-          className={styles.content}
-          alignItems="start"
-        >
+      <div className={styles.contentContainer}>
+        <div className={styles.textContent}>
           <SectionTitle text={title} specialWord={specialWord} />
-          <DecorativeCurlyArrow top="30%" left="40%" scale={1.5} />
+          <DecorativeCurlyArrow top="5%" left="75%" scale={1.5} />
           <DescriptionText text={description} className={styles.description} />
           <Button showArrow href={ctaHref}>
             {ctaText}
           </Button>
-        </Column>
-        <Column fullWidth className={styles.imageContainer}>
+        </div>
+        <div className={styles.imageContainer}>
           <ImageContainer
             src={image}
             alt={imageAlt}
@@ -53,8 +48,8 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({
             fullWidth
             className={styles.image}
           />
-        </Column>
-      </Row>
+        </div>
+      </div>
     </Section>
   );
 };

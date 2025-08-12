@@ -1,5 +1,5 @@
 import { DescriptionText, ImageContainer } from "@/components/atoms";
-import { Column, Row, Section } from "@/components/layout";
+import { Section } from "@/components/layout";
 import React from "react";
 import styles from "./SecondaryBanner.module.css";
 import { Media } from "@payload-types";
@@ -21,47 +21,39 @@ export const SecondaryBanner = ({
 
   return (
     <Section className={styles.section}>
-      <Row
-        fullWidth
-        gap="var(--space-8)"
-        className={styles.contentContainer}
-        alignItems="center"
-        responsive
-        responsiveGap="var(--space-4)"
-        responsiveAlignItems="center"
-      >
-        <Column fullWidth className={styles.titleContainer}>
-          <h1 className={hasDescription ? styles.title : cn(styles.highlight, styles.controlledLineHeight)}>
+      <div className={styles.contentContainer}>
+        <div className={styles.titleContainer}>
+          <h1
+            className={
+              hasDescription
+                ? styles.title
+                : cn(styles.highlight, styles.controlledLineHeight)
+            }
+          >
             {content.title} <br />
             <span className={hasDescription ? styles.highlight : styles.title}>
               {content.subtitle}
             </span>
           </h1>
-        </Column>
+        </div>
+      </div>
 
-        {hasDescription && (
-          <Column
-            responsive
-            responsiveGap="var(--space-4)"
-            responsiveAlignItems="center"
-          >
-            <DescriptionText
-              text={content.description}
-              className={styles.description}
-            />
-          </Column>
-        )}
-      </Row>
-
-      <Row gap="var(--space-8)" fullWidth>
+      <div className={styles.imageContainer}>
         <ImageContainer
           src={content.image}
           alt={content.image.alt}
           aspectRatio="banner"
+          className={styles.image}
           priority
           fullWidth
         />
-      </Row>
+      </div>
+      {hasDescription && (
+        <DescriptionText
+          text={content.description}
+          className={styles.description}
+        />
+      )}
     </Section>
   );
 };
