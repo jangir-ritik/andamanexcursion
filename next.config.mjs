@@ -26,11 +26,6 @@ const nextConfig = withPayload({
   redirects: async () => {
     return [
       {
-        source: "/destinations",
-        destination: "/destinations/jolly-buoy",
-        permanent: true,
-      },
-      {
         source: "/specials",
         destination: "/specials/engagement",
         permanent: true,

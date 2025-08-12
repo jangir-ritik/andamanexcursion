@@ -281,7 +281,33 @@ export interface Page {
     /**
      * Is this a main category or a sub-destination?
      */
-    destinationType: 'main' | 'sub';
+    destinationType: 'index' | 'main' | 'sub';
+    /**
+     * Settings for the main destinations overview page
+     */
+    indexSettings?: {
+      /**
+       * Automatically include all published main destinations
+       */
+      showAllDestinations?: boolean | null;
+      /**
+       * Select specific destinations to feature (optional - overrides automatic inclusion)
+       */
+      featuredDestinations?: (string | Page)[] | null;
+      /**
+       * Custom ordering for destinations (drag to reorder)
+       */
+      destinationOrder?:
+        | {
+            destination?: (string | null) | Page;
+            /**
+             * Lower numbers appear first
+             */
+            displayOrder?: number | null;
+            id?: string | null;
+          }[]
+        | null;
+    };
     /**
      * URL slug for this main category (auto-generated from page title, but can be customized)
      */
@@ -312,6 +338,10 @@ export interface Page {
        * Order in navigation dropdown (lower numbers first)
        */
       navigationOrder?: number | null;
+      /**
+       * Custom label for navigation (defaults to page title)
+       */
+      navigationLabel?: string | null;
     };
   };
   /**
@@ -1964,6 +1994,19 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         destinationType?: T;
+        indexSettings?:
+          | T
+          | {
+              showAllDestinations?: T;
+              featuredDestinations?: T;
+              destinationOrder?:
+                | T
+                | {
+                    destination?: T;
+                    displayOrder?: T;
+                    id?: T;
+                  };
+            };
         mainCategorySlug?: T;
         parentMainCategory?: T;
         subcategorySlug?: T;
@@ -1973,6 +2016,7 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               showInNavigation?: T;
               navigationOrder?: T;
+              navigationLabel?: T;
             };
       };
   seoMeta?:

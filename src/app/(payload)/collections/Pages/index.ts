@@ -87,12 +87,75 @@ const Pages: CollectionConfig = {
           type: "select",
           required: true,
           options: [
+            { label: "Destinations Index (Overview Page)", value: "index" },
             { label: "Main Destination Category", value: "main" },
             { label: "Sub-Destination (Beach/Attraction)", value: "sub" },
           ],
           admin: {
             description: "Is this a main category or a sub-destination?",
           },
+        },
+        // Fields for INDEX destinations (overview/landing page)
+        {
+          name: "indexSettings",
+          type: "group",
+          label: "Index Page Settings",
+          admin: {
+            condition: (data, siblingData) =>
+              siblingData?.destinationType === "index",
+            description: "Settings for the main destinations overview page",
+          },
+          fields: [
+            {
+              name: "showAllDestinations",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description:
+                  "Automatically include all published main destinations",
+              },
+            },
+            {
+              name: "featuredDestinations",
+              type: "relationship",
+              relationTo: "pages",
+              hasMany: true,
+              filterOptions: {
+                "basicInfo.pageType": { equals: "destinations" },
+                "destinationInfo.destinationType": { equals: "main" },
+              },
+              admin: {
+                description:
+                  "Select specific destinations to feature (optional - overrides automatic inclusion)",
+              },
+            },
+            {
+              name: "destinationOrder",
+              type: "array",
+              admin: {
+                description:
+                  "Custom ordering for destinations (drag to reorder)",
+              },
+              fields: [
+                {
+                  name: "destination",
+                  type: "relationship",
+                  relationTo: "pages",
+                  filterOptions: {
+                    "basicInfo.pageType": { equals: "destinations" },
+                    "destinationInfo.destinationType": { equals: "main" },
+                  },
+                },
+                {
+                  name: "displayOrder",
+                  type: "number",
+                  admin: {
+                    description: "Lower numbers appear first",
+                  },
+                },
+              ],
+            },
+          ],
         },
         // Fields for MAIN destinations (Port Blair, Havelock, etc.)
         {
@@ -223,6 +286,14 @@ const Pages: CollectionConfig = {
               admin: {
                 description:
                   "Order in navigation dropdown (lower numbers first)",
+              },
+            },
+            {
+              name: "navigationLabel",
+              type: "text",
+              admin: {
+                description:
+                  "Custom label for navigation (defaults to page title)",
               },
             },
           ],
