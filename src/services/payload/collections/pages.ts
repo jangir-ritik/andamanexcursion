@@ -70,6 +70,28 @@ export const pageService = {
   },
 
   /**
+   * Get destinations index page
+   */
+  async getDestinationsIndex() {
+    try {
+      const payload = await getCachedPayload();
+      const { docs } = await payload.find({
+        collection: "pages",
+        where: getPublishedQuery("pages", [
+          { "basicInfo.pageType": { equals: "destinations" } },
+          { "destinationInfo.destinationType": { equals: "index" } },
+        ]),
+        limit: 1,
+        depth: 2,
+      });
+      return docs[0] || null;
+    } catch (error) {
+      console.error("Error fetching destinations index page:", error);
+      return null;
+    }
+  },
+
+  /**
    * Get main destination by main category slug
    */
   async getMainDestinationBySlug(mainCategorySlug: string) {
@@ -157,6 +179,13 @@ export const pageService = {
               ],
             },
             { "basicInfo.pageType": { equals: "destinations" } },
+            // Only include main and sub destinations in navigation (not index)
+            {
+              or: [
+                { "destinationInfo.destinationType": { equals: "main" } },
+                { "destinationInfo.destinationType": { equals: "sub" } },
+              ],
+            },
             // Make showInNavigation optional - default to true if not set
             {
               or: [
@@ -199,6 +228,68 @@ export const pageService = {
     } catch (error) {
       console.error("Error fetching destinations for navigation:", error);
       return { main: [], sub: [], all: [] };
+    }
+  },
+
+  /**
+   * Get all main destinations with their sub-destinations for index page
+   */
+  async getAllDestinationsWithSubs() {
+    try {
+      const payload = await getCachedPayload();
+      const { docs } = await payload.find({
+        collection: "pages",
+        where: {
+          and: [
+            {
+              or: [
+                { "publishingSettings.status": { equals: "published" } },
+                { "publishingSettings.status": { exists: false } },
+              ],
+            },
+            { "basicInfo.pageType": { equals: "destinations" } },
+            {
+              or: [
+                { "destinationInfo.destinationType": { equals: "main" } },
+                { "destinationInfo.destinationType": { equals: "sub" } },
+              ],
+            },
+          ],
+        },
+        sort: [
+          "destinationInfo.destinationType",
+          "destinationInfo.navigationSettings.navigationOrder",
+          "title",
+        ],
+        depth: 2,
+        limit: 100,
+      });
+
+      // Group by main destinations
+      const mainDestinations = docs.filter(
+        (doc: any) => doc.destinationInfo?.destinationType === "main"
+      );
+
+      const subDestinations = docs.filter(
+        (doc: any) => doc.destinationInfo?.destinationType === "sub"
+      );
+
+      // Organize subs under their main destinations
+      const destinationsWithSubs = mainDestinations.map((mainDest: any) => ({
+        ...mainDest,
+        subDestinations: subDestinations.filter((subDest: any) => {
+          const parentId =
+            typeof subDest.destinationInfo?.parentMainCategory === "string"
+              ? subDest.destinationInfo.parentMainCategory
+              : subDest.destinationInfo?.parentMainCategory?.id;
+          return parentId === mainDest.id;
+        }),
+      }));
+
+      return destinationsWithSubs;
+    } catch (error) {
+      console.error("Error fetching destinations with subs:", error);
+      return [];
     }
   },
 };

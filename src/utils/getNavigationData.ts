@@ -330,6 +330,9 @@ function getFallbackNavigation(): NavigationItem[] {
     {
       label: "Destinations",
       href: "/destinations",
+      children: [], // Empty children for now, will be populated by CMS
+      categoryType: "destinations",
+      isClickable: true, // Make the parent destinations link clickable
     },
     {
       label: "Plan Your Trip",

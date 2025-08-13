@@ -1,23 +1,13 @@
 import React from "react";
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
 import { notFound } from "next/navigation";
-
 import styles from "./page.module.css";
 import { pageService } from "@/services/payload";
 
-interface PageProps {
-  params: Promise<{ main: string; sub: string }>;
-}
-
-export default async function DestinationsPage({ params }: PageProps) {
-  // Await params before using its properties
-  const { main: mainCategorySlug, sub: subcategorySlug } = await params;
-
-  // Try to find a sub-destination page by mainCategorySlug and subcategorySlug
-  const page = await pageService.getSubDestinationBySlug(
-    mainCategorySlug,
-    subcategorySlug
-  );
+// This is the index page at /destinations
+export default async function DestinationsIndexPage() {
+  // Try to find the destinations index page
+  const page = await pageService.getDestinationsIndex();
 
   if (!page) {
     return notFound();
@@ -31,16 +21,13 @@ export default async function DestinationsPage({ params }: PageProps) {
 }
 
 // Generate metadata for the page
-export async function generateMetadata({ params }: PageProps) {
-  const { main: mainCategorySlug, sub: subcategorySlug } = await params;
-  const page = await pageService.getSubDestinationBySlug(
-    mainCategorySlug,
-    subcategorySlug
-  );
+export async function generateMetadata() {
+  const page = await pageService.getDestinationsIndex();
 
   if (!page) {
     return {
-      title: "Destination Not Found",
+      title: "Destinations",
+      description: "Explore amazing destinations in the Andaman Islands",
     };
   }
 
