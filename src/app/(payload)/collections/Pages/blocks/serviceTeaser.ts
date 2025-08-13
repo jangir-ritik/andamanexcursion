@@ -23,6 +23,7 @@ export const serviceTeaserBlock: Block = {
       name: "image",
       type: "upload",
       relationTo: "media",
+      required: true,
     },
     {
       name: "ctaText",
