@@ -34,7 +34,7 @@
 /* Typography styles */
 .title {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-heading-1);
+  font-size: var(--font-size-4xl);
   font-weight: 500;
   letter-spacing: 4%;
   color: var(--color-black);

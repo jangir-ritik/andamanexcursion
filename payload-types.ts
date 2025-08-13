@@ -515,6 +515,14 @@ export interface Page {
                     price?: string | null;
                     description?: string | null;
                     image?: (string | null) | Media;
+                    /**
+                     * Optional: Custom text for the action button (defaults to 'View More')
+                     */
+                    ctaLabel?: string | null;
+                    /**
+                     * Optional: Custom link for the action button (defaults to '/packages/{slide-id}')
+                     */
+                    ctaLink?: string | null;
                     id?: string | null;
                   }[]
                 | null;
@@ -2179,6 +2187,8 @@ export interface PagesSelect<T extends boolean = true> {
                           price?: T;
                           description?: T;
                           image?: T;
+                          ctaLabel?: T;
+                          ctaLink?: T;
                           id?: T;
                         };
                     id?: T;

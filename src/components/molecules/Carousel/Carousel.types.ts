@@ -6,6 +6,8 @@ export interface CarouselSlide {
   price: string;
   description: string;
   image: Media;
+  ctaLink?: string;
+  ctaLabel?: string;
   // imageAlt: string;
 }
 

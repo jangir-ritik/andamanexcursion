@@ -262,23 +262,24 @@
   transform: rotate(180deg);
 }
 
-/* FIXED: Nested Destinations Styles - Limited width and consistent styling */
+/* FIXED: Nested Destinations Styles - Dynamic width and height */
 .nestedDestinationsDropdown {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--space-6);
-  /* Limit the width to prevent overflow */
-  width: 800px;
-  max-width: 90vw;
-  max-height: 400px;
-  overflow-y: auto;
+  /* Allow dynamic width based on content */
+  width: auto;
+  max-width: 50vw;
+  /* Remove fixed height constraint */
+  max-height: none;
+  overflow-y: visible;
 }
 
 .mainCategorySection {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  min-width: 140px;
+  min-width: 180px;
 }
 
 /* Match the simple styling of Activities dropdown */
@@ -293,7 +294,9 @@
   border-radius: var(--radius-sm);
   transition: all 0.2s ease;
   background-color: transparent;
-  white-space: nowrap;
+  /* Allow text to wrap if needed */
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .mainCategoryLink:hover {
@@ -319,9 +322,10 @@
   font-size: var(--font-size-body-small);
   border-radius: var(--radius-sm);
   transition: all 0.2s ease;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  /* Allow text to wrap instead of clipping */
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
 }
 
 .subcategoryLink:hover {
@@ -344,14 +348,18 @@
 /* Responsive behavior for nested dropdown */
 @media (max-width: 1200px) {
   .nestedDestinationsDropdown {
-    width: 600px;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 }
 
 @media (max-width: 900px) {
   .nestedDestinationsDropdown {
-    width: 400px;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .nestedDestinationsDropdown {
+    grid-template-columns: 1fr;
   }
 }

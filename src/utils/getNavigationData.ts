@@ -154,7 +154,16 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                       manualConfig.set(mainCat.mainCategorySlug, mainCat);
                     });
 
-                  // Sort manual configurations alphabetically by mainCategory name
+                  // Custom sort order for manual configurations
+                  const customOrder = [
+                    "Port Blair",
+                    "Havelock",
+                    "Neil Island",
+                    "Baratang",
+                    "Long Island",
+                    "Rangat",
+                    "Diglipur",
+                  ];
                   item.destinationConfig
                     .filter(
                       (mainCat: DestinationMainCategory) => mainCat.isActive
@@ -163,7 +172,20 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                       (
                         a: DestinationMainCategory,
                         b: DestinationMainCategory
-                      ) => a.mainCategory.localeCompare(b.mainCategory)
+                      ) => {
+                        const aIndex = customOrder.indexOf(a.mainCategory);
+                        const bIndex = customOrder.indexOf(b.mainCategory);
+
+                        // If both are in custom order, sort by that order
+                        if (aIndex !== -1 && bIndex !== -1) {
+                          return aIndex - bIndex;
+                        }
+                        // If only one is in custom order, prioritize it
+                        if (aIndex !== -1) return -1;
+                        if (bIndex !== -1) return 1;
+                        // If neither is in custom order, sort alphabetically
+                        return a.mainCategory.localeCompare(b.mainCategory);
+                      }
                     )
                     .forEach((mainCat: DestinationMainCategory) => {
                       const mainCategoryItem: NavigationItem = {
@@ -213,9 +235,31 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                     subsByMain.get(parentId).push(subDest);
                   });
 
-                  // Sort main destinations alphabetically by title
+                  // Custom sort order for main destinations
+                  const customOrder = [
+                    "Port Blair",
+                    "Havelock",
+                    "Neil Island",
+                    "Baratang",
+                    "Long Island",
+                    "Rangat",
+                    "Diglipur",
+                  ];
                   destinationsData.main
-                    .sort((a: any, b: any) => a.title.localeCompare(b.title))
+                    .sort((a: any, b: any) => {
+                      const aIndex = customOrder.indexOf(a.title);
+                      const bIndex = customOrder.indexOf(b.title);
+
+                      // If both are in custom order, sort by that order
+                      if (aIndex !== -1 && bIndex !== -1) {
+                        return aIndex - bIndex;
+                      }
+                      // If only one is in custom order, prioritize it
+                      if (aIndex !== -1) return -1;
+                      if (bIndex !== -1) return 1;
+                      // If neither is in custom order, sort alphabetically
+                      return a.title.localeCompare(b.title);
+                    })
                     .slice(0, item.displaySettings?.maxDropdownItems || 10)
                     .forEach((mainDest: any) => {
                       const mainCategoryItem: NavigationItem = {
@@ -230,20 +274,12 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                       const subs = subsByMain.get(mainDest.id) || [];
 
                       if (subs.length > 0) {
-                        const maxSubsPerCategory = Math.max(
-                          Math.floor(
-                            (item.displaySettings?.maxDropdownItems || 10) /
-                              destinationsData.main.length
-                          ),
-                          5 // Minimum 5 subs per category
-                        );
-
+                        // Show all subcategories - no limit
                         // Sort subcategories alphabetically by title
                         mainCategoryItem.children = subs
                           .sort((a: any, b: any) =>
                             a.title.localeCompare(b.title)
                           )
-                          .slice(0, maxSubsPerCategory)
                           .map((subDest: any) => ({
                             label: subDest.title,
                             href: `/destinations/${mainDest.destinationInfo?.mainCategorySlug}/${subDest.destinationInfo?.subcategorySlug}`,

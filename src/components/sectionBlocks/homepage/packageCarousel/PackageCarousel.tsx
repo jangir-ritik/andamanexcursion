@@ -31,7 +31,7 @@ export const PackageCarousel = ({ content }: PackageCarouselProps) => {
           responsiveGap="var(--space-4)"
         >
           <SectionTitle
-            specialWord="Package"
+            specialWord={title ? title.split(" ")[0] : "Package"}
             text={title}
             id="package-carousel-title"
           />

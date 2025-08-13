@@ -22,16 +22,24 @@ export interface VisualCategoryGridProps {
 export const VisualCategoryGrid: React.FC<{
   content: VisualCategoryGridProps;
 }> = ({ content }) => {
-  const [expandedCardIndex, setExpandedCardIndex] = useState(0);
+  const [expandedCardIndex, setExpandedCardIndex] = useState<number | null>(0);
 
   const handleCardClick = (index: number) => {
     setExpandedCardIndex(index);
   };
 
-  // Simple class logic
+  // Dynamic class logic based on number of categories
+  const getItemCountClass = (count: number) => {
+    if (count <= 5) {
+      return `itemCount${count}`;
+    }
+    return "itemCountMore";
+  };
+
   const gridClasses = [
     styles.famousFishesGrid,
     expandedCardIndex !== null ? styles.hasExpanded : "",
+    styles[getItemCountClass(content.categories.length)],
   ]
     .filter(Boolean)
     .join(" ");
@@ -56,11 +64,18 @@ export const VisualCategoryGrid: React.FC<{
             className={styles.famousFishesDescription}
           />
         </Row>
-
-        <div className={gridClasses}>
+        <div
+          className={gridClasses}
+          style={
+            {
+              // CSS custom property for responsive logic fallback
+              "--item-count": content.categories.length,
+            } as React.CSSProperties
+          }
+        >
           {content.categories.map((category, index) => (
             <HoverExpandCard
-              key={category.title}
+              key={`${category.title}-${index}`} // More stable key
               {...category}
               className={`${styles.famousFishesCard} ${
                 index === expandedCardIndex ? styles.expanded : ""

@@ -105,27 +105,47 @@
   line-height: 1.6;
 }
 
-/* CLEAN SMOOTH GRID - Maintains layout integrity */
+/* CLEAN SMOOTH GRID - CSS Grid with intelligent wrapping */
 .famousFishesGrid {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: var(--space-5);
+  display: grid;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  /* Smooth but stable */
-  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  gap: var(--space-5);
+  /* Smooth but stable transitions */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Default fallback: auto-fit with reasonable minimum size */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* JavaScript-controlled grid layouts based on item count */
+.famousFishesGrid.itemCount1 {
+  grid-template-columns: 1fr;
+}
+.famousFishesGrid.itemCount2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.famousFishesGrid.itemCount3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.famousFishesGrid.itemCount4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.famousFishesGrid.itemCount5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+.famousFishesGrid.itemCountMore {
+  /* For 6+ items, allow wrapping with optimal sizing */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .famousFishesCard {
-  /* Equal flexible width */
-  flex: 1 1 0;
-  min-width: 200px;
   position: relative;
+  min-width: 0; /* Allows grid items to shrink below content size */
   /* Smooth transitions without layout disruption */
-  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
-              filter 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, filter;
   transform: scale(1);
 }
@@ -157,10 +177,19 @@
   .famousFishesGrid {
     max-width: 900px;
     gap: var(--space-4);
+    /* Adjust grid for medium screens */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
-  .famousFishesCard {
-    min-width: 180px;
+  .famousFishesGrid.itemCount1,
+  .famousFishesGrid.itemCount2,
+  .famousFishesGrid.itemCount3 {
+    grid-template-columns: repeat(var(--item-count, 3), 1fr);
+  }
+  .famousFishesGrid.itemCount4,
+  .famousFishesGrid.itemCount5,
+  .famousFishesGrid.itemCountMore {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
   .famousFishesCard.expanded {
@@ -232,18 +261,27 @@
     font-size: var(--font-size-body-md);
   }
 
-  /* Clean mobile layout - vertical stack */
-  .famousFishesGrid {
-    flex-direction: column;
+  /* Mobile: 2 columns for better space utilization */
+  .famousFishesGrid,
+  .famousFishesGrid.itemCount1,
+  .famousFishesGrid.itemCount2,
+  .famousFishesGrid.itemCount3,
+  .famousFishesGrid.itemCount4,
+  .famousFishesGrid.itemCount5,
+  .famousFishesGrid.itemCountMore {
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
     max-width: none;
+  }
+
+  /* Single column only for single item */
+  .famousFishesGrid.itemCount1 {
+    grid-template-columns: 1fr;
   }
 
   .famousFishesCard,
   .famousFishesCard.expanded,
   .famousFishesGrid.hasExpanded .famousFishesCard:not(.expanded) {
-    flex: none;
-    width: 100%;
     min-width: auto;
     transform: none;
     filter: none;
@@ -278,6 +316,18 @@
 
   .famousFishesTitle {
     font-size: var(--font-size-heading-4);
+  }
+
+  /* Small mobile: single column layout */
+  .famousFishesGrid,
+  .famousFishesGrid.itemCount1,
+  .famousFishesGrid.itemCount2,
+  .famousFishesGrid.itemCount3,
+  .famousFishesGrid.itemCount4,
+  .famousFishesGrid.itemCount5,
+  .famousFishesGrid.itemCountMore {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 }
 
