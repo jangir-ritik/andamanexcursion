@@ -7,6 +7,9 @@
   padding-top: var(--space-14);
 }
 
+.packageDetailSection {
+  background-color: var(--color-white);
+}
 
 .loadingIndicator {
   display: flex;
@@ -26,4 +29,12 @@
   width: 100%;
   padding: var(--space-6);
   text-align: center;
+  gap: var(--space-4);
+  background-color: var(--color-white);
+}
+
+.noPackages p {
+  font-size: clamp(24px, 2vw, 48px);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }

@@ -77,6 +77,7 @@ export interface Config {
     'activity-categories': ActivityCategory;
     activities: Activity;
     'time-slots': TimeSlot;
+    'activity-time-slots': ActivityTimeSlot;
     'activity-inventory': ActivityInventory;
     bookings: Booking;
     payments: Payment;
@@ -97,6 +98,7 @@ export interface Config {
     'activity-categories': ActivityCategoriesSelect<false> | ActivityCategoriesSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
+    'activity-time-slots': ActivityTimeSlotsSelect<false> | ActivityTimeSlotsSelect<true>;
     'activity-inventory': ActivityInventorySelect<false> | ActivityInventorySelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
@@ -392,7 +394,7 @@ export interface Page {
                */
               specialWord?: string | null;
               description?: string | null;
-              image?: (string | null) | Media;
+              image: string | Media;
               ctaText?: string | null;
               ctaHref?: string | null;
               id?: string | null;
@@ -786,7 +788,7 @@ export interface Package {
   id: string;
   title: string;
   /**
-   * URL-friendly version of the title (auto-generated if empty)
+   * URL-friendly version of the title (auto-generated from title)
    */
   slug: string;
   /**
@@ -802,9 +804,9 @@ export interface Package {
      */
     period: string | PackagePeriod;
     /**
-     * Select the package location
+     * Select the package locations (multiple allowed)
      */
-    location: string | Location;
+    locations: (string | Location)[];
   };
   /**
    * Descriptions for the package
@@ -843,39 +845,31 @@ export interface Package {
   /**
    * Detailed package information
    */
-  packageDetails?: {
-    highlights?:
-      | {
-          highlight: string;
-          id?: string | null;
-        }[]
-      | null;
-    inclusions?:
-      | {
-          inclusion: string;
-          id?: string | null;
-        }[]
-      | null;
-    exclusions?:
-      | {
-          exclusion: string;
-          id?: string | null;
-        }[]
-      | null;
-    itinerary?:
-      | {
-          day: number;
-          title: string;
-          description?: string | null;
-          activities?:
-            | {
-                activity: string;
-                id?: string | null;
-              }[]
-            | null;
-          id?: string | null;
-        }[]
-      | null;
+  packageDetails: {
+    highlights: {
+      highlight: string;
+      id?: string | null;
+    }[];
+    inclusions: {
+      inclusion: string;
+      id?: string | null;
+    }[];
+    exclusions: {
+      exclusion: string;
+      id?: string | null;
+    }[];
+    itinerary: {
+      day: number;
+      title: string;
+      description?: string | null;
+      activities?:
+        | {
+            activity: string;
+            id?: string | null;
+          }[]
+        | null;
+      id?: string | null;
+    }[];
     accommodation?: string | null;
     transportation?: string | null;
     bestTimeToVisit?: string | null;
@@ -895,11 +889,20 @@ export interface Package {
     featuredOrder?: number | null;
   };
   /**
-   * SEO settings
+   * SEO settings (auto-populated from package data)
    */
   seo?: {
+    /**
+     * Auto-populated from title if empty
+     */
     metaTitle?: string | null;
+    /**
+     * Auto-populated from short description if empty
+     */
     metaDescription?: string | null;
+    /**
+     * Auto-populated from first package image if empty
+     */
     metaImage?: (string | null) | Media;
   };
   /**
@@ -1129,6 +1132,10 @@ export interface Activity {
      */
     basePrice: number;
     /**
+     * Discounted price per person (optional)
+     */
+    discountedPrice?: number | null;
+    /**
      * e.g., '2 hours', '1 day'
      */
     duration: string;
@@ -1159,6 +1166,10 @@ export interface Activity {
          */
         price: number;
         /**
+         * Discounted price for this option (optional)
+         */
+        discountedPrice?: number | null;
+        /**
          * Duration specific to this option (if different from base)
          */
         duration?: string | null;
@@ -1174,6 +1185,19 @@ export interface Activity {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Time slots and scheduling settings
+   */
+  scheduling?: {
+    /**
+     * Use specific time slots instead of category defaults
+     */
+    useCustomTimeSlots?: boolean | null;
+    /**
+     * Specific time slots for this activity (only used if 'Use Custom Time Slots' is enabled)
+     */
+    availableTimeSlots?: (string | ActivityTimeSlot)[] | null;
+  };
   /**
    * Search engine optimization settings
    */
@@ -1199,6 +1223,53 @@ export interface Activity {
      */
     priority?: number | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage time slots available for different activity types
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity-time-slots".
+ */
+export interface ActivityTimeSlot {
+  id: string;
+  /**
+   * Descriptive name for this time slot (e.g., 'Morning Session', 'Afternoon Adventure')
+   */
+  title: string;
+  /**
+   * Start time in 24-hour format (e.g., '09:00')
+   */
+  startTime: string;
+  /**
+   * End time in 24-hour format (e.g., '11:00')
+   */
+  endTime: string;
+  /**
+   * How this time slot appears to users (auto-generated if empty)
+   */
+  displayTime?: string | null;
+  /**
+   * Duration in minutes (auto-calculated)
+   */
+  duration?: number | null;
+  /**
+   * Which activity types can use this time slot
+   */
+  activityTypes: (string | ActivityCategory)[];
+  /**
+   * Is this time slot currently available for booking?
+   */
+  isActive?: boolean | null;
+  /**
+   * Display order (higher numbers appear first)
+   */
+  sortOrder?: number | null;
+  /**
+   * Internal notes about this time slot (not shown to users)
+   */
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1823,6 +1894,10 @@ export interface PayloadLockedDocument {
         value: string | TimeSlot;
       } | null)
     | ({
+        relationTo: 'activity-time-slots';
+        value: string | ActivityTimeSlot;
+      } | null)
+    | ({
         relationTo: 'activity-inventory';
         value: string | ActivityInventory;
       } | null)
@@ -2373,7 +2448,7 @@ export interface PackagesSelect<T extends boolean = true> {
     | {
         category?: T;
         period?: T;
-        location?: T;
+        locations?: T;
       };
   descriptions?:
     | T
@@ -2611,6 +2686,7 @@ export interface ActivitiesSelect<T extends boolean = true> {
         category?: T;
         location?: T;
         basePrice?: T;
+        discountedPrice?: T;
         duration?: T;
         maxCapacity?: T;
       };
@@ -2632,11 +2708,18 @@ export interface ActivitiesSelect<T extends boolean = true> {
         optionTitle?: T;
         optionDescription?: T;
         price?: T;
+        discountedPrice?: T;
         duration?: T;
         maxCapacity?: T;
         icon?: T;
         isActive?: T;
         id?: T;
+      };
+  scheduling?:
+    | T
+    | {
+        useCustomTimeSlots?: T;
+        availableTimeSlots?: T;
       };
   seo?:
     | T
@@ -2673,6 +2756,23 @@ export interface TimeSlotsSelect<T extends boolean = true> {
         priority?: T;
         isPopular?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity-time-slots_select".
+ */
+export interface ActivityTimeSlotsSelect<T extends boolean = true> {
+  title?: T;
+  startTime?: T;
+  endTime?: T;
+  displayTime?: T;
+  duration?: T;
+  activityTypes?: T;
+  isActive?: T;
+  sortOrder?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

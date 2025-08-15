@@ -3,19 +3,30 @@
   margin-bottom: var(--space-6);
   overflow: hidden;
   width: 100%;
-  min-height: 356px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease,
+    transform 0.2s ease;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-lg);
   background-color: var(--color-white);
+  min-height: 200px;
+  cursor: pointer;
+  outline: none;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-card);
   background-color: var(--color-primary-light);
+  /* box-shadow: var(--shadow-card); */
+  transform: translateY(-2px);
+}
+
+.card:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.card:active {
+  transform: translateY(0);
 }
 
 .card:hover .imageWrapper img {
@@ -27,251 +38,238 @@
   display: flex;
   width: 100%;
   height: 100%;
-  padding: var(--space-14) var(--space-6);
-  gap: var(--space-10);
+  gap: 0;
+}
+
+/* Image Section */
+.imageSection {
+  flex: 0 0 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
 }
 
 .imageWrapper {
   width: 100%;
-  height: 100%;
+  height: 180px;
   position: relative;
-  flex: 1;
-  max-width: 427px;
   background-color: var(--color-border-secondary);
   border-radius: 20px 60px 20px 60px !important;
   overflow: hidden;
 }
 
-.textContent {
+/* Content Section - Restructured */
+.contentSection {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--space-6);
-  height: 100%;
-  position: relative;
-  flex: 1;
+  padding: var(--space-6) var(--space-6) var(--space-6) var(--space-3);
+  gap: var(--space-4);
+  justify-content: space-between;
 }
 
-.titleWrapper {
+/* Top Section: Title, Location & Duration */
+.topSection {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-4);
 }
 
-.titleInfo {
+.titleGroup {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  max-width: 350px;
 }
 
 .title {
   font-family: var(--font-family-primary);
-  font-weight: 500;
-  font-size: var(--font-size-3xl);
-  line-height: 1;
+  font-weight: 600;
+  font-size: var(--font-size-2xl);
+  line-height: 1.2;
   color: var(--color-black);
   margin: 0;
 }
 
-.price {
-  width: fit-content;
+/* Location with Icon */
+.locationGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.locationIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.location {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Duration Badge */
+.durationBadge {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Description */
+.description {
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+  flex: 1;
+}
+
+/* Bottom Section: Price & Action */
+.bottomSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+/* Price Section */
+.priceSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.discountRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.originalPrice {
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  color: var(--color-text-disabled);
+  text-decoration: line-through;
+  margin: 0;
+}
+
+.discountBadge {
+  font-family: var(--font-family-primary);
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  color: var(--color-white);
+  background-color: var(--color-alert-error, #e74c3c);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.currentPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.currentPrice {
   font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: var(--font-size-xl);
   line-height: 1;
   color: var(--color-primary);
   margin: 0;
-  background-color: var(--color-primary-light);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
 }
 
-.locationInfo {
-  text-align: right;
-}
-
-.location,
-.duration {
-  font-family: var(--font-family-primary);
-  font-weight: 600;
-  font-size: var(--font-size-xl);
-  line-height: 1.25;
-  color: var(--color-secondary);
-  margin: 0;
-}
-
-.description {
+.perPerson {
   font-family: var(--font-family-primary);
   font-weight: 400;
-  font-size: var(--font-size-xl);
-  line-height: 1.25;
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  color: var(--color-text-disabled);
   margin: 0;
-  max-width: 100%;
 }
 
-.viewDetailsButton {
+/* Action Indicator (replaces the button) */
+.actionIndicator {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: var(--space-1);
-  text-decoration: none;
-  width: fit-content;
-  margin-top: var(--space-4);
+  align-self: flex-end;
+  transition: all 0.2s ease;
 }
 
-.viewDetailsText {
+.card:hover .actionIndicator {
+  gap: var(--space-2);
+}
+
+.actionText {
   font-family: var(--font-family-primary);
-  font-weight: 400;
-  font-size: var(--font-size-base);
-  line-height: 1.25;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
   color: var(--color-primary);
+  white-space: nowrap;
 }
 
-.arrow {
-  font-size: var(--font-size-2xl);
+.actionArrow {
   color: var(--color-primary);
+  transition: transform 0.2s ease;
 }
 
-/* Mobile-first responsive design */
+.card:hover .actionArrow {
+  transform: translateX(2px);
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
   .card {
-    height: auto;
-    min-height: 280px;
     margin-bottom: var(--space-4);
+    min-height: auto;
   }
 
   .contentWrapper {
     flex-direction: column;
+  }
+
+  .imageSection {
+    flex: none;
+    padding: var(--space-4) var(--space-4) 0;
+  }
+
+  .imageWrapper {
+    height: 200px;
+  }
+
+  .contentSection {
     padding: var(--space-4);
     gap: var(--space-4);
   }
 
-  .imageWrapper {
-    max-width: 100%;
-    height: 200px;
-    min-height: 200px;
-    border-radius: var(--radius-md) !important;
-    order: 1;
-  }
-
-  .textContent {
-    order: 2;
-    justify-content: flex-start;
-    gap: var(--space-4);
-    height: auto;
-  }
-
-  .titleWrapper {
+  .topSection {
     flex-direction: column;
-    gap: var(--space-3);
     align-items: stretch;
-  }
-
-  .titleInfo {
-    max-width: 100%;
-    order: 1;
-  }
-
-  .title {
-    font-size: var(--font-size-2xl);
-    line-height: 1.2;
-  }
-
-  .price {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--color-primary);
-    padding: var(--space-2) var(--space-3);
-    background-color: var(--color-primary-light, var(--color-primary-light));
-    border-radius: var(--radius-sm);
-    width: fit-content;
-    margin-top: var(--space-1);
-  }
-
-  .locationInfo {
-    text-align: left;
-    order: 2;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-    align-items: center;
-  }
-
-  .location,
-  .duration {
-    font-size: var(--font-size-base);
-    line-height: 1.4;
-  }
-
-  .location {
-    color: var(--color-text-primary);
-  }
-
-  .duration {
-    color: var(--color-secondary);
-  }
-
-  .description {
-    font-size: var(--font-size-base);
-    line-height: 1.5;
-  }
-
-  .viewDetailsButton {
-    margin-top: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    border-radius: var(--radius-sm);
-    min-height: 48px;
-    justify-content: center;
-    width: 100%;
-    transition: background-color 0.3s ease;
-  }
-
-  .viewDetailsButton:hover {
-    background-color: var(--color-primary-dark, var(--color-primary));
-  }
-
-  .viewDetailsButton:active {
-    transform: scale(0.98);
-  }
-
-  .viewDetailsText {
-    color: var(--color-white);
-    font-weight: 500;
-    font-size: var(--font-size-base);
-  }
-
-  .arrow {
-    color: var(--color-white);
-    font-size: var(--font-size-lg);
-  }
-}
-
-/* Small mobile devices */
-@media (max-width: 480px) {
-  .card {
-    margin-bottom: var(--space-3);
-  }
-
-  .contentWrapper {
-    padding: var(--space-3);
     gap: var(--space-3);
   }
 
-  .imageWrapper {
-    height: 180px;
-    min-height: 180px;
-  }
-
-  .textContent {
-    gap: var(--space-3);
-  }
-
-  .titleWrapper {
+  .titleGroup {
     gap: var(--space-2);
   }
 
@@ -279,61 +277,132 @@
     font-size: var(--font-size-xl);
   }
 
-  .price {
-    font-size: var(--font-size-base);
+  .durationBadge {
+    align-self: flex-start;
+    font-size: var(--font-size-xs);
     padding: var(--space-1) var(--space-2);
   }
 
-  .location,
-  .duration {
-    font-size: var(--font-size-sm);
+  .bottomSection {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .priceSection {
+    align-items: flex-start;
+  }
+
+  .currentPrice {
+    font-size: var(--font-size-lg);
+  }
+
+  .originalPrice {
+    font-size: var(--font-size-xs);
+  }
+
+  .discountBadge {
+    font-size: var(--font-size-xs);
+    padding: 2px var(--space-1);
   }
 
   .description {
     font-size: var(--font-size-sm);
-    line-height: 1.4;
   }
 
-  .viewDetailsButton {
-    padding: var(--space-2) var(--space-3);
-    min-height: 44px;
-  }
-
-  .viewDetailsText {
+  .location {
     font-size: var(--font-size-sm);
   }
 
-  .arrow {
-    font-size: var(--font-size-base);
+  .actionIndicator {
+    align-self: stretch;
+    justify-content: center;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--color-border-secondary);
+    margin-top: var(--space-2);
   }
 }
 
-/* Touch-friendly interactions */
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .imageSection {
+    padding: var(--space-3) var(--space-3) 0;
+  }
+
+  .imageWrapper {
+    height: 160px;
+  }
+
+  .contentSection {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .title {
+    font-size: var(--font-size-lg);
+  }
+
+  .currentPrice {
+    font-size: var(--font-size-base);
+  }
+
+  .actionIndicator {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Tablet landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .imageSection {
+    flex: 0 0 280px;
+  }
+
+  .imageWrapper {
+    height: 160px;
+  }
+
+  .contentSection {
+    padding: var(--space-5);
+  }
+}
+
+/* Touch devices */
 @media (hover: none) and (pointer: coarse) {
   .card:hover {
+    background-color: var(--color-white);
     box-shadow: none;
-    background-color: transparent;
+    transform: none;
   }
 
   .card:hover .imageWrapper img {
     transform: none;
   }
 
-  .card:active {
-    transform: scale(0.98);
+  .card:hover .actionIndicator {
+    gap: var(--space-1);
   }
 
-  .viewDetailsButton {
-    min-height: 48px;
+  .card:hover .actionArrow {
+    transform: none;
   }
 }
 
-/* Accessibility improvements */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .card,
   .card:hover .imageWrapper img,
-  .viewDetailsButton {
+  .actionIndicator,
+  .actionArrow {
     transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  .card:hover .actionArrow {
+    transform: none;
   }
 }
 
@@ -343,46 +412,8 @@
     border: 2px solid var(--color-border-primary);
   }
 
-  .price {
-    border: 2px solid var(--color-primary);
-  }
-
-  .viewDetailsButton {
-    border: 2px solid var(--color-primary);
-  }
-}
-
-/* Landscape orientation on mobile */
-@media (max-width: 768px) and (orientation: landscape) {
-  .contentWrapper {
-    flex-direction: row;
-    gap: var(--space-4);
-  }
-
-  .imageWrapper {
-    flex: 0 0 45%;
-    height: 180px;
-    order: 1;
-  }
-
-  .textContent {
-    flex: 1;
-    order: 2;
-    gap: var(--space-3);
-  }
-
-  .titleWrapper {
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .description {
-    font-size: var(--font-size-sm);
-    line-height: 1.4;
-  }
-
-  .viewDetailsButton {
-    width: auto;
-    padding: var(--space-2) var(--space-4);
+  .durationBadge,
+  .viewDetailsLink {
+    border: 1px solid var(--color-primary);
   }
 }

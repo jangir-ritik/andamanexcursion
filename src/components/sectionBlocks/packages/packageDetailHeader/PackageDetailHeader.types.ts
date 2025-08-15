@@ -1,6 +1,3 @@
-// Use a more permissive type approach for Media
-// type Media = any;
-
 // Import the actual PayloadCMS generated types
 import type {
   Media,
@@ -17,7 +14,8 @@ export interface PayloadPackage {
     // Use union type to handle both string and object types
     category: string | PayloadPackageCategory;
     period: string | PayloadPackagePeriod;
-    location: string | Location;
+    // Updated to handle multiple locations
+    locations: (string | Location)[];
   } | null;
   descriptions?: {
     description: string;
@@ -49,6 +47,22 @@ export interface PayloadPackage {
     transportation?: string | null;
     bestTimeToVisit?: string | null;
     specialNotes?: string | null;
+  } | null;
+  // Featured settings
+  featuredSettings?: {
+    featured?: boolean;
+    featuredOrder?: number | null;
+  } | null;
+  // SEO settings
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    metaImage?: string | Media | null;
+  } | null;
+  // Publishing settings
+  publishingSettings?: {
+    status?: "draft" | "published" | "archived";
+    publishedAt?: string | null;
   } | null;
   createdAt?: string;
   updatedAt?: string;

@@ -24,7 +24,23 @@ const Packages: CollectionConfig = {
       unique: true,
       admin: {
         description:
-          "URL-friendly version of the title (auto-generated if empty)",
+          "URL-friendly version of the title (auto-generated from title)",
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value, data }) => {
+            // Auto-generate slug from title if slug is empty
+            if (!value && data?.title) {
+              return data.title
+                .toLowerCase()
+                .replace(/[^a-z0-9 -]/g, "") // Remove special characters
+                .replace(/\s+/g, "-") // Replace spaces with hyphens
+                .replace(/-+/g, "-") // Replace multiple hyphens with single
+                .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+            }
+            return value;
+          },
+        ],
       },
     },
     {
@@ -57,15 +73,17 @@ const Packages: CollectionConfig = {
           admin: {
             description: "Select the package period",
           },
-          // Remove the filterOptions temporarily
         },
         {
-          name: "location",
+          name: "locations",
           type: "relationship",
           relationTo: "locations",
+          hasMany: true, // Enable multiple selections
           required: true,
+          minRows: 1, // At least one location required
+          maxRows: 10, // Optional: limit maximum locations
           admin: {
-            description: "Select the package location",
+            description: "Select the package locations (multiple allowed)",
           },
         },
       ],
@@ -155,6 +173,7 @@ const Packages: CollectionConfig = {
     {
       name: "packageDetails",
       type: "group",
+      required: true,
       admin: {
         description: "Detailed package information",
       },
@@ -162,6 +181,7 @@ const Packages: CollectionConfig = {
         {
           name: "highlights",
           type: "array",
+          required: true,
           fields: [
             {
               name: "highlight",
@@ -173,6 +193,7 @@ const Packages: CollectionConfig = {
         {
           name: "inclusions",
           type: "array",
+          required: true,
           fields: [
             {
               name: "inclusion",
@@ -184,6 +205,7 @@ const Packages: CollectionConfig = {
         {
           name: "exclusions",
           type: "array",
+          required: true,
           fields: [
             {
               name: "exclusion",
@@ -195,6 +217,7 @@ const Packages: CollectionConfig = {
         {
           name: "itinerary",
           type: "array",
+          required: true,
           fields: [
             {
               name: "day",
@@ -273,22 +296,75 @@ const Packages: CollectionConfig = {
       name: "seo",
       type: "group",
       admin: {
-        description: "SEO settings",
+        description: "SEO settings (auto-populated from package data)",
         position: "sidebar",
       },
       fields: [
         {
           name: "metaTitle",
           type: "text",
+          admin: {
+            description: "Auto-populated from title if empty",
+          },
+          hooks: {
+            beforeValidate: [
+              ({ value, data }) => {
+                // Auto-populate meta title from package title if empty
+                if (!value && data?.title) {
+                  // Get location and period names for more descriptive title
+                  return `${data.title} - Travel Package`;
+                }
+                return value;
+              },
+            ],
+          },
         },
         {
           name: "metaDescription",
           type: "textarea",
+          admin: {
+            description: "Auto-populated from short description if empty",
+          },
+          hooks: {
+            beforeValidate: [
+              ({ value, data }) => {
+                // Auto-populate meta description from short description or description
+                if (!value) {
+                  const shortDesc = data?.descriptions?.shortDescription;
+                  const desc = data?.descriptions?.description;
+
+                  if (shortDesc) {
+                    return shortDesc;
+                  } else if (desc) {
+                    // Truncate description to ~155 characters for meta description
+                    return desc.length > 155
+                      ? desc.substring(0, 152) + "..."
+                      : desc;
+                  }
+                }
+                return value;
+              },
+            ],
+          },
         },
         {
           name: "metaImage",
           type: "upload",
           relationTo: "media",
+          admin: {
+            description: "Auto-populated from first package image if empty",
+          },
+          hooks: {
+            beforeValidate: [
+              ({ value, data }) => {
+                // Auto-populate meta image from first package image if empty
+                if (!value && data?.media?.images?.[0]?.image) {
+                  return data.media.images[0].image;
+                }
+                return value;
+              },
+            ],
+          },
         },
       ],
     },
@@ -321,21 +397,75 @@ const Packages: CollectionConfig = {
           admin: {
             description: "When this page was published",
           },
+          hooks: {
+            beforeValidate: [
+              ({ value, data }) => {
+                // Auto-set published date when status changes to published
+                if (
+                  !value &&
+                  data?.publishingSettings?.status === "published"
+                ) {
+                  return new Date();
+                }
+                return value;
+              },
+            ],
+          },
         },
       ],
     },
   ],
   hooks: {
     beforeChange: [
-      ({ data, req, operation }) => {
-        // Auto-generate slug from title if not provided
-        if (!data.coreInfo?.slug && data.coreInfo?.title) {
-          data.coreInfo.slug = data.coreInfo.title
-            .toLowerCase()
-            .replace(/[^a-z0-9 -]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
+      async ({ data, req, operation }) => {
+        // Additional processing if needed
+        // The individual field hooks handle most auto-generation now
+
+        // You can add relationship-based SEO improvements here
+        if (
+          data.seo?.metaTitle &&
+          data.coreInfo?.locations &&
+          data.coreInfo?.period
+        ) {
+          try {
+            // Fetch related data for better SEO
+            const locationIds = Array.isArray(data.coreInfo.locations)
+              ? data.coreInfo.locations
+              : [data.coreInfo.locations];
+
+            const locations = await Promise.all(
+              locationIds.map((id: string) =>
+                req.payload.findByID({
+                  collection: "locations",
+                  id: id,
+                })
+              )
+            );
+
+            const period = await req.payload.findByID({
+              collection: "package-periods",
+              id: data.coreInfo.period,
+            });
+
+            // Enhance meta title with locations and period info
+            if (
+              locations.length > 0 &&
+              period?.title &&
+              data.seo.metaTitle === `${data.title} - Travel Package`
+            ) {
+              const locationNames = locations
+                .map((loc) => loc.name)
+                .join(" & ");
+              data.seo.metaTitle = `${data.title} - ${period.title} ${locationNames} Package`;
+            }
+          } catch (error) {
+            // Silently fail if relationships can't be fetched
+            console.log(
+              "Could not fetch relationship data for SEO enhancement"
+            );
+          }
         }
+
         return data;
       },
     ],
