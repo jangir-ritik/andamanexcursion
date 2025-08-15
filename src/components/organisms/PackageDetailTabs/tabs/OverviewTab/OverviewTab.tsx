@@ -2,13 +2,15 @@ import React from "react";
 
 import { Column } from "@/components/layout";
 
-import type { OverviewTabProps } from "../../PackageDetailTabs.types";
+// import type { OverviewTabProps } from "../../PackageDetailTabs.types";
 
 import { HighlightItem } from "../../components/HighlightItem/HighlightItem";
 
 import styles from "./OverviewTab.module.css";
 
-export const OverviewTab: React.FC<OverviewTabProps> = ({ packageData }) => {
+export const OverviewTab: React.FC<{ packageData: any }> = ({
+  packageData,
+}) => {
   // Get description from packageData
   const description = packageData.descriptions?.description || "";
 
@@ -35,7 +37,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ packageData }) => {
               Highlights
             </h2>
             <Column gap={2} fullWidth>
-              {highlights.map((highlight, index) => (
+              {highlights.map((highlight: any, index: number) => (
                 <HighlightItem
                   key={index}
                   text={

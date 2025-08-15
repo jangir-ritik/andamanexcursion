@@ -870,10 +870,12 @@ export interface Package {
         | null;
       id?: string | null;
     }[];
-    accommodation?: string | null;
-    transportation?: string | null;
-    bestTimeToVisit?: string | null;
-    specialNotes?: string | null;
+    notes?:
+      | {
+          note: string;
+          id?: string | null;
+        }[]
+      | null;
   };
   /**
    * Settings for featuring the package
@@ -2509,10 +2511,12 @@ export interface PackagesSelect<T extends boolean = true> {
                   };
               id?: T;
             };
-        accommodation?: T;
-        transportation?: T;
-        bestTimeToVisit?: T;
-        specialNotes?: T;
+        notes?:
+          | T
+          | {
+              note?: T;
+              id?: T;
+            };
       };
   featuredSettings?:
     | T

@@ -1,14 +1,14 @@
 import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 
-import type { PackageDetailTabsProps } from "./PackageDetailTabs.types";
+import type { PayloadPackage } from "./PackageDetailTabs.types";
 
 import styles from "./PackageDetailTabs.module.css";
 import { OverviewTab } from "./tabs/OverviewTab/OverviewTab";
 import { ItineraryTab } from "./tabs/ItineraryTab/ItineraryTab";
 import { WhatsCoveredTab } from "./tabs/WhatsCoveredTab/WhatsCoveredTab";
 
-export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
+export const PackageDetailTabs: React.FC<{ packageData: PayloadPackage }> = ({
   packageData,
 }) => {
   // Extract itinerary from packageData
@@ -17,6 +17,7 @@ export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
   // Extract includes/excludes from packageData
   const includes = packageData.packageDetails?.inclusions;
   const excludes = packageData.packageDetails?.exclusions;
+  const notes = packageData.packageDetails?.notes;
 
   return (
     <Tabs.Root className={styles.tabsRoot} defaultValue="overview">
@@ -76,7 +77,11 @@ export const PackageDetailTabs: React.FC<PackageDetailTabsProps> = ({
         role="tabpanel"
         aria-labelledby="whats-covered"
       >
-        <WhatsCoveredTab includes={includes} excludes={excludes} />
+        <WhatsCoveredTab
+          includes={includes}
+          excludes={excludes}
+          notes={notes}
+        />
       </Tabs.Content>
     </Tabs.Root>
   );

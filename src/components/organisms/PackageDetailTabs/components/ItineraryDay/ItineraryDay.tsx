@@ -11,10 +11,12 @@ export const ItineraryDay: React.FC<ItineraryDayProps> = ({
   return (
     <div className={styles.itineraryDay}>
       <div className={styles.dayNumber}>
-        <span>Day {day}</span>
+        <span className={styles.dayNumberTextDot} />
+        <span className={styles.dayNumberText}>Day {day}</span>
+        <span className={styles.dayNumberTextSeparator}>:</span>
+        <h3 className={styles.title}>{title}</h3>
       </div>
       <div className={styles.content}>
-        <h3 className={styles.title}>{title}</h3>
         <p className={styles.description}>{description}</p>
       </div>
       {!isLast && <div className={styles.connector} />}

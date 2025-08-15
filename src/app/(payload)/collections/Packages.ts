@@ -247,20 +247,15 @@ const Packages: CollectionConfig = {
           ],
         },
         {
-          name: "accommodation",
-          type: "textarea",
-        },
-        {
-          name: "transportation",
-          type: "textarea",
-        },
-        {
-          name: "bestTimeToVisit",
-          type: "text",
-        },
-        {
-          name: "specialNotes",
-          type: "textarea",
+          name: "notes",
+          type: "array",
+          fields: [
+            {
+              name: "note",
+              type: "text",
+              required: true,
+            },
+          ],
         },
       ],
     },

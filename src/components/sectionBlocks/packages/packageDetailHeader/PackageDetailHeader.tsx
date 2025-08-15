@@ -18,10 +18,12 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
   const periodDisplay = periodValue.replace("-", "D ") + "N";
 
   // Get location display
-  const locationDisplay =
-    typeof packageData.coreInfo?.location === "object"
-      ? packageData.coreInfo.location?.name
-      : packageData.coreInfo?.location || "Andaman Islands";
+  const locationDisplay = packageData.coreInfo?.locations
+    ?.map((location) => {
+      if (typeof location === "string") return location;
+      return location.name;
+    })
+    .join(", ");
 
   return (
     <>

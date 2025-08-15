@@ -4,6 +4,19 @@
   padding-bottom: var(--space-10);
 }
 
+.dayNumberTextDot {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-secondary);
+  margin-right: var(--space-2);
+  /* margin-bottom: var(--space-2); */
+  /* position: absolute; */
+  border-radius: 100%;
+  flex-shrink: 0;
+}
+
 .timelineMarker {
   position: relative;
   display: flex;
@@ -46,6 +59,9 @@
 }
 
 .dayNumber {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-weight: 400;
   color: var(--color-text-secondary);
 }
@@ -55,7 +71,20 @@
   font-size: var(--font-size-xl);
   font-weight: 400;
   color: var(--color-secondary);
-  margin-bottom: var(--space-2);
+}
+
+.dayNumberTextSeparator {
+  font-size: var(--font-size-xl);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.dayNumberText {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .description {
@@ -63,6 +92,7 @@
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
   margin-bottom: var(--space-4);
+  margin-left: var(--space-6);
   line-height: 1.5;
 }
 

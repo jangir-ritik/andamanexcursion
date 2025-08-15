@@ -2,12 +2,12 @@ import React from "react";
 
 import { Column } from "@/components/layout";
 
-import type { ItineraryTabProps } from "../../PackageDetailTabs.types";
+// import type { ItineraryTabProps } from "../../PackageDetailTabs.types";
 
 import styles from "./ItineraryTab.module.css";
 import { ItineraryDay } from "../../components/ItineraryDay/ItineraryDay";
 
-export const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
+export const ItineraryTab: React.FC<{ itinerary: any }> = ({ itinerary }) => {
   // If no itinerary, show empty state
   if (!itinerary || itinerary.length === 0) {
     return (
@@ -25,7 +25,7 @@ export const ItineraryTab: React.FC<ItineraryTabProps> = ({ itinerary }) => {
     >
       <Column gap={4} fullWidth>
         <div className={styles.timeline} aria-label="Day-by-day itinerary">
-          {itinerary.map((day, index) => (
+          {itinerary.map((day: any, index: number) => (
             <ItineraryDay
               key={day.day}
               day={day.day}

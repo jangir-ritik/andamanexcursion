@@ -11,6 +11,7 @@
   height: 100%;
   object-fit: cover;
   aspect-ratio: 3/1;
+  border-radius: var(--radius-xl);
 }
 
 .sectionTitle {
@@ -27,7 +28,7 @@
 }
 
 .price {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .packageSelectorWrapper {

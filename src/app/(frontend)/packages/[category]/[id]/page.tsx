@@ -53,8 +53,10 @@ export default async function PackageDetailPage({
           {/* Package Detail Tabs */}
           <PackageDetailTabs packageData={packageData} />
           <Row gap={3} responsive responsiveGap="var(--space-4)">
-            <InlineLink href="/customise">Customise this package</InlineLink>
-            <Button showArrow>Enquire</Button>
+            {/* <InlineLink href="/customise">Customise this package</InlineLink> */}
+            <Button showArrow href="/contact">
+              Enquire
+            </Button>
           </Row>
         </Column>
       </Section>
