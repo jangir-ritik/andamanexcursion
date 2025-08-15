@@ -1,7 +1,7 @@
 export interface PassengerCount {
   adults: number;
-  infants: number;
-  children?: number;
+  children: number;
+  infants?: number; // Optional for backward compatibility
 }
 
 export interface PassengerCounterProps {

@@ -113,20 +113,37 @@ export const ActivityResults = memo<ActivityResultsProps>(
 
       return activities.map((activity) => {
         const basePrice = activity.coreInfo?.basePrice || 0;
-        const totalPrice = calculateTotalPrice(basePrice);
+        const discountedPrice = activity.coreInfo?.discountedPrice;
+        const currentPrice = discountedPrice || basePrice;
+
+        const totalPrice = calculateTotalPrice(currentPrice);
+        const originalTotalPrice = discountedPrice
+          ? calculateTotalPrice(basePrice)
+          : undefined;
 
         // Transform activity options for ActivityCard
         const transformedOptions = (activity.activityOptions || []).map(
-          (option, index) => ({
-            id: option.id || getStableOptionId(activity.id, index),
-            type: option.optionTitle || "Standard Option",
-            description: option.optionDescription || "",
-            price: option.price || basePrice,
-            totalPrice: calculateTotalPrice(option.price || basePrice),
-            seatsLeft:
-              option.maxCapacity || activity.coreInfo?.maxCapacity || 10,
-            amenities: [],
-          })
+          (option, index) => {
+            const optionCurrentPrice = option.discountedPrice || option.price;
+            const optionOriginalPrice = option.discountedPrice
+              ? option.price
+              : undefined;
+
+            return {
+              id: option.id || getStableOptionId(activity.id, index),
+              type: option.optionTitle || "Standard Option",
+              description: option.optionDescription || "",
+              price: optionCurrentPrice,
+              totalPrice: calculateTotalPrice(optionCurrentPrice),
+              originalPrice: optionOriginalPrice,
+              originalTotalPrice: optionOriginalPrice
+                ? calculateTotalPrice(optionOriginalPrice)
+                : undefined,
+              seatsLeft:
+                option.maxCapacity || activity.coreInfo?.maxCapacity || 10,
+              amenities: [],
+            };
+          }
         );
 
         // Transform images
@@ -142,6 +159,99 @@ export const ActivityResults = memo<ActivityResultsProps>(
           })),
         ];
 
+        // Get proper time slots for this activity
+        // First check if activity has direct time slots, otherwise use utility function
+        const getTimeSlots = () => {
+          if (activity.availableTimeSlots?.length) {
+            return activity.availableTimeSlots;
+          }
+
+          // Use the synchronous version for immediate display
+          try {
+            const {
+              getActivityDisplayTimeSlots,
+            } = require("@/utils/activityTimeSlots");
+            const slots = getActivityDisplayTimeSlots(activity);
+
+            // If no slots found, create duration-appropriate slots based on activity duration
+            if (slots.length === 0) {
+              return createDurationBasedTimeSlots(activity);
+            }
+
+            return slots;
+          } catch (error) {
+            console.error("Error getting activity time slots:", error);
+            return createDurationBasedTimeSlots(activity);
+          }
+        };
+
+        // Helper function to create time slots based on activity duration
+        const createDurationBasedTimeSlots = (activity: any) => {
+          const duration = activity.coreInfo?.duration || "2 hours";
+          const durationHours = parseDuration(duration);
+
+          const isWaterActivity =
+            activity.title?.toLowerCase().includes("scuba") ||
+            activity.title?.toLowerCase().includes("snorkel") ||
+            activity.title?.toLowerCase().includes("diving") ||
+            activity.title?.toLowerCase().includes("kayak");
+
+          if (isWaterActivity) {
+            return [
+              {
+                id: "morning",
+                startTime: "09:00",
+                endTime: addHours("09:00", durationHours),
+                displayTime: `09:00 - ${addHours("09:00", durationHours)} hrs`,
+                isAvailable: true,
+              },
+              {
+                id: "afternoon",
+                startTime: "14:00",
+                endTime: addHours("14:00", durationHours),
+                displayTime: `14:00 - ${addHours("14:00", durationHours)} hrs`,
+                isAvailable: true,
+              },
+            ];
+          } else {
+            return [
+              {
+                id: "morning",
+                startTime: "10:00",
+                endTime: addHours("10:00", durationHours),
+                displayTime: `10:00 - ${addHours("10:00", durationHours)} hrs`,
+                isAvailable: true,
+              },
+              {
+                id: "afternoon",
+                startTime: "15:00",
+                endTime: addHours("15:00", durationHours),
+                displayTime: `15:00 - ${addHours("15:00", durationHours)} hrs`,
+                isAvailable: true,
+              },
+            ];
+          }
+        };
+
+        // Helper to parse duration string like "2 hours" -> 2
+        const parseDuration = (duration: string): number => {
+          const match = duration.match(/(\d+(?:\.\d+)?)/);
+          return match ? parseFloat(match[1]) : 2; // default to 2 hours
+        };
+
+        // Helper to add hours to time string
+        const addHours = (timeStr: string, hours: number): string => {
+          const [hour, minute] = timeStr.split(":").map(Number);
+          const totalMinutes = hour * 60 + minute + hours * 60;
+          const newHour = Math.floor(totalMinutes / 60) % 24;
+          const newMinute = totalMinutes % 60;
+          return `${newHour.toString().padStart(2, "0")}:${newMinute
+            .toString()
+            .padStart(2, "0")}`;
+        };
+
+        const availableTimeSlots = getTimeSlots();
+
         return {
           id: activity.id,
           title: activity.title,
@@ -150,12 +260,15 @@ export const ActivityResults = memo<ActivityResultsProps>(
             activity.coreInfo?.shortDescription ||
             "Experience this amazing activity in Andaman!",
           images,
-          price: basePrice,
+          price: currentPrice,
           totalPrice,
+          originalPrice: discountedPrice ? basePrice : undefined,
+          originalTotalPrice,
           type: activity.coreInfo?.category[0]?.name || "Activity",
           duration: activity.coreInfo?.duration || "2 hours",
           href: `/activities/${activity.slug}`,
           activityOptions: transformedOptions,
+          availableTimeSlots,
           onSelectActivity: handleActivitySelection,
         };
       });

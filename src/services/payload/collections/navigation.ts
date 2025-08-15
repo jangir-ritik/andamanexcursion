@@ -33,14 +33,11 @@ export const navigationService = {
       const { docs } = await payload.find({
         collection: "activity-categories",
         where: {
-          and: [
-            { isActive: { equals: true } },
-            { parentCategory: { exists: false } }, // Only top-level categories
-          ],
+          isActive: { equals: true }, // Get all active categories, including subcategories
         },
         sort: "sortOrder",
-        limit: 20,
-        depth: 0, // We only need basic fields
+        limit: 50, // Increased limit to accommodate subcategories
+        depth: 1, // Include parent category info for proper grouping
       });
       return docs;
     } catch (error) {

@@ -13,6 +13,8 @@ const SlotSelect = memo(
     className,
     hasError,
     placeholder,
+    disabled = false,
+    isLoading = false,
   }: SlotSelectProps) => {
     // Select first slot if value is empty and options exist
     useEffect(() => {
@@ -46,15 +48,19 @@ const SlotSelect = memo(
       (slot) => slot.value === value || slot.slug === value || slot.id === value
     );
 
-    const displayText = currentSlot
+    const displayText = isLoading
+      ? "Loading time slots..."
+      : currentSlot
       ? currentSlot.label || currentSlot.time
       : placeholder || "Select a time slot";
+
+    const isDisabled = disabled || isLoading;
 
     return (
       <div
         className={`${styles.selectWrapper} ${className || ""} ${
           hasError ? styles.error : ""
-        }`}
+        } ${isDisabled ? styles.disabled : ""}`}
       >
         <span className={styles.selectLabel}>Slot</span>
         <div className={styles.slotPickerInner}>
@@ -63,7 +69,7 @@ const SlotSelect = memo(
             aria-label="Previous Slot"
             className={styles.slotNavButton}
             onClick={handlePrevious}
-            disabled={currentIndex <= 0}
+            disabled={isDisabled || currentIndex <= 0}
           >
             <ChevronLeft size={20} />
           </button>
@@ -73,7 +79,7 @@ const SlotSelect = memo(
             aria-label="Next Slot"
             className={styles.slotNavButton}
             onClick={handleNext}
-            disabled={currentIndex >= options.length - 1}
+            disabled={isDisabled || currentIndex >= options.length - 1}
           >
             <ChevronRight size={20} />
           </button>

@@ -13,4 +13,6 @@ export interface SlotSelectProps {
   options: TimeSlot[];
   className?: string;
   hasError?: boolean;
+  disabled?: boolean;
+  isLoading?: boolean;
 }

@@ -480,3 +480,77 @@
     justify-self: stretch;
   }
 }
+
+/* Error and loading states */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-red-50);
+  border: 1px solid var(--color-red-200);
+  border-radius: var(--radius-md);
+}
+
+.errorMessage {
+  color: var(--color-red-700);
+  text-align: center;
+  font-weight: 500;
+}
+
+.retryButton {
+  min-width: 120px;
+}
+
+/* Time slot filtering feedback styles */
+.filterFeedback {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-blue-50);
+  border: 1px solid var(--color-blue-200);
+}
+
+.loadingFeedback {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-blue-700);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.infoFeedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-blue-700);
+  font-size: 0.875rem;
+}
+
+.infoHint {
+  font-size: 0.75rem;
+  color: var(--color-blue-600);
+  font-style: italic;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-blue-200);
+  border-top: 2px solid var(--color-blue-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

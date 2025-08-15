@@ -3,10 +3,11 @@ import React, { useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useActivity } from "@/store/ActivityStore";
+import { useActivity, Activity } from "@/store/ActivityStore";
 import { useRouter } from "next/navigation";
 import styles from "../BookingForm.module.css";
 import { cn } from "@/utils/cn";
+import { getActivityTimeSlots } from "@/utils/activityTimeSlots";
 
 import {
   Button,
@@ -29,7 +30,6 @@ const activitySearchSchema = z.object({
       .min(1, "At least 1 adult required")
       .max(10, "Maximum 10 adults"),
     children: z.number().min(0).max(10, "Maximum 10 children"),
-    infants: z.number().min(0).max(5, "Maximum 5 infants"),
   }),
 });
 
@@ -58,7 +58,7 @@ export function ActivitySearchForm({
   const {
     activityTypes: activityOptions,
     locations: locationOptions,
-    timeSlots: timeSlotOptions,
+    timeSlots: allTimeSlots,
     isLoading: isLoadingOptions,
     error: loadError,
   } = state.formOptions;
@@ -72,6 +72,119 @@ export function ActivitySearchForm({
       ? state.editingSearchParams
       : state.searchParams;
 
+  // Get the currently selected activity to filter time slots
+  const selectedActivityType = currentSearchParams.activityType;
+
+  // Get the selected activity category for time slot filtering
+  const selectedActivityCategory = React.useMemo(() => {
+    if (!selectedActivityType) return null;
+
+    return activityOptions.find((opt) => opt.value === selectedActivityType);
+  }, [selectedActivityType, activityOptions]);
+
+  // State for filtered time slots
+  const [timeSlotOptions, setTimeSlotOptions] = React.useState(
+    () => allTimeSlots || []
+  );
+  const [isFilteringTimeSlots, setIsFilteringTimeSlots] = React.useState(false);
+
+  // Filter time slots based on selected activity category (async)
+  React.useEffect(() => {
+    const filterTimeSlots = async () => {
+      // Always return all time slots initially or when no activity type is selected
+      if (!selectedActivityType || selectedActivityType === "") {
+        setTimeSlotOptions(allTimeSlots || []);
+        return;
+      }
+
+      // Apply filtering when an activity category is selected
+      if (selectedActivityCategory && allTimeSlots) {
+        setIsFilteringTimeSlots(true);
+
+        try {
+          // Create a minimal activity object for filtering
+          const categoryForFiltering = {
+            id: "temp-category",
+            title: selectedActivityCategory.label,
+            slug: selectedActivityCategory.slug,
+            coreInfo: {
+              description: "",
+              category: [
+                {
+                  id: selectedActivityCategory.id,
+                  name: selectedActivityCategory.name,
+                  slug: selectedActivityCategory.slug,
+                },
+              ],
+              location: [],
+              basePrice: 0,
+              duration: "2 hours", // Default duration
+              maxCapacity: 10,
+            },
+            media: {
+              featuredImage: undefined,
+              gallery: [],
+            },
+            activityOptions: [],
+            status: {
+              isActive: true,
+              isFeatured: false,
+              priority: 0,
+            },
+          } as Activity;
+
+          // First try to get filtered slots from the database
+          let filteredSlots = await getActivityTimeSlots(
+            categoryForFiltering,
+            allTimeSlots
+          );
+
+          // If no database slots or very few slots, supplement with duration-based slots
+          if (filteredSlots.length === 0) {
+            const { createDurationBasedTimeSlots } = await import(
+              "@/utils/activityTimeSlots"
+            );
+            filteredSlots = createDurationBasedTimeSlots(
+              null,
+              selectedActivityCategory.slug
+            );
+          } else if (filteredSlots.length < 3) {
+            const { createDurationBasedTimeSlots } = await import(
+              "@/utils/activityTimeSlots"
+            );
+            const durationSlots = createDurationBasedTimeSlots(
+              null,
+              selectedActivityCategory.slug
+            );
+
+            // Combine database slots with duration-based slots, avoiding duplicates
+            const existingTimes = new Set(
+              filteredSlots.map((slot) => slot.value)
+            );
+            const supplementarySlots = durationSlots.filter(
+              (slot) => !existingTimes.has(slot.value)
+            );
+            filteredSlots = [...filteredSlots, ...supplementarySlots];
+          }
+
+          // Update with filtered slots
+          setTimeSlotOptions(
+            filteredSlots.length > 0 ? filteredSlots : allTimeSlots
+          );
+        } catch (error) {
+          setTimeSlotOptions(allTimeSlots); // Fallback
+        } finally {
+          setIsFilteringTimeSlots(false);
+        }
+      } else {
+        // Fallback to all time slots
+        setTimeSlotOptions(allTimeSlots || []);
+      }
+    };
+
+    filterTimeSlots();
+  }, [selectedActivityCategory, allTimeSlots, selectedActivityType]);
+
   // Memoize default values to prevent recreating on each render
   const defaultValues = useMemo(
     () => ({
@@ -84,7 +197,6 @@ export function ActivitySearchForm({
       passengers: {
         adults: currentSearchParams.adults || 2,
         children: currentSearchParams.children || 0,
-        infants: currentSearchParams.children || 0, // Map children to infants for form compatibility
       },
     }),
     [currentSearchParams]
@@ -96,11 +208,46 @@ export function ActivitySearchForm({
     formState: { errors, isSubmitting },
     setError,
     reset,
+    watch,
   } = useForm<ActivitySearchFormData>({
     resolver: zodResolver(activitySearchSchema),
     defaultValues,
     mode: "onSubmit",
   });
+
+  // Watch form values to update search params in real time
+  React.useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      // Update search params when time slot changes
+      if (name === "selectedSlot" && value.selectedSlot !== undefined) {
+        updateSearchParams({ time: value.selectedSlot });
+      }
+
+      // Also update other search params for consistency
+      if (name === "selectedActivity" && value.selectedActivity !== undefined) {
+        updateSearchParams({ activityType: value.selectedActivity });
+      }
+
+      if (name === "activityLocation" && value.activityLocation !== undefined) {
+        updateSearchParams({ location: value.activityLocation });
+      }
+
+      if (name === "selectedDate" && value.selectedDate !== undefined) {
+        updateSearchParams({
+          date: value.selectedDate.toISOString().split("T")[0],
+        });
+      }
+
+      if (name === "passengers" && value.passengers !== undefined) {
+        updateSearchParams({
+          adults: value.passengers.adults,
+          children: value.passengers.children,
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, updateSearchParams]);
 
   // Reset form values when edit mode is triggered
   React.useEffect(() => {
@@ -142,7 +289,6 @@ export function ActivitySearchForm({
         time: data.selectedSlot,
         adults: data.passengers.adults,
         children: data.passengers.children,
-        infants: data.passengers.infants,
       };
 
       // Update search params (this will update editingSearchParams in edit mode)
@@ -171,7 +317,7 @@ export function ActivitySearchForm({
           date: searchParams.date,
           time: searchParams.time,
           adults: searchParams.adults.toString(),
-          children: (searchParams.children + searchParams.infants).toString(), // Combine children and infants
+          children: searchParams.children.toString(),
         });
 
         router.push(`/activities/search?${urlParams.toString()}`);
@@ -235,6 +381,36 @@ export function ActivitySearchForm({
     []
   );
 
+  // Auto-search when time slot changes if a search has already been performed
+  React.useEffect(() => {
+    const currentTime = currentSearchParams.time;
+
+    // Only auto-search if:
+    // 1. We have activities (meaning a search was already performed)
+    // 2. We have required search params (activityType)
+    // 3. We're not in edit mode (to avoid unwanted searches during editing)
+    if (
+      state.activities.length > 0 &&
+      currentSearchParams.activityType &&
+      !isEditMode &&
+      currentTime
+    ) {
+      // Debounce the search to avoid too many requests
+      const timeoutId = setTimeout(() => {
+        searchActivities(currentSearchParams);
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    currentSearchParams.time,
+    state.activities.length,
+    currentSearchParams.activityType,
+    isEditMode,
+    searchActivities,
+    currentSearchParams,
+  ]);
+
   // Loading state while fetching form options
   if (isLoadingOptions) {
     return <div className={styles.formGrid}>Loading booking options...</div>;
@@ -266,8 +442,44 @@ export function ActivitySearchForm({
       aria-invalid={Object.keys(errors).length > 0 ? "true" : "false"}
       aria-busy={isSubmitting || state.isLoading ? "true" : "false"}
       aria-live="polite"
-      className={cn(styles.formGrid, className)}
+      className={cn(
+        styles.formGrid,
+        variant === "compact" && styles.formCompact,
+        variant === "embedded" && styles.formEmbedded,
+        className
+      )}
     >
+      {/* Add user feedback for time slot filtering */}
+      {selectedActivityType && (
+        <div className={styles.filterFeedback}>
+          {isFilteringTimeSlots ? (
+            <div className={styles.loadingFeedback}>
+              <div className={styles.spinner} />
+              Filtering available time slots...
+            </div>
+          ) : timeSlotOptions.length < (allTimeSlots?.length || 0) ? (
+            <div className={styles.infoFeedback}>
+              Showing {timeSlotOptions.length} available time slots for{" "}
+              {selectedActivityCategory?.label}
+              {timeSlotOptions.length > 0 && (
+                <span className={styles.infoHint}>
+                  Time slots are matched to activity duration. Selecting a time
+                  will show only activities available at that time.
+                </span>
+              )}
+            </div>
+          ) : (
+            timeSlotOptions.length > 0 && (
+              <div className={styles.infoFeedback}>
+                <span className={styles.infoHint}>
+                  ⏰ Time slots shown match the typical duration for{" "}
+                  {selectedActivityCategory?.label} activities
+                </span>
+              </div>
+            )
+          )}
+        </div>
+      )}
       <div className={styles.formContent}>
         {/* Activity Type */}
         <div className={styles.formField}>
@@ -346,6 +558,7 @@ export function ActivitySearchForm({
                 options={timeSlotOptions}
                 placeholder="Select Time"
                 hasError={!!errors.selectedSlot}
+                isLoading={isFilteringTimeSlots}
               />
             )}
           />

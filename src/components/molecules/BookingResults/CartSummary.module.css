@@ -667,6 +667,14 @@
   text-align: center;
 }
 
+.loadingText {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  font-size: var(--font-size-sm);
+}
+
 /* Time slot grid - inverted to multiple rows, fewer columns */
 .timeSlotGrid {
   display: grid;

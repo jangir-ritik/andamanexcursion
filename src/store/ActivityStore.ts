@@ -40,8 +40,31 @@ export interface Activity {
       slug?: string;
     }>;
     basePrice: number;
+    discountedPrice?: number; // Optional discounted price
     duration: string;
     maxCapacity?: number;
+  };
+  availableTimeSlots?: Array<{
+    id: string;
+    startTime: string;
+    endTime?: string;
+    displayTime: string; // e.g., "10:00 - 12:00 hr"
+    isAvailable: boolean;
+  }>;
+  scheduling?: {
+    availableTimeSlots?: Array<{
+      id: string;
+      startTime: string;
+      endTime?: string;
+      twelveHourTime?: string;
+      slug: string;
+      status?: {
+        isActive?: boolean;
+        priority?: number;
+        isPopular?: boolean;
+      };
+    }>;
+    useCustomTimeSlots?: boolean;
   };
   media: {
     featuredImage?: {
@@ -61,6 +84,7 @@ export interface Activity {
     optionTitle: string;
     optionDescription: string;
     price: number;
+    discountedPrice?: number;
     duration?: string;
     maxCapacity?: number;
     isActive: boolean;
@@ -216,6 +240,7 @@ const formatDataForSelect = {
           ? apiActivity.coreInfo.location
           : [{ id: "default-location", name: "Andaman", slug: "andaman" }],
         basePrice: apiActivity.coreInfo?.basePrice || 0,
+        discountedPrice: apiActivity.coreInfo?.discountedPrice || undefined,
         duration: apiActivity.coreInfo?.duration || "1 hour",
         maxCapacity: apiActivity.coreInfo?.maxCapacity || 10,
       },
@@ -302,7 +327,10 @@ const calculateTotalPrice = (
     ? activity.activityOptions.find((opt) => opt.id === activityOptionId)
     : null;
 
-  const basePrice = selectedOption?.price || activity.coreInfo.basePrice;
+  // Use discounted price if available for option or activity, otherwise use base price
+  const basePrice = selectedOption
+    ? selectedOption.discountedPrice || selectedOption.price
+    : activity.coreInfo.discountedPrice || activity.coreInfo.basePrice;
 
   // Calculate price per person (adults full price, children half price, infants free)
   const pricePerBooking =

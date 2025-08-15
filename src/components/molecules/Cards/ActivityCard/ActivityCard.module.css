@@ -494,6 +494,20 @@
     margin: var(--space-2) 0 var(--space-3) 0;
   }
 
+  .timeSlotsTitle {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--space-1);
+  }
+
+  .timeSlot {
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) var(--space-1);
+  }
+
+  .moreSlots {
+    font-size: var(--font-size-xs);
+  }
+
   .viewDetailsButton {
     min-height: 44px;
     font-size: var(--font-size-sm);
@@ -561,6 +575,81 @@
   .classesContainer > div:last-child {
     opacity: 1;
   }
+}
+
+/* Discount pricing styles */
+.originalPrice {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-right: var(--space-2);
+}
+
+.discountedPrice {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-right: var(--space-1);
+}
+
+.priceLabel {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.originalTotalPrice {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-right: var(--space-2);
+}
+
+.discountedTotalPrice {
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-right: var(--space-1);
+}
+
+.totalLabel {
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+/* Time slots styles */
+.timeSlotsContainer {
+  margin: var(--space-3) 0;
+}
+
+.timeSlotsTitle {
+  font-family: var(--font-family-primary);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.timeSlotsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.timeSlot {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border: 1px solid var(--color-border-secondary);
+  white-space: nowrap;
+}
+
+.moreSlots {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-style: italic;
+  padding: var(--space-1) var(--space-2);
 }
 
 /* High contrast mode */

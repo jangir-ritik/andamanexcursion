@@ -196,3 +196,30 @@
     flex-direction: column;
   }
 }
+
+/* Discount pricing styles */
+.originalPrice {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-right: var(--space-2);
+}
+
+.discountedPrice {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-right: var(--space-1);
+}
+
+.originalTotalPrice {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-right: var(--space-2);
+}
+
+.discountedTotalPrice {
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-right: var(--space-1);
+}

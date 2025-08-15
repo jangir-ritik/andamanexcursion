@@ -57,7 +57,7 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
       // Ensure at least 1 adult
       const newValue = Math.max(1, value);
       setValue("tripDetails.adults", newValue);
-    } else if (type === "infants") {
+    } else if (type === "children") {
       // Ensure non-negative children count
       const newValue = Math.max(0, value);
       setValue("tripDetails.children", newValue);
@@ -192,7 +192,7 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
             <PassengerCounter
               value={{
                 adults: adults || 1,
-                infants: children || 0,
+                children: children || 0,
               }}
               onChange={handlePassengerChange}
               hasError={

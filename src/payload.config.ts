@@ -18,6 +18,7 @@ import Locations from "./app/(payload)/collections/Locations";
 import ActivityCategories from "./app/(payload)/collections/ActivityCategories";
 import Activities from "./app/(payload)/collections/Activities";
 import TimeSlots from "./app/(payload)/collections/TimeSlots";
+import ActivityTimeSlots from "./app/(payload)/collections/ActivityTimeSlots";
 import ActivityInventory from "./app/(payload)/collections/ActivityInventory";
 import Bookings from "./app/(payload)/collections/Bookings";
 import Payments from "./app/(payload)/collections/Payments";
@@ -36,6 +37,7 @@ export default buildConfig({
     ActivityCategories,
     Activities,
     TimeSlots,
+    ActivityTimeSlots,
     ActivityInventory,
     Bookings,
     Payments,

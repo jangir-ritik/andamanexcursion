@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
     const time = searchParams.get("time");
     const adults = parseInt(searchParams.get("adults") || "0", 10);
     const children = parseInt(searchParams.get("children") || "0", 10);
-    const infants = parseInt(searchParams.get("infants") || "0", 10);
 
     console.log("Search params:", {
       activityType,
@@ -32,7 +31,6 @@ export async function GET(request: NextRequest) {
       time,
       adults,
       children,
-      infants,
     });
 
     // Validate required parameters - only activityType is required
@@ -102,14 +100,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Add capacity filter based on total passengers
-    const totalPassengers = adults + children + infants;
+    const totalPassengers = adults + children;
     if (totalPassengers > 0) {
       whereClause["coreInfo.maxCapacity"] = {
         greater_than_equal: totalPassengers,
       };
     }
 
-    // Search for activities
+    // Search for activities initially
     const activities = await payload.find({
       collection: "activities",
       where: whereClause,
@@ -118,7 +116,104 @@ export async function GET(request: NextRequest) {
       depth: 2, // Include related data
     });
 
-    return NextResponse.json(activities.docs, { headers });
+    let filteredActivities = activities.docs;
+
+    // If time slot is specified, filter activities based on time availability
+    if (time && time !== "") {
+      console.log("Filtering activities by time slot:", time);
+
+      const timeFilteredActivities = [];
+
+      for (const activity of filteredActivities) {
+        let isTimeAvailable = false;
+
+        // Check if activity has custom time slots
+        if (
+          activity.scheduling?.useCustomTimeSlots &&
+          activity.scheduling?.availableTimeSlots?.length
+        ) {
+          // Check if the selected time matches any of the activity's custom time slots
+          const customSlots = activity.scheduling.availableTimeSlots;
+          isTimeAvailable = customSlots.some((slot) => {
+            // Handle both string and object slot types
+            if (typeof slot === "string") {
+              return slot === time;
+            }
+            // Match by time comparison for ActivityTimeSlot objects
+            return slot.startTime && slot.startTime.replace(":", "-") === time;
+          });
+        } else {
+          // Fall back to category-based time slot checking
+          try {
+            // Get time slots for this category
+            const categoryTimeSlots = await payload.find({
+              collection: "activity-time-slots",
+              where: {
+                activityCategory: {
+                  equals: categoryId,
+                },
+                isActive: {
+                  equals: true,
+                },
+              },
+              depth: 1,
+            });
+
+            if (categoryTimeSlots.docs.length > 0) {
+              // Check if the selected time falls within any of the category's time slots
+              const timeInMinutes = timeToMinutes(time.replace("-", ":"));
+
+              isTimeAvailable = categoryTimeSlots.docs.some((slot) => {
+                const startMinutes = timeToMinutes(slot.startTime);
+                const endMinutes = timeToMinutes(slot.endTime);
+                return (
+                  timeInMinutes >= startMinutes && timeInMinutes <= endMinutes
+                );
+              });
+
+              console.log(
+                `Activity ${activity.title} - Category slots check:`,
+                {
+                  selectedTime: time,
+                  selectedTimeMinutes: timeInMinutes,
+                  categorySlots: categoryTimeSlots.docs.map((s) => ({
+                    startTime: s.startTime,
+                    endTime: s.endTime,
+                    startMinutes: timeToMinutes(s.startTime),
+                    endMinutes: timeToMinutes(s.endTime),
+                  })),
+                  isAvailable: isTimeAvailable,
+                }
+              );
+            } else {
+              // No time restrictions for this category, allow all times
+              isTimeAvailable = true;
+              console.log(
+                `Activity ${activity.title} - No time restrictions, allowing all times`
+              );
+            }
+          } catch (error) {
+            console.error(
+              `Error checking time slots for activity ${activity.title}:`,
+              error
+            );
+            // In case of error, include the activity (fail open)
+            isTimeAvailable = true;
+          }
+        }
+
+        if (isTimeAvailable) {
+          timeFilteredActivities.push(activity);
+        }
+      }
+
+      filteredActivities = timeFilteredActivities;
+      console.log(
+        `Time filtering complete: ${filteredActivities.length} activities available at ${time}`
+      );
+    }
+
+    return NextResponse.json(filteredActivities, { headers });
   } catch (error) {
     console.error("Search API error:", error);
     return NextResponse.json(
@@ -126,4 +221,11 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Helper function to convert time string (HH:mm) to minutes
+function timeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  return (hours || 0) * 60 + (minutes || 0);
 }

@@ -71,6 +71,13 @@ const Activities: CollectionConfig = {
           },
         },
         {
+          name: "discountedPrice",
+          type: "number",
+          admin: {
+            description: "Discounted price per person (optional)",
+          },
+        },
+        {
           name: "duration",
           type: "text",
           required: true,
@@ -144,6 +151,13 @@ const Activities: CollectionConfig = {
           },
         },
         {
+          name: "discountedPrice",
+          type: "number",
+          admin: {
+            description: "Discounted price for this option (optional)",
+          },
+        },
+        {
           name: "duration",
           type: "text",
           admin: {
@@ -174,21 +188,34 @@ const Activities: CollectionConfig = {
         },
       ],
     },
-    // {
-    //   name: "scheduling",
-    //   type: "group",
-    //   fields: [
-    //     // {
-    //     //   name: "availableTimeSlots",
-    //     //   type: "relationship",
-    //     //   relationTo: "time-slots",
-    //     //   hasMany: true,
-    //     //   admin: {
-    //     //     description: "Available time slots for this activity",
-    //     //   },
-    //     // },
-    //   ],
-    // },
+    {
+      name: "scheduling",
+      type: "group",
+      admin: {
+        description: "Time slots and scheduling settings",
+      },
+      fields: [
+        {
+          name: "useCustomTimeSlots",
+          type: "checkbox",
+          defaultValue: false,
+          admin: {
+            description: "Use specific time slots instead of category defaults",
+          },
+        },
+        {
+          name: "availableTimeSlots",
+          type: "relationship",
+          relationTo: "activity-time-slots",
+          hasMany: true,
+          admin: {
+            description:
+              "Specific time slots for this activity (only used if 'Use Custom Time Slots' is enabled)",
+            condition: (data: any) => data?.useCustomTimeSlots === true,
+          },
+        },
+      ],
+    },
     {
       name: "seo",
       type: "group",

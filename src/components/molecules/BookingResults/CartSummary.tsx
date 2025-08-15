@@ -25,6 +25,8 @@ import { useActivity } from "@/store/ActivityStore";
 import type { PassengerCount } from "@/components/atoms/PassengerCounter/PassengerCounter.types";
 import type { CartSummaryProps } from "./CartSummary.types";
 import styles from "./CartSummary.module.css";
+import { getActivityTimeSlots } from "@/utils/activityTimeSlots";
+import type { TimeSlotOption } from "@/store/ActivityStore";
 
 export const CartSummary: React.FC<CartSummaryProps> = ({
   className,
@@ -49,10 +51,40 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
   const editingOverlayRef = useRef<HTMLDivElement>(null);
 
-  // Use dynamic time slots from the store
-  const availableTimeSlots = useMemo(() => {
-    return formOptions.timeSlots || [];
-  }, [formOptions.timeSlots]);
+  // Get time slots for specific activity (when editing) - now properly async
+  const getTimeSlotsForActivity = useCallback(
+    async (activityId: string): Promise<TimeSlotOption[]> => {
+      const cartItem = cart.find((item) => item.id === activityId);
+      if (!cartItem) return formOptions.timeSlots || [];
+
+      // Use proper async filtering
+      return await getActivityTimeSlots(
+        cartItem.activity,
+        formOptions.timeSlots || []
+      );
+    },
+    [cart, formOptions.timeSlots]
+  );
+
+  // State for filtered time slots in edit mode
+  const [editingTimeSlots, setEditingTimeSlots] = useState<TimeSlotOption[]>(
+    []
+  );
+  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
+
+  // Load filtered time slots when editing time
+  useEffect(() => {
+    if (editingField?.field === "time") {
+      setIsLoadingTimeSlots(true);
+      getTimeSlotsForActivity(editingField.itemId)
+        .then(setEditingTimeSlots)
+        .catch((error) => {
+          console.error("Error loading time slots:", error);
+          setEditingTimeSlots(formOptions.timeSlots || []);
+        })
+        .finally(() => setIsLoadingTimeSlots(false));
+    }
+  }, [editingField, getTimeSlotsForActivity, formOptions.timeSlots]);
 
   // Handle direct updates to cart items using the existing store methods
   const updateCartItem = useCallback(
@@ -87,13 +119,13 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   const handlePassengerChange = useCallback(
     (cartItemId: string, type: keyof PassengerCount, value: number) => {
       // Map the PassengerCounter type to the correct cart property
-      const cartPropertyMap = {
+      const cartPropertyMap: Record<keyof PassengerCount, string> = {
         adults: "adults",
-        infants: "children", // Map infants counter to children property
         children: "children",
+        infants: "children", // Legacy support - map infants to children
       };
 
-      const cartProperty = cartPropertyMap[type] || type;
+      const cartProperty = cartPropertyMap[type];
       updateCartItem(cartItemId, {
         [cartProperty]: value,
       });
@@ -140,9 +172,9 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
     });
   };
 
-  // Format time for display using dynamic time slots
+  // Format time for display using time slot options
   const formatTime = (timeString: string): string => {
-    const timeSlot = availableTimeSlots.find(
+    const timeSlot = formOptions.timeSlots?.find(
       (slot) => slot.value === timeString
     );
     return timeSlot?.label || timeString;
@@ -501,23 +533,29 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                     {editingField.field === "time" && (
                       <div className={styles.inlineEditSection}>
                         <h4 className={styles.editSectionTitle}>Select Time</h4>
-                        <div className={styles.timeSlotGrid}>
-                          {availableTimeSlots.map((slot) => (
-                            <button
-                              key={slot.value}
-                              className={`${styles.timeSlotButton} ${
-                                searchParams.time === slot.value
-                                  ? styles.selected
-                                  : ""
-                              }`}
-                              onClick={() =>
-                                handleTimeChange(item.id, slot.value)
-                              }
-                            >
-                              {slot.label}
-                            </button>
-                          ))}
-                        </div>
+                        {isLoadingTimeSlots ? (
+                          <div className={styles.loadingText}>
+                            Loading available times...
+                          </div>
+                        ) : (
+                          <div className={styles.timeSlotGrid}>
+                            {editingTimeSlots.map((slot) => (
+                              <button
+                                key={slot.value}
+                                className={`${styles.timeSlotButton} ${
+                                  searchParams.time === slot.value
+                                    ? styles.selected
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  handleTimeChange(item.id, slot.value)
+                                }
+                              >
+                                {slot.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         <div className={styles.inlineEditActions}>
                           <Button
                             variant="outline"
@@ -539,7 +577,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                         <PassengerCounter
                           value={{
                             adults: searchParams.adults,
-                            infants: searchParams.children, // Map children to infants for the counter
+                            children: searchParams.children,
                           }}
                           onChange={(type, value) =>
                             handlePassengerChange(item.id, type, value)

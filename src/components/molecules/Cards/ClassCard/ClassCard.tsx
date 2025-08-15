@@ -14,6 +14,8 @@ export interface ClassOption {
   type: string;
   price: number;
   totalPrice: number;
+  originalPrice?: number;
+  originalTotalPrice?: number;
   seatsLeft?: number;
   amenities?: {
     icon: string;
@@ -153,10 +155,36 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
           </div>
           <div className={styles.classPriceInfo} id={priceId}>
             <div className={styles.pricePerAdult}>
-              <span>₹{classOption.price}/adult</span>
+              {classOption.originalPrice &&
+              classOption.originalPrice > classOption.price ? (
+                <>
+                  <span className={styles.originalPrice}>
+                    ₹{classOption.originalPrice}
+                  </span>
+                  <span className={styles.discountedPrice}>
+                    ₹{classOption.price}
+                  </span>
+                  <span>/adult</span>
+                </>
+              ) : (
+                <span>₹{classOption.price}/adult</span>
+              )}
             </div>
             <div className={styles.totalPrice}>
-              <span>₹{classOption.totalPrice}/- total</span>
+              {classOption.originalTotalPrice &&
+              classOption.originalTotalPrice > classOption.totalPrice ? (
+                <>
+                  <span className={styles.originalTotalPrice}>
+                    ₹{classOption.originalTotalPrice}/-
+                  </span>
+                  <span className={styles.discountedTotalPrice}>
+                    ₹{classOption.totalPrice}/-
+                  </span>
+                  <span>total</span>
+                </>
+              ) : (
+                <span>₹{classOption.totalPrice}/- total</span>
+              )}
             </div>
           </div>
         </header>

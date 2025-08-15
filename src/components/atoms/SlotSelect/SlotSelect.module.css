@@ -115,3 +115,17 @@
   margin-top: 0.25rem;
   text-align: left;
 }
+
+/* Disabled state styles */
+.selectWrapper.disabled {
+  opacity: 0.6;
+}
+
+.selectWrapper.disabled .selectValue {
+  color: var(--color-text-disabled);
+}
+
+.selectWrapper.disabled .slotNavButton {
+  cursor: not-allowed;
+  color: var(--color-text-disabled);
+}

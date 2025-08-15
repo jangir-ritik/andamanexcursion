@@ -16,16 +16,8 @@ import { activityApi } from "@/services/api/activities";
 import { activityCategoryApi } from "@/services/api/activityCategories";
 import { formatTimeForDisplay } from "@/utils/timeUtils";
 
-// Types
-export interface ActivitySearchParams {
-  activityType: string;
-  location: string;
-  date: string;
-  time: string;
-  adults: number;
-  children: number;
-  infants: number;
-}
+// Import types from store to maintain single source of truth
+import type { ActivitySearchParams } from "@/store/ActivityStore";
 
 export interface Activity {
   id: string;
@@ -341,7 +333,7 @@ const initialState: ActivityState = {
     time: "",
     adults: 2,
     children: 0,
-    infants: 0,
+    // infants: 0,
   },
   activities: [],
   isLoading: false,
@@ -672,7 +664,7 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
           time: searchParams.time,
           adults: searchParams.adults,
           children: searchParams.children,
-          infants: searchParams.infants,
+          // infants: searchParams.infants,
         });
 
         // Update state with activities
@@ -752,7 +744,7 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
       time: item.searchParams.time,
       adults: item.searchParams.adults,
       children: item.searchParams.children,
-      infants: item.searchParams.infants,
+      // infants: item.searchParams.infants,
     };
 
     dispatch({
@@ -779,9 +771,8 @@ export const ActivityProvider: React.FC<{ children: ReactNode }> = ({
   // Computed values - memoized
   const getTotalPassengers = useCallback(() => {
     return (
-      state.searchParams.adults +
-      state.searchParams.children +
-      state.searchParams.infants
+      state.searchParams.adults + state.searchParams.children
+      // state.searchParams.infants
     );
   }, [state.searchParams]);
 

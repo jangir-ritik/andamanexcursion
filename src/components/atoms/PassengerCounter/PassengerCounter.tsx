@@ -44,21 +44,21 @@ export const PassengerCounter = ({
       </div>
 
       <div className={styles.counterWrapper}>
-        <label>Infants/Kids</label>
+        <label>Kids</label>
         <div className={styles.counter}>
           <button
             type="button"
-            aria-label="Decrease Infants"
-            onClick={() => onChange("infants", value.infants - 1)}
-            disabled={value.infants <= 0}
+            aria-label="Decrease Kids"
+            onClick={() => onChange("children", (value.children || 0) - 1)}
+            disabled={(value.children || 0) <= 0}
           >
             -
           </button>
-          <span>{value.infants}</span>
+          <span>{value.children || 0}</span>
           <button
             type="button"
-            aria-label="Increase Infants"
-            onClick={() => onChange("infants", value.infants + 1)}
+            aria-label="Increase Kids"
+            onClick={() => onChange("children", (value.children || 0) + 1)}
           >
             +
           </button>

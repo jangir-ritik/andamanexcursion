@@ -19,8 +19,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   images,
   price,
   totalPrice,
+  originalPrice,
+  originalTotalPrice,
   type,
   duration,
+  availableTimeSlots = [],
   href,
   className,
   activityOptions = [],
@@ -108,6 +111,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     [images]
   );
 
+  // Get properly formatted time slots for display
+  const displayTimeSlots = useMemo(() => {
+    // Simply return the availableTimeSlots if they exist
+    if (!availableTimeSlots?.length) return [];
+
+    return availableTimeSlots.filter((slot) => slot.isAvailable);
+  }, [availableTimeSlots]);
+
   return (
     <article
       className={clsx(styles.card, className, {
@@ -154,9 +165,61 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               </div>
             </div>
 
+            {/* Time Slots Display */}
+            {displayTimeSlots.length > 0 && (
+              <div className={styles.timeSlotsContainer}>
+                <h4 className={styles.timeSlotsTitle}>Available Times</h4>
+                <div className={styles.timeSlotsList}>
+                  {displayTimeSlots
+                    .filter((slot) => slot.isAvailable)
+                    .slice(0, 3) // Show only first 3 time slots to keep card compact
+                    .map((slot) => (
+                      <span key={slot.id} className={styles.timeSlot}>
+                        {slot.displayTime}
+                      </span>
+                    ))}
+                  {displayTimeSlots.filter((slot) => slot.isAvailable).length >
+                    3 && (
+                    <span className={styles.moreSlots}>
+                      +
+                      {displayTimeSlots.filter((slot) => slot.isAvailable)
+                        .length - 3}{" "}
+                      more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className={styles.priceContainer}>
-              <p className={styles.pricePerAdult}>₹{price}/adult</p>
-              <p className={styles.totalPrice}>₹{totalPrice}/- total</p>
+              <div className={styles.pricePerAdult}>
+                {originalPrice && originalPrice > price ? (
+                  <>
+                    <span className={styles.originalPrice}>
+                      ₹{originalPrice}
+                    </span>
+                    <span className={styles.discountedPrice}>₹{price}</span>
+                    <span className={styles.priceLabel}>/adult</span>
+                  </>
+                ) : (
+                  <>₹{price}/adult</>
+                )}
+              </div>
+              <div className={styles.totalPrice}>
+                {originalTotalPrice && originalTotalPrice > totalPrice ? (
+                  <>
+                    <span className={styles.originalTotalPrice}>
+                      ₹{originalTotalPrice}/-
+                    </span>
+                    <span className={styles.discountedTotalPrice}>
+                      ₹{totalPrice}/-
+                    </span>
+                    <span className={styles.totalLabel}>total</span>
+                  </>
+                ) : (
+                  <>₹{totalPrice}/- total</>
+                )}
+              </div>
             </div>
           </header>
 

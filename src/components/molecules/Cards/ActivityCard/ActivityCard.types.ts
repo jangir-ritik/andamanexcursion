@@ -8,11 +8,20 @@ export interface ActivityCardProps {
   }[];
   price: number;
   totalPrice: number;
+  originalPrice?: number; // Original price before discount
+  originalTotalPrice?: number; // Original total price before discount
   type: string;
   duration: string;
   href?: string;
   className?: string;
   activityOptions?: ActivityOption[];
+  availableTimeSlots?: Array<{
+    id: string;
+    startTime: string;
+    endTime?: string;
+    displayTime: string;
+    isAvailable: boolean;
+  }>;
   onSelectActivity?: (activityId: string, optionId: string) => void;
   selectedOptionId?: string;
 }
@@ -22,6 +31,8 @@ export interface ActivityOption {
   type: string;
   price: number;
   totalPrice: number;
+  originalPrice?: number;
+  originalTotalPrice?: number;
   description: string;
   seatsLeft: number;
   amenities?: {
