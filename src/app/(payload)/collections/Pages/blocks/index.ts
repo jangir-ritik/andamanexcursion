@@ -20,6 +20,7 @@ import { secondaryBannerBlock } from "./secondaryBanner";
 import { planInFourEasyStepsBlock } from "./planInFourEasySteps";
 import { trustedFerriesBlock } from "./trustedFerries";
 import { serviceFeatureBlock } from "./serviceFeature";
+import { dynamicPackagesBlock } from "./dynamicPackages";
 
 export const contentBlocks: Block[] = [
   heroBlock,
@@ -42,4 +43,5 @@ export const contentBlocks: Block[] = [
   secondaryBannerBlock,
   planInFourEasyStepsBlock,
   trustedFerriesBlock,
+  dynamicPackagesBlock,
 ];

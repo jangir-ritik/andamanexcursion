@@ -1,12 +1,12 @@
 import React from "react";
 import { pageService, pageDataService } from "@/services/payload";
-import { PackagesPageClient } from "./PackagesPageClient";
-
-// import { testimonials } from "./page.content";
 import { notFound } from "next/navigation";
+import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
+import { PackagesPageClient } from "./PackagesPageClient";
+import styles from "./page.module.css";
 
 export default async function PackagesPage() {
-  // For the main packages page, no slug is needed/expected
+  // Get page content from Payload CMS
   const page = await pageService.getBySlug("packages");
 
   // Check if the page exists and is published
@@ -18,28 +18,31 @@ export default async function PackagesPage() {
     notFound();
   }
 
-  // // Extract FAQ content
-  // const faqContent = page.pageContent.content.find(
-  //   (block) => block.blockType === "faq"
-  // );
-
-  // Extract largeCard content
-  const largeCardSectionContent = page.pageContent.content.find(
-    (block) => block.blockType === "largeCard"
-  );
-
-  // Server-side data fetching
+  // Server-side data fetching for dynamic packages section
   const { packageOptions, periodOptions, packageCategoriesContent } =
     await pageDataService.getPackagesPageData();
 
+  // Find the dynamic packages block and inject the data
+  const enrichedBlocks = page.pageContent.content.map((block) => {
+    if (block.blockType === "dynamicPackages") {
+      return {
+        ...block,
+        // Inject the fetched data into the block content
+        packageOptions,
+        periodOptions,
+        packageCategoriesContent,
+      };
+    }
+    return block;
+  });
+
   return (
-    <PackagesPageClient
-      packageOptions={packageOptions}
-      periodOptions={periodOptions}
-      packageCategoriesContent={packageCategoriesContent}
-      faqContent={null}
-      testimonials={null}
-      largeCardSectionContent={null}
-    />
+    <div className={styles.main}>
+      {/* Render static content blocks */}
+      <BlockRenderer blocks={enrichedBlocks} />
+
+      {/* Client-side component for URL param handling */}
+      <PackagesPageClient />
+    </div>
   );
 }

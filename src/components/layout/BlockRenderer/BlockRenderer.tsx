@@ -12,6 +12,7 @@ import {
 } from "@/components/sectionBlocks/common";
 import { PlanInFourEasySteps } from "@/components/sectionBlocks/ferry/planInfourEasySteps/PlanInFourEasySteps";
 import { TrustedFerriesBlock } from "@/components/sectionBlocks/ferry";
+import { DynamicPackagesBlock } from "@/components/sectionBlocks/packages/DynamicPackagesBlock/DynamicPackagesBlock";
 
 import {
   Banner,
@@ -48,6 +49,7 @@ const blockComponentsMap = {
   visualCategoryGrid: VisualCategoryGrid,
   planInFourEasySteps: PlanInFourEasySteps,
   trustedFerries: TrustedFerriesBlock,
+  dynamicPackages: DynamicPackagesBlock,
 } as const;
 
 interface BlockRendererProps {
