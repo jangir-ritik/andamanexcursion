@@ -1,6 +1,6 @@
 import React from "react";
 import { Section, Column, Row } from "@/components/layout";
-import { InlineLink, Button } from "@/components/atoms";
+import { InlineLink, Button, EnquireButton } from "@/components/atoms";
 import { pageDataService } from "@/services/payload";
 import { notFound } from "next/navigation";
 
@@ -54,9 +54,7 @@ export default async function PackageDetailPage({
           <PackageDetailTabs packageData={packageData} />
           <Row gap={3} responsive responsiveGap="var(--space-4)">
             {/* <InlineLink href="/customise">Customise this package</InlineLink> */}
-            <Button showArrow href="/contact">
-              Enquire
-            </Button>
+            <EnquireButton packageData={packageData}>Enquire</EnquireButton>
           </Row>
         </Column>
       </Section>

@@ -180,9 +180,36 @@
   border-radius: 8px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 180px;
+  max-height: 200px; /* Limit height */
   animation: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 20000;
   border: 1px solid #e0e0e0;
+}
+
+/* Scrollable viewport for select dropdowns */
+.selectViewport {
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cccccc transparent;
+}
+
+/* Custom scrollbar for webkit browsers */
+.selectViewport::-webkit-scrollbar {
+  width: 6px;
+}
+
+.selectViewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.selectViewport::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 3px;
+}
+
+.selectViewport::-webkit-scrollbar-thumb:hover {
+  background-color: #999999;
 }
 
 .selectItem {

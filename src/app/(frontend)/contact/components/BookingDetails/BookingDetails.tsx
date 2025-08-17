@@ -9,9 +9,13 @@ import { ChevronDown } from "lucide-react";
 
 interface BookingDetailsProps {
   form: UseFormReturn<ContactFormData>;
+  contactFormOptions?: any;
 }
 
-export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
+export const BookingDetails: React.FC<BookingDetailsProps> = ({
+  form,
+  contactFormOptions,
+}) => {
   const {
     control,
     watch,
@@ -20,7 +24,14 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
   } = form;
   const watchedValues = watch("booking");
 
-  const packageOptions = [
+  // Use dynamic options from Payload CMS or fallback to static options
+  const packageOptions = contactFormOptions?.packages?.map((pkg: any) => ({
+    value: pkg.slug,
+    label: `${pkg.title}${
+      pkg.price ? ` - ₹${pkg.price.toLocaleString()}` : ""
+    }`,
+    price: pkg.price,
+  })) || [
     {
       value: "beach-front-romance-port-blair",
       label: "Beach Front Romance - Port Blair",
@@ -29,11 +40,38 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
     { value: "cultural-heritage-tour", label: "Cultural Heritage Tour" },
   ];
 
-  const durationOptions = [
+  const durationOptions = contactFormOptions?.periods?.map((period: any) => ({
+    value: period.value,
+    label: period.title,
+  })) || [
     { value: "4-nights-5-days", label: "4 Nights - 5 Days" },
     { value: "3-nights-4-days", label: "3 Nights - 4 Days" },
     { value: "5-nights-6-days", label: "5 Nights - 6 Days" },
   ];
+
+  // Debug logging - check options availability
+  React.useEffect(() => {
+    if (watchedValues.package || watchedValues.duration) {
+      console.log("🔍 Form field debug:", {
+        package: watchedValues.package,
+        duration: watchedValues.duration,
+        packageOptionsCount: packageOptions.length,
+        durationOptionsCount: durationOptions.length,
+        packageFound:
+          packageOptions.find((opt: any) => opt.value === watchedValues.package)
+            ?.label || "NOT FOUND",
+        durationFound:
+          durationOptions.find(
+            (opt: any) => opt.value === watchedValues.duration
+          )?.label || "NOT FOUND",
+      });
+    }
+  }, [
+    watchedValues.package,
+    watchedValues.duration,
+    packageOptions,
+    durationOptions,
+  ]);
 
   return (
     <section className={styles.section}>
@@ -47,14 +85,22 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
               control={control}
               name="booking.package"
               render={({ field }) => (
-                <Select.Root value={field.value} onValueChange={field.onChange}>
+                <Select.Root
+                  value={field.value || ""}
+                  onValueChange={(value) => {
+                    console.log("📦 Package selected:", value);
+                    field.onChange(value);
+                  }}
+                  defaultValue={field.value}
+                >
                   <Select.Trigger className={styles.selectTrigger}>
                     <Select.Value
                       data-select-value
                       className={styles.selectValue}
+                      placeholder="Select package"
                     >
                       {packageOptions.find(
-                        (option) => option.value === field.value
+                        (option: any) => option.value === field.value
                       )?.label || "Select package"}
                     </Select.Value>
                     <Select.Icon>
@@ -67,8 +113,8 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
                       position="popper"
                       sideOffset={8}
                     >
-                      <Select.Viewport>
-                        {packageOptions.map((option) => (
+                      <Select.Viewport className={styles.selectViewport}>
+                        {packageOptions.map((option: any) => (
                           <Select.Item
                             key={option.value}
                             value={option.value}
@@ -97,14 +143,22 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
               control={control}
               name="booking.duration"
               render={({ field }) => (
-                <Select.Root value={field.value} onValueChange={field.onChange}>
+                <Select.Root
+                  value={field.value || ""}
+                  onValueChange={(value) => {
+                    console.log("⏱️ Duration selected:", value);
+                    field.onChange(value);
+                  }}
+                  defaultValue={field.value}
+                >
                   <Select.Trigger className={styles.selectTrigger}>
                     <Select.Value
                       data-select-value
                       className={styles.selectValue}
+                      placeholder="Select duration"
                     >
                       {durationOptions.find(
-                        (option) => option.value === field.value
+                        (option: any) => option.value === field.value
                       )?.label || "Select duration"}
                     </Select.Value>
                     <Select.Icon>
@@ -117,8 +171,8 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
                       position="popper"
                       sideOffset={8}
                     >
-                      <Select.Viewport>
-                        {durationOptions.map((option) => (
+                      <Select.Viewport className={styles.selectViewport}>
+                        {durationOptions.map((option: any) => (
                           <Select.Item
                             key={option.value}
                             value={option.value}
@@ -143,7 +197,17 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({ form }) => {
           {/* Amount Field */}
           <div className={cn(styles.gridItem, styles.amount)}>
             <label className={styles.label}>Total Amount</label>
-            <div className={styles.amountText}>₹3775/adult</div>
+            <div className={styles.amountText}>
+              {(() => {
+                const selectedPackage = packageOptions.find(
+                  (option: any) => option.value === watchedValues.package
+                );
+                if (selectedPackage?.price) {
+                  return `₹${selectedPackage.price.toLocaleString()}/adult`;
+                }
+                return "Select package for pricing";
+              })()}
+            </div>
           </div>
         </div>
 

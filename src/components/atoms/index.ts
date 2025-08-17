@@ -21,3 +21,4 @@ export * from "./Textarea/Textarea";
 export * from "./DecorativeCurlyArrow/DecorativeCurlyArrow";
 export * from "./VideoContainer/VideoContainer";
 export * from "./NoteItem/NoteItem";
+export * from "./EnquireButton/EnquireButton";

@@ -12,6 +12,7 @@ interface ContactFormProps {
   onSubmit: (data: ContactFormData) => void;
   isSubmitting: boolean;
   submitSuccess: boolean;
+  contactFormOptions?: any;
 }
 
 export const ContactForm: React.FC<ContactFormProps> = ({
@@ -19,6 +20,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   onSubmit,
   isSubmitting,
   submitSuccess,
+  contactFormOptions,
 }) => {
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,7 +30,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   return (
     <form onSubmit={handleFormSubmit} className={styles.form}>
       <div className={styles.sections}>
-        <BookingDetails form={form} />
+        <BookingDetails form={form} contactFormOptions={contactFormOptions} />
         <div className={styles.separator} />
         <PersonalDetails form={form} />
         <div className={styles.separator} />
