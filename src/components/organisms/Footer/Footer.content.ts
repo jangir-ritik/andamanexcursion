@@ -20,8 +20,8 @@ export const footerItems = {
         href: "/fishing",
       },
       {
-        label: "Live Volcano",
-        href: "/live-volcano",
+        label: "Live Volcanos",
+        href: "/live-volcanos",
       },
     ],
   },
@@ -35,10 +35,6 @@ export const footerItems = {
       {
         label: "Destinations",
         href: "/destinations",
-      },
-      {
-        label: "Sightseeing",
-        href: "#",
       },
       {
         label: "Blogs",

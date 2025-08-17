@@ -3,14 +3,15 @@ import styles from "./LargeCard.module.css";
 import { ImageContainer, InlineLink } from "@/components/atoms";
 
 export const LargeCard = ({
+  subtitle,
+  title,
   image,
   imageAlt,
-  title,
-  subtitle,
   description,
   ctaText,
   ctaHref,
 }: LargeCardProps) => {
+  if (!subtitle || !title || !image || !imageAlt) return null;
   return (
     <div
       className={styles.cardContainer}

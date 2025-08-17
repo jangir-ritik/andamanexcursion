@@ -4,6 +4,7 @@ import { Section } from "@/components/layout";
 import { LargeCard } from "@/components/molecules/Cards";
 
 export const LargeCardSection = ({ content }: LargeCardSectionProps) => {
+  if (!content) return null;
   const { subtitle, title, image, imageAlt, ctaText, ctaHref } = content;
 
   return (

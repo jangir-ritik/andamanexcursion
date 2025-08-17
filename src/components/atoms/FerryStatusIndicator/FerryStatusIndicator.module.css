@@ -3,11 +3,12 @@
   flex-direction: column;
   gap: 0.5rem;
   font-family: inherit;
+  margin-top: 2rem;
 }
 
 /* Compact variant - for footer */
 .compact {
-  align-items: center;
+  align-items: flex-start;
   font-size: 0.75rem;
 }
 
@@ -24,13 +25,13 @@
 }
 
 .operatorLabel {
-  color: #6b7280;
+  color: var(--color-white);
   font-size: 0.7rem;
   font-weight: 500;
 }
 
 .timestamp {
-  color: #9ca3af;
+  color: var(--color-white);
   font-size: 0.65rem;
   margin-top: 0.25rem;
 }
@@ -226,10 +227,6 @@
   .lastChecked,
   .operatorMessage,
   .summaryItem {
-    color: #9ca3af;
-  }
-
-  .operatorLabel {
-    color: #9ca3af;
+    color: var(--color-white);
   }
 }

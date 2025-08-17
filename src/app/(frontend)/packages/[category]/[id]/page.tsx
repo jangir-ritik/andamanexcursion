@@ -11,11 +11,11 @@ import { LargeCardSection } from "@/components/sectionBlocks/common";
 import { PackageDetailTabs } from "@/components/organisms";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 import { PayloadPackage } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader.types";
-import {
-  packagesPageFAQContent,
-  testimonials,
-  largeCardSectionContent,
-} from "../../page.content";
+// import {
+//   packagesPageFAQContent,
+//   testimonials,
+//   largeCardSectionContent,
+// } from "../../page.content";
 
 interface PackageDetailPageProps {
   params: Promise<{
@@ -58,9 +58,9 @@ export default async function PackageDetailPage({
           </Row>
         </Column>
       </Section>
-      <FAQ content={packagesPageFAQContent} />
+      {/* <FAQ content={packagesPageFAQContent} />
       <Testimonials content={testimonials} />
-      <LargeCardSection content={largeCardSectionContent} />
+      <LargeCardSection content={largeCardSectionContent} /> */}
     </main>
   );
 }

@@ -1,5 +1,4 @@
 "use client";
-
 import { createContext, useContext, useRef, ReactNode, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import LoadingBar from "react-top-loading-bar";
@@ -55,7 +54,36 @@ export const TopLoadingBarProvider = ({
   };
 
   useEffect(() => {
-    // Intercept router.push, router.replace, and router.back
+    // Global link click handler for Next.js Link components
+    const handleLinkClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest("a[href]") as HTMLAnchorElement;
+
+      if (link && link.href) {
+        const url = new URL(link.href, window.location.origin);
+        const currentUrl = new URL(window.location.href);
+
+        // Only start loading for internal navigation that changes the route
+        if (
+          url.origin === currentUrl.origin &&
+          (url.pathname !== currentUrl.pathname ||
+            url.search !== currentUrl.search)
+        ) {
+          start();
+        }
+      }
+    };
+
+    // Handle browser back/forward buttons
+    const handlePopState = () => {
+      start();
+    };
+
+    // Add event listeners
+    document.addEventListener("click", handleLinkClick, true);
+    window.addEventListener("popstate", handlePopState);
+
+    // Intercept router methods (for programmatic navigation)
     const originalPush = router.push;
     const originalReplace = router.replace;
     const originalBack = router.back;
@@ -83,6 +111,8 @@ export const TopLoadingBarProvider = ({
 
     // Cleanup
     return () => {
+      document.removeEventListener("click", handleLinkClick, true);
+      window.removeEventListener("popstate", handlePopState);
       router.push = originalPush;
       router.replace = originalReplace;
       router.back = originalBack;
@@ -94,7 +124,7 @@ export const TopLoadingBarProvider = ({
     // Complete loading when pathname changes
     const timer = setTimeout(() => {
       complete();
-    }, 300);
+    }, 100); // Reduced from 300ms to 100ms for better UX
 
     return () => clearTimeout(timer);
   }, [pathname, complete]);
@@ -103,20 +133,10 @@ export const TopLoadingBarProvider = ({
     // Complete loading when search params change
     const timer = setTimeout(() => {
       complete();
-    }, 300);
+    }, 100); // Reduced from 300ms to 100ms for better UX
 
     return () => clearTimeout(timer);
   }, [searchParams, complete]);
-
-  useEffect(() => {
-    // Handle browser back/forward buttons
-    const handlePopState = () => {
-      start();
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, [start]);
 
   return (
     <TopLoadingBarContext.Provider
@@ -124,7 +144,7 @@ export const TopLoadingBarProvider = ({
     >
       <LoadingBar
         ref={ref}
-        color="var(--color-primary)" // Blue color to match your theme
+        color="var(--color-primary)"
         height={3}
         shadow={true}
         transitionTime={200}

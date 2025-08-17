@@ -2,7 +2,7 @@ import React from "react";
 import { pageService, pageDataService } from "@/services/payload";
 import { PackagesPageClient } from "./PackagesPageClient";
 
-import { testimonials } from "./page.content";
+// import { testimonials } from "./page.content";
 import { notFound } from "next/navigation";
 
 export default async function PackagesPage() {
@@ -18,10 +18,10 @@ export default async function PackagesPage() {
     notFound();
   }
 
-  // Extract FAQ content
-  const faqContent = page.pageContent.content.find(
-    (block) => block.blockType === "faq"
-  );
+  // // Extract FAQ content
+  // const faqContent = page.pageContent.content.find(
+  //   (block) => block.blockType === "faq"
+  // );
 
   // Extract largeCard content
   const largeCardSectionContent = page.pageContent.content.find(
@@ -37,9 +37,9 @@ export default async function PackagesPage() {
       packageOptions={packageOptions}
       periodOptions={periodOptions}
       packageCategoriesContent={packageCategoriesContent}
-      faqContent={faqContent || null}
-      testimonials={testimonials}
-      largeCardSectionContent={largeCardSectionContent || null}
+      faqContent={null}
+      testimonials={null}
+      largeCardSectionContent={null}
     />
   );
 }

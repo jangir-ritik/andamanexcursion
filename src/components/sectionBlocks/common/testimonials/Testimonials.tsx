@@ -9,8 +9,8 @@ import { Column, Container, Section } from "@/components/layout";
 import { TestimonialCard } from "@/components/molecules/Cards";
 
 export const Testimonials = ({ content }: TestimonialsProps) => {
+  if (!content) return null;
   const { title, subtitle, testimonials, specialWord } = content;
-
   // Create a duplicate set of testimonials for the infinite scroll effect
   const duplicatedTestimonials = [...testimonials, ...testimonials];
 

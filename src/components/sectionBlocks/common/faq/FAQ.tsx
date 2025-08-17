@@ -9,6 +9,7 @@ import type { FAQProps } from "./FAQ.types";
 import { DecorativeCurlyArrow, SectionTitle } from "@/components/atoms";
 
 export const FAQ = ({ content }: FAQProps) => {
+  if (!content) return null;
   const { title, specialWord, items } = content;
 
   return (

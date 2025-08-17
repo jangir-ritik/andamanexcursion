@@ -2,7 +2,7 @@
 .container {
   position: relative;
   overflow: hidden;
-  border-radius: var(--border-radius-lg, 16px);
+  border-radius: var(--radius-xl, 16px);
   background-color: var(--color-gray-100, #f5f5f5);
 }
 
