@@ -7,9 +7,10 @@ export const ItineraryDay: React.FC<ItineraryDayProps> = ({
   title,
   description,
   isLast = false,
+  className,
 }) => {
   return (
-    <div className={styles.itineraryDay}>
+    <div className={`${styles.itineraryDay} ${className}`}>
       <div className={styles.dayNumber}>
         <span className={styles.dayNumberTextDot} />
         <span className={styles.dayNumberText}>Day {day}</span>

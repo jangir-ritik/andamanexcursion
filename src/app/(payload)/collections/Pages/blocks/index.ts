@@ -21,6 +21,7 @@ import { planInFourEasyStepsBlock } from "./planInFourEasySteps";
 import { trustedFerriesBlock } from "./trustedFerries";
 import { serviceFeatureBlock } from "./serviceFeature";
 import { dynamicPackagesBlock } from "./dynamicPackages";
+import { dynamicCategoryPackagesBlock } from "./dynamicCategoryPackages";
 
 export const contentBlocks: Block[] = [
   heroBlock,
@@ -44,4 +45,5 @@ export const contentBlocks: Block[] = [
   planInFourEasyStepsBlock,
   trustedFerriesBlock,
   dynamicPackagesBlock,
+  dynamicCategoryPackagesBlock,
 ];

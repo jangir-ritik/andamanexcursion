@@ -27,6 +27,7 @@ export const ItineraryTab: React.FC<{ itinerary: any }> = ({ itinerary }) => {
         <div className={styles.timeline} aria-label="Day-by-day itinerary">
           {itinerary.map((day: any, index: number) => (
             <ItineraryDay
+              className={styles.day}
               key={day.day}
               day={day.day}
               title={day.title}

@@ -3,4 +3,5 @@ export interface ItineraryDayProps {
   title: string;
   description: string;
   isLast?: boolean;
+  className?: string;
 }
