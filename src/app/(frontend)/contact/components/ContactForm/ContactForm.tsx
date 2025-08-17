@@ -1,3 +1,64 @@
+// import React from "react";
+// import { UseFormReturn } from "react-hook-form";
+// import { ContactFormData } from "./ContactForm.types";
+// import { BookingDetails } from "../BookingDetails/BookingDetails";
+// import { PersonalDetails } from "../PersonalDetails/PersonalDetails";
+// import { AdditionalMessage } from "../AdditionalMessage/AdditionalMessage";
+// import styles from "./ContactForm.module.css";
+// import { Button } from "@/components/atoms";
+
+// interface ContactFormProps {
+//   form: UseFormReturn<ContactFormData>;
+//   onSubmit: (data: ContactFormData) => void;
+//   isSubmitting: boolean;
+//   submitSuccess: boolean;
+//   contactFormOptions?: any;
+// }
+
+// export const ContactForm: React.FC<ContactFormProps> = ({
+//   form,
+//   onSubmit,
+//   isSubmitting,
+//   submitSuccess,
+//   contactFormOptions,
+// }) => {
+//   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+//     event.preventDefault();
+//     form.handleSubmit(onSubmit)();
+//   };
+
+//   return (
+//     <form onSubmit={handleFormSubmit} className={styles.form}>
+//       <div className={styles.sections}>
+//         <BookingDetails form={form} contactFormOptions={contactFormOptions} />
+//         <div className={styles.separator} />
+//         <PersonalDetails form={form} />
+//         <div className={styles.separator} />
+//         <AdditionalMessage form={form} />
+//       </div>
+
+//       <div className={styles.submitSection}>
+//         <div className={styles.recaptcha}>
+//           <div className={styles.recaptchaPlaceholder}>
+//             <div className={styles.recaptchaCheckbox}></div>
+//             <span className={styles.recaptchaText}>I'm not a robot</span>
+//           </div>
+//           <div className={styles.recaptchaLogo}></div>
+//         </div>
+
+//         <Button showArrow disabled={isSubmitting} type="submit">
+//           {isSubmitting ? "Submitting..." : "Enquire"}
+//         </Button>
+//       </div>
+
+//       {submitSuccess && (
+//         <div className={styles.successMessage}>
+//           Thank you! Your enquiry has been submitted successfully.
+//         </div>
+//       )}
+//     </form>
+//   );
+// };
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { ContactFormData } from "./ContactForm.types";
@@ -9,7 +70,7 @@ import { Button } from "@/components/atoms";
 
 interface ContactFormProps {
   form: UseFormReturn<ContactFormData>;
-  onSubmit: (data: ContactFormData) => void;
+  onSubmit: (data: ContactFormData) => Promise<void>; // Changed to async
   isSubmitting: boolean;
   submitSuccess: boolean;
   contactFormOptions?: any;
@@ -22,13 +83,23 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   submitSuccess,
   contactFormOptions,
 }) => {
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    form.handleSubmit(onSubmit)();
+
+    try {
+      // Use form.handleSubmit with async onSubmit
+      await form.handleSubmit(onSubmit)();
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // You could add error state handling here
+    }
   };
 
+  // Get form validation state for better UX
+  const { isValid, isDirty } = form.formState;
+
   return (
-    <form onSubmit={handleFormSubmit} className={styles.form}>
+    <form onSubmit={handleFormSubmit} className={styles.form} noValidate>
       <div className={styles.sections}>
         <BookingDetails form={form} contactFormOptions={contactFormOptions} />
         <div className={styles.separator} />
@@ -46,14 +117,26 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           <div className={styles.recaptchaLogo}></div>
         </div>
 
-        <Button showArrow disabled={isSubmitting} type="submit">
-          {isSubmitting ? "Submitting..." : "Enquire"}
+        <Button
+          showArrow
+          disabled={isSubmitting || (!isValid && isDirty)}
+          type="submit"
+          className={styles.submitButton}
+        >
+          {isSubmitting ? "Submitting..." : "Send Enquiry"}
         </Button>
       </div>
 
       {submitSuccess && (
-        <div className={styles.successMessage}>
-          Thank you! Your enquiry has been submitted successfully.
+        <div className={styles.successMessage} role="alert">
+          <div className={styles.successIcon}>✓</div>
+          <div>
+            <strong>Thank you!</strong>
+            <p>
+              Your enquiry has been submitted successfully. We'll get back to
+              you soon!
+            </p>
+          </div>
         </div>
       )}
     </form>

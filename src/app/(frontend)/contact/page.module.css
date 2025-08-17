@@ -95,17 +95,33 @@
   z-index: 2;
 }
 
+.savedDataNotice p {
+  color: var(--color-text-primary) !important;
+}
+
+.packageHeader {
+  color: var(--color-text-primary);
+}
+
 .packageNotice h3 {
   margin: 0 0 var(--space-3) 0;
-  color: var(--color-secondary);
+  color: var(--color-secondary) !important;
   font-size: var(--font-size-body-large);
   font-weight: 600;
   font-family: var(--font-family-primary);
 }
 
+.packageDetails h4 {
+  color: var(--color-text-primary);
+}
+
+.packageMeta span {
+  color: var(--color-text-primary) !important;
+}
+
 .packageNotice p {
   margin: 0 0 var(--space-2) 0;
-  color: var(--color-text-primary);
+  color: var(--color-text-primary) !important;
   font-size: var(--font-size-body);
   line-height: 1.5;
 }
@@ -143,5 +159,213 @@
   .packageNotice {
     padding: var(--space-4);
     margin-bottom: var(--space-6);
+  }
+}
+
+/* ContactForm.module.css - Additional styles for reCAPTCHA */
+
+.recaptchaSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.recaptcha {
+  align-self: flex-start;
+}
+
+.recaptchaError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #fed7d7;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.errorIcon {
+  font-size: 16px;
+}
+
+/* Fallback for development */
+.recaptchaFallback {
+  margin-bottom: 24px;
+}
+
+.recaptchaPlaceholder {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  position: relative;
+}
+
+.recaptchaCheckbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  position: relative;
+}
+
+.recaptchaCheckbox::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 6px;
+  height: 10px;
+  border: solid #28a745;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.recaptchaText {
+  font-size: 14px;
+  color: #495057;
+  user-select: none;
+}
+
+.developmentNote {
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  background-color: #ffc107;
+  color: #856404;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.submitButtonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.submitButton {
+  min-width: 140px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.validationMessage {
+  font-size: 14px;
+  color: #e53e3e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.validationMessage::before {
+  content: "ℹ️";
+  font-size: 16px;
+}
+
+.successMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f0fff4;
+  color: #22543d;
+  border: 1px solid #9ae6b4;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.successIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #48bb78;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .recaptchaSection {
+    padding: 12px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .recaptcha {
+    align-self: center;
+  }
+
+  .submitButtonContainer {
+    width: 100%;
+    align-items: center;
+  }
+
+  .submitButton {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .validationMessage {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .recaptchaSection {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .recaptchaPlaceholder {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .recaptchaText {
+    color: #e2e8f0;
   }
 }

@@ -7,6 +7,7 @@
   transition: all var(--duration-fast) var(--easing-standard);
   position: relative;
   padding: var(--space-4);
+  background-color: var(--color-white);
 }
 
 .textareaWrapper:hover {
