@@ -28,7 +28,6 @@
 // export type ContactFormData = z.infer<typeof contactFormSchema>;
 import { z } from "zod";
 
-// Enhanced validation schema with better error messages and validation rules
 export const contactFormSchema = z
   .object({
     booking: z.object({
@@ -77,9 +76,16 @@ export const contactFormSchema = z
         ),
 
       age: z
-        .number()
-        .min(1, "Please enter a valid age")
-        .max(120, "Please enter a realistic age"),
+        .union([z.string(), z.number()])
+        .transform((val) => {
+          if (typeof val === "string") {
+            const parsed = parseInt(val, 10);
+            return isNaN(parsed) ? 0 : parsed;
+          }
+          return val;
+        })
+        .refine((val) => val >= 1, "Please enter a valid age")
+        .refine((val) => val <= 120, "Please enter a realistic age"),
 
       phone: z
         .string()

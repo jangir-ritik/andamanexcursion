@@ -100,23 +100,14 @@
 // }
 import React from "react";
 import { Section, Column, Row } from "@/components/layout";
-import { InlineLink, Button, EnquireButton } from "@/components/atoms";
+import { EnquireButton } from "@/components/atoms";
 import { pageService, pageDataService } from "@/services/payload";
 import { notFound } from "next/navigation";
-import { FAQ } from "@/components/sectionBlocks/common/faq/FAQ";
 import styles from "../../page.module.css";
-import { Testimonials } from "@/components/sectionBlocks/common/testimonials/Testimonials";
-import { LargeCardSection } from "@/components/sectionBlocks/common";
 import { PackageDetailTabs } from "@/components/organisms";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 import { PayloadPackage } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader.types";
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
-// import {
-//   packagesPageFAQContent,
-//   testimonials,
-//   largeCardSectionContent,
-// } from "../../page.content";
-
 interface PackageDetailPageProps {
   params: Promise<{
     category: string;
@@ -179,9 +170,6 @@ export default async function PackageDetailPage({
           </Row>
         </Column>
       </Section>
-      {/* <FAQ content={packagesPageFAQContent} />
-      <Testimonials content={testimonials} />
-      <LargeCardSection content={largeCardSectionContent} /> */}
 
       {/* Render additional CMS blocks if they exist */}
       {enrichedBlocks.length > 0 && (

@@ -82,6 +82,7 @@ export interface Config {
     bookings: Booking;
     payments: Payment;
     'booking-sessions': BookingSession;
+    enquiries: Enquiry;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -103,6 +104,7 @@ export interface Config {
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'booking-sessions': BookingSessionsSelect<false> | BookingSessionsSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -274,7 +276,8 @@ export interface Page {
       | 'packages'
       | 'destinations'
       | 'ferry'
-      | 'boat';
+      | 'boat'
+      | 'plan-your-trip';
   };
   /**
    * Configure this destination page. Main destinations appear as bold categories in navigation, sub-destinations appear as indented items underneath their parent.
@@ -1903,6 +1906,91 @@ export interface BookingSession {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: string;
+  /**
+   * Auto-generated unique enquiry ID
+   */
+  enquiryId: string;
+  customerInfo: {
+    fullName: string;
+    email: string;
+    phone: string;
+    age?: number | null;
+  };
+  bookingDetails?: {
+    /**
+     * Package selected from the form
+     */
+    selectedPackage?: string | null;
+    /**
+     * Selected duration/period
+     */
+    duration?: string | null;
+    checkIn?: string | null;
+    checkOut?: string | null;
+    adults?: number | null;
+    children?: number | null;
+    tags?:
+      | {
+          tag?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  packageInfo?: {
+    title?: string | null;
+    price?: number | null;
+    period?: string | null;
+    description?: string | null;
+  };
+  messages?: {
+    /**
+     * Main enquiry message
+     */
+    message?: string | null;
+    /**
+     * Additional message from customer
+     */
+    additionalMessage?: string | null;
+  };
+  enquiryMetadata?: {
+    enquirySource?: ('direct' | 'package-detail' | 'other') | null;
+    status?: ('new' | 'in-progress' | 'quoted' | 'converted' | 'closed') | null;
+    priority?: ('low' | 'medium' | 'high' | 'urgent') | null;
+    /**
+     * Team member assigned to handle this enquiry
+     */
+    assignedTo?: (string | null) | User;
+  };
+  /**
+   * Track all communications with the customer
+   */
+  communicationLog?:
+    | {
+        type: 'email-sent' | 'email-received' | 'phone-call' | 'whatsapp' | 'internal-note';
+        message: string;
+        performedBy?: (string | null) | User;
+        timestamp?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Technical details for debugging
+   */
+  technicalDetails?: {
+    userAgent?: string | null;
+    ipAddress?: string | null;
+    recaptchaScore?: string | null;
+    submissionTimestamp?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -1967,6 +2055,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'booking-sessions';
         value: string | BookingSession;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: string | Enquiry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -3098,6 +3190,78 @@ export interface BookingSessionsSelect<T extends boolean = true> {
         success?: T;
         response?: T;
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  enquiryId?: T;
+  customerInfo?:
+    | T
+    | {
+        fullName?: T;
+        email?: T;
+        phone?: T;
+        age?: T;
+      };
+  bookingDetails?:
+    | T
+    | {
+        selectedPackage?: T;
+        duration?: T;
+        checkIn?: T;
+        checkOut?: T;
+        adults?: T;
+        children?: T;
+        tags?:
+          | T
+          | {
+              tag?: T;
+              id?: T;
+            };
+      };
+  packageInfo?:
+    | T
+    | {
+        title?: T;
+        price?: T;
+        period?: T;
+        description?: T;
+      };
+  messages?:
+    | T
+    | {
+        message?: T;
+        additionalMessage?: T;
+      };
+  enquiryMetadata?:
+    | T
+    | {
+        enquirySource?: T;
+        status?: T;
+        priority?: T;
+        assignedTo?: T;
+      };
+  communicationLog?:
+    | T
+    | {
+        type?: T;
+        message?: T;
+        performedBy?: T;
+        timestamp?: T;
+        id?: T;
+      };
+  technicalDetails?:
+    | T
+    | {
+        userAgent?: T;
+        ipAddress?: T;
+        recaptchaScore?: T;
+        submissionTimestamp?: T;
       };
   updatedAt?: T;
   createdAt?: T;

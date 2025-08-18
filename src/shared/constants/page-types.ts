@@ -8,4 +8,5 @@ export const pageTypeOptions = [
   { label: "Destinations", value: "destinations" },
   { label: "Ferry", value: "ferry" },
   { label: "Boat", value: "boat" },
+  { label: "Plan Your Trip", value: "plan-your-trip" },
 ];

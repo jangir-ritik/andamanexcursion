@@ -70,9 +70,9 @@
   width: calc(30% - 12px);
 }
 
-.gridItem.amount {
+/* .gridItem.amount {
   width: calc(20% - 12px);
-}
+} */
 
 .gridItem.date {
   width: calc(50% - 12px);
