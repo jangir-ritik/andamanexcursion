@@ -89,6 +89,9 @@ importers:
       payload:
         specifier: ^3.47.0
         version: 3.47.0(graphql@16.11.0)(typescript@5.8.3)
+      payload-recaptcha-v3:
+        specifier: ^3.1.1
+        version: 3.1.1(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3))
       razorpay:
         specifier: ^2.9.6
         version: 2.9.6
@@ -3236,6 +3239,13 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
+  payload-recaptcha-v3@3.1.1:
+    resolution: {integrity: sha512-j4HyUlDwFS08Nt1QXq7g+SgnmNN9gBijcoTd/OujgUF/Nw1cAj6qZ0XgKkiagOWKJrg2Vcj33PqOYanzlp6z5Q==}
+    engines: {node: ^18.20.2 || >=20.9.0, pnpm: ^9}
+    peerDependencies:
+      next: ^15.0.0
+      payload: ^3.0.0
+
   payload@3.47.0:
     resolution: {integrity: sha512-G1WTlYasVsRmZDAdJYjixMhwmMrRjvfCQCEmoIGeIgNUElWf/1f3meAzjZIxrvci0GC0wC5CLiSIyab0wsJ/qQ==}
     engines: {node: ^18.20.2 || >=20.9.0}
@@ -3323,6 +3333,10 @@ packages:
   qs-esm@7.0.2:
     resolution: {integrity: sha512-D8NAthKSD7SGn748v+GLaaO6k08Mvpoqroa35PqIQC4gtUa8/Pb/k+r0m0NnGBVbHDP1gKZ2nVywqfMisRhV5A==}
     engines: {node: '>=18'}
+
+  qs@6.14.0:
+    resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
+    engines: {node: '>=0.6'}
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -7338,6 +7352,12 @@ snapshots:
 
   path-type@4.0.0: {}
 
+  payload-recaptcha-v3@3.1.1(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3)):
+    dependencies:
+      next: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4)
+      payload: 3.47.0(graphql@16.11.0)(typescript@5.8.3)
+      qs: 6.14.0
+
   payload@3.47.0(graphql@16.11.0)(typescript@5.8.3):
     dependencies:
       '@next/env': 15.4.1
@@ -7462,6 +7482,10 @@ snapshots:
   punycode@2.3.1: {}
 
   qs-esm@7.0.2: {}
+
+  qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
 
   queue-microtask@1.2.3: {}
 

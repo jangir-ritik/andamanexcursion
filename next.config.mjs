@@ -18,6 +18,9 @@ const nextConfig = withPayload({
       },
     ],
   },
+  env: {
+    NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
+  },
   reactStrictMode: true,
   eslint: {
     // Disable ESLint during builds to prevent linting errors from failing the build
