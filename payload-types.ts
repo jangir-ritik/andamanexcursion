@@ -711,6 +711,59 @@ export interface Page {
               blockName?: string | null;
               blockType: 'trustedFerries';
             }
+          | {
+              title: string;
+              /**
+               * This word will be styled differently in the title
+               */
+              specialWord?: string | null;
+              description?: string | null;
+              /**
+               * Toggle to show/hide the package and period selector above the packages grid
+               */
+              showPackageSelector?: boolean | null;
+              /**
+               * Title for the package selector section
+               */
+              selectorTitle?: string | null;
+              /**
+               * Leave empty to show all categories, or select specific ones to display
+               */
+              categoryFilter?: {
+                useCustomSelection?: boolean | null;
+                /**
+                 * Select which package categories to display. If none selected, all will be shown.
+                 */
+                selectedCategories?: (string | PackageCategory)[] | null;
+                sortBy?: ('title' | 'createdAt_desc' | 'createdAt_asc' | 'custom') | null;
+              };
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'dynamicPackages';
+            }
+          | {
+              /**
+               * Leave empty to auto-generate from category (e.g., 'Scuba Diving Packages')
+               */
+              selectorTitle?: string | null;
+              showPackageSelector?: boolean | null;
+              noPackagesMessage?: {
+                title?: string | null;
+                message?: string | null;
+                showContactButton?: boolean | null;
+              };
+              displayOptions?: {
+                packagesPerRow?: ('1' | '2' | '3') | null;
+                showPackageDetails?: {
+                  showPrice?: boolean | null;
+                  showDuration?: boolean | null;
+                  showLocations?: boolean | null;
+                };
+              };
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'dynamicCategoryPackages';
+            }
         )[]
       | null;
   };
@@ -776,6 +829,115 @@ export interface ActivityCategory {
      * Brief description for search engines (150-160 characters recommended)
      */
     metaDescription?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage package category information displayed on the website
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "package-categories".
+ */
+export interface PackageCategory {
+  id: string;
+  /**
+   * Display title for the category (e.g., "Honeymoon Packages")
+   */
+  title: string;
+  /**
+   * URL slug (e.g., "honeymoon-retreat")
+   */
+  slug: string;
+  categoryDetails: {
+    /**
+     * Brief description shown on category cards
+     */
+    description: string;
+    /**
+     * Shorter version for compact displays
+     */
+    shortDescription?: string | null;
+  };
+  media?: {
+    /**
+     * Main image for the category
+     */
+    heroImage?: (string | null) | Media;
+    /**
+     * Images shown on category cards (max 3)
+     */
+    cardImages?:
+      | {
+          image: string | Media;
+          alt: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  displaySettings: {
+    /**
+     * Display order on the packages page
+     */
+    order: number;
+    /**
+     * Show this category on the website
+     */
+    isActive?: boolean | null;
+    /**
+     * Feature this category prominently
+     */
+    isFeatured?: boolean | null;
+    /**
+     * Custom page title for category page (e.g., "Honeymoon")
+     */
+    pageTitle?: string | null;
+    /**
+     * Word to highlight in the page title
+     */
+    specialWord?: string | null;
+  };
+  content?: {
+    /**
+     * Key highlights or features of this category
+     */
+    highlights?:
+      | {
+          highlight?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Popular destinations for this category
+     */
+    popularDestinations?:
+      | {
+          destination?: string | null;
+          isPopular?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  seo?: {
+    /**
+     * SEO title (leave empty to auto-generate)
+     */
+    metaTitle?: string | null;
+    /**
+     * SEO description (leave empty to auto-generate)
+     */
+    metaDescription?: string | null;
+    metaImage?: (string | null) | Media;
+    /**
+     * SEO keywords for this category
+     */
+    keywords?:
+      | {
+          keyword?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    systemCategoryId?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -919,115 +1081,6 @@ export interface Package {
      * When this page was published
      */
     publishedAt?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Manage package category information displayed on the website
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "package-categories".
- */
-export interface PackageCategory {
-  id: string;
-  /**
-   * Display title for the category (e.g., "Honeymoon Packages")
-   */
-  title: string;
-  /**
-   * URL slug (e.g., "honeymoon-retreat")
-   */
-  slug: string;
-  categoryDetails: {
-    /**
-     * Brief description shown on category cards
-     */
-    description: string;
-    /**
-     * Shorter version for compact displays
-     */
-    shortDescription?: string | null;
-  };
-  media?: {
-    /**
-     * Main image for the category
-     */
-    heroImage?: (string | null) | Media;
-    /**
-     * Images shown on category cards (max 3)
-     */
-    cardImages?:
-      | {
-          image: string | Media;
-          alt: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  displaySettings: {
-    /**
-     * Display order on the packages page
-     */
-    order: number;
-    /**
-     * Show this category on the website
-     */
-    isActive?: boolean | null;
-    /**
-     * Feature this category prominently
-     */
-    isFeatured?: boolean | null;
-    /**
-     * Custom page title for category page (e.g., "Honeymoon")
-     */
-    pageTitle?: string | null;
-    /**
-     * Word to highlight in the page title
-     */
-    specialWord?: string | null;
-  };
-  content?: {
-    /**
-     * Key highlights or features of this category
-     */
-    highlights?:
-      | {
-          highlight?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    /**
-     * Popular destinations for this category
-     */
-    popularDestinations?:
-      | {
-          destination?: string | null;
-          isPopular?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  seo?: {
-    /**
-     * SEO title (leave empty to auto-generate)
-     */
-    metaTitle?: string | null;
-    /**
-     * SEO description (leave empty to auto-generate)
-     */
-    metaDescription?: string | null;
-    metaImage?: (string | null) | Media;
-    /**
-     * SEO keywords for this category
-     */
-    keywords?:
-      | {
-          keyword?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    systemCategoryId?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -2423,6 +2476,51 @@ export interface PagesSelect<T extends boolean = true> {
                           rating?: T;
                           href?: T;
                           id?: T;
+                        };
+                    id?: T;
+                    blockName?: T;
+                  };
+              dynamicPackages?:
+                | T
+                | {
+                    title?: T;
+                    specialWord?: T;
+                    description?: T;
+                    showPackageSelector?: T;
+                    selectorTitle?: T;
+                    categoryFilter?:
+                      | T
+                      | {
+                          useCustomSelection?: T;
+                          selectedCategories?: T;
+                          sortBy?: T;
+                        };
+                    id?: T;
+                    blockName?: T;
+                  };
+              dynamicCategoryPackages?:
+                | T
+                | {
+                    selectorTitle?: T;
+                    showPackageSelector?: T;
+                    noPackagesMessage?:
+                      | T
+                      | {
+                          title?: T;
+                          message?: T;
+                          showContactButton?: T;
+                        };
+                    displayOptions?:
+                      | T
+                      | {
+                          packagesPerRow?: T;
+                          showPackageDetails?:
+                            | T
+                            | {
+                                showPrice?: T;
+                                showDuration?: T;
+                                showLocations?: T;
+                              };
                         };
                     id?: T;
                     blockName?: T;
