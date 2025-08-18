@@ -89,7 +89,7 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
                   .slice(0, item.displaySettings?.maxDropdownItems || 10)
                   .map((category: ActivityCategory) => ({
                     label: category.name,
-                    href: `/activities/${category.slug}`,
+                    href: `/activities/search?activityType=${category.slug}`,
                   }));
               }
               break;
