@@ -1,384 +1,225 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@payload-config";
-
-// Type definitions
-interface ContactEnquiryRequest {
-  booking: {
-    package: string;
-    duration: string;
-    checkIn: string;
-    checkOut: string;
-    adults: number;
-    children: number;
-  };
-  personal: {
-    fullName: string;
-    age: number;
-    phone: string;
-    email: string;
-  };
-  additional: {
-    tags: string[];
-    message: string;
-  };
-  additionalMessage: string;
-  enquirySource: string;
-  packageInfo?: {
-    id?: string;
-    title: string;
-    slug?: string;
-    period: string;
-    price: number;
-    originalPrice?: number;
-    description?: string;
-    category?: string;
-  };
-  timestamp: string;
-  recaptchaScore: string;
-}
-
-// Helper function to get client IP
-function getClientIP(request: NextRequest): string {
-  const xForwardedFor = request.headers.get("x-forwarded-for");
-  const xRealIP = request.headers.get("x-real-ip");
-  const remoteAddr = request.headers.get("remote-addr");
-
-  if (xForwardedFor) {
-    return xForwardedFor.split(",")[0].trim();
-  }
-
-  return xRealIP || remoteAddr || "unknown";
-}
-
-// Helper function to validate email
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-// Helper function to validate phone
-function isValidPhone(phone: string): boolean {
-  // Basic phone validation - adjust based on your requirements
-  const phoneRegex = /^[\+]?[1-9][\d]{6,14}$/;
-  return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""));
-}
+import { ApiContactData, apiContactSchema } from "../../(frontend)/contact/components/ContactForm/ContactForm.types";
+import { ZodError } from "zod";
+import { nanoid } from "nanoid";
 
 export async function POST(request: NextRequest) {
-  console.log("🔍 Contact enquiry API called");
-
   try {
-    // Log basic request details
-    const requestUrl = request.url;
-    const requestMethod = request.method;
-    const requestHeaders = Object.fromEntries(request.headers.entries());
+    // Parse and validate in one step - Zod handles all transformations
+    const body = await request.json();
+    const validatedData = apiContactSchema.parse(body);
 
-    console.log("📥 Request details:", {
-      url: requestUrl,
-      method: requestMethod,
-      contentType: requestHeaders["content-type"],
-      userAgent: requestHeaders["user-agent"],
-    });
+    // Additional business logic validation
+    const checkInDate = new Date(validatedData.booking.checkIn);
+    const checkOutDate = new Date(validatedData.booking.checkOut);
 
-    // Parse request body
-    const rawBody = await request.text();
-    console.log("📄 Raw request body received");
-
-    let body: ContactEnquiryRequest;
-    try {
-      body = JSON.parse(rawBody);
-      console.log("✅ Request body parsed successfully");
-    } catch (parseError) {
-      console.error("❌ JSON parsing error:", parseError);
+    if (checkOutDate <= checkInDate) {
       return NextResponse.json(
-        { error: "Invalid JSON format in request body" },
+        {
+          error: "Check-out must be after check-in date",
+          field: "booking.dates",
+        },
         { status: 400 }
       );
     }
 
-    // Detailed validation logging
-    console.log("🔍 Validating fields...");
-
-    if (!body.personal?.fullName?.trim()) {
-      console.error("❌ Validation failed: Missing fullName");
-      return NextResponse.json(
-        { error: "Full name is required", field: "personal.fullName" },
-        { status: 400 }
-      );
-    }
-
-    if (!body.personal?.email?.trim() || !isValidEmail(body.personal.email)) {
-      console.error(
-        "❌ Validation failed: Invalid email",
-        body.personal?.email
-      );
-      return NextResponse.json(
-        { error: "Valid email address is required", field: "personal.email" },
-        { status: 400 }
-      );
-    }
-
-    if (!body.personal?.phone?.trim() || !isValidPhone(body.personal.phone)) {
-      console.error(
-        "❌ Validation failed: Invalid phone",
-        body.personal?.phone
-      );
-      return NextResponse.json(
-        { error: "Valid phone number is required", field: "personal.phone" },
-        { status: 400 }
-      );
-    }
-
-    if (!body.booking?.adults || body.booking.adults < 1) {
-      console.error(
-        "❌ Validation failed: Invalid adults count",
-        body.booking?.adults
-      );
-      return NextResponse.json(
-        { error: "At least 1 adult is required", field: "booking.adults" },
-        { status: 400 }
-      );
-    }
-
-    // Enhanced date validation
-    console.log("📅 Validating dates...");
-    const checkIn = new Date(body.booking.checkIn);
-    const checkOut = new Date(body.booking.checkOut);
-
-    console.log("Date comparison:", {
-      checkIn: checkIn.toISOString(),
-      checkOut: checkOut.toISOString(),
-      checkInValid: !isNaN(checkIn.getTime()),
-      checkOutValid: !isNaN(checkOut.getTime()),
-    });
-
-    if (isNaN(checkIn.getTime())) {
-      console.error("❌ Invalid check-in date:", body.booking.checkIn);
-      return NextResponse.json(
-        { error: "Invalid check-in date format", field: "booking.checkIn" },
-        { status: 400 }
-      );
-    }
-
-    if (isNaN(checkOut.getTime())) {
-      console.error("❌ Invalid check-out date:", body.booking.checkOut);
-      return NextResponse.json(
-        { error: "Invalid check-out date format", field: "booking.checkOut" },
-        { status: 400 }
-      );
-    }
-
-    // Compare dates only (ignore time) - more practical validation
+    // Validate future dates
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const checkInDate = new Date(checkIn);
-    checkInDate.setHours(0, 0, 0, 0);
-
-    const checkOutDate = new Date(checkOut);
-    checkOutDate.setHours(0, 0, 0, 0);
-
     if (checkInDate < today) {
-      console.error("❌ Check-in date is before today");
       return NextResponse.json(
         {
-          error: "Check-in date cannot be before today",
+          error: "Check-in date cannot be in the past",
           field: "booking.checkIn",
         },
         { status: 400 }
       );
     }
 
-    if (checkOutDate <= checkInDate) {
-      console.error("❌ Check-out date must be after check-in date");
+    const payload = await getPayload({ config });
+
+    // Generate unique enquiry ID
+    const enquiryId = `ENQ-${nanoid(8).toUpperCase()}`;
+
+    // Create enquiry - data is already properly typed and validated
+    const enquiry = await payload.create({
+      collection: "enquiries",
+      data: {
+        enquiryId, // Add the missing enquiryId field
+        customerInfo: {
+          fullName: validatedData.personal.fullName,
+          email: validatedData.personal.email,
+          phone: validatedData.personal.phone,
+          age: validatedData.personal.age,
+        },
+        bookingDetails: {
+          selectedPackage: validatedData.booking.package,
+          duration: validatedData.booking.duration,
+          checkIn: validatedData.booking.checkIn.toISOString(),
+          checkOut: validatedData.booking.checkOut.toISOString(),
+          adults: validatedData.booking.adults,
+          children: validatedData.booking.children,
+          tags: validatedData.additional.tags.map((tag: any) => ({ tag })),
+        },
+        packageInfo: validatedData.packageInfo || undefined,
+        messages: {
+          message: validatedData.additional.message || "",
+          additionalMessage: validatedData.additionalMessage || "",
+        },
+        enquiryMetadata: {
+          enquirySource: validatedData.enquirySource as any,
+          status: "new",
+          priority: calculatePriority(validatedData),
+        },
+        technicalDetails: {
+          userAgent: request.headers.get("user-agent") || "",
+          ipAddress: getClientIP(request),
+          recaptchaScore: validatedData.recaptchaScore,
+          submissionTimestamp: validatedData.timestamp,
+        },
+      },
+    });
+
+    // Log successful enquiry creation
+    console.log(`✅ Enquiry created: ${enquiryId}`, {
+      package: validatedData.booking.package,
+      customer: validatedData.personal.email,
+      source: validatedData.enquirySource,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Enquiry submitted successfully!",
+      enquiryId: enquiry.enquiryId || enquiry.id, // Return the custom enquiryId
+      estimatedResponseTime: await calculateResponseTime(payload),
+    });
+  } catch (error) {
+    // Enhanced error handling
+    if (error instanceof ZodError) {
+      const firstError = error.errors[0];
+      console.warn("❌ Validation error:", {
+        field: firstError.path.join("."),
+        message: firstError.message,
+        code: firstError.code,
+      });
+
       return NextResponse.json(
         {
-          error: "Check-out date must be after check-in date",
-          field: "booking.checkOut",
+          error: getHumanReadableError(firstError),
+          field: firstError.path.join("."),
+          code: "VALIDATION_ERROR",
         },
         { status: 400 }
       );
     }
 
-    console.log("✅ All validations passed, creating enquiry...");
-
-    // Get Payload instance
-    let payload;
-    try {
-      payload = await getPayload({ config });
-      console.log("✅ Payload instance obtained");
-    } catch (payloadError) {
-      console.error("❌ Failed to get Payload instance:", payloadError);
-      return NextResponse.json(
-        { error: "Database connection failed" },
-        { status: 500 }
-      );
-    }
-
-    // Prepare enquiry data with proper tag transformation
-    const enquiryData = {
-      customerInfo: {
-        fullName: body.personal.fullName.trim(),
-        email: body.personal.email.trim().toLowerCase(),
-        phone: body.personal.phone.trim(),
-        age: body.personal.age || 25,
-      },
-      bookingDetails: {
-        selectedPackage: body.booking.package || "",
-        duration: body.booking.duration || "",
-        checkIn: checkIn.toISOString(),
-        checkOut: checkOut.toISOString(),
-        adults: body.booking.adults,
-        children: body.booking.children || 0,
-        tags: (body.additional.tags || []).map((tag) => ({ tag })), // Transform to correct format
-      },
-      packageInfo: body.packageInfo
-        ? {
-            title: body.packageInfo.title,
-            price: body.packageInfo.price,
-            period: body.packageInfo.period,
-            description: body.packageInfo.description,
-          }
-        : undefined,
-      messages: {
-        message: body.additional.message?.trim() || "",
-        additionalMessage: body.additionalMessage?.trim() || "",
-      },
-      enquiryMetadata: {
-        enquirySource: body.enquirySource || "direct",
-        status: "new",
-        priority: "medium",
-      },
-      technicalDetails: {
-        userAgent: request.headers.get("user-agent") || "",
-        ipAddress: getClientIP(request),
-        recaptchaScore: body.recaptchaScore || "not-verified",
-        submissionTimestamp: new Date(
-          body.timestamp || Date.now()
-        ).toISOString(),
-      },
-    };
-
-    console.log("✅ Enquiry data prepared");
-
-    // Create enquiry in database
-    let enquiry;
-    try {
-      enquiry = await payload.create({
-        collection: "enquiries",
-        data: enquiryData as any,
-      });
-      console.log(`✅ Enquiry created successfully: ${enquiry.id}`);
-    } catch (createError) {
-      console.error("❌ Failed to create enquiry:", createError);
-      return NextResponse.json(
-        {
-          error: "Failed to save enquiry to database",
-          details:
-            createError instanceof Error
-              ? createError.message
-              : "Unknown database error",
-        },
-        { status: 500 }
-      );
-    }
-
-    // Calculate estimated response time based on current load
-    let estimatedResponseTime = "24 hours";
-    try {
-      const today = new Date();
-      const todayEnquiries = await payload.count({
-        collection: "enquiries",
-        where: {
-          createdAt: {
-            greater_than_equal: new Date(
-              today.setHours(0, 0, 0, 0)
-            ).toISOString(),
+    // Handle Payload CMS errors
+    if (error && typeof error === "object" && "name" in error) {
+      if (error.name === "ValidationError") {
+        console.warn("❌ Payload validation error:", error);
+        return NextResponse.json(
+          {
+            error: "Invalid data provided. Please check your inputs.",
+            code: "PAYLOAD_VALIDATION_ERROR",
           },
-        },
-      });
-
-      if (todayEnquiries.totalDocs > 10) {
-        estimatedResponseTime = "48 hours";
-      } else if (todayEnquiries.totalDocs > 5) {
-        estimatedResponseTime = "24-36 hours";
-      } else {
-        estimatedResponseTime = "12-24 hours";
+          { status: 400 }
+        );
       }
-    } catch (countError) {
-      console.error("❌ Failed to calculate response time:", countError);
-      // Continue with default response time
     }
 
-    // Return success response
-    console.log("✅ Returning success response");
-    return NextResponse.json({
-      success: true,
-      message: "Enquiry submitted successfully",
-      enquiryId: enquiry.enquiryId || enquiry.id,
-      estimatedResponseTime,
-      data: {
-        enquiryId: enquiry.enquiryId || enquiry.id,
-        submittedAt: enquiry.createdAt,
-        status: "new",
-      },
-    });
-  } catch (error) {
-    console.error("💥 Unexpected error in contact-enquiry API:", error);
-    console.error(
-      "Error stack:",
-      error instanceof Error ? error.stack : "No stack trace"
-    );
-
-    // ALWAYS return a response, even in the catch block
+    console.error("❌ API Error:", error);
     return NextResponse.json(
       {
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
-        timestamp: new Date().toISOString(),
+        error:
+          "We're experiencing technical difficulties. Please try again later.",
+        code: "INTERNAL_ERROR",
       },
       { status: 500 }
     );
   }
 }
 
-// Handle unsupported methods
-export async function GET() {
-  return NextResponse.json(
-    {
-      error: "Method not allowed",
-      message: "This endpoint only accepts POST requests",
-    },
-    { status: 405 }
+function getClientIP(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") || // Cloudflare
+    request.headers.get("x-client-ip") ||
+    "unknown"
   );
 }
 
-export async function PUT() {
-  return NextResponse.json(
-    {
-      error: "Method not allowed",
-      message: "This endpoint only accepts POST requests",
-    },
-    { status: 405 }
-  );
+async function calculateResponseTime(payload: any): Promise<string> {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const { totalDocs } = await payload.count({
+      collection: "enquiries",
+      where: {
+        createdAt: { greater_than_equal: today.toISOString() },
+        "enquiryMetadata.status": { not_equals: "spam" }, // Exclude spam
+      },
+    });
+
+    // Dynamic response time based on workload
+    if (totalDocs > 50) return "72-96 hours";
+    if (totalDocs > 30) return "48-72 hours";
+    if (totalDocs > 20) return "24-48 hours";
+    if (totalDocs > 10) return "12-24 hours";
+    if (totalDocs > 5) return "6-12 hours";
+
+    return "4-8 hours";
+  } catch (error) {
+    console.warn("Failed to calculate response time:", error);
+    return "24 hours";
+  }
 }
 
-export async function DELETE() {
-  return NextResponse.json(
-    {
-      error: "Method not allowed",
-      message: "This endpoint only accepts POST requests",
-    },
-    { status: 405 }
+function calculatePriority(
+  data: ApiContactData
+): "low" | "medium" | "high" | "urgent" {
+  // Business logic for priority calculation
+  const adultCount = data.booking.adults || 0;
+  const childrenCount = data.booking.children || 0;
+  const totalGuests = adultCount + childrenCount;
+
+  const checkInDate = new Date(data.booking.checkIn);
+  const daysUntilCheckIn = Math.ceil(
+    (checkInDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
+
+  // Urgent: Large group booking soon
+  if (totalGuests >= 8 && daysUntilCheckIn <= 7) return "urgent";
+
+  // High: Large group or booking very soon
+  if (totalGuests >= 6 || daysUntilCheckIn <= 3) return "high";
+
+  // Medium: Standard booking
+  if (daysUntilCheckIn <= 14) return "medium";
+
+  // Low: Advance booking
+  return "low";
 }
 
-export async function PATCH() {
-  return NextResponse.json(
-    {
-      error: "Method not allowed",
-      message: "This endpoint only accepts POST requests",
-    },
-    { status: 405 }
-  );
+function getHumanReadableError(zodError: any): string {
+  const field = zodError.path.join(".");
+  const message = zodError.message;
+
+  // Map technical errors to user-friendly messages
+  const fieldMap: Record<string, string> = {
+    "personal.email": "Please enter a valid email address",
+    "personal.phone": "Please enter a valid phone number",
+    "personal.fullName": "Please enter your full name (at least 2 characters)",
+    "personal.age": "Age must be between 18 and 100",
+    "booking.package": "Please select a package",
+    "booking.duration": "Please select a duration",
+    "booking.adults": "Number of adults must be between 1 and 20",
+    "booking.children": "Number of children must be between 0 and 20",
+  };
+
+  return fieldMap[field] || message;
 }

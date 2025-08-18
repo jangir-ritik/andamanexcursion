@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ContactForm } from "./components/ContactForm/ContactForm";
@@ -9,7 +9,7 @@ import styles from "./page.module.css";
 import {
   contactFormSchema,
   ContactFormData,
-  FormSubmissionResult,
+  createFormDefaults, // Import the new function
 } from "./components/ContactForm/ContactForm.types";
 import { SectionTitle } from "@/components/atoms";
 import { Container } from "@/components/layout";
@@ -21,15 +21,30 @@ import {
   Loader2,
   AlertTriangle,
   RefreshCw,
+  Info,
 } from "lucide-react";
+
+type FormInitState =
+  | "loading"
+  | "package"
+  | "saved"
+  | "fresh"
+  | "conflict"
+  | "error";
 
 // Component that uses useEnquiryData (wrapped in Suspense)
 function ContactPageContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitResult, setSubmitResult] = useState<FormSubmissionResult | null>(
-    null
-  );
-  const [formInitialized, setFormInitialized] = useState(false);
+  const [submitResult, setSubmitResult] = useState<any>(null);
+  const [initState, setInitState] = useState<FormInitState>("loading");
+  const [conflictData, setConflictData] = useState<{
+    saved: ContactFormData;
+    package: ContactFormData;
+  } | null>(null);
+
+  // Track initialization to prevent multiple runs
+  const hasInitialized = useRef(false);
+  const initializationPromise = useRef<Promise<void> | null>(null);
 
   // Get package enquiry data from URL parameters
   const {
@@ -42,123 +57,236 @@ function ContactPageContent() {
     isDataReady,
   } = useEnquiryData();
 
+  // Create form with enhanced defaults
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema) as any,
     mode: "onChange",
-    defaultValues: {
-      booking: {
-        package: "",
-        duration: "",
-        checkIn: new Date(),
-        checkOut: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        adults: 2,
-        children: 0,
-      },
-      personal: {
-        fullName: "",
-        age: 25,
-        phone: "",
-        email: "",
-      },
-      additional: {
-        tags: [],
-        message: "",
-      },
-      additionalMessage: "",
-    },
+    defaultValues: createFormDefaults(), // Use the factory function
   });
 
-  const { clearSavedData, hasSavedData } = useFormPersistence(form);
+  const {
+    saveToStorage,
+    loadFromStorage,
+    clearStorage,
+    restoreFromStorage,
+    savePackageData,
+    hasConflictingData,
+    getStorageInfo,
+    hasStoredData,
+    isStorageAvailable,
+  } = useFormPersistence(form);
 
-  // Enhanced form initialization with better error handling
+  // Enhanced form initialization with race condition prevention
   useEffect(() => {
-    if (!isDataReady || formInitialized) return;
+    if (
+      !isDataReady ||
+      hasInitialized.current ||
+      initializationPromise.current
+    ) {
+      return;
+    }
 
-    const initializeForm = async () => {
+    const initializeForm = async (): Promise<void> => {
       try {
-        console.log("🔄 Initializing form with data...", {
-          hasPackageData,
-          formDefaults: !!formDefaults,
-          contactFormOptionsReady: !contactFormOptions.isLoading,
-        });
+        console.log("🔄 Initializing form...");
+        hasInitialized.current = true;
 
-        if (hasPackageData && formDefaults) {
-          // Clear any existing saved data to prevent conflicts
-          clearSavedData();
-          console.log("🧹 Cleared saved form data to avoid conflicts");
-
-          // Set immediate values first (non-Select components)
-          const immediateUpdates = [
-            ["booking.checkIn", formDefaults.booking.checkIn],
-            ["booking.checkOut", formDefaults.booking.checkOut],
-            ["booking.adults", formDefaults.booking.adults],
-            ["booking.children", formDefaults.booking.children],
-            ["additional.message", formDefaults.additional.message],
-          ] as const;
-
-          immediateUpdates.forEach(([field, value]) => {
-            if (value !== undefined) {
-              form.setValue(field, value, { shouldDirty: false });
-            }
-          });
-
-          // Delay Select component updates to ensure they're ready
-          setTimeout(() => {
-            console.log("⏰ Setting Select values with delay...");
-
-            if (formDefaults.booking.package) {
-              form.setValue("booking.package", formDefaults.booking.package, {
-                shouldDirty: false,
-              });
-            }
-
-            if (formDefaults.booking.duration) {
-              form.setValue("booking.duration", formDefaults.booking.duration, {
-                shouldDirty: false,
-              });
-            }
-
-            // Trigger validation after all values are set
-            form.trigger();
-
-            console.log("✅ Form initialized with package data");
-          }, 150);
+        // Check storage availability first
+        if (!isStorageAvailable()) {
+          console.warn("⚠️ Storage not available, using memory only");
+          if (hasPackageData && formDefaults) {
+            await applyFormData(formDefaults, "package");
+            setInitState("package");
+          } else {
+            setInitState("fresh");
+          }
+          return;
         }
 
-        setFormInitialized(true);
+        // 1. Check for package data first
+        if (hasPackageData && formDefaults) {
+          console.log("📦 Package data available");
+
+          // Check for conflicts with saved data
+          if (hasConflictingData(formDefaults)) {
+            const savedData = loadFromStorage();
+            if (savedData) {
+              setConflictData({
+                saved: savedData.data,
+                package: formDefaults,
+              });
+              setInitState("conflict");
+              return;
+            }
+          }
+
+          // No conflicts - use package data
+          await applyFormData(formDefaults, "package");
+          await savePackageData(formDefaults);
+          setInitState("package");
+        } else if (hasStoredData()) {
+          // 2. Try to load saved data
+          const restored = restoreFromStorage();
+          if (restored) {
+            console.log("💾 Using saved form data");
+            setInitState("saved");
+          } else {
+            console.log("✨ Using fresh form");
+            setInitState("fresh");
+          }
+        } else {
+          console.log("✨ Using fresh form");
+          setInitState("fresh");
+        }
       } catch (error) {
         console.error("❌ Error initializing form:", error);
-        setFormInitialized(true); // Prevent infinite retry
+        setInitState("error");
+      } finally {
+        initializationPromise.current = null;
       }
     };
 
-    initializeForm();
+    // Store the promise to prevent concurrent initializations
+    initializationPromise.current = initializeForm();
   }, [
     isDataReady,
-    formInitialized,
     hasPackageData,
     formDefaults,
-    form,
-    clearSavedData,
-    contactFormOptions.isLoading,
+    hasConflictingData,
+    loadFromStorage,
+    restoreFromStorage,
+    savePackageData,
+    hasStoredData,
+    isStorageAvailable,
   ]);
 
+  // Helper function to apply form data with proper type conversion and timing
+  const applyFormData = useCallback(
+    async (data: ContactFormData, source: "package" | "saved") => {
+      // Use the enhanced defaults as base, then overlay with provided data
+      const baseDefaults = createFormDefaults();
+      const mergedData = {
+        ...baseDefaults,
+        ...data,
+        booking: { ...baseDefaults.booking, ...data.booking },
+        personal: { ...baseDefaults.personal, ...data.personal },
+        additional: { ...baseDefaults.additional, ...data.additional },
+      };
+
+      // Process and ensure proper types
+      const processedData = {
+        ...mergedData,
+        personal: {
+          ...mergedData.personal,
+          age: Number(mergedData.personal.age),
+        },
+        booking: {
+          ...mergedData.booking,
+          adults: Number(mergedData.booking.adults),
+          children: Number(mergedData.booking.children),
+          checkIn: new Date(mergedData.booking.checkIn),
+          checkOut: new Date(mergedData.booking.checkOut),
+        },
+      };
+
+      // Apply immediate values first (non-select fields)
+      const immediateFields = [
+        "booking.checkIn",
+        "booking.checkOut",
+        "booking.adults",
+        "booking.children",
+        "additional.message",
+        "personal.fullName",
+        "personal.email",
+        "personal.phone",
+        "personal.age",
+        "additionalMessage",
+      ] as const;
+
+      immediateFields.forEach((fieldPath) => {
+        const value = getNestedValue(processedData, fieldPath);
+        if (value !== undefined) {
+          form.setValue(fieldPath, value, {
+            shouldDirty: source === "saved",
+            shouldValidate: false,
+          });
+        }
+      });
+
+      // Small delay for select components to mount properly
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // Apply select field values
+      const selectFields = ["booking.package", "booking.duration"] as const;
+      selectFields.forEach((fieldPath) => {
+        const value = getNestedValue(processedData, fieldPath);
+        if (value !== undefined) {
+          form.setValue(fieldPath, value, {
+            shouldDirty: source === "saved",
+            shouldValidate: false,
+          });
+        }
+      });
+
+      // Apply tags separately (array field)
+      if (processedData.additional.tags.length > 0) {
+        form.setValue("additional.tags", processedData.additional.tags, {
+          shouldDirty: source === "saved",
+          shouldValidate: false,
+        });
+      }
+
+      // Trigger validation after all values are set
+      setTimeout(() => {
+        form.trigger();
+        console.log(`✅ Applied ${source} data to form`);
+      }, 150);
+    },
+    [form]
+  );
+
+  // Helper function to safely get nested object values
+  const getNestedValue = (obj: any, path: string): any => {
+    return path.split(".").reduce((current, key) => current?.[key], obj);
+  };
+
+  // Handle conflict resolution with better error handling
+  const handleConflictResolution = useCallback(
+    async (choice: "package" | "saved") => {
+      if (!conflictData) return;
+
+      try {
+        setInitState("loading"); // Show loading during resolution
+
+        if (choice === "package") {
+          clearStorage();
+          await applyFormData(conflictData.package, "package");
+          await savePackageData(conflictData.package);
+          setInitState("package");
+        } else {
+          await applyFormData(conflictData.saved, "saved");
+          setInitState("saved");
+        }
+        setConflictData(null);
+      } catch (error) {
+        console.error("Error resolving conflict:", error);
+        setInitState("error");
+      }
+    },
+    [conflictData, applyFormData, savePackageData, clearStorage]
+  );
+
+  // Enhanced onSubmit with proper error handling
   const onSubmit = useCallback(
     async (data: ContactFormData, recaptchaToken?: string): Promise<void> => {
       setIsSubmitting(true);
       setSubmitResult(null);
 
       try {
-        // Log the data being sent
-        console.log("📤 Submitting form data:", {
-          data: JSON.stringify(data, null, 2),
-          recaptchaToken: recaptchaToken ? "present" : "missing",
-          packageInfo: packageInfo ? "present" : "missing",
-        });
+        console.log("📤 Submitting form data");
 
         // Step 1: Verify reCAPTCHA if token provided
         if (recaptchaToken) {
-          console.log("🔐 Verifying reCAPTCHA token...");
           const recaptchaResponse = await fetch("/api/verify-recaptcha", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -174,89 +302,66 @@ function ContactPageContent() {
               recaptchaResult.error || "Security verification failed"
             );
           }
-          console.log("✅ reCAPTCHA verified:", {
-            score: recaptchaResult.score,
-          });
         }
 
-        // Step 2: Prepare and log the request payload
+        // Step 2: Prepare request payload with proper packageInfo handling
         const requestPayload = {
           ...data,
           enquirySource: hasPackageData ? "package-detail" : "direct",
-          packageInfo: packageInfo,
+          packageInfo: packageInfo || undefined, // Ensure not null
           timestamp: new Date().toISOString(),
           recaptchaScore: recaptchaToken ? "verified" : "skipped",
         };
 
-        console.log("🚀 Sending contact enquiry:", {
-          url: "/api/contact-enquiry",
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          payloadSize: JSON.stringify(requestPayload).length,
-          payload: JSON.stringify(requestPayload, null, 2),
+        console.log("📋 Request payload prepared:", {
+          hasPackageData,
+          packageInfoPresent: !!requestPayload.packageInfo,
+          personalAge: typeof data.personal.age,
+          bookingAdults: typeof data.booking.adults,
+          bookingChildren: typeof data.booking.children,
         });
 
-        // Step 3: Submit form data
         const response = await fetch("/api/contact-enquiry", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestPayload),
         });
 
-        console.log("📥 Response received:", {
-          status: response.status,
-          statusText: response.statusText,
-          ok: response.ok,
-          headers: Object.fromEntries(response.headers.entries()),
-        });
-
-        // Log response body before checking if it's ok
         const responseText = await response.text();
-        console.log("📄 Response body:", responseText);
 
         if (!response.ok) {
           let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-
           try {
             const errorData = JSON.parse(responseText);
-            console.error("❌ API Error Response:", errorData);
             errorMessage = errorData.error || errorData.message || errorMessage;
-
-            // Add field-specific error info if available
             if (errorData.field) {
               errorMessage += ` (Field: ${errorData.field})`;
             }
           } catch (parseError) {
-            console.error("❌ Failed to parse error response:", parseError);
+            console.warn("Could not parse error response:", parseError);
           }
-
           throw new Error(errorMessage);
         }
 
         const result = JSON.parse(responseText);
-        console.log("✅ Success response:", result);
 
         setSubmitResult({
           success: true,
           message:
-            result.message ||
-            "Your enquiry has been submitted successfully! We'll get back to you soon!",
+            result.message || "Your enquiry has been submitted successfully!",
           data: {
             enquiryId: result.enquiryId,
             estimatedResponseTime: result.estimatedResponseTime || "24 hours",
           },
         });
 
-        // Clear form on success
-        clearSavedData();
-        form.reset();
+        // Clear form and storage on success
+        clearStorage();
+        form.reset(createFormDefaults()); // Reset to clean defaults
+        hasInitialized.current = false; // Allow re-initialization
+        setInitState("fresh");
       } catch (error) {
         console.error("❌ Form submission error:", error);
-        console.error("Error details:", {
-          message: error instanceof Error ? error.message : "Unknown error",
-          stack: error instanceof Error ? error.stack : "No stack trace",
-        });
-
         setSubmitResult({
           success: false,
           message:
@@ -268,7 +373,7 @@ function ContactPageContent() {
         setIsSubmitting(false);
       }
     },
-    [clearSavedData, form, hasPackageData, packageInfo]
+    [form, hasPackageData, packageInfo, clearStorage]
   );
 
   // Function to dismiss error and reset form state
@@ -276,8 +381,16 @@ function ContactPageContent() {
     setSubmitResult(null);
   }, []);
 
+  // Function to start fresh (clear all data)
+  const handleStartFresh = useCallback(() => {
+    clearStorage();
+    form.reset(createFormDefaults());
+    setInitState("fresh");
+    console.log("🆕 Started fresh form");
+  }, [form, clearStorage]);
+
   // Show loading state
-  if (isLoading) {
+  if (isLoading || initState === "loading") {
     return (
       <div className={styles.contactPage}>
         <Container className={styles.container}>
@@ -288,7 +401,9 @@ function ContactPageContent() {
           />
           <div className={styles.loading}>
             <Loader2 className={styles.loadingSpinner} />
-            <p>Loading form options...</p>
+            <p>
+              {isLoading ? "Loading form options..." : "Initializing form..."}
+            </p>
           </div>
         </Container>
       </div>
@@ -296,7 +411,7 @@ function ContactPageContent() {
   }
 
   // Show error state
-  if (enquiryError) {
+  if (enquiryError || initState === "error") {
     return (
       <div className={styles.contactPage}>
         <Container className={styles.container}>
@@ -307,19 +422,115 @@ function ContactPageContent() {
           />
           <div className={styles.error}>
             <AlertTriangle className={styles.errorIcon} />
-            <p>{enquiryError}</p>
+            <p>{enquiryError || "Failed to initialize form"}</p>
+            <div className={styles.errorActions}>
+              <button
+                onClick={() => {
+                  hasInitialized.current = false;
+                  setInitState("loading");
+                }}
+                className={styles.retryButton}
+              >
+                <RefreshCw size={16} />
+                Try Again
+              </button>
+              <button onClick={handleStartFresh} className={styles.freshButton}>
+                Start Fresh
+              </button>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  // Show conflict resolution
+  if (initState === "conflict" && conflictData) {
+    return (
+      <div className={styles.contactPage}>
+        <Container className={styles.container}>
+          <SectionTitle
+            specialWord="Love to Hear"
+            text="We'd Love to Hear from you!"
+            className={styles.title}
+          />
+
+          <div className={styles.conflictResolution}>
+            <div className={styles.conflictHeader}>
+              <Info className={styles.conflictIcon} />
+              <h3>Data Conflict Detected</h3>
+            </div>
+
+            <p>
+              We found both saved form data and new package information. Which
+              would you like to use?
+            </p>
+
+            <div className={styles.conflictOptions}>
+              <div className={styles.conflictOption}>
+                <h4>📦 New Package Data</h4>
+                <div className={styles.conflictPreview}>
+                  <p>
+                    <strong>Package:</strong>{" "}
+                    {conflictData.package.booking.package}
+                  </p>
+                  <p>
+                    <strong>Duration:</strong>{" "}
+                    {conflictData.package.booking.duration}
+                  </p>
+                  <p>
+                    <strong>Guests:</strong>{" "}
+                    {conflictData.package.booking.adults} adults,{" "}
+                    {conflictData.package.booking.children} children
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleConflictResolution("package")}
+                  className={`${styles.conflictButton} ${styles.packageChoice}`}
+                >
+                  Use Package Data
+                </button>
+              </div>
+
+              <div className={styles.conflictOption}>
+                <h4>💾 Previously Saved Data</h4>
+                <div className={styles.conflictPreview}>
+                  <p>
+                    <strong>Package:</strong>{" "}
+                    {conflictData.saved.booking.package || "Not selected"}
+                  </p>
+                  <p>
+                    <strong>Name:</strong>{" "}
+                    {conflictData.saved.personal.fullName || "Not entered"}
+                  </p>
+                  <p>
+                    <strong>Email:</strong>{" "}
+                    {conflictData.saved.personal.email || "Not entered"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleConflictResolution("saved")}
+                  className={`${styles.conflictButton} ${styles.savedChoice}`}
+                >
+                  Use Saved Data
+                </button>
+              </div>
+            </div>
+
             <button
-              onClick={() => window.location.reload()}
-              className={styles.retryButton}
+              onClick={handleStartFresh}
+              className={styles.startFreshButton}
             >
-              <RefreshCw size={16} />
-              Try Again
+              Start Fresh Instead
             </button>
           </div>
         </Container>
       </div>
     );
   }
+
+  // Debug info (remove in production)
+  const storageInfo = getStorageInfo();
 
   return (
     <div className={styles.contactPage}>
@@ -330,8 +541,18 @@ function ContactPageContent() {
           className={styles.title}
         />
 
+        {/* Development Debug Panel - Remove in production */}
+        {process.env.NODE_ENV === "development" && storageInfo && (
+          <div className={styles.debugPanel}>
+            <p>
+              🔍 Debug: {initState} | {storageInfo.source} ({storageInfo.age}min
+              old, {storageInfo.size}KB, expires in {storageInfo.expires}min)
+            </p>
+          </div>
+        )}
+
         {/* Package Enquiry Notice */}
-        {hasPackageData && packageInfo && (
+        {initState === "package" && packageInfo && (
           <div className={styles.packageNotice}>
             <div className={styles.packageHeader}>
               <h3>
@@ -368,17 +589,14 @@ function ContactPageContent() {
         )}
 
         {/* Saved Data Notice */}
-        {!hasPackageData && hasSavedData() && (
+        {initState === "saved" && (
           <div className={styles.savedDataNotice}>
             <p>
               <FileText size={16} className={styles.savedDataIcon} />
               We've restored your previous form data.
               <button
                 type="button"
-                onClick={() => {
-                  clearSavedData();
-                  form.reset();
-                }}
+                onClick={handleStartFresh}
                 className={styles.clearDataButton}
               >
                 Start Fresh
@@ -419,7 +637,7 @@ function ContactPageLoading() {
   );
 }
 
-// Main component with Suspense boundary and error boundary
+// Main component with Suspense boundary
 export default function ContactPage() {
   return (
     <Suspense fallback={<ContactPageLoading />}>
