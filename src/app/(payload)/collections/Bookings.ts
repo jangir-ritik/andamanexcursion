@@ -154,7 +154,7 @@ const Bookings: CollectionConfig = {
           type: "number",
           required: true,
           admin: {
-            description: "Total price for this activity (quantity × unitPrice)",
+            description: "Total price for this activity (quantity * unitPrice)",
           },
         },
         {

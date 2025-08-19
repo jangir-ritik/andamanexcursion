@@ -1502,7 +1502,7 @@ export interface Booking {
          */
         unitPrice: number;
         /**
-         * Total price for this activity (quantity × unitPrice)
+         * Total price for this activity (quantity * unitPrice)
          */
         totalPrice: number;
         /**

@@ -14,6 +14,9 @@ importers:
       '@payloadcms/db-mongodb':
         specifier: ^3.47.0
         version: 3.47.0(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3))
+      '@payloadcms/email-resend':
+        specifier: ^3.52.0
+        version: 3.52.0(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3))
       '@payloadcms/next':
         specifier: ^3.47.0
         version: 3.47.0(@types/react@19.1.8)(graphql@16.11.0)(monaco-editor@0.52.2)(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
@@ -997,6 +1000,12 @@ packages:
     resolution: {integrity: sha512-JGvCNGLg9B52u6VLbnNcPZUi8if0X0pG4PLgT7mmojlDnsxycuNBME1tDed9SW+qY8nF7pb555O+tRQRdAqXSQ==}
     peerDependencies:
       payload: 3.47.0
+
+  '@payloadcms/email-resend@3.52.0':
+    resolution: {integrity: sha512-dHNkvxXkc21h6Ct+Zxp0yfY5qoEovI1W4kC5jQjQNeO0YcpH3N2xNdSQ5aWbxrnQqcFNr6VXDNswRsfXrnIrGA==}
+    engines: {node: ^18.20.2 || >=20.9.0}
+    peerDependencies:
+      payload: 3.52.0
 
   '@payloadcms/graphql@3.47.0':
     resolution: {integrity: sha512-nEPX9IK7eVORmyn04s0eiq0NIQjQ8agnhbpu4hir4PmRuRcHdI0+b4TKowghUyu7S00MFQg7c7tgtDgOUacbeg==}
@@ -4749,6 +4758,10 @@ snapshots:
       - snappy
       - socks
       - supports-color
+
+  '@payloadcms/email-resend@3.52.0(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3))':
+    dependencies:
+      payload: 3.47.0(graphql@16.11.0)(typescript@5.8.3)
 
   '@payloadcms/graphql@3.47.0(graphql@16.11.0)(payload@3.47.0(graphql@16.11.0)(typescript@5.8.3))(typescript@5.8.3)':
     dependencies:
