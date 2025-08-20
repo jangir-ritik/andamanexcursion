@@ -13,9 +13,9 @@ import {
   Row,
   Column,
 } from "@react-email/components";
-import { BookingData } from "@/services/notifications/emailService";
+import type { BookingConfirmationData } from "@/services/notifications/channels/base";
 
-interface BookingEmailTemplateProps extends BookingData {}
+interface BookingEmailTemplateProps extends BookingConfirmationData {}
 
 export const BookingEmailTemplate: React.FC<BookingEmailTemplateProps> = ({
   confirmationNumber,

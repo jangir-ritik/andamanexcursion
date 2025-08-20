@@ -2,10 +2,11 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@/payload.config";
-import {
-  EmailService,
-  BookingStatusUpdate,
-} from "@/services/notifications/emailService";
+import notificationManager from "@/services/notifications/NotificationManager";
+import type {
+  BookingStatusUpdateData,
+  PaymentFailedData,
+} from "@/services/notifications/channels/base";
 
 export async function POST(request: NextRequest) {
   try {
@@ -148,7 +149,7 @@ async function handlePaymentCaptured(paymentEntity: any, payload: any) {
             "Sending booking status update email (payment captured)..."
           );
 
-          const statusUpdateData: BookingStatusUpdate = {
+          const statusUpdateData: BookingStatusUpdateData = {
             bookingId: currentBooking.bookingId,
             confirmationNumber: currentBooking.confirmationNumber,
             customerName: currentBooking.customerInfo.primaryContactName,
@@ -160,14 +161,20 @@ async function handlePaymentCaptured(paymentEntity: any, payload: any) {
             updateDate: new Date().toISOString(),
           };
 
-          const emailResult = await EmailService.sendBookingStatusUpdate(
-            statusUpdateData
+          const emailResult = await notificationManager.sendBookingStatusUpdate(
+            statusUpdateData,
+            { email: currentBooking.customerInfo.customerEmail },
+            {
+              sendEmailUpdates: true,
+              sendWhatsAppUpdates: false,
+              language: "en",
+            }
           );
 
-          if (!emailResult.success) {
+          if (!emailResult.email?.success) {
             console.error(
               "Failed to send status update email:",
-              emailResult.error
+              emailResult.email?.error
             );
             // Log to booking record for admin visibility
             await payload.update({
@@ -176,7 +183,7 @@ async function handlePaymentCaptured(paymentEntity: any, payload: any) {
               data: {
                 internalNotes: `${
                   currentBooking.internalNotes || ""
-                }\nStatus update email failed: ${emailResult.error}`,
+                }\nStatus update email failed: ${emailResult.email?.error}`,
               },
             });
           }
@@ -260,21 +267,25 @@ async function handlePaymentFailed(paymentEntity: any, payload: any) {
       if (booking.customerInfo?.customerEmail) {
         try {
           console.log("Sending payment failed notification email...");
-
-          const emailResult = await EmailService.sendPaymentFailedNotification({
+          const paymentFailedData: PaymentFailedData = {
             customerEmail: booking.customerInfo.customerEmail,
             customerName: booking.customerInfo.primaryContactName,
             attemptedAmount: paymentEntity.amount / 100, // Convert from paisa to rupees
             failureReason:
               paymentEntity.error_description || paymentEntity.error_reason,
-            bookingType: booking.bookingType || "booking",
+            bookingType: booking.bookingType || "ferry",
             currency: "INR",
-          });
+          };
 
-          if (!emailResult.success) {
+          const emailResult =
+            await notificationManager.sendPaymentFailedNotification(
+              paymentFailedData
+            );
+
+          if (!emailResult.email?.success) {
             console.error(
               "Failed to send payment failed email:",
-              emailResult.error
+              emailResult.email?.error
             );
           }
         } catch (emailError) {

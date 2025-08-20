@@ -1,3 +1,4 @@
+import notificationManager from "@/services/notifications/NotificationManager";
 import { CollectionConfig } from "payload";
 
 const Enquiries: CollectionConfig = {
@@ -316,13 +317,7 @@ const Enquiries: CollectionConfig = {
         // Send welcome email after enquiry creation
         if (operation === "create") {
           try {
-            // Import your EmailService
-            const { EmailService } = await import(
-              "@/services/notifications/emailService"
-            );
-
-            // Send confirmation to customer
-            await EmailService.sendEnquiryConfirmation(doc.customerInfo.email, {
+            const enquiryData = {
               enquiryId: doc.enquiryId,
               fullName: doc.customerInfo.fullName,
               email: doc.customerInfo.email,
@@ -333,23 +328,38 @@ const Enquiries: CollectionConfig = {
               packageInfo: doc.packageInfo,
               enquirySource: doc.enquiryMetadata?.enquirySource,
               submissionDate: doc.createdAt,
-            });
+            };
 
-            // Send notification to admin
-            await EmailService.sendEnquiryNotification({
-              enquiryId: doc.enquiryId,
-              fullName: doc.customerInfo.fullName,
-              email: doc.customerInfo.email,
-              phone: doc.customerInfo.phone,
-              selectedPackage: doc.bookingDetails?.selectedPackage,
-              message: doc.messages?.message,
-              additionalMessage: doc.messages?.additionalMessage,
-              packageInfo: doc.packageInfo,
-              enquirySource: doc.enquiryMetadata?.enquirySource,
-              submissionDate: doc.createdAt,
-            });
+            // Send confirmation to customer and notification to admin
+            const customerResult =
+              await notificationManager.sendEnquiryConfirmation(enquiryData);
+            const adminResult =
+              await notificationManager.sendEnquiryNotification(enquiryData);
 
-            console.log(`✅ Emails sent for enquiry: ${doc.enquiryId}`);
+            // Log Results
+            if (customerResult.email?.success) {
+              console.log(
+                `✅ Enquiry confirmation email sent to ${doc.customerInfo.email}`
+              );
+            } else {
+              console.error(
+                `❌ Failed to send enquiry confirmation email to ${doc.customerInfo.email}:`,
+                customerResult.email?.error
+              );
+            }
+
+            if (adminResult.email?.success) {
+              console.log(`✅ Enquiry notification email sent to admin`);
+            } else {
+              console.error(
+                `❌ Failed to send enquiry notification email to admin:`,
+                adminResult.email?.error
+              );
+            }
+
+            // Log the results
+            console.log("Enquiry Confirmation Result:", customerResult);
+            console.log("Enquiry Notification Result:", adminResult);
           } catch (error) {
             console.error(
               `❌ Failed to send emails for enquiry ${doc.enquiryId}:`,

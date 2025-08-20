@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { EmailService } from "@/services/notifications/emailService";
+
+import { notificationManager } from "@/services/notifications/NotificationManager";
 import { NotificationService } from "@/services/notifications/notificationService";
 
 export async function POST(request: NextRequest) {
@@ -18,7 +19,13 @@ export async function POST(request: NextRequest) {
     switch (type) {
       case "config":
         // Test email configuration
-        result = await NotificationService.testEmailConfiguration();
+        const channelStatus = notificationManager.getChannelStatus();
+        const testResults = await notificationManager.testAllChannels();
+        result = {
+          success: channelStatus.email?.enabled || false,
+          channelStatus,
+          testResults,
+        };
         break;
 
       case "booking-confirmation":
@@ -61,7 +68,17 @@ export async function POST(request: NextRequest) {
           contactPhone: "+91-9876543210",
         };
 
-        result = await EmailService.sendBookingConfirmation(sampleBookingData);
+        const bookingResult = await notificationManager.sendBookingConfirmation(
+          sampleBookingData,
+          { email: testEmail },
+          { sendEmailUpdates: true, sendWhatsAppUpdates: false, language: "en" }
+        );
+
+        result = {
+          success: bookingResult.email?.success || false,
+          error: bookingResult.email?.error,
+          messageId: bookingResult.email?.messageId,
+        };
         break;
 
       case "status-update":
@@ -77,19 +94,38 @@ export async function POST(request: NextRequest) {
           updateDate: new Date().toISOString(),
         };
 
-        result = await EmailService.sendBookingStatusUpdate(sampleStatusUpdate);
+        const statusResult = await notificationManager.sendBookingStatusUpdate(
+          sampleStatusUpdate,
+          { email: testEmail },
+          { sendEmailUpdates: true, sendWhatsAppUpdates: false, language: "en" }
+        );
+
+        result = {
+          success: statusResult.email?.success || false,
+          error: statusResult.email?.error,
+          messageId: statusResult.email?.messageId,
+        };
+
         break;
 
       case "payment-failed":
         // Test payment failed email
-        result = await EmailService.sendPaymentFailedNotification({
+        const paymentData = {
           customerEmail: testEmail,
           customerName: "Test User",
           attemptedAmount: 5000,
           failureReason: "Your bank declined the transaction",
-          bookingType: "ferry",
+          bookingType: "ferry" as const,
           currency: "INR",
-        });
+        };
+        const paymentResult =
+          await notificationManager.sendPaymentFailedNotification(paymentData);
+
+        result = {
+          success: paymentResult.email?.success || false,
+          error: paymentResult.email?.error,
+          messageId: paymentResult.email?.messageId,
+        };
         break;
 
       case "booking-by-id":

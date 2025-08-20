@@ -11,9 +11,9 @@ import {
   Text,
   Button,
 } from "@react-email/components";
-import { BookingStatusUpdate } from "@/services/notifications/emailService";
+import type { BookingStatusUpdateData } from "@/services/notifications/channels/base";
 
-interface BookingStatusUpdateTemplateProps extends BookingStatusUpdate {}
+interface BookingStatusUpdateTemplateProps extends BookingStatusUpdateData {}
 
 export const BookingStatusUpdateTemplate: React.FC<
   BookingStatusUpdateTemplateProps

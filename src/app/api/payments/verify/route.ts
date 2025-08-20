@@ -3,10 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@/payload.config";
 import { FerryBookingService } from "@/services/ferryServices/ferryBookingService";
-import {
-  EmailService,
-  BookingData,
-} from "@/services/notifications/emailService";
+
+import { notificationManager } from "@/services/notifications/NotificationManager";
+import type { BookingConfirmationData } from "@/services/notifications/channels/base";
 
 export async function POST(request: NextRequest) {
   try {
@@ -406,7 +405,7 @@ export async function POST(request: NextRequest) {
             );
           } else {
             // Prepare email data
-            const emailData: BookingData = {
+            const emailData: BookingConfirmationData = {
               bookingId: bookingRecord.bookingId || "",
               confirmationNumber: bookingRecord.confirmationNumber || "",
               customerName: bookingRecord.customerInfo.primaryContactName,
@@ -445,16 +444,23 @@ export async function POST(request: NextRequest) {
               contactPhone: bookingRecord.customerInfo.customerPhone,
             };
 
-            const emailResult = await EmailService.sendBookingConfirmation(
-              emailData
-            );
+            const emailResult =
+              await notificationManager.sendBookingConfirmation(
+                emailData,
+                { email: bookingRecord.customerInfo.customerEmail },
+                {
+                  sendEmailUpdates: true,
+                  sendWhatsAppUpdates: false,
+                  language: "en",
+                }
+              );
 
-            if (emailResult.success) {
+            if (emailResult.email?.success) {
               console.log("Booking confirmation email sent successfully");
             } else {
               console.error(
                 "Failed to send booking confirmation email:",
-                emailResult.error
+                emailResult.email?.error
               );
               // Log to booking record for admin visibility
               await payload.update({
@@ -463,7 +469,7 @@ export async function POST(request: NextRequest) {
                 data: {
                   internalNotes: `${
                     bookingRecord.internalNotes || ""
-                  }\nEmail notification failed: ${emailResult.error}`,
+                  }\nEmail notification failed: ${emailResult.email?.error}`,
                 },
               });
             }
