@@ -222,260 +222,261 @@ export const PaymentFailedTemplate: React.FC<PaymentFailedTemplateProps> = ({
   );
 };
 
-// Styles
+// Updated Styles using Design System Variables
 const main = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#f5f9ff", // --color-gray-50
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    "Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif", // --font-family-primary
 };
 
 const container = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#ffffff", // --color-white
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
+  padding: "32px 0 48px", // --space-8 0 --space-12
+  marginBottom: "64px", // --space-16
   maxWidth: "600px",
-  borderRadius: "8px",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px", // --radius-md
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // --shadow-card
 };
 
 const header = {
-  backgroundColor: "#ef4444",
-  borderRadius: "8px 8px 0 0",
-  padding: "32px 40px",
+  backgroundColor: "#e53e3e", // --color-alert-error
+  borderRadius: "16px 16px 0 0", // --radius-md --radius-md 0 0
+  padding: "48px 40px", // --space-12 --space-10
   textAlign: "center" as const,
 };
 
 const headerTitle = {
-  color: "#ffffff",
-  fontSize: "28px",
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "40px", // --font-size-4xl
   fontWeight: "bold",
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const headerSubtitle = {
-  color: "#fecaca",
-  fontSize: "16px",
+  color: "#f9e2e2", // --color-alert-error-light
+  fontSize: "18px", // --font-size-lg
   margin: "0",
 };
 
 const content = {
-  padding: "40px",
+  padding: "40px", // --space-10
 };
 
 const h1 = {
-  color: "#333",
-  fontSize: "24px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "32px", // --font-size-3xl
   fontWeight: "bold",
-  margin: "0 0 24px",
+  margin: "0 0 24px", // 0 0 --space-6
   textAlign: "center" as const,
 };
 
 const h2 = {
-  color: "#333",
-  fontSize: "18px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "24px", // --font-size-2xl
   fontWeight: "bold",
-  margin: "32px 0 16px",
+  margin: "32px 0 16px", // --space-8 0 --space-4
 };
 
 const text = {
-  color: "#555",
-  fontSize: "14px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "18px", // --font-size-lg (body-base)
   lineHeight: "24px",
-  margin: "0 0 16px",
+  margin: "0 0 16px", // 0 0 --space-4
 };
 
 const failureCard = {
-  backgroundColor: "#fef2f2",
-  border: "2px solid #ef4444",
-  borderRadius: "8px",
-  padding: "32px 24px",
-  margin: "32px 0",
+  backgroundColor: "#f9e2e2", // --color-alert-error-light
+  border: "2px solid #e53e3e", // 2px solid --color-alert-error
+  borderRadius: "16px", // --radius-md
+  padding: "48px 24px", // --space-12 --space-6
+  margin: "32px 0", // --space-8 0
   textAlign: "center" as const,
 };
 
 const failureEmoji = {
-  fontSize: "48px",
-  margin: "0 0 16px",
+  fontSize: "56px", // Larger for better visual impact
+  margin: "0 0 16px", // 0 0 --space-4
   display: "block",
 };
 
 const failureTitle = {
-  color: "#dc2626",
-  fontSize: "20px",
+  color: "#e53e3e", // --color-alert-error
+  fontSize: "28px", // --font-size-4xl - 12px for better fit
   fontWeight: "bold",
-  margin: "0 0 12px",
+  margin: "0 0 12px", // 0 0 --space-3
 };
 
 const failureAmount = {
-  color: "#991b1b",
-  fontSize: "18px",
+  color: "#991b1b", // Darker red for contrast
+  fontSize: "24px", // --font-size-2xl
   fontWeight: "bold",
-  margin: "0 0 16px",
+  margin: "0 0 16px", // 0 0 --space-4
 };
 
 const reasonSection = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #f87171",
-  borderRadius: "6px",
-  padding: "16px",
-  margin: "16px 0 0",
+  backgroundColor: "#ffffff", // --color-white
+  border: "1px solid #e53e3e", // 1px solid --color-alert-error
+  borderRadius: "12px", // --radius-base
+  padding: "16px", // --space-4
+  margin: "16px 0 0", // --space-4 0 0
   textAlign: "left" as const,
 };
 
 const reasonTitle = {
-  color: "#dc2626",
-  fontSize: "14px",
+  color: "#e53e3e", // --color-alert-error
+  fontSize: "16px", // --font-size-base
   fontWeight: "bold",
-  margin: "0 0 4px",
+  margin: "0 0 4px", // 0 0 --space-1
 };
 
 const reasonText = {
-  color: "#555",
-  fontSize: "14px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
   margin: "0",
 };
 
 const solutionSection = {
-  margin: "32px 0",
+  margin: "32px 0", // --space-8 0
 };
 
 const buttonSection = {
   textAlign: "center" as const,
-  margin: "24px 0",
+  margin: "24px 0", // --space-6 0
 };
 
 const retryButton = {
-  backgroundColor: "#22c55e",
-  borderRadius: "6px",
-  color: "#fff",
-  fontSize: "16px",
+  backgroundColor: "#00c851", // --color-alert-success
+  borderRadius: "8px", // --radius-button
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "18px", // --font-size-lg
   fontWeight: "bold",
   textDecoration: "none",
   textAlign: "center" as const,
   display: "block",
   width: "200px",
-  padding: "14px 0",
+  padding: "16px 0", // --space-4 0
   margin: "0 auto",
+  transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1)", // --duration-fast --easing-standard
 };
 
 const reasonCard = {
-  backgroundColor: "#f8f9fa",
-  border: "1px solid #e9ecef",
-  borderRadius: "6px",
-  padding: "16px",
-  margin: "12px 0",
+  backgroundColor: "#f5f9ff", // --color-gray-50
+  border: "1px solid #e0e0e0", // 1px solid --color-gray-300
+  borderRadius: "12px", // --radius-base
+  padding: "16px", // --space-4
+  margin: "12px 0", // --space-3 0
 };
 
 const reasonCardTitle = {
-  color: "#333",
-  fontSize: "16px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "18px", // --font-size-lg
   fontWeight: "bold",
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const reasonCardDescription = {
-  color: "#666",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const reasonCardSolution = {
-  color: "#0066cc",
-  fontSize: "14px",
+  color: "#3e8cff", // --color-primary
+  fontSize: "16px", // --font-size-base
   fontWeight: "500",
   margin: "0",
 };
 
 const paymentMethodsSection = {
-  margin: "32px 0",
-  backgroundColor: "#f0f9ff",
-  padding: "20px",
-  borderRadius: "8px",
-  border: "1px solid #0ea5e9",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#e6f0ff", // --color-primary-light
+  padding: "24px", // --space-6
+  borderRadius: "16px", // --radius-md
+  border: "2px solid #3e8cff", // 2px solid --color-primary
 };
 
 const methodsList = {
-  margin: "16px 0",
+  margin: "16px 0", // --space-4 0
 };
 
 const methodItem = {
-  color: "#0369a1",
-  fontSize: "14px",
-  margin: "0 0 8px",
-  paddingLeft: "8px",
+  color: "#002cba", // --color-tertiary
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
+  paddingLeft: "8px", // --space-2
 };
 
 const assistanceSection = {
-  margin: "32px 0",
-  backgroundColor: "#f0fdf4",
-  padding: "20px",
-  borderRadius: "8px",
-  border: "1px solid #22c55e",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#e8f5e9", // --color-alert-success-light
+  padding: "24px", // --space-6
+  borderRadius: "16px", // --radius-md
+  border: "2px solid #00c851", // 2px solid --color-alert-success
 };
 
 const contactText = {
-  color: "#15803d",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  color: "#15803d", // Darker green for better contrast
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const noteSection = {
-  margin: "32px 0",
-  backgroundColor: "#fffbeb",
-  border: "1px solid #f59e0b",
-  borderRadius: "8px",
-  padding: "20px",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#fff3e0", // --color-alert-warning-light
+  border: "2px solid #ff9500", // 2px solid --color-alert-warning
+  borderRadius: "16px", // --radius-md
+  padding: "24px", // --space-6
 };
 
 const noteTitle = {
-  color: "#92400e",
-  fontSize: "16px",
+  color: "#92400e", // Darker orange for better contrast
+  fontSize: "20px", // --font-size-xl
   fontWeight: "bold",
-  margin: "0 0 12px",
+  margin: "0 0 12px", // 0 0 --space-3
 };
 
 const noteText = {
   color: "#92400e",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const securitySection = {
-  margin: "32px 0",
-  backgroundColor: "#f8fafc",
-  border: "1px solid #cbd5e1",
-  borderRadius: "8px",
-  padding: "20px",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#ebf3ff", // --color-gray-100
+  border: "1px solid #c0c0c0", // 1px solid --color-gray-500
+  borderRadius: "16px", // --radius-md
+  padding: "24px", // --space-6
 };
 
 const securityTitle = {
-  color: "#475569",
-  fontSize: "16px",
+  color: "#3e3e3e", // --color-text-tertiary
+  fontSize: "20px", // --font-size-xl
   fontWeight: "bold",
-  margin: "0 0 12px",
+  margin: "0 0 12px", // 0 0 --space-3
 };
 
 const hr = {
-  borderColor: "#e6ebf1",
-  margin: "20px 0",
+  borderColor: "#e0e0e0", // --color-gray-300
+  margin: "24px 0", // --space-6 0
 };
 
 const footer = {
-  color: "#8898aa",
-  fontSize: "12px",
-  lineHeight: "16px",
-  padding: "0 40px",
+  color: "#9b9b9b", // --color-text-disabled
+  fontSize: "14px", // --font-size-xs
+  lineHeight: "20px",
+  padding: "0 40px", // 0 --space-10
   textAlign: "center" as const,
 };
 
 const footerText = {
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const footerSubtext = {
-  margin: "16px 0 0",
-  color: "#aab7c4",
+  margin: "16px 0 0", // --space-4 0 0
+  color: "#c0c0c0", // --color-gray-500
 };
 
 export default PaymentFailedTemplate;

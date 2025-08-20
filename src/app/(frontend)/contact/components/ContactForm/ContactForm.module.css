@@ -169,7 +169,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  background: var(--color-primary);
+  background: var(--color-alert-success);
   border: 1px solid var(--color-primary);
   color: var(--color-white);
   padding: var(--space-1) var(--space-2);
@@ -506,7 +506,6 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: #6c757d;
   color: white;
   border: none;
   padding: 0.5rem 0.75rem;
@@ -535,8 +534,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-white);
-  background: var(--color-primary);
+  color: var(--color-text-primary);
+  background: var(--color-white);
   padding: 0.75rem;
   border-radius: 6px;
   font-size: 0.9rem;

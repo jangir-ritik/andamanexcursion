@@ -60,7 +60,7 @@ export default buildConfig({
     apiKey: process.env.RESEND_API_KEY || "",
     defaultFromAddress: process.env.FROM_EMAIL || "",
     defaultFromName: "Andaman Excursion",
-    
+      
   }),
   sharp,
   debug: true,

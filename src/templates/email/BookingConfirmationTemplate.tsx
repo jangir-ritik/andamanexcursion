@@ -221,220 +221,222 @@ export const BookingEmailTemplate: React.FC<BookingEmailTemplateProps> = ({
   );
 };
 
-// Styles
+// Updated Styles using Design System Variables
 const main = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#f5f9ff", // --color-gray-50
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    "Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif", // --font-family-primary
 };
 
 const container = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#ffffff", // --color-white
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
+  padding: "32px 0 48px", // --space-8 0 --space-12
+  marginBottom: "64px", // --space-16
   maxWidth: "600px",
-  borderRadius: "8px",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px", // --radius-md
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // --shadow-card
 };
 
 const header = {
-  backgroundColor: "#0066cc",
-  borderRadius: "8px 8px 0 0",
-  padding: "32px 40px",
+  backgroundColor: "#3e8cff", // --color-primary
+  borderRadius: "16px 16px 0 0", // --radius-md --radius-md 0 0
+  padding: "48px 40px", // --space-12 --space-10
   textAlign: "center" as const,
 };
 
 const headerTitle = {
-  color: "#ffffff",
-  fontSize: "28px",
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "40px", // --font-size-4xl
   fontWeight: "bold",
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const headerSubtitle = {
-  color: "#e6f3ff",
-  fontSize: "16px",
+  color: "#e6f0ff", // --color-primary-light
+  fontSize: "18px", // --font-size-lg
   margin: "0",
 };
 
 const content = {
-  padding: "40px",
+  padding: "40px", // --space-10
 };
 
 const h1 = {
-  color: "#333",
-  fontSize: "24px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "32px", // --font-size-3xl
   fontWeight: "bold",
-  margin: "0 0 24px",
+  margin: "0 0 24px", // 0 0 --space-6
   textAlign: "center" as const,
 };
 
 const h2 = {
-  color: "#333",
-  fontSize: "18px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "24px", // --font-size-2xl
   fontWeight: "bold",
-  margin: "32px 0 16px",
+  margin: "32px 0 16px", // --space-8 0 --space-4
 };
 
 const text = {
-  color: "#555",
-  fontSize: "14px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "18px", // --font-size-lg (body-base)
   lineHeight: "24px",
-  margin: "0 0 16px",
+  margin: "0 0 16px", // 0 0 --space-4
 };
 
 const bookingCard = {
-  backgroundColor: "#f8f9fa",
-  border: "2px solid #0066cc",
-  borderRadius: "8px",
-  padding: "24px",
-  margin: "24px 0",
+  backgroundColor: "#ebf3ff", // --color-gray-100
+  border: "2px solid #3e8cff", // 2px solid --color-primary
+  borderRadius: "16px", // --radius-md
+  padding: "24px", // --space-6
+  margin: "24px 0", // --space-6 0
 };
 
 const bookingCardTitle = {
-  color: "#0066cc",
-  fontSize: "18px",
+  color: "#3e8cff", // --color-primary
+  fontSize: "24px", // --font-size-2xl
   fontWeight: "bold",
-  margin: "0 0 16px",
+  margin: "0 0 16px", // 0 0 --space-4
   textAlign: "center" as const,
 };
 
 const bookingDetails = {
-  margin: "8px 0",
+  margin: "8px 0", // --space-2 0
 };
 
 const detailColumn = {
   width: "50%",
-  paddingRight: "16px",
+  paddingRight: "16px", // --space-4
 };
 
 const detailLabel = {
-  color: "#666",
-  fontSize: "12px",
+  color: "#9b9b9b", // --color-text-disabled
+  fontSize: "14px", // --font-size-xs
   fontWeight: "bold",
   textTransform: "uppercase" as const,
-  margin: "0 0 4px",
+  margin: "0 0 4px", // 0 0 --space-1
 };
 
 const detailValue = {
-  color: "#333",
-  fontSize: "16px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "18px", // --font-size-lg
   fontWeight: "bold",
   margin: "0",
 };
 
 const detailValueAmount = {
-  color: "#0066cc",
-  fontSize: "18px",
+  color: "#3e8cff", // --color-primary
+  fontSize: "20px", // --font-size-xl
   fontWeight: "bold",
   margin: "0",
 };
 
 const itemsSection = {
-  margin: "32px 0",
+  margin: "32px 0", // --space-8 0
 };
 
 const itemCard = {
-  backgroundColor: "#f8f9fa",
-  border: "1px solid #e9ecef",
-  borderRadius: "6px",
-  padding: "16px",
-  margin: "8px 0",
+  backgroundColor: "#f5f9ff", // --color-gray-50
+  border: "1px solid #e0e0e0", // 1px solid --color-gray-300
+  borderRadius: "12px", // --radius-base
+  padding: "16px", // --space-4
+  margin: "8px 0", // --space-2 0
 };
 
 const itemTitle = {
-  color: "#333",
-  fontSize: "16px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "18px", // --font-size-lg
   fontWeight: "bold",
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const itemDetails = {
-  color: "#666",
-  fontSize: "14px",
-  margin: "0 0 4px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 4px", // 0 0 --space-1
 };
 
 const passengersSection = {
-  margin: "32px 0",
+  margin: "32px 0", // --space-8 0
 };
 
 const passengerItem = {
-  color: "#555",
-  fontSize: "14px",
-  margin: "0 0 8px",
-  paddingLeft: "8px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
+  paddingLeft: "8px", // --space-2
 };
 
 const specialRequestsSection = {
-  margin: "32px 0",
+  margin: "32px 0", // --space-8 0
 };
 
 const specialRequestsText = {
-  backgroundColor: "#fff3cd",
-  border: "1px solid #ffeaa7",
-  borderRadius: "4px",
-  padding: "12px",
+  backgroundColor: "#fff3e0", // Similar to --color-alert-warning-light
+  border: "1px solid #ff9500", // 1px solid --color-alert-warning
+  borderRadius: "8px", // --radius-sm
+  padding: "16px", // --space-4
   color: "#856404",
-  fontSize: "14px",
+  fontSize: "16px", // --font-size-base
   fontStyle: "italic" as const,
   margin: "0",
 };
 
 const contactSection = {
-  margin: "32px 0",
-  backgroundColor: "#e7f3ff",
-  padding: "16px",
-  borderRadius: "6px",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#e6f0ff", // --color-primary-light
+  padding: "20px", // --space-5
+  borderRadius: "12px", // --radius-base
 };
 
 const importantInfoSection = {
-  margin: "32px 0",
-  backgroundColor: "#fff5f5",
-  border: "1px solid #fecaca",
-  padding: "16px",
-  borderRadius: "6px",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#f9e2e2", // --color-alert-error-light
+  border: "1px solid #e53e3e", // 1px solid --color-alert-error
+  padding: "20px", // --space-5
+  borderRadius: "12px", // --radius-base
 };
 
 const buttonSection = {
   textAlign: "center" as const,
-  margin: "40px 0",
+  margin: "40px 0", // --space-10 0
 };
 
 const button = {
-  backgroundColor: "#0066cc",
-  borderRadius: "6px",
-  color: "#fff",
-  fontSize: "16px",
+  backgroundColor: "#3e8cff", // --color-primary
+  borderRadius: "8px", // --radius-button
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "18px", // --font-size-lg
+  fontWeight: "600",
   textDecoration: "none",
   textAlign: "center" as const,
   display: "block",
-  width: "200px",
-  padding: "12px 0",
+  width: "240px",
+  padding: "16px 0", // --space-4 0
   margin: "0 auto",
+  transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1)", // --duration-fast --easing-standard
 };
 
 const hr = {
-  borderColor: "#e6ebf1",
-  margin: "20px 0",
+  borderColor: "#e0e0e0", // --color-gray-300
+  margin: "24px 0", // --space-6 0
 };
 
 const footer = {
-  color: "#8898aa",
-  fontSize: "12px",
-  lineHeight: "16px",
-  padding: "0 40px",
+  color: "#9b9b9b", // --color-text-disabled
+  fontSize: "14px", // --font-size-xs
+  lineHeight: "20px",
+  padding: "0 40px", // 0 --space-10
   textAlign: "center" as const,
 };
 
 const footerText = {
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const footerSubtext = {
-  margin: "16px 0 0",
-  color: "#aab7c4",
+  margin: "16px 0 0", // --space-4 0 0
+  color: "#c0c0c0", // --color-gray-500
 };
 
 export default BookingEmailTemplate;

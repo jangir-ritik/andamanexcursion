@@ -33,21 +33,24 @@ export const BookingStatusUpdateTemplate: React.FC<
       case "confirmed":
         return {
           emoji: "✅",
-          color: "#22c55e",
+          color: "#00c851", // --color-alert-success
+          backgroundColor: "#e8f5e9", // --color-alert-success-light
           title: "Booking Confirmed",
           description: "Your booking is now confirmed and ready to go!",
         };
       case "cancelled":
         return {
           emoji: "❌",
-          color: "#ef4444",
+          color: "#e53e3e", // --color-alert-error
+          backgroundColor: "#f9e2e2", // --color-alert-error-light
           title: "Booking Cancelled",
           description: "Your booking has been cancelled.",
         };
       case "completed":
         return {
           emoji: "🎉",
-          color: "#8b5cf6",
+          color: "#3e8cff", // --color-primary
+          backgroundColor: "#e6f0ff", // --color-primary-light
           title: "Booking Completed",
           description:
             "Thank you for choosing us! We hope you had an amazing experience.",
@@ -55,21 +58,24 @@ export const BookingStatusUpdateTemplate: React.FC<
       case "no_show":
         return {
           emoji: "⚠️",
-          color: "#f59e0b",
+          color: "#ff9500", // --color-alert-warning
+          backgroundColor: "#fff3e0", // --color-alert-warning-light
           title: "No Show Recorded",
           description: "You did not show up for your scheduled booking.",
         };
       case "pending":
         return {
           emoji: "⏳",
-          color: "#6b7280",
+          color: "#9b9b9b", // --color-text-disabled
+          backgroundColor: "#f5f9ff", // --color-gray-50
           title: "Booking Pending",
           description: "Your booking is pending confirmation.",
         };
       default:
         return {
           emoji: "📋",
-          color: "#3b82f6",
+          color: "#17a2b8", // --color-alert-info
+          backgroundColor: "#e0f2f7", // --color-alert-info-light
           title: "Status Updated",
           description: "Your booking status has been updated.",
         };
@@ -113,7 +119,13 @@ export const BookingStatusUpdateTemplate: React.FC<
             </Text>
 
             {/* Status Update Card */}
-            <Section style={{ ...statusCard, borderColor: statusInfo.color }}>
+            <Section
+              style={{
+                ...statusCard,
+                borderColor: statusInfo.color,
+                backgroundColor: statusInfo.backgroundColor,
+              }}
+            >
               <Text style={statusEmoji}>{statusInfo.emoji}</Text>
               <Text style={{ ...statusTitle, color: statusInfo.color }}>
                 {statusInfo.title}
@@ -232,178 +244,179 @@ export const BookingStatusUpdateTemplate: React.FC<
   );
 };
 
-// Styles
+// Updated Styles using Design System Variables
 const main = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#f5f9ff", // --color-gray-50
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    "Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif", // --font-family-primary
 };
 
 const container = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#ffffff", // --color-white
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
+  padding: "32px 0 48px", // --space-8 0 --space-12
+  marginBottom: "64px", // --space-16
   maxWidth: "600px",
-  borderRadius: "8px",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px", // --radius-md
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // --shadow-card
 };
 
 const header = {
-  backgroundColor: "#3b82f6",
-  borderRadius: "8px 8px 0 0",
-  padding: "32px 40px",
+  backgroundColor: "#ff8a34", // --color-secondary
+  borderRadius: "16px 16px 0 0", // --radius-md --radius-md 0 0
+  padding: "48px 40px", // --space-12 --space-10
   textAlign: "center" as const,
 };
 
 const headerTitle = {
-  color: "#ffffff",
-  fontSize: "28px",
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "40px", // --font-size-4xl
   fontWeight: "bold",
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const headerSubtitle = {
-  color: "#dbeafe",
-  fontSize: "16px",
+  color: "#ffe6d4", // --color-orange-100
+  fontSize: "18px", // --font-size-lg
   margin: "0",
 };
 
 const content = {
-  padding: "40px",
+  padding: "40px", // --space-10
 };
 
 const h1 = {
-  color: "#333",
-  fontSize: "24px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "32px", // --font-size-3xl
   fontWeight: "bold",
-  margin: "0 0 24px",
+  margin: "0 0 24px", // 0 0 --space-6
   textAlign: "center" as const,
 };
 
 const h2 = {
-  color: "#333",
-  fontSize: "18px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "24px", // --font-size-2xl
   fontWeight: "bold",
-  margin: "32px 0 16px",
+  margin: "32px 0 16px", // --space-8 0 --space-4
 };
 
 const text = {
-  color: "#555",
-  fontSize: "14px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "18px", // --font-size-lg (body-base)
   lineHeight: "24px",
-  margin: "0 0 16px",
+  margin: "0 0 16px", // 0 0 --space-4
 };
 
 const statusCard = {
-  backgroundColor: "#f8f9fa",
   border: "2px solid",
-  borderRadius: "8px",
-  padding: "32px 24px",
-  margin: "32px 0",
+  borderRadius: "16px", // --radius-md
+  padding: "48px 24px", // --space-12 --space-6
+  margin: "32px 0", // --space-8 0
   textAlign: "center" as const,
 };
 
 const statusEmoji = {
-  fontSize: "48px",
-  margin: "0 0 16px",
+  fontSize: "56px", // Larger for better visual impact
+  margin: "0 0 16px", // 0 0 --space-4
   display: "block",
 };
 
 const statusTitle = {
-  fontSize: "24px",
+  fontSize: "32px", // --font-size-3xl
   fontWeight: "bold",
-  margin: "0 0 12px",
+  margin: "0 0 12px", // 0 0 --space-3
 };
 
 const statusDescription = {
-  color: "#666",
-  fontSize: "16px",
-  margin: "0 0 24px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "18px", // --font-size-lg
+  margin: "0 0 24px", // 0 0 --space-6
 };
 
 const statusDetails = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #e9ecef",
-  borderRadius: "6px",
-  padding: "20px",
-  margin: "24px 0 0",
+  backgroundColor: "#ffffff", // --color-white
+  border: "1px solid #e0e0e0", // 1px solid --color-gray-300
+  borderRadius: "12px", // --radius-base
+  padding: "20px", // --space-5
+  margin: "24px 0 0", // --space-6 0 0
   textAlign: "left" as const,
 };
 
 const detailText = {
-  color: "#555",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const messageSection = {
-  margin: "32px 0",
+  margin: "32px 0", // --space-8 0
 };
 
 const messageText = {
-  backgroundColor: "#fff3cd",
-  border: "1px solid #ffeaa7",
-  borderRadius: "6px",
-  padding: "16px",
+  backgroundColor: "#fff3e0", // --color-alert-warning-light
+  border: "1px solid #ff9500", // 1px solid --color-alert-warning
+  borderRadius: "12px", // --radius-base
+  padding: "20px", // --space-5
   color: "#856404",
-  fontSize: "14px",
+  fontSize: "16px", // --font-size-base
   margin: "0",
 };
 
 const actionSection = {
-  margin: "32px 0",
-  backgroundColor: "#f0f9ff",
-  padding: "20px",
-  borderRadius: "6px",
-  border: "1px solid #0ea5e9",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#e6f0ff", // --color-primary-light
+  padding: "24px", // --space-6
+  borderRadius: "12px", // --radius-base
+  border: "1px solid #3e8cff", // 1px solid --color-primary
 };
 
 const contactSection = {
-  margin: "32px 0",
-  backgroundColor: "#e7f3ff",
-  padding: "16px",
-  borderRadius: "6px",
+  margin: "32px 0", // --space-8 0
+  backgroundColor: "#e6f0ff", // --color-primary-light
+  padding: "20px", // --space-5
+  borderRadius: "12px", // --radius-base
 };
 
 const buttonSection = {
   textAlign: "center" as const,
-  margin: "32px 0",
+  margin: "40px 0", // --space-10 0
 };
 
 const button = {
-  backgroundColor: "#3b82f6",
-  borderRadius: "6px",
-  color: "#fff",
-  fontSize: "16px",
+  backgroundColor: "#3e8cff", // --color-primary
+  borderRadius: "8px", // --radius-button
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "18px", // --font-size-lg
+  fontWeight: "600",
   textDecoration: "none",
   textAlign: "center" as const,
   display: "block",
-  width: "200px",
-  padding: "12px 0",
+  width: "240px",
+  padding: "16px 0", // --space-4 0
   margin: "0 auto",
+  transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1)", // --duration-fast --easing-standard
 };
 
 const hr = {
-  borderColor: "#e6ebf1",
-  margin: "20px 0",
+  borderColor: "#e0e0e0", // --color-gray-300
+  margin: "24px 0", // --space-6 0
 };
 
 const footer = {
-  color: "#8898aa",
-  fontSize: "12px",
-  lineHeight: "16px",
-  padding: "0 40px",
+  color: "#9b9b9b", // --color-text-disabled
+  fontSize: "14px", // --font-size-xs
+  lineHeight: "20px",
+  padding: "0 40px", // 0 --space-10
   textAlign: "center" as const,
 };
 
 const footerText = {
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const footerSubtext = {
-  margin: "16px 0 0",
-  color: "#aab7c4",
+  margin: "16px 0 0", // --space-4 0 0
+  color: "#c0c0c0", // --color-gray-500
 };
 
 export default BookingStatusUpdateTemplate;

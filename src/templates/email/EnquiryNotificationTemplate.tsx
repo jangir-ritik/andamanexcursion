@@ -150,132 +150,142 @@ export const EnquiryNotificationTemplate: React.FC<
   );
 };
 
-// Styles
+// Updated Styles using Design System Variables
 const main = {
-  backgroundColor: "#f6f9fc",
+  backgroundColor: "#f5f9ff", // --color-gray-50
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    "Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif", // --font-family-primary
 };
 
 const container = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#ffffff", // --color-white
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
+  padding: "32px 0 48px", // --space-8 0 --space-12
+  marginBottom: "64px", // --space-16
   maxWidth: "600px",
-  borderRadius: "8px",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px", // --radius-md
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // --shadow-card
 };
 
 const header = {
-  backgroundColor: "#dc2626",
-  borderRadius: "8px 8px 0 0",
-  padding: "32px 40px",
+  backgroundColor: "#e53e3e", // --color-alert-error (urgent notification)
+  borderRadius: "16px 16px 0 0", // --radius-md --radius-md 0 0
+  padding: "48px 40px", // --space-12 --space-10
   textAlign: "center" as const,
 };
 
 const headerTitle = {
-  color: "#ffffff",
-  fontSize: "28px",
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "40px", // --font-size-4xl
   fontWeight: "bold",
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const headerSubtitle = {
-  color: "#fecaca",
-  fontSize: "16px",
+  color: "#f9e2e2", // --color-alert-error-light
+  fontSize: "18px", // --font-size-lg
   margin: "0",
 };
 
 const content = {
-  padding: "40px",
+  padding: "40px", // --space-10
 };
 
 const h1 = {
-  color: "#333",
-  fontSize: "24px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "32px", // --font-size-3xl
   fontWeight: "bold",
-  margin: "0 0 24px",
+  margin: "0 0 24px", // 0 0 --space-6
   textAlign: "center" as const,
 };
 
 const h2 = {
-  color: "#333",
-  fontSize: "18px",
+  color: "#000e0f", // --color-text-primary
+  fontSize: "24px", // --font-size-2xl
   fontWeight: "bold",
-  margin: "32px 0 16px",
+  margin: "32px 0 16px", // --space-8 0 --space-4
 };
 
 const alertBox = {
-  backgroundColor: "#fee2e2",
-  borderLeft: "4px solid #dc2626",
-  padding: "15px",
-  margin: "20px 0",
+  backgroundColor: "#f9e2e2", // --color-alert-error-light
+  borderLeft: "4px solid #e53e3e", // 4px solid --color-alert-error
+  padding: "20px", // --space-5
+  margin: "24px 0", // --space-6 0
+  borderRadius: "0 8px 8px 0", // 0 --radius-sm --radius-sm 0
 };
 
 const alertText = {
-  color: "#dc2626",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  color: "#e53e3e", // --color-alert-error
+  fontSize: "16px", // --font-size-base
+  fontWeight: "600",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const infoSection = {
-  margin: "24px 0",
+  margin: "24px 0", // --space-6 0
+  backgroundColor: "#f5f9ff", // --color-gray-50
+  padding: "20px", // --space-5
+  borderRadius: "12px", // --radius-base
+  border: "1px solid #e0e0e0", // 1px solid --color-gray-300
 };
 
 const detailText = {
-  color: "#555",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const messageText = {
-  backgroundColor: "#f9fafb",
-  padding: "15px",
-  borderRadius: "8px",
-  color: "#555",
-  fontSize: "14px",
+  backgroundColor: "#ffffff", // --color-white
+  padding: "20px", // --space-5
+  borderRadius: "8px", // --radius-sm
+  color: "#5f5f5f", // --color-text-secondary
+  fontSize: "16px", // --font-size-base
   margin: "0",
+  border: "1px solid #e0e0e0", // 1px solid --color-gray-300
+  fontStyle: "italic",
 };
 
 const buttonSection = {
   textAlign: "center" as const,
-  margin: "40px 0",
+  margin: "40px 0", // --space-10 0
 };
 
 const button = {
-  backgroundColor: "#2563eb",
-  borderRadius: "6px",
-  color: "#fff",
-  fontSize: "16px",
+  backgroundColor: "#3e8cff", // --color-primary
+  borderRadius: "8px", // --radius-button
+  color: "#ffffff", // --color-text-inverse
+  fontSize: "18px", // --font-size-lg
+  fontWeight: "600",
   textDecoration: "none",
   textAlign: "center" as const,
   display: "block",
-  width: "200px",
-  padding: "12px 0",
+  width: "240px",
+  padding: "16px 0", // --space-4 0
   margin: "0 auto",
+  transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1)", // --duration-fast --easing-standard
 };
 
 const hr = {
-  borderColor: "#e6ebf1",
-  margin: "20px 0",
+  borderColor: "#e0e0e0", // --color-gray-300
+  margin: "24px 0", // --space-6 0
 };
 
 const footer = {
-  color: "#8898aa",
-  fontSize: "12px",
-  lineHeight: "16px",
-  padding: "0 40px",
+  color: "#9b9b9b", // --color-text-disabled
+  fontSize: "14px", // --font-size-xs
+  lineHeight: "20px",
+  padding: "0 40px", // 0 --space-10
   textAlign: "center" as const,
 };
 
 const footerText = {
-  margin: "0 0 8px",
+  margin: "0 0 8px", // 0 0 --space-2
 };
 
 const footerSubtext = {
-  margin: "16px 0 0",
-  color: "#aab7c4",
+  margin: "16px 0 0", // --space-4 0 0
+  color: "#c0c0c0", // --color-gray-500
 };
 
 export default EnquiryNotificationTemplate;
