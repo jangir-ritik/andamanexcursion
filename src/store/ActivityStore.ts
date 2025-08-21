@@ -64,6 +64,18 @@ export interface Activity {
         isPopular?: boolean;
       };
     }>;
+    defaultTimeSlots?: Array<{
+      id: string;
+      startTime: string;
+      endTime?: string;
+      twelveHourTime?: string;
+      slug: string;
+      status?: {
+        isActive?: boolean;
+        priority?: number;
+        isPopular?: boolean;
+      };
+    }>;
     useCustomTimeSlots?: boolean;
   };
   media: {

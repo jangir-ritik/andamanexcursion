@@ -1255,6 +1255,10 @@ export interface Activity {
      * Specific time slots for this activity (only used if 'Use Custom Time Slots' is enabled)
      */
     availableTimeSlots?: (string | ActivityTimeSlot)[] | null;
+    /**
+     * Default time slots for this activity (recommended approach)
+     */
+    defaultTimeSlots?: (string | ActivityTimeSlot)[] | null;
   };
   /**
    * Search engine optimization settings
@@ -1312,10 +1316,6 @@ export interface ActivityTimeSlot {
    * Duration in minutes (auto-calculated)
    */
   duration?: number | null;
-  /**
-   * Which activity types can use this time slot
-   */
-  activityTypes: (string | ActivityCategory)[];
   /**
    * Is this time slot currently available for booking?
    */
@@ -2914,6 +2914,7 @@ export interface ActivitiesSelect<T extends boolean = true> {
     | {
         useCustomTimeSlots?: T;
         availableTimeSlots?: T;
+        defaultTimeSlots?: T;
       };
   seo?:
     | T
@@ -2963,7 +2964,6 @@ export interface ActivityTimeSlotsSelect<T extends boolean = true> {
   endTime?: T;
   displayTime?: T;
   duration?: T;
-  activityTypes?: T;
   isActive?: T;
   sortOrder?: T;
   notes?: T;

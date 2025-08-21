@@ -27,6 +27,7 @@ const ActivityTimeSlots: CollectionConfig = {
       name: "startTime",
       type: "text",
       required: true,
+      index: true,
       admin: {
         description: "Start time in 24-hour format (e.g., '09:00')",
         placeholder: "09:00",
@@ -46,6 +47,7 @@ const ActivityTimeSlots: CollectionConfig = {
       name: "endTime",
       type: "text",
       required: true,
+      index: true,
       admin: {
         description: "End time in 24-hour format (e.g., '11:00')",
         placeholder: "11:00",
@@ -89,20 +91,12 @@ const ActivityTimeSlots: CollectionConfig = {
         readOnly: true,
       },
     },
-    {
-      name: "activityTypes",
-      type: "relationship",
-      relationTo: "activity-categories",
-      hasMany: true,
-      required: true,
-      admin: {
-        description: "Which activity types can use this time slot",
-      },
-    },
+    // Removed backwards relationship - activities now reference time slots directly
     {
       name: "isActive",
       type: "checkbox",
       defaultValue: true,
+      index: true,
       admin: {
         description: "Is this time slot currently available for booking?",
       },
@@ -111,6 +105,7 @@ const ActivityTimeSlots: CollectionConfig = {
       name: "sortOrder",
       type: "number",
       defaultValue: 0,
+      index: true,
       admin: {
         description: "Display order (higher numbers appear first)",
       },

@@ -1,4 +1,4 @@
-// src/app/activities/search/page.tsx
+// src/app/activities/search/page-rq.tsx
 "use client";
 import React, { Suspense, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
@@ -6,18 +6,19 @@ import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
 import { SectionTitle, Button } from "@/components/atoms";
 import { BookingForm } from "@/components/organisms";
-import { useActivity } from "@/store/ActivityStore";
+import { useActivityRQ } from "@/store/ActivityStoreRQ";
+import { useActivitiesSearch } from "@/hooks/queries/useActivitiesSearch";
+import { useFormOptions } from "@/hooks/queries/useFormOptions";
 import {
   SearchSummary,
   TimeFilters,
-  ActivityResults,
-  CartSummary,
 } from "@/components/molecules/BookingResults";
+import { CartSummaryRQ } from "@/components/molecules/BookingResults/CartSummaryRQ";
+import { ActivityResultsRQ } from "@/components/molecules/BookingResults/ActivityResultsRQ";
 
 // Component for cart content with empty state
 const ActivityCartContent = () => {
-  const { state } = useActivity();
-  const { cart } = state;
+  const { cart } = useActivityRQ();
 
   // Optimized scroll handler
   const handleAddMore = useCallback(() => {
@@ -39,15 +40,18 @@ const ActivityCartContent = () => {
   }
 
   return (
-    <CartSummary onAddMore={handleAddMore} className={styles.cartContent} />
+    <CartSummaryRQ onAddMore={handleAddMore} className={styles.cartContent} />
   );
 };
 
 // Component that handles search params and displays results
 const ActivitySearchContent = () => {
   const searchParams = useSearchParams();
-  const { state, updateSearchParams, searchActivities } = useActivity();
+  const { searchParams: currentParams, updateSearchParams } = useActivityRQ();
   const initializedRef = React.useRef(false);
+
+  // Use React Query for form options to get display names
+  const { categories, locations } = useFormOptions();
 
   // Memoize search params extraction to avoid re-computation
   const urlSearchParams = useMemo(() => {
@@ -57,7 +61,6 @@ const ActivitySearchContent = () => {
     const time = searchParams.get("time");
     const adults = parseInt(searchParams.get("adults") || "2", 10);
     const children = parseInt(searchParams.get("children") || "0", 10);
-    const infants = parseInt(searchParams.get("infants") || "0", 10);
 
     return {
       activityType,
@@ -66,7 +69,6 @@ const ActivitySearchContent = () => {
       time: time || "",
       adults,
       children,
-      infants,
     };
   }, [searchParams]);
 
@@ -77,7 +79,6 @@ const ActivitySearchContent = () => {
     const { activityType, location, ...restParams } = urlSearchParams;
 
     // Trigger search if we have activityType (for category browsing)
-    // or both activityType and location (for full search)
     if (activityType) {
       const params = {
         activityType,
@@ -85,34 +86,34 @@ const ActivitySearchContent = () => {
         ...restParams,
       };
 
-      // Update params and trigger search
+      // Update params (React Query will automatically trigger search)
       updateSearchParams(params);
-
-      // Use setTimeout to ensure state update happens first
-      setTimeout(() => {
-        searchActivities(params);
-      }, 0);
-
       initializedRef.current = true;
     }
-  }, [urlSearchParams, updateSearchParams, searchActivities]);
+  }, [urlSearchParams, updateSearchParams]);
 
-  const { searchParams: currentParams, activities, isLoading, error } = state;
+  // Note: We don't call useActivitiesSearch here anymore to avoid duplicate subscriptions
+  // ActivityResultsRQ will handle the search query itself
 
   // Memoize display names to prevent unnecessary re-computations
   const displayNames = useMemo(() => {
-    const selectedActivity = state.formOptions.activityTypes.find(
-      (activity) => activity.value === currentParams.activityType
+    const selectedActivity = (categories.data || []).find(
+      (activity) => activity.slug === currentParams.activityType
     );
-    const selectedLocation = state.formOptions.locations.find(
-      (location) => location.value === currentParams.location
+    const selectedLocation = (locations.data || []).find(
+      (location) => location.slug === currentParams.location
     );
 
     return {
-      activityName: selectedActivity?.label,
-      locationName: selectedLocation?.label,
+      activityName: selectedActivity?.name,
+      locationName: selectedLocation?.name,
     };
-  }, [state.formOptions, currentParams.activityType, currentParams.location]);
+  }, [
+    categories.data,
+    locations.data,
+    currentParams.activityType,
+    currentParams.location,
+  ]);
 
   // Memoize total passengers calculation
   const totalPassengers = useMemo(
@@ -128,46 +129,31 @@ const ActivitySearchContent = () => {
     }
   }, []);
 
-  // Optimized retry handler
-  const handleRetry = useCallback(() => {
-    searchActivities(currentParams);
-  }, [searchActivities, currentParams]);
+  // Retry handler will be handled by ActivityResultsRQ component
 
   return (
     <Column gap="var(--space-6)" fullWidth>
       {/* Search Summary & Results Container */}
       <Section className={styles.resultsSection}>
         <Column gap="var(--space-4)" fullWidth>
-          {/* Search Summary */}
-          <SearchSummary
-            loading={isLoading}
-            resultCount={activities.length}
-            activity={currentParams.activityType}
-            activityName={displayNames.activityName}
-            location={currentParams.location}
-            locationName={displayNames.locationName}
-            date={currentParams.date}
-            time={currentParams.time}
-            passengers={totalPassengers}
-            type="activity"
-          />
-
-          {/* Error State */}
-          {error && (
-            <div className={styles.errorContainer}>
-              <div className={styles.errorMessage}>{error}</div>
-              <Button variant="secondary" onClick={handleRetry}>
-                Try Again
-              </Button>
-            </div>
+          {/* Search Summary - Static for now, ActivityResultsRQ will handle dynamic state */}
+          {currentParams.activityType && (
+            <SearchSummary
+              loading={false}
+              resultCount={0}
+              activity={currentParams.activityType}
+              activityName={displayNames.activityName}
+              location={currentParams.location}
+              locationName={displayNames.locationName}
+              date={currentParams.date}
+              time={currentParams.time}
+              passengers={totalPassengers}
+              type="activity"
+            />
           )}
 
-          {/* Activity Results */}
-          <ActivityResults
-            loading={isLoading}
-            activities={activities}
-            searchParams={currentParams}
-          />
+          {/* Activity Results - using React Query version */}
+          <ActivityResultsRQ searchParams={currentParams} />
         </Column>
       </Section>
     </Column>
@@ -176,20 +162,20 @@ const ActivitySearchContent = () => {
 
 // Memoized component for the page title
 const ActivityPageTitle = React.memo(() => {
-  const { state } = useActivity();
-  const { searchParams, formOptions } = state;
+  const { searchParams } = useActivityRQ();
+  const { categories } = useFormOptions();
 
   // Memoize the title computation
   const titleData = useMemo(() => {
-    const selectedActivity = formOptions.activityTypes.find(
-      (activity) => activity.value === searchParams.activityType
+    const selectedActivity = (categories.data || []).find(
+      (activity) => activity.slug === searchParams.activityType
     );
 
-    const activityName = selectedActivity?.label || "Activities";
+    const activityName = selectedActivity?.name || "Activities";
     const titleText = `${activityName} in Andaman`;
 
     return { activityName, titleText };
-  }, [formOptions.activityTypes, searchParams.activityType]);
+  }, [categories.data, searchParams.activityType]);
 
   return (
     <SectionTitle
@@ -202,8 +188,8 @@ const ActivityPageTitle = React.memo(() => {
 
 ActivityPageTitle.displayName = "ActivityPageTitle";
 
-// Main page component with unified management section
-export default function ActivitiesSearchPage() {
+// Main page component with React Query integration
+export default function ActivitiesSearchPageRQ() {
   return (
     <main className={styles.main}>
       {/* Management Section - Cart + Booking Form */}

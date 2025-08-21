@@ -27,6 +27,7 @@ const Activities: CollectionConfig = {
       type: "text",
       required: true,
       unique: true,
+      index: true,
       admin: {
         description: "URL-friendly version of the title",
         readOnly: true,
@@ -54,6 +55,7 @@ const Activities: CollectionConfig = {
           required: true,
           relationTo: "activity-categories",
           hasMany: true,
+          index: true,
         },
         {
           name: "location",
@@ -61,6 +63,7 @@ const Activities: CollectionConfig = {
           required: true,
           relationTo: "locations",
           hasMany: true,
+          index: true,
         },
         {
           name: "basePrice",
@@ -88,6 +91,7 @@ const Activities: CollectionConfig = {
         {
           name: "maxCapacity",
           type: "number",
+          index: true,
           admin: {
             description: "Maximum number of participants per session",
           },
@@ -214,6 +218,16 @@ const Activities: CollectionConfig = {
             condition: (data: any) => data?.useCustomTimeSlots === true,
           },
         },
+        {
+          name: "defaultTimeSlots",
+          type: "relationship",
+          relationTo: "activity-time-slots",
+          hasMany: true,
+          admin: {
+            description:
+              "Default time slots for this activity (recommended approach)",
+          },
+        },
       ],
     },
     {
@@ -253,6 +267,7 @@ const Activities: CollectionConfig = {
           name: "isActive",
           type: "checkbox",
           defaultValue: true,
+          index: true,
         },
         {
           name: "isFeatured",
@@ -266,6 +281,7 @@ const Activities: CollectionConfig = {
           name: "priority",
           type: "number",
           defaultValue: 0,
+          index: true,
           admin: {
             description: "Higher numbers appear first in listings",
           },

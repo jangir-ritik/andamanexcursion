@@ -23,11 +23,13 @@ const Locations: CollectionConfig = {
       type: "text",
       required: true,
       unique: true,
+      index: true,
     },
     {
       name: "type",
       type: "select",
       required: true,
+      index: true,
       options: [
         { label: "Ferry Port", value: "ferry_port" },
         { label: "Activity Location", value: "activity_location" },
@@ -104,6 +106,7 @@ const Locations: CollectionConfig = {
         position: "sidebar",
       },
       defaultValue: true,
+      index: true,
     },
     {
       name: "priority",

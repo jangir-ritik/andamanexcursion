@@ -9,6 +9,7 @@ import type {
   ActivitySearchParams,
   CartItem,
 } from "@/store/ActivityStore";
+import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
 import type {
   UnifiedFerryResult,
   FerryClass,
@@ -212,7 +213,7 @@ export class CheckoutAdapter {
   /**
    * Get ferry checkout data from FerryStore
    */
-  private static getFerryCheckoutData(): UnifiedBookingData {
+  public static getFerryCheckoutData(): UnifiedBookingData {
     // Check if we're in browser environment
     if (typeof window === "undefined") {
       throw new Error("Ferry checkout data not available during SSR");
@@ -306,7 +307,7 @@ export class CheckoutAdapter {
   /**
    * Get mixed checkout data (activities + ferries)
    */
-  private static getMixedCheckoutData(): UnifiedBookingData {
+  public static getMixedCheckoutData(): UnifiedBookingData {
     const activityData = CheckoutAdapter.getActivityCheckoutData();
     const ferryData = CheckoutAdapter.getFerryCheckoutData();
 
@@ -353,3 +354,91 @@ export const useCheckoutAdapter = (searchParams: URLSearchParams) => {
     };
   }
 };
+
+/**
+ * React Query version of the checkout adapter hook
+ */
+export const useCheckoutAdapterRQ = (searchParams: URLSearchParams) => {
+  const activityStore = useActivityStoreRQ();
+
+  try {
+    const bookingType = CheckoutAdapter.detectBookingType(searchParams);
+    let bookingData: UnifiedBookingData;
+
+    if (bookingType === "activity") {
+      // Use React Query store instead of old store
+      bookingData = getActivityCheckoutDataRQ(activityStore);
+    } else if (bookingType === "ferry") {
+      bookingData = CheckoutAdapter.getFerryCheckoutData();
+    } else {
+      bookingData = CheckoutAdapter.getMixedCheckoutData();
+    }
+
+    const requirements = CheckoutAdapter.getPassengerRequirements(bookingData);
+
+    return {
+      bookingType,
+      bookingData,
+      requirements,
+      isLoading: false,
+      error: null,
+    };
+  } catch (error) {
+    console.error("CheckoutAdapterRQ error:", error);
+    return {
+      bookingType: "activity" as BookingType,
+      bookingData: null,
+      requirements: null,
+      isLoading: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
+/**
+ * Helper function to get activity checkout data from React Query store
+ */
+function getActivityCheckoutDataRQ(activityStore: any): UnifiedBookingData {
+  const { cart } = activityStore;
+
+  const items: UnifiedBookingItem[] = cart.map((cartItem: CartItem) => ({
+    id: cartItem.id,
+    type: "activity" as const,
+    title: cartItem.activity.title || "Activity",
+    passengers: {
+      adults: cartItem.searchParams.adults || 0,
+      children: cartItem.searchParams.children || 0,
+      infants: 0, // Infants are now combined into children in ActivitySearchParams
+    },
+    price: cartItem.totalPrice,
+    date: cartItem.searchParams.date || "",
+    time: cartItem.searchParams.time || "",
+    location: cartItem.activity.coreInfo?.location?.[0]?.name || "",
+    activity: cartItem.activity,
+    searchParams: cartItem.searchParams,
+  }));
+
+  const totalPassengers = items.reduce(
+    (sum, item) => sum + item.passengers.adults + item.passengers.children,
+    0
+  );
+
+  const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+
+  const requirements: PassengerRequirements = {
+    totalRequired: totalPassengers,
+    bookings: items.map((item) => ({
+      title: item.title,
+      passengers: item.passengers.adults + item.passengers.children,
+      type: item.type,
+    })),
+  };
+
+  return {
+    type: "activity",
+    items,
+    totalPassengers,
+    totalPrice,
+    requirements,
+  };
+}

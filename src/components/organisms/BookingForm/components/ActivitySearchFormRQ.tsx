@@ -3,11 +3,12 @@ import React, { useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useActivity, Activity } from "@/store/ActivityStore";
+import { useActivityRQ } from "@/store/ActivityStoreRQ";
+import { useFormOptions } from "@/hooks/queries/useFormOptions";
+import { useActivityTimeSlotsByCategory } from "@/hooks/queries/useActivityTimeSlots";
 import { useRouter } from "next/navigation";
 import styles from "../BookingForm.module.css";
 import { cn } from "@/utils/cn";
-import { getActivityTimeSlots } from "@/utils/activityTimeSlots";
 
 import {
   Button,
@@ -21,7 +22,7 @@ import {
 // Move the schema outside component to prevent recreation on each render
 const activitySearchSchema = z.object({
   selectedActivity: z.string().min(1, "Please select an activity type"),
-  activityLocation: z.string().min(1, "Please select a location"),
+  activityLocation: z.string().optional(), // Make location optional for browsing
   selectedDate: z.date({ required_error: "Please select a date" }),
   selectedSlot: z.string().min(1, "Please select a time"),
   passengers: z.object({
@@ -35,164 +36,138 @@ const activitySearchSchema = z.object({
 
 type ActivitySearchFormData = z.infer<typeof activitySearchSchema>;
 
-interface ActivitySearchFormProps {
+interface ActivitySearchFormRQProps {
   className?: string;
   variant?: "default" | "compact" | "embedded";
 }
 
-export function ActivitySearchForm({
+export function ActivitySearchFormRQ({
   className,
   variant = "default",
-}: ActivitySearchFormProps) {
+}: ActivitySearchFormRQProps) {
   const router = useRouter();
   const {
-    state,
+    searchParams,
     updateSearchParams,
-    searchActivities,
-    loadFormOptions,
+    editingItemId,
+    editingSearchParams,
     cancelEditing,
     saveEditedItem,
-  } = useActivity();
+    cart,
+  } = useActivityRQ();
 
-  // Get form options from Zustand store
+  // Use React Query for form options
   const {
-    activityTypes: activityOptions,
-    locations: locationOptions,
-    timeSlots: allTimeSlots,
+    categories,
+    locations,
+    timeSlots,
     isLoading: isLoadingOptions,
     error: loadError,
-  } = state.formOptions;
+  } = useFormOptions();
 
-  // Check if we're in edit mode using Zustand store
-  const isEditMode = !!state.editingItemId;
+  // Transform data for select components
+  const activityOptions = useMemo(() => {
+    return (categories.data || []).map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+      value: cat.slug,
+      label: cat.name,
+    }));
+  }, [categories.data]);
+
+  const locationOptions = useMemo(() => {
+    return (locations.data || []).map((loc) => ({
+      id: loc.id,
+      name: loc.name,
+      slug: loc.slug,
+      value: loc.slug,
+      label: loc.name,
+    }));
+  }, [locations.data]);
+
+  const allTimeSlots = useMemo(() => {
+    return (timeSlots.data || []).map((slot) => ({
+      id: slot.id,
+      name: slot.twelveHourTime || slot.startTime,
+      slug: slot.startTime.replace(":", "-"),
+      value: slot.startTime.replace(":", "-"),
+      label: slot.twelveHourTime || slot.startTime,
+      time: slot.twelveHourTime || slot.startTime,
+    }));
+  }, [timeSlots.data]);
+
+  // Check if we're in edit mode
+  const isEditMode = !!editingItemId;
 
   // Use editing search params when in edit mode, otherwise use regular search params
   const currentSearchParams =
-    isEditMode && state.editingSearchParams
-      ? state.editingSearchParams
-      : state.searchParams;
+    isEditMode && editingSearchParams ? editingSearchParams : searchParams;
 
-  // Get the currently selected activity to filter time slots
-  const selectedActivityType = currentSearchParams.activityType;
+  // Get the currently selected activity category
+  const selectedActivityCategory = useMemo(() => {
+    if (!currentSearchParams.activityType) return null;
+    return activityOptions.find(
+      (opt) => opt.value === currentSearchParams.activityType
+    );
+  }, [currentSearchParams.activityType, activityOptions]);
 
-  // Get the selected activity category for time slot filtering
-  const selectedActivityCategory = React.useMemo(() => {
-    if (!selectedActivityType) return null;
+  // Use React Query to get filtered time slots for the selected category
+  const { data: categoryTimeSlots = [], isLoading: isLoadingTimeSlots } =
+    useActivityTimeSlotsByCategory(selectedActivityCategory?.slug || null);
 
-    return activityOptions.find((opt) => opt.value === selectedActivityType);
-  }, [selectedActivityType, activityOptions]);
+  // Filter time slots based on category data (simplified for new architecture)
+  const timeSlotOptions = useMemo(() => {
+    if (!selectedActivityCategory) {
+      return allTimeSlots;
+    }
 
-  // State for filtered time slots
-  const [timeSlotOptions, setTimeSlotOptions] = React.useState(
-    () => allTimeSlots || []
-  );
-  const [isFilteringTimeSlots, setIsFilteringTimeSlots] = React.useState(false);
+    if (categoryTimeSlots.length > 0) {
+      // Transform ActivityTimeSlots to the UI format expected by SlotSelect
+      const activityBasedSlots = categoryTimeSlots.map((slot) => ({
+        id: slot.id,
+        name: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
+        slug: slot.startTime.replace(":", "-"),
+        value: slot.startTime.replace(":", "-"),
+        label: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
+        time: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
+      }));
 
-  // Filter time slots based on selected activity category (async)
-  React.useEffect(() => {
-    let isActive = true;
-    const filterTimeSlots = async () => {
-      // Always return all time slots initially or when no activity type is selected
-      if (!selectedActivityType || selectedActivityType === "") {
-        if (!isActive) return;
-        setTimeSlotOptions(allTimeSlots || []);
-        return;
-      }
+      console.log("🕐 Activity-specific time slots found:", activityBasedSlots);
+      return activityBasedSlots;
+    }
 
-      // Apply filtering when an activity category is selected
-      if (selectedActivityCategory && allTimeSlots) {
-        setIsFilteringTimeSlots(true);
+    // Create standard time slots for better UX
+    const standardSlots = [
+      {
+        id: "morning",
+        slug: "09-00",
+        value: "09-00",
+        label: "9:00 AM - 11:00 AM",
+        time: "9:00 AM - 11:00 AM",
+      },
+      {
+        id: "afternoon",
+        slug: "14-00",
+        value: "14-00",
+        label: "2:00 PM - 4:00 PM",
+        time: "2:00 PM - 4:00 PM",
+      },
+      {
+        id: "evening",
+        slug: "16-00",
+        value: "16-00",
+        label: "4:00 PM - 6:00 PM",
+        time: "4:00 PM - 6:00 PM",
+      },
+    ];
 
-        try {
-          // Create a minimal activity object for filtering
-          const categoryForFiltering = {
-            id: "temp-category",
-            title: selectedActivityCategory.label,
-            slug: selectedActivityCategory.slug,
-            coreInfo: {
-              description: "",
-              category: [
-                {
-                  id: selectedActivityCategory.id,
-                  name: selectedActivityCategory.name,
-                  slug: selectedActivityCategory.slug,
-                },
-              ],
-              location: [],
-              basePrice: 0,
-              duration: "2 hours", // Default duration
-              maxCapacity: 10,
-            },
-            media: {
-              featuredImage: undefined,
-              gallery: [],
-            },
-            activityOptions: [],
-            status: {
-              isActive: true,
-              isFeatured: false,
-              priority: 0,
-            },
-          } as Activity;
-
-          // First try to get filtered slots from the database
-          let filteredSlots = await getActivityTimeSlots(
-            categoryForFiltering,
-            allTimeSlots
-          );
-
-          // If no database slots or very few slots, supplement with duration-based slots
-          if (filteredSlots.length === 0) {
-            const { createDurationBasedTimeSlots } = await import(
-              "@/utils/activityTimeSlots"
-            );
-            filteredSlots = createDurationBasedTimeSlots(
-              null,
-              selectedActivityCategory.slug
-            );
-          } else if (filteredSlots.length < 3) {
-            const { createDurationBasedTimeSlots } = await import(
-              "@/utils/activityTimeSlots"
-            );
-            const durationSlots = createDurationBasedTimeSlots(
-              null,
-              selectedActivityCategory.slug
-            );
-
-            // Combine database slots with duration-based slots, avoiding duplicates
-            const existingTimes = new Set(
-              filteredSlots.map((slot) => slot.value)
-            );
-            const supplementarySlots = durationSlots.filter(
-              (slot) => !existingTimes.has(slot.value)
-            );
-            filteredSlots = [...filteredSlots, ...supplementarySlots];
-          }
-
-          // Update with filtered slots
-          if (!isActive) return;
-          setTimeSlotOptions(
-            filteredSlots.length > 0 ? filteredSlots : allTimeSlots
-          );
-        } catch (error) {
-          if (!isActive) return;
-          setTimeSlotOptions(allTimeSlots); // Fallback
-        } finally {
-          if (!isActive) return;
-          setIsFilteringTimeSlots(false);
-        }
-      } else {
-        // Fallback to all time slots
-        if (!isActive) return;
-        setTimeSlotOptions(allTimeSlots || []);
-      }
-    };
-
-    filterTimeSlots();
-    return () => {
-      isActive = false;
-    };
-  }, [selectedActivityCategory, allTimeSlots, selectedActivityType]);
+    console.log(
+      "🕐 Using standard time slots for",
+      selectedActivityCategory.label
+    );
+    return standardSlots;
+  }, [selectedActivityCategory, categoryTimeSlots, allTimeSlots]);
 
   // Memoize default values to prevent recreating on each render
   const defaultValues = useMemo(
@@ -227,31 +202,28 @@ export function ActivitySearchForm({
   // Watch form values to update search params in real time
   React.useEffect(() => {
     const subscription = watch((value, { name }) => {
-      // Update search params when time slot changes
+      // Update search params when form values change
+      const updates: any = {};
+
       if (name === "selectedSlot" && value.selectedSlot !== undefined) {
-        updateSearchParams({ time: value.selectedSlot });
+        updates.time = value.selectedSlot;
       }
-
-      // Also update other search params for consistency
       if (name === "selectedActivity" && value.selectedActivity !== undefined) {
-        updateSearchParams({ activityType: value.selectedActivity });
+        updates.activityType = value.selectedActivity;
       }
-
       if (name === "activityLocation" && value.activityLocation !== undefined) {
-        updateSearchParams({ location: value.activityLocation });
+        updates.location = value.activityLocation;
       }
-
       if (name === "selectedDate" && value.selectedDate !== undefined) {
-        updateSearchParams({
-          date: value.selectedDate.toISOString().split("T")[0],
-        });
+        updates.date = value.selectedDate.toISOString().split("T")[0];
+      }
+      if (name === "passengers" && value.passengers !== undefined) {
+        updates.adults = value.passengers.adults;
+        updates.children = value.passengers.children;
       }
 
-      if (name === "passengers" && value.passengers !== undefined) {
-        updateSearchParams({
-          adults: value.passengers.adults,
-          children: value.passengers.children,
-        });
+      if (Object.keys(updates).length > 0) {
+        updateSearchParams(updates);
       }
     });
 
@@ -260,10 +232,10 @@ export function ActivitySearchForm({
 
   // Reset form values when edit mode is triggered
   React.useEffect(() => {
-    if (isEditMode && state.editingItemId) {
+    if (isEditMode && editingItemId) {
       reset(defaultValues);
     }
-  }, [isEditMode, state.editingItemId, reset, defaultValues]);
+  }, [isEditMode, editingItemId, reset, defaultValues]);
 
   // Memoize the submit handler to prevent recreation on each render
   const onSubmit = useCallback(
@@ -286,12 +258,8 @@ export function ActivitySearchForm({
         return;
       }
 
-      // Location is optional - users can browse all activities in a category
-      // Only show location error if user is trying to do a specific search
-      // For now, we'll allow empty location for category browsing
-
       // Convert form data to search params format
-      const searchParams = {
+      const searchParamsUpdate = {
         activityType: data.selectedActivity,
         location: data.activityLocation || "", // Allow empty location
         date: data.selectedDate.toISOString().split("T")[0],
@@ -300,15 +268,8 @@ export function ActivitySearchForm({
         children: data.passengers.children,
       };
 
-      // Update search params (this will update editingSearchParams in edit mode)
-      updateSearchParams(searchParams);
-
-      // Search for activities with new params
-      await searchActivities(searchParams);
-
-      // Note: We don't call saveEditedItem here because that should only happen
-      // when the user actually selects an activity in the results.
-      // The form submission just updates the search criteria.
+      // Update search params
+      updateSearchParams(searchParamsUpdate);
 
       // If in edit mode, just scroll to results instead of navigating away
       if (isEditMode) {
@@ -319,27 +280,19 @@ export function ActivitySearchForm({
         }
       } else {
         // Only navigate for new searches (not in edit mode)
-        // Navigate to search results page with URL parameters
         const urlParams = new URLSearchParams({
-          activityType: searchParams.activityType,
-          location: searchParams.location,
-          date: searchParams.date,
-          time: searchParams.time,
-          adults: searchParams.adults.toString(),
-          children: searchParams.children.toString(),
+          activityType: searchParamsUpdate.activityType,
+          location: searchParamsUpdate.location,
+          date: searchParamsUpdate.date,
+          time: searchParamsUpdate.time,
+          adults: searchParamsUpdate.adults.toString(),
+          children: searchParamsUpdate.children.toString(),
         });
 
         router.push(`/activities/search?${urlParams.toString()}`);
       }
     },
-    [
-      updateSearchParams,
-      searchActivities,
-      setError,
-      router,
-      isEditMode,
-      state.editingItemId,
-    ]
+    [updateSearchParams, setError, router, isEditMode]
   );
 
   // Memoize button text based on variant and edit mode
@@ -364,22 +317,20 @@ export function ActivitySearchForm({
 
   // Add save changes handler for edit mode
   const handleSaveChanges = useCallback(() => {
-    if (isEditMode && state.editingItemId) {
+    if (isEditMode && editingItemId) {
       // Get the current cart item to preserve the same activity and option
-      const currentItem = state.cart.find(
-        (item) => item.id === state.editingItemId
-      );
+      const currentItem = cart.find((item) => item.id === editingItemId);
       if (currentItem) {
         saveEditedItem(
-          state.editingItemId,
+          editingItemId,
           currentItem.activity,
           currentItem.activityOptionId
         );
       }
     }
-  }, [isEditMode, state.editingItemId, state.cart, saveEditedItem]);
+  }, [isEditMode, editingItemId, cart, saveEditedItem]);
 
-  // Memoize passenger handler to prevent recreation on each render
+  // Memoized passenger handler to prevent recreation on each render
   const handlePassengerChange = useCallback(
     (field: any) => (type: string, value: number) => {
       field.onChange({
@@ -390,36 +341,6 @@ export function ActivitySearchForm({
     []
   );
 
-  // Auto-search when time slot changes if a search has already been performed
-  React.useEffect(() => {
-    const currentTime = currentSearchParams.time;
-
-    // Only auto-search if:
-    // 1. We have activities (meaning a search was already performed)
-    // 2. We have required search params (activityType)
-    // 3. We're not in edit mode (to avoid unwanted searches during editing)
-    if (
-      state.activities.length > 0 &&
-      currentSearchParams.activityType &&
-      !isEditMode &&
-      currentTime
-    ) {
-      // Debounce the search to avoid too many requests
-      const timeoutId = setTimeout(() => {
-        searchActivities(currentSearchParams);
-      }, 500);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [
-    currentSearchParams.time,
-    state.activities.length,
-    currentSearchParams.activityType,
-    isEditMode,
-    searchActivities,
-    currentSearchParams,
-  ]);
-
   // Loading state while fetching form options
   if (isLoadingOptions) {
     return <div className={styles.formGrid}>Loading booking options...</div>;
@@ -429,10 +350,16 @@ export function ActivitySearchForm({
   if (loadError) {
     return (
       <div className={`${styles.formGrid} ${styles.errorContainer}`}>
-        <div className={styles.errorMessage}>{loadError}</div>
+        <div className={styles.errorMessage}>
+          {loadError.message || "Failed to load form options"}
+        </div>
         <Button
           variant="secondary"
-          onClick={() => loadFormOptions()}
+          onClick={() => {
+            categories.refetch();
+            locations.refetch();
+            timeSlots.refetch();
+          }}
           className={styles.retryButton}
         >
           Retry
@@ -446,11 +373,6 @@ export function ActivitySearchForm({
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Activity Search Form"
       role="form"
-      aria-describedby="activity-search-form-description"
-      aria-required="true"
-      aria-invalid={Object.keys(errors).length > 0 ? "true" : "false"}
-      aria-busy={isSubmitting || state.isLoading ? "true" : "false"}
-      aria-live="polite"
       className={cn(
         styles.formGrid,
         variant === "compact" && styles.formCompact,
@@ -459,36 +381,29 @@ export function ActivitySearchForm({
       )}
     >
       {/* Add user feedback for time slot filtering */}
-      {selectedActivityType && (
+      {selectedActivityCategory && (
         <div className={styles.filterFeedback}>
-          {isFilteringTimeSlots ? (
+          {isLoadingTimeSlots ? (
             <div className={styles.loadingFeedback}>
               <div className={styles.spinner} />
               Filtering available time slots...
             </div>
-          ) : timeSlotOptions.length < (allTimeSlots?.length || 0) ? (
+          ) : timeSlotOptions.length < allTimeSlots.length ? (
             <div className={styles.infoFeedback}>
               Showing {timeSlotOptions.length} available time slots for{" "}
-              {selectedActivityCategory?.label}
-              {timeSlotOptions.length > 0 && (
-                <span className={styles.infoHint}>
-                  Time slots are matched to activity duration. Selecting a time
-                  will show only activities available at that time.
-                </span>
-              )}
+              {selectedActivityCategory.label}
             </div>
           ) : (
-            timeSlotOptions.length > 0 && (
-              <div className={styles.infoFeedback}>
-                <span className={styles.infoHint}>
-                  ⏰ Time slots shown match the typical duration for{" "}
-                  {selectedActivityCategory?.label} activities
-                </span>
-              </div>
-            )
+            <div className={styles.infoFeedback}>
+              <span className={styles.infoHint}>
+                ⏰ Time slots shown match {selectedActivityCategory.label}{" "}
+                activities
+              </span>
+            </div>
           )}
         </div>
       )}
+
       <div className={styles.formContent}>
         {/* Activity Type */}
         <div className={styles.formField}>
@@ -520,7 +435,7 @@ export function ActivitySearchForm({
             render={({ field }) => (
               <LocationSelect
                 label="Location"
-                value={field.value}
+                value={field.value || ""}
                 onChange={field.onChange}
                 options={locationOptions}
                 placeholder="Select Location"
@@ -567,7 +482,7 @@ export function ActivitySearchForm({
                 options={timeSlotOptions}
                 placeholder="Select Time"
                 hasError={!!errors.selectedSlot}
-                isLoading={isFilteringTimeSlots}
+                isLoading={isLoadingTimeSlots}
               />
             )}
           />
@@ -605,9 +520,9 @@ export function ActivitySearchForm({
             className={styles.searchButton}
             showArrow
             type="submit"
-            disabled={isSubmitting || state.isLoading}
+            disabled={isSubmitting}
           >
-            {isSubmitting || state.isLoading ? "Searching..." : buttonText}
+            {isSubmitting ? "Searching..." : buttonText}
           </Button>
 
           {/* Save Changes button for edit mode */}
@@ -617,16 +532,13 @@ export function ActivitySearchForm({
               className={styles.saveButton}
               onClick={handleSaveChanges}
               type="button"
-              disabled={isSubmitting || state.isLoading}
+              disabled={isSubmitting}
             >
               Save Changes
             </Button>
           )}
         </div>
       </div>
-
-      {/* Error Display */}
-      {state.error && <div className={styles.errorMessage}>{state.error}</div>}
     </form>
   );
 }

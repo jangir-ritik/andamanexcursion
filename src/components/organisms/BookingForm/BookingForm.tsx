@@ -4,7 +4,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 import styles from "./BookingForm.module.css";
 import { TAB_CONFIG } from "./config/formConfig";
 import type { BookingFormProps } from "./BookingForm.types";
-import { ActivitySearchForm } from "./components/ActivitySearchForm";
+import { ActivitySearchFormRQ } from "./components/ActivitySearchFormRQ";
 import { FerrySearchForm } from "./components/FerrySearchForm";
 
 export function BookingForm({
@@ -32,7 +32,7 @@ export function BookingForm({
         {initialTab === "ferry" && <FerrySearchForm variant={variant} />}
         {/* {selectedTab === "local-boat" && <BoatBookingForm variant={variant} />} */}
         {initialTab === "activities" && (
-          <ActivitySearchForm variant={variant} />
+          <ActivitySearchFormRQ variant={variant} />
         )}
       </div>
     );
@@ -69,7 +69,7 @@ export function BookingForm({
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="activities">
-          <ActivitySearchForm variant={variant} />
+          <ActivitySearchFormRQ variant={variant} />
         </Tabs.Content>
       </Tabs.Root>
     </div>

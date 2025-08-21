@@ -114,6 +114,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     setIsExpanded((prev) => !prev);
   }, []);
 
+  const handleCardKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Don't handle keyboard events if focus is on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest("button") || target.closest('[role="button"]')) {
+      return;
+    }
+
+    // Toggle expansion on Enter or Space
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setIsExpanded((prev) => !prev);
+    }
+  }, []);
+
   // Calculate discount percentage if original prices exist
   const discountPercentage = useMemo(() => {
     if (originalPrice && originalPrice > price) {
@@ -149,8 +163,15 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         [styles.expanded]: isExpanded,
       })}
       role="button"
-      aria-label={`Activity: ${title}`}
+      tabIndex={0}
+      aria-label={`Activity: ${title}. ${
+        isExpanded
+          ? "Press Enter to collapse"
+          : "Press Enter to expand and view details"
+      }`}
+      aria-expanded={isExpanded}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
     >
       <div className={styles.contentWrapper}>
         {/* Image Section */}

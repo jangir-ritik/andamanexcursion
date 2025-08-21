@@ -14,7 +14,7 @@ import { ReactQueryProvider } from "@/context/ReactQueryProvider";
 import { locationService } from "@/services/payload/collections/locations";
 import { timeSlotService } from "@/services/payload/collections/time-slots";
 import { activityService } from "@/services/payload/collections/activities";
-// import { ActivityProvider } from "@/context/ActivityContext";
+// Consolidated to Zustand; Context removed
 import { getNavigationData } from "@/utils/getNavigationData";
 // import { BookingDataProvider } from "@/context/BookingDataProvider";
 

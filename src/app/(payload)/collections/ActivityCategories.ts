@@ -30,6 +30,7 @@ const ActivityCategories: CollectionConfig = {
       type: "text",
       required: true,
       unique: true,
+      index: true,
       admin: {
         description: "URL-friendly version (auto-generated from name)",
         readOnly: true,
@@ -48,6 +49,7 @@ const ActivityCategories: CollectionConfig = {
       name: "isActive",
       type: "checkbox",
       defaultValue: true,
+      index: true,
       admin: {
         description: "Uncheck to hide this category from public view",
         position: "sidebar",
@@ -57,6 +59,7 @@ const ActivityCategories: CollectionConfig = {
       name: "sortOrder",
       type: "number",
       defaultValue: 0,
+      index: true,
       admin: {
         description: "Display order (0 = first, higher numbers = later)",
         step: 1,
