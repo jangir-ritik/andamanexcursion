@@ -208,10 +208,15 @@ export function FerrySearchForm({
       }
 
       // Convert form data to search params format
+      // Use local date to avoid timezone conversion issues
+      const localDate = new Date(
+        data.selectedDate.getTime() -
+          data.selectedDate.getTimezoneOffset() * 60000
+      );
       const searchParams = {
         from: data.fromLocation,
         to: data.toLocation,
-        date: data.selectedDate.toISOString().split("T")[0], // YYYY-MM-DD format
+        date: localDate.toISOString().split("T")[0], // YYYY-MM-DD format (local timezone)
         adults: data.passengers.adults,
         children: data.passengers.children,
         infants: data.passengers.infants,

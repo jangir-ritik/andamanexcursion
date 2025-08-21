@@ -51,8 +51,9 @@ interface MakruzzScheduleResponse {
 export class MakruzzService {
   private static readonly BASE_URL =
     process.env.MAKRUZZ_API_URL || "https://staging.makruzz.com/booking_api/";
-  private static readonly USERNAME = process.env.MAKRUZZ_USERNAME;
-  private static readonly PASSWORD = process.env.MAKRUZZ_PASSWORD;
+  private static readonly USERNAME =
+    process.env.MAKRUZZ_USERNAME || "ae@makruzz.com";
+  private static readonly PASSWORD = process.env.MAKRUZZ_PASSWORD || "andexc";
   private static authToken: string | null = null;
   private static tokenExpiry: Date | null = null;
 
@@ -82,6 +83,11 @@ export class MakruzzService {
 
     // Ensure we're authenticated
     await this.ensureAuthenticated();
+    console.log(
+      `🔑 Makruzz: Using token: ${
+        this.authToken ? this.authToken.substring(0, 10) + "..." : "NULL"
+      }`
+    );
 
     const apiCall = async (): Promise<MakruzzScheduleResponse> => {
       // Use centralized location mapping
@@ -103,13 +109,33 @@ export class MakruzzService {
       console.log(`Makruzz request body:`, requestBody);
       console.log(`Makruzz URL: ${this.BASE_URL}schedule_search`);
 
+      // Create headers with the authentication token
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "User-Agent": "AndamanExcursion/1.0",
+      };
+
+      // Add the authentication header as specified in the API docs
+      if (this.authToken) {
+        headers["Mak_Authorization"] = this.authToken;
+      }
+
+      console.log(
+        `📤 Makruzz: Sending search request with Mak_Authorization header: ${
+          this.authToken ? "YES" : "NO"
+        }`
+      );
+      console.log(`📤 Makruzz: Headers:`, headers);
+      console.log(
+        `📤 Makruzz: Request body:`,
+        JSON.stringify(requestBody, null, 2)
+      );
+
       const response = await fetch(`${this.BASE_URL}schedule_search`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.authToken}`,
-        },
-        body: JSON.stringify(requestBody),
+        headers,
+        body: JSON.stringify(requestBody), // No token in body, only in header
       });
 
       console.log(`Makruzz response status: ${response.status}`);
@@ -161,14 +187,21 @@ export class MakruzzService {
   private static async ensureAuthenticated(): Promise<void> {
     // Check if token is still valid (assuming 1 hour validity)
     if (this.authToken && this.tokenExpiry && this.tokenExpiry > new Date()) {
+      console.log(
+        `🔑 Makruzz: Using cached token (expires: ${this.tokenExpiry})`
+      );
       return;
     }
+
+    console.log(`🔑 Makruzz: Authenticating with username: ${this.USERNAME}`);
 
     const loginCall = async (): Promise<MakruzzLoginResponse> => {
       const response = await fetch(`${this.BASE_URL}login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
+          "User-Agent": "AndamanExcursion/1.0",
         },
         body: JSON.stringify({
           data: {
@@ -221,6 +254,13 @@ export class MakruzzService {
 
       this.authToken = loginResponse.data.token;
       this.tokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+      console.log(
+        `✅ Makruzz: Successfully authenticated, token: ${
+          this.authToken ? this.authToken.substring(0, 10) + "..." : "NULL"
+        }`
+      );
+      console.log(`✅ Makruzz: Token expires at: ${this.tokenExpiry}`);
     } catch (error) {
       console.error("Makruzz authentication failed:", error);
       throw error;

@@ -25,9 +25,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if date is in the past
+    // Check if date is in the past (day-only comparison)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // Also normalize search date to start of day for comparison
+    searchDate.setHours(0, 0, 0, 0);
+
     if (searchDate < today) {
       return NextResponse.json(
         { error: "Cannot search for dates in the past" },

@@ -8,6 +8,7 @@ import { SeatLayoutComponent } from "@/components/molecules/SeatLayout/SeatLayou
 import {
   UnifiedFerryResult,
   SeatLayout,
+  Seat,
 } from "@/types/FerryBookingSession.types";
 import {
   ArrowLeft,
@@ -43,6 +44,26 @@ export default function FerryBookingDetailPage() {
   const [seatLayout, setSeatLayout] = useState<SeatLayout | null>(null);
   const [loadingSeatLayout, setLoadingSeatLayout] = useState(false);
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
+  const [seatPreference, setSeatPreference] = useState<"manual" | "auto">(
+    "auto"
+  ); // For operators supporting both
+
+  // Set correct seat preference based on ferry capabilities
+  useEffect(() => {
+    if (ferry) {
+      // Green Ocean only supports manual selection
+      if (
+        ferry.operator === "greenocean" ||
+        !ferry.features.supportsAutoAssignment
+      ) {
+        setSeatPreference("manual");
+      }
+      // Sealink and others default to auto
+      else if (ferry.features.supportsAutoAssignment) {
+        setSeatPreference("auto");
+      }
+    }
+  }, [ferry]);
 
   useEffect(() => {
     const ferryId = params.id as string;
@@ -64,7 +85,8 @@ export default function FerryBookingDetailPage() {
           selectClass(targetClass);
           setCurrentClassId(classId);
 
-          // Load seat layout immediately for Green Ocean ferries
+          // Load seat layout only if operator requires manual selection (Green Ocean)
+          // For Sealink, only load when user specifically chooses manual
           if (
             currentFerry.operator === "greenocean" &&
             currentFerry.features.supportsSeatSelection
@@ -97,7 +119,8 @@ export default function FerryBookingDetailPage() {
     // Clear previous seat selection when changing class
     setSelectedSeatIds([]);
 
-    // Load seat layout for Green Ocean ferries
+    // Load seat layout only for Green Ocean (always required)
+    // For Sealink, only load when manual preference is selected
     if (
       ferry?.operator === "greenocean" &&
       ferry.features.supportsSeatSelection
@@ -169,23 +192,63 @@ export default function FerryBookingDetailPage() {
   };
 
   const handleProceedToCheckout = () => {
-    // Validate seat selection for ferries that support seat selection
-    if (ferry?.features.supportsSeatSelection && selectedSeatIds.length === 0) {
-      alert("Please select your seats before proceeding to checkout.");
-      return;
-    }
-
-    // Validate required passenger count matches selected seats
     const totalPassengers =
       ferrySearchParams.adults + ferrySearchParams.children;
+
+    // For Green Ocean (manual selection required)
+    if (
+      ferry?.operator === "greenocean" ||
+      (ferry?.features.supportsSeatSelection &&
+        !ferry?.features.supportsAutoAssignment)
+    ) {
+      if (selectedSeatIds.length === 0) {
+        alert("Please select your seats before proceeding to checkout.");
+        return;
+      }
+      if (selectedSeatIds.length !== totalPassengers) {
+        alert(
+          `Please select ${totalPassengers} seat(s) for your ${totalPassengers} passenger(s).`
+        );
+        return;
+      }
+    }
+
+    // For Sealink (manual selection chosen)
     if (
       ferry?.features.supportsSeatSelection &&
-      selectedSeatIds.length !== totalPassengers
+      ferry?.features.supportsAutoAssignment &&
+      seatPreference === "manual"
     ) {
-      alert(
-        `Please select ${totalPassengers} seat(s) for your ${totalPassengers} passenger(s).`
-      );
-      return;
+      if (selectedSeatIds.length === 0) {
+        alert("Please select your seats before proceeding to checkout.");
+        return;
+      }
+      if (selectedSeatIds.length !== totalPassengers) {
+        alert(
+          `Please select ${totalPassengers} seat(s) for your ${totalPassengers} passenger(s).`
+        );
+        return;
+      }
+    }
+
+    // For auto-assignment (Makruzz always, Sealink when auto preference)
+    // No seat validation needed - seats will be auto-assigned
+
+    // Update selected seats in store based on preference
+    if (
+      seatPreference === "manual" &&
+      selectedSeatIds.length > 0 &&
+      seatLayout
+    ) {
+      // Convert seat IDs to Seat objects
+      const selectedSeatObjects = selectedSeatIds
+        .map((id) => seatLayout.seats.find((seat) => seat.id === id))
+        .filter((seat): seat is Seat => seat !== undefined);
+
+      selectSeats(selectedSeatObjects);
+    } else {
+      // Clear seats for auto-assignment
+      selectSeats([]);
     }
 
     createBookingSession();
@@ -365,12 +428,49 @@ export default function FerryBookingDetailPage() {
               </div>
             </section>
 
-            {/* Seat Selection */}
+            {/* Seat Selection - Show for operators that support manual selection */}
             {selectedClass && ferry.features.supportsSeatSelection && (
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>
                   Select your <span className={styles.highlight}>seats</span>
                 </h2>
+
+                {/* Seat Preference Options (only for operators supporting both manual AND auto) */}
+                {ferry.features.supportsAutoAssignment &&
+                  ferry.features.supportsSeatSelection && (
+                    <div className={styles.seatPreferenceContainer}>
+                      <h4>Seat Selection Preference</h4>
+                      <div className={styles.seatPreferenceOptions}>
+                        <label className={styles.radioOption}>
+                          <input
+                            type="radio"
+                            name="seatPreference"
+                            value="auto"
+                            checked={seatPreference === "auto"}
+                            onChange={(e) =>
+                              setSeatPreference(e.target.value as "auto")
+                            }
+                          />
+                          <span>Auto-assign best available seats</span>
+                        </label>
+                        <label className={styles.radioOption}>
+                          <input
+                            type="radio"
+                            name="seatPreference"
+                            value="manual"
+                            checked={seatPreference === "manual"}
+                            onChange={(e) => {
+                              setSeatPreference(e.target.value as "manual");
+                              if (e.target.value === "manual") {
+                                loadSeatLayout(currentClassId!);
+                              }
+                            }}
+                          />
+                          <span>Choose specific seats</span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
 
                 <div className={styles.seatSelectionContainer}>
                   {loadingSeatLayout && (
@@ -380,56 +480,84 @@ export default function FerryBookingDetailPage() {
                     </div>
                   )}
 
-                  {seatLayout && !loadingSeatLayout && (
-                    <div className={styles.seatLayoutWrapper}>
-                      <SeatLayoutComponent
-                        seatLayout={seatLayout}
-                        selectedSeats={selectedSeatIds}
-                        onSeatSelect={handleSeatSelection}
-                        maxSeats={
-                          ferrySearchParams.adults + ferrySearchParams.children
-                        }
-                        className={styles.seatLayout}
-                      />
+                  {seatLayout &&
+                    !loadingSeatLayout &&
+                    seatPreference === "manual" && (
+                      <div className={styles.seatLayoutWrapper}>
+                        <SeatLayoutComponent
+                          seatLayout={seatLayout}
+                          selectedSeats={selectedSeatIds}
+                          onSeatSelect={handleSeatSelection}
+                          maxSeats={
+                            ferrySearchParams.adults +
+                            ferrySearchParams.children
+                          }
+                          className={styles.seatLayout}
+                        />
 
-                      <div className={styles.seatLegend}>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={`${styles.legendSeat} ${styles.available}`}
-                          />
-                          <span>Available</span>
-                        </div>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={`${styles.legendSeat} ${styles.selected}`}
-                          />
-                          <span>Selected</span>
-                        </div>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={`${styles.legendSeat} ${styles.occupied}`}
-                          />
-                          <span>Occupied</span>
+                        <div className={styles.seatLegend}>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={`${styles.legendSeat} ${styles.available}`}
+                            />
+                            <span>Available</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={`${styles.legendSeat} ${styles.selected}`}
+                            />
+                            <span>Selected</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={`${styles.legendSeat} ${styles.occupied}`}
+                            />
+                            <span>Occupied</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {!seatLayout && !loadingSeatLayout && selectedClass && (
-                    <div className={styles.autoAssignMessage}>
-                      <AlertCircle size={20} />
-                      <div>
-                        <h4>Seats will be auto-assigned</h4>
-                        <p>
-                          Don't worry! We'll assign you the best available seats
-                          for your selected class.
-                        </p>
+                  {seatPreference === "auto" &&
+                    ferry.features.supportsAutoAssignment &&
+                    selectedClass && (
+                      <div className={styles.autoAssignMessage}>
+                        <AlertCircle size={20} />
+                        <div>
+                          <h4>Seats will be auto-assigned</h4>
+                          <p>
+                            Don't worry! We'll assign you the best available
+                            seats for your selected class.
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </section>
             )}
+
+            {/* Auto-Assignment Only Message - Show for operators that only support auto-assignment */}
+            {selectedClass &&
+              !ferry.features.supportsSeatSelection &&
+              ferry.features.supportsAutoAssignment && (
+                <section className={styles.section}>
+                  <h2 className={styles.sectionTitle}>
+                    Seat <span className={styles.highlight}>Assignment</span>
+                  </h2>
+
+                  <div className={styles.autoAssignMessage}>
+                    <AlertCircle size={20} />
+                    <div>
+                      <h4>Seats will be auto-assigned</h4>
+                      <p>
+                        {ferry.operator === "makruzz"
+                          ? "Makruzz ferries use automatic seat assignment. We'll assign you the best available seats for your selected class."
+                          : "We'll assign you the best available seats for your selected class."}
+                      </p>
+                    </div>
+                  </div>
+                </section>
+              )}
           </div>
 
           {/* Right Column - Booking Summary */}
