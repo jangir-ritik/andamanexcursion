@@ -307,6 +307,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
                 showActionButton={index === selectedOptionIndex}
                 actionButtonText="Add Activity"
                 contentType="activity"
+                isAdded={addedActivityId === activityOption.id}
               />
             ))}
           </div>

@@ -35,6 +35,7 @@ interface ClassCardProps {
   showActionButton?: boolean;
   actionButtonText?: string;
   contentType: "ferry" | "activity";
+  isAdded?: boolean;
 }
 
 export const ClassCard: React.FC<ClassCardProps> = memo(
@@ -46,6 +47,7 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
     showActionButton = false,
     actionButtonText = "Select",
     contentType,
+    isAdded = false,
   }) => {
     // Generate base IDs
     const cardId = `${contentType}-class-${classOption.type
@@ -255,7 +257,7 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
               aria-describedby={`${cardId}-title ${priceId}`}
               icon={<Plus size={16} aria-hidden="true" />}
             >
-              {actionButtonText}
+              {isAdded ? "Added" : actionButtonText}
             </Button>
           )}
         </section>
