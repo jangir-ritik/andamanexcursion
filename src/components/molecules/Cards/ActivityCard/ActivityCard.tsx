@@ -4,13 +4,13 @@ import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
 import type { ActivityCardProps } from "./ActivityCard.types";
 import clsx from "clsx";
 import styles from "./ActivityCard.module.css";
-import { ImageContainer, Button } from "@/components/atoms";
+import { Button, ImageContainer } from "@/components/atoms";
 import clockIcon from "@public/icons/misc/clock.svg";
 import snorkelingIcon from "@public/icons/misc/snorkeling.svg";
 import Image from "next/image";
 import { ImageSlider } from "../FerryCard/components/ImageSlider";
 import { ClassCard } from "../ClassCard/ClassCard";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Clock, MapPin, Waves } from "lucide-react";
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   id,
@@ -29,8 +29,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   activityOptions = [],
   onSelectActivity,
   selectedOptionId,
+  totalGuests,
+  location,
+  timeSlots = [],
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Success state
+  const [addedActivityId, setAddedActivityId] = useState<string | null>(null);
 
   // Find the initial selected option index based on selectedOptionId
   const initialSelectedIndex = useMemo(() => {
@@ -70,8 +76,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     (optionId: string) => {
       if (onSelectActivity) {
         onSelectActivity(id, optionId);
-        // Auto-collapse after adding to provide visual feedback
-        setIsExpanded(false);
+
+        // Show success feedback
+        setAddedActivityId(optionId);
+
+        // Clear success feedback after 3 seconds
+        setTimeout(() => {
+          setAddedActivityId(null);
+        }, 3000);
       }
     },
     [id, onSelectActivity]
@@ -83,39 +95,51 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   }, []);
 
   // Prevent any potential navigation when card is expanded
-  const handleCardClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (isExpanded) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    },
-    [isExpanded]
-  );
+  // const handleCardClick = useCallback(
+  //   (e: React.MouseEvent) => {
+  //     if (isExpanded) {
+  //       e.preventDefault();
+  //       e.stopPropagation();
+  //     }
+  //   },
+  //   [isExpanded]
+  // );
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    // Don't expand if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest("button") || target.closest('[role="button"]')) {
+      return;
+    }
 
-  // Memoize button text and icon rotation
-  const buttonProps = React.useMemo(
-    () => ({
-      text: isExpanded ? "Hide Details" : "View Details",
-      variant: isExpanded ? ("outline" as const) : ("primary" as const),
-      iconClassName: clsx(styles.chevronIcon, {
-        [styles.chevronExpanded]: isExpanded,
-      }),
-    }),
-    [isExpanded]
-  );
+    setIsExpanded((prev) => !prev);
+  }, []);
+
+  // Calculate discount percentage if original prices exist
+  const discountPercentage = useMemo(() => {
+    if (originalPrice && originalPrice > price) {
+      return Math.round(((originalPrice - price) / originalPrice) * 100);
+    }
+    return null;
+  }, [originalPrice, price]);
+
+  const totalDiscountPercentage = useMemo(() => {
+    if (originalTotalPrice && originalTotalPrice > totalPrice) {
+      return Math.round(
+        ((originalTotalPrice - totalPrice) / originalTotalPrice) * 100
+      );
+    }
+    return null;
+  }, [originalTotalPrice, totalPrice]);
 
   // Separate gallery images from featured image for slider
   const galleryImages = React.useMemo(
-    () => images.slice(1).map((image) => image.src), // Skip the first image (featured)
+    () => images.slice(1).map((image) => image.src),
     [images]
   );
 
   // Get properly formatted time slots for display
   const displayTimeSlots = useMemo(() => {
-    // Simply return the availableTimeSlots if they exist
     if (!availableTimeSlots?.length) return [];
-
     return availableTimeSlots.filter((slot) => slot.isAvailable);
   }, [availableTimeSlots]);
 
@@ -124,125 +148,144 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       className={clsx(styles.card, className, {
         [styles.expanded]: isExpanded,
       })}
-      role="article"
+      role="button"
       aria-label={`Activity: ${title}`}
       onClick={handleCardClick}
     >
       <div className={styles.contentWrapper}>
-        <ImageContainer
-          src={images[0].src}
-          alt={images[0].alt}
-          className={styles.imageWrapper}
-        />
+        {/* Image Section */}
+        <div className={styles.imageWrapper}>
+          <ImageContainer src={images[0].src} alt={images[0].alt} />
+        </div>
 
+        {/* Content Section - New improved layout */}
         <div className={styles.textContent}>
-          <header className={styles.header}>
-            <div className={styles.titleContainer}>
+          {/* TOP ROW: Title and Pricing */}
+          <div className={styles.topRow}>
+            <div className={styles.titleSection}>
+              <div className={styles.activityMetadata}>
+                {type && (
+                  <div className={styles.typeContainer}>
+                    {/* <Waves size={16} color="var(--color-primary)" /> */}
+                    <span className={styles.type}>{type}</span>
+                  </div>
+                )}
+                {duration && (
+                  <div className={styles.durationContainer}>
+                    <Clock
+                      size={16}
+                      className={styles.durationIcon}
+                      color="var(--color-text-secondary)"
+                    />
+                    <span className={styles.duration}>{duration}</span>
+                  </div>
+                )}
+                {location && (
+                  <div className={styles.locationContainer}>
+                    <MapPin size={16} color="var(--color-text-secondary)" />
+                    <span className={styles.location}>{location}</span>
+                  </div>
+                )}
+              </div>
               <h3 className={styles.title}>{title}</h3>
-              <div className={styles.activityInfo}>
-                <div className={styles.durationContainer}>
-                  <Image
-                    aria-hidden="true"
-                    src={clockIcon}
-                    alt=""
-                    className={styles.durationIcon}
-                    width={18}
-                    height={18}
-                  />
-                  <span className={styles.duration}>{duration}</span>
-                </div>
-                <div className={styles.typeContainer}>
-                  <Image
-                    aria-hidden="true"
-                    src={snorkelingIcon}
-                    alt=""
-                    className={styles.durationIcon}
-                    width={18}
-                    height={18}
-                  />
-                  <span className={styles.type}>{type}</span>
-                </div>
-              </div>
+              {/* SECOND ROW: Activity Info */}
             </div>
 
-            {/* Time Slots Display */}
-            {displayTimeSlots.length > 0 && (
-              <div className={styles.timeSlotsContainer}>
-                <h4 className={styles.timeSlotsTitle}>Available Times</h4>
-                <div className={styles.timeSlotsList}>
-                  {displayTimeSlots
-                    .filter((slot) => slot.isAvailable)
-                    .slice(0, 3) // Show only first 3 time slots to keep card compact
-                    .map((slot) => (
-                      <span key={slot.id} className={styles.timeSlot}>
-                        {slot.displayTime}
-                      </span>
-                    ))}
-                  {displayTimeSlots.filter((slot) => slot.isAvailable).length >
-                    3 && (
-                    <span className={styles.moreSlots}>
-                      +
-                      {displayTimeSlots.filter((slot) => slot.isAvailable)
-                        .length - 3}{" "}
-                      more
-                    </span>
-                  )}
-                </div>
+            {/* Pricing Section - Redesigned for clarity */}
+            <div className={styles.pricingSection}>
+              {/* Main Price */}
+              {discountPercentage && (
+                <span
+                  className={styles.discountBadge}
+                  aria-label={`${discountPercentage}% discount`}
+                >
+                  -{discountPercentage}% OFF
+                </span>
+              )}
+              <div className={styles.mainPriceRow}>
+                <span
+                  className={styles.originalPrice}
+                  aria-label={`Original price: ₹${originalPrice}`}
+                >
+                  ₹{originalPrice}
+                </span>
+                <span
+                  className={styles.currentPrice}
+                  aria-label={`Current price: ₹${price} per adult`}
+                >
+                  ₹{price}
+                </span>
+                <span className={styles.perPerson} aria-hidden="true">
+                  /adult
+                </span>
               </div>
-            )}
 
-            <div className={styles.priceContainer}>
-              <div className={styles.pricePerAdult}>
-                {originalPrice && originalPrice > price ? (
-                  <>
-                    <span className={styles.originalPrice}>
-                      ₹{originalPrice}
-                    </span>
-                    <span className={styles.discountedPrice}>₹{price}</span>
-                    <span className={styles.priceLabel}>/adult</span>
-                  </>
-                ) : (
-                  <>₹{price}/adult</>
+              {/* Total Price Info */}
+              <div className={styles.totalPriceInfo}>
+                {originalTotalPrice && originalTotalPrice > totalPrice && (
+                  <span
+                    className={styles.originalTotalPrice}
+                    aria-label={`Original total: ₹${originalTotalPrice}`}
+                  >
+                    ₹{originalTotalPrice}
+                  </span>
                 )}
+                <span
+                  className={styles.totalPrice}
+                  aria-label={`Total price: ₹${totalPrice}`}
+                >
+                  ₹{totalPrice}
+                </span>
+                <span className={styles.totalLabel} aria-hidden="true">
+                  /total
+                </span>
               </div>
-              <div className={styles.totalPrice}>
-                {originalTotalPrice && originalTotalPrice > totalPrice ? (
-                  <>
-                    <span className={styles.originalTotalPrice}>
-                      ₹{originalTotalPrice}/-
-                    </span>
-                    <span className={styles.discountedTotalPrice}>
-                      ₹{totalPrice}/-
-                    </span>
-                    <span className={styles.totalLabel}>total</span>
-                  </>
-                ) : (
-                  <>₹{totalPrice}/- total</>
+            </div>
+          </div>
+
+          {/* THIRD ROW: Available Times */}
+          {displayTimeSlots.length > 0 && (
+            <div className={styles.timeSlotsRow}>
+              <h4 className={styles.timeSlotsTitle}>Available Times</h4>
+              <div className={styles.timeSlotsList}>
+                {displayTimeSlots.slice(0, 4).map((slot) => (
+                  <span key={slot.id} className={styles.timeSlot}>
+                    {slot.displayTime}
+                  </span>
+                ))}
+                {displayTimeSlots.length > 4 && (
+                  <span className={styles.moreSlots}>
+                    +{displayTimeSlots.length - 4} more times
+                  </span>
                 )}
               </div>
             </div>
-          </header>
+          )}
 
-          <p className={styles.description}>{description}</p>
-
-          <Button
-            variant={buttonProps.variant}
-            onClick={toggleExpand}
-            className={styles.viewDetailsButton}
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls={`${id}-details`}
-            icon={
-              <ChevronDown
-                strokeWidth={2}
-                size={16}
-                aria-hidden="true"
-                className={buttonProps.iconClassName}
-              />
-            }
-          >
-            {buttonProps.text}
-          </Button>
+          {/* FOURTH ROW: Description and Toggle Details */}
+          <div className={styles.bottomRow}>
+            <p className={styles.description}>{description}</p>
+            <Button
+              variant="secondary"
+              onClick={toggleExpand}
+              type="button"
+              size="small"
+              // className={styles.viewDetailsButton}
+              aria-expanded={isExpanded}
+              icon={
+                <ChevronDown
+                  strokeWidth={2}
+                  size={16}
+                  aria-hidden="true"
+                  className={clsx(styles.chevronIcon, {
+                    [styles.chevronExpanded]: isExpanded,
+                  })}
+                />
+              }
+            >
+              {isExpanded ? "Hide Details" : "View Details"}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -268,7 +311,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             ))}
           </div>
 
-          {/* Only show ImageSlider if there are gallery images, otherwise show placeholder */}
+          {/* Image Slider */}
           <ImageSlider
             images={galleryImages}
             altText={`${title} activity gallery`}

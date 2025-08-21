@@ -270,6 +270,9 @@ export const ActivityResults = memo<ActivityResultsProps>(
           activityOptions: transformedOptions,
           availableTimeSlots,
           onSelectActivity: handleActivitySelection,
+          location: activity.coreInfo?.location[0]?.name,
+          totalGuests: searchParams.adults + searchParams.children,
+          timeSlots: availableTimeSlots.map((slot: any) => slot.displayTime),
         };
       });
     }, [

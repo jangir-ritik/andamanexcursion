@@ -2,12 +2,11 @@
 
 import React, { memo, useCallback } from "react";
 import Image from "next/image";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { cn } from "@/utils/cn";
 import styles from "./ClassCard.module.css";
 import { Button } from "@/components/atoms";
 import poolIcon from "@public/icons/misc/poolLadder.svg";
-import { Plus } from "lucide-react";
 
 export interface ClassOption {
   id: string;
@@ -65,6 +64,27 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
             classOption.seatsLeft !== 1 ? "s" : ""
           }`
         : "";
+
+    // Calculate discount percentages
+    const discountPercentage =
+      classOption.originalPrice && classOption.originalPrice > classOption.price
+        ? Math.round(
+            ((classOption.originalPrice - classOption.price) /
+              classOption.originalPrice) *
+              100
+          )
+        : null;
+
+    const totalDiscountPercentage =
+      classOption.originalTotalPrice &&
+      classOption.originalTotalPrice > classOption.totalPrice
+        ? Math.round(
+            ((classOption.originalTotalPrice - classOption.totalPrice) /
+              classOption.originalTotalPrice) *
+              100
+          )
+        : null;
+
     const cardClassName = cn(
       styles.classCard,
       isActive ? styles.activeClass : styles.inactiveClass
@@ -79,8 +99,8 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
     // Event handlers
     const handleCardClick = useCallback(
       (e: React.MouseEvent) => {
-        e.preventDefault(); // Prevent any default behavior
-        e.stopPropagation(); // Stop event bubbling
+        e.preventDefault();
+        e.stopPropagation();
         onSelect();
       },
       [onSelect]
@@ -99,8 +119,8 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
 
     const handleAction = useCallback(
       (e: React.MouseEvent) => {
-        e.preventDefault(); // Prevent any default behavior
-        e.stopPropagation(); // Stop event bubbling
+        e.preventDefault();
+        e.stopPropagation();
         onAction?.(classOption.id);
       },
       [onAction, classOption.id]
@@ -144,7 +164,7 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
               >
                 <AlertCircle
                   className={styles.alertIcon}
-                  size={16}
+                  size={14}
                   aria-hidden="true"
                 />
                 <span className={styles.alertText}>
@@ -153,7 +173,9 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
               </div>
             )}
           </div>
+
           <div className={styles.classPriceInfo} id={priceId}>
+            {/* Per Adult Price */}
             <div className={styles.pricePerAdult}>
               {classOption.originalPrice &&
               classOption.originalPrice > classOption.price ? (
@@ -170,64 +192,67 @@ export const ClassCard: React.FC<ClassCardProps> = memo(
                 <span>₹{classOption.price}/adult</span>
               )}
             </div>
+
+            {/* Total Price */}
             <div className={styles.totalPrice}>
               {classOption.originalTotalPrice &&
               classOption.originalTotalPrice > classOption.totalPrice ? (
                 <>
                   <span className={styles.originalTotalPrice}>
-                    ₹{classOption.originalTotalPrice}/-
+                    ₹{classOption.originalTotalPrice}
                   </span>
                   <span className={styles.discountedTotalPrice}>
-                    ₹{classOption.totalPrice}/-
+                    ₹{classOption.totalPrice}/
                   </span>
                   <span>total</span>
                 </>
               ) : (
-                <span>₹{classOption.totalPrice}/- total</span>
+                <span>₹{classOption.totalPrice}/ total</span>
               )}
             </div>
           </div>
         </header>
 
         <section className={styles.contentContainer}>
-          {classOption.description && (
-            <p className={styles.description}>{classOption.description}</p>
-          )}
+          <div>
+            {classOption.description && (
+              <p className={styles.description}>{classOption.description}</p>
+            )}
 
-          {/* Gallery Section */}
-          {classOption.images && classOption.images.length > 0 && (
-            <div className={styles.galleryContainer}>
-              <div className={styles.galleryImages}>
-                {classOption.images.slice(0, 3).map((image, index) => (
-                  <div key={index} className={styles.galleryImage}>
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      style={{ objectFit: "cover" }}
-                      onError={(e) => {
-                        // Hide broken images
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  </div>
-                ))}
-                {classOption.images.length > 3 && (
-                  <div className={styles.moreImages}>
-                    +{classOption.images.length - 3} more
-                  </div>
-                )}
+            {/* Gallery Section */}
+            {classOption.images && classOption.images.length > 0 && (
+              <div className={styles.galleryContainer}>
+                <div className={styles.galleryImages}>
+                  {classOption.images.slice(0, 3).map((image, index) => (
+                    <div key={index} className={styles.galleryImage}>
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        style={{ objectFit: "cover" }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  ))}
+                  {classOption.images.length > 3 && (
+                    <div className={styles.moreImages}>
+                      +{classOption.images.length - 3} more
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {showActionButton && onAction && (
             <Button
-              type="button"
               variant="primary"
-              aria-describedby={`${cardId}-title ${priceId}`}
+              size="small"
               onClick={handleAction}
-              className={styles.addActivityButton}
+              type="button"
+              aria-describedby={`${cardId}-title ${priceId}`}
               icon={<Plus size={16} aria-hidden="true" />}
             >
               {actionButtonText}

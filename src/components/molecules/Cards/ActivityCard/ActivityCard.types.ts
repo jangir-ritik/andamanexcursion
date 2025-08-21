@@ -12,6 +12,8 @@ export interface ActivityCardProps {
   originalTotalPrice?: number; // Original total price before discount
   type: string;
   duration: string;
+  location?: string; // Location of the activity (e.g., "Havelock Island")
+  totalGuests?: number; // Total number of guests/passengers
   href?: string;
   className?: string;
   activityOptions?: ActivityOption[];
@@ -24,6 +26,8 @@ export interface ActivityCardProps {
   }>;
   onSelectActivity?: (activityId: string, optionId: string) => void;
   selectedOptionId?: string;
+  maxTimeSlots?: number;
+  timeSlots?: string[];
 }
 
 export interface ActivityOption {
