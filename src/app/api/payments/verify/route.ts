@@ -97,144 +97,168 @@ export async function POST(request: NextRequest) {
       const bookingRecord = await payload.create({
         collection: "bookings",
         data: {
-          bookingDate: new Date().toISOString(), // Will be overridden by hooks
-          customerInfo: {
-            primaryContactName: bookingData.members?.[0]?.fullName || "",
-            customerEmail: bookingData.members?.[0]?.email || "",
-            customerPhone: bookingData.members?.[0]?.whatsappNumber || "",
-            nationality: bookingData.members?.[0]?.nationality || "Indian",
-          },
           bookingType: bookingData.bookingType || "activity",
+          // Fix: Map serviceDate from items[0].date for ferry bookings
           serviceDate:
             bookingData.bookingType === "ferry"
-              ? bookingData.items?.[0]?.date
-              : bookingData.activities?.[0]?.activityBooking?.searchParams
-                  ?.date || new Date().toISOString(),
+              ? bookingData.items?.[0]?.date ||
+                new Date().toISOString().split("T")[0]
+              : bookingData.serviceDate,
+          customerInfo: {
+            // Fix: Map from contactDetails structure
+            primaryContactName:
+              bookingData.contactDetails?.primaryName ||
+              bookingData.primaryContactName ||
+              bookingData.members?.[0]?.fullName ||
+              "",
+            customerEmail:
+              bookingData.contactDetails?.email ||
+              bookingData.customerEmail ||
+              bookingData.members?.[0]?.email ||
+              "",
+            customerPhone:
+              bookingData.contactDetails?.whatsapp ||
+              bookingData.customerPhone ||
+              bookingData.members?.[0]?.whatsappNumber ||
+              "",
+            nationality: bookingData.nationality || "Indian",
+          },
+          // Handle activities
           bookedActivities:
-            bookingData.bookingType === "activity"
-              ? await Promise.all(
-                  bookingData.activities?.map(
-                    async (activity: any, index: number) => {
-                      // Look up activity by slug to get ObjectId
-                      let activityId = null;
-                      if (activity.activityBooking?.activity?.slug) {
-                        try {
-                          const activityDoc = await payload.find({
-                            collection: "activities",
-                            where: {
-                              slug: {
-                                equals: activity.activityBooking.activity.slug,
-                              },
-                            },
-                            limit: 1,
-                          });
-                          activityId = activityDoc.docs[0]?.id || null;
-                          console.log(
-                            `Activity lookup: slug=${activity.activityBooking.activity.slug}, found_id=${activityId}`
-                          );
-                        } catch (error) {
-                          console.error(
-                            `Failed to find activity with slug ${activity.activityBooking.activity.slug}:`,
-                            error
-                          );
-                        }
-                      } else if (activity.activityBooking?.activity?.id) {
-                        activityId = activity.activityBooking.activity.id;
-                        console.log(
-                          `Using existing activity ID: ${activityId}`
-                        );
-                      }
-
-                      if (!activityId) {
-                        console.error(
-                          `No activity ID found for:`,
-                          activity.activityBooking?.activity
-                        );
-                        throw new Error(
-                          `Activity not found: ${
-                            activity.activityBooking?.activity?.slug ||
-                            activity.activityBooking?.activity?.title ||
-                            "Unknown"
-                          }`
-                        );
-                      }
-
-                      // Look up location by slug/id if provided
-                      let locationId = null;
-                      const locationData =
-                        activity.activityBooking?.activity?.coreInfo
-                          ?.location?.[0];
-                      if (locationData) {
-                        if (locationData.slug) {
-                          try {
-                            const locationDoc = await payload.find({
-                              collection: "locations",
-                              where: {
-                                slug: {
-                                  equals: locationData.slug,
-                                },
-                              },
-                              limit: 1,
-                            });
-                            locationId = locationDoc.docs[0]?.id || null;
-                            console.log(
-                              `Location lookup: slug=${locationData.slug}, found_id=${locationId}`
-                            );
-                          } catch (error) {
-                            console.error(
-                              `Failed to find location with slug ${locationData.slug}:`,
-                              error
-                            );
-                          }
-                        } else if (locationData.id) {
-                          locationId = locationData.id;
-                          console.log(
-                            `Using existing location ID: ${locationId}`
-                          );
-                        }
-                      }
-
-                      return {
-                        activity: activityId,
-                        activityOption:
-                          activity.activityBooking?.activityOptionId,
-                        quantity: activity.activityBooking?.quantity,
-                        unitPrice:
-                          activity.activityBooking?.totalPrice /
-                          activity.activityBooking?.quantity,
-                        totalPrice: activity.activityBooking?.totalPrice,
-                        scheduledTime:
-                          activity.activityBooking?.searchParams?.time,
-                        location: locationId,
-                        passengers: {
-                          adults:
-                            activity.activityBooking?.searchParams?.adults || 0,
-                          children:
-                            activity.activityBooking?.searchParams?.children ||
-                            0,
-                          infants: 0,
-                        },
-                      };
-                    }
-                  ) || []
-                )
+            bookingData.bookingType === "ferry"
+              ? []
+              : bookingData.activities?.map(
+                  (activity: any, activityIndex: number) => ({
+                    activity: activity.id,
+                    activityOption: activity.selectedOption?.name || "",
+                    quantity: activity.quantity || 1,
+                    unitPrice: activity.selectedOption?.pricing?.price || 0,
+                    totalPrice: activity.totalPrice || 0,
+                    scheduledTime: activity.selectedTime || "",
+                    location: activity.location?.id || null,
+                    passengers: {
+                      adults: activity.passengers?.adults || 0,
+                      children: activity.passengers?.children || 0,
+                      infants: activity.passengers?.infants || 0,
+                    },
+                  })
+                ) || [],
+          // Handle ferry bookings
+          bookedFerries:
+            bookingData.bookingType === "ferry" && bookingData.items?.[0]
+              ? [
+                  {
+                    operator: (["sealink", "makruzz", "greenocean"].includes(
+                      bookingData.items[0].ferry?.operator
+                    )
+                      ? bookingData.items[0].ferry?.operator
+                      : "greenocean") as "sealink" | "makruzz" | "greenocean",
+                    ferryName:
+                      bookingData.items[0].ferry?.ferryName ||
+                      bookingData.items[0].title ||
+                      "Unknown Ferry",
+                    route: {
+                      from:
+                        bookingData.items[0].ferry?.route?.from ||
+                        bookingData.items[0].ferry?.fromLocation ||
+                        "Unknown",
+                      to:
+                        bookingData.items[0].ferry?.route?.to ||
+                        bookingData.items[0].ferry?.toLocation ||
+                        "Unknown",
+                      fromCode:
+                        bookingData.items[0].ferry?.route?.fromCode || "",
+                      toCode: bookingData.items[0].ferry?.route?.toCode || "",
+                    },
+                    schedule: {
+                      departureTime:
+                        bookingData.items[0].ferry?.schedule?.departureTime ||
+                        bookingData.items[0].time ||
+                        "Unknown",
+                      arrivalTime:
+                        bookingData.items[0].ferry?.schedule?.arrivalTime ||
+                        "Unknown",
+                      duration:
+                        bookingData.items[0].ferry?.schedule?.duration ||
+                        "Unknown",
+                      // Fix: Ensure travelDate is an ISO string for Payload
+                      travelDate: new Date(
+                        bookingData.items[0].date ||
+                          bookingData.serviceDate ||
+                          new Date().toISOString().split("T")[0]
+                      ).toISOString(),
+                    },
+                    selectedClass: {
+                      classId:
+                        bookingData.items[0].ferry?.selectedClass?.classId ||
+                        bookingData.items[0].ferry?.selectedClass?.id ||
+                        "unknown",
+                      className:
+                        bookingData.items[0].ferry?.selectedClass?.className ||
+                        bookingData.items[0].ferry?.selectedClass?.name ||
+                        "Unknown Class",
+                      price:
+                        bookingData.items[0].ferry?.selectedClass?.price || 0,
+                    },
+                    passengers: {
+                      adults: bookingData.items[0].passengers?.adults || 0,
+                      children: bookingData.items[0].passengers?.children || 0,
+                      infants: bookingData.items[0].passengers?.infants || 0,
+                    },
+                    selectedSeats:
+                      bookingData.items[0].ferry?.selectedSeats?.map(
+                        (seat: any) => ({
+                          seatNumber:
+                            seat.number ||
+                            seat.seatNumber ||
+                            seat ||
+                            "Auto-assigned",
+                          seatId: seat.id || seat.seatId || "",
+                          passengerName: "", // Will be filled from passenger details
+                        })
+                      ) || [],
+                    providerBooking: {
+                      pnr: "", // Will be updated after provider booking
+                      operatorBookingId: "",
+                      bookingStatus: "pending",
+                      providerResponse: "",
+                      errorMessage: "",
+                    },
+                    totalPrice:
+                      bookingData.items[0].totalPrice ||
+                      bookingData.totalPrice ||
+                      0,
+                  },
+                ]
               : [],
-          // Note: bookedFerries field removed due to schema constraints
-          // Ferry booking details are stored in the providerBookingResult instead
           passengers:
-            bookingData.members?.map((member: any) => ({
-              isPrimary: member.isPrimary,
+            bookingData.members?.map((member: any, memberIndex: number) => ({
+              isPrimary: memberIndex === 0,
               fullName: member.fullName,
               age: member.age,
               gender: member.gender,
-              nationality: member.nationality,
-              passportNumber: member.passportNumber,
-              whatsappNumber: member.whatsappNumber,
-              email: member.email,
+              nationality: member.nationality || "Indian",
+              passportNumber: member.passportNumber || "",
+              whatsappNumber:
+                memberIndex === 0
+                  ? bookingData.contactDetails?.whatsapp ||
+                    bookingData.customerPhone ||
+                    member.whatsappNumber
+                  : member.whatsappNumber,
+              email:
+                memberIndex === 0
+                  ? bookingData.contactDetails?.email ||
+                    bookingData.customerEmail ||
+                    member.email
+                  : member.email,
               assignedActivities:
-                member.selectedActivities?.map((activityIndex: number) => ({
-                  activityIndex,
-                })) || [],
+                bookingData.bookingType === "ferry"
+                  ? []
+                  : bookingData.activities?.map(
+                      (activity: any, activityIndex: number) => ({
+                        activityIndex,
+                      })
+                    ) || [],
             })) || [],
           pricing: {
             subtotal: bookingData.totalPrice,
@@ -267,7 +291,11 @@ export async function POST(request: NextRequest) {
             toLocation: ferryItem.ferry?.toLocation || "",
             date: ferryItem.date,
             time: ferryItem.time,
-            classId: ferryItem.ferry?.selectedClass?.id || "",
+            classId:
+              ferryItem.ferry?.selectedClass?.classId ||
+              ferryItem.ferry?.selectedClass?.id ||
+              "",
+            routeId: ferryItem.ferry?.routeData?.routeId || "1",
             passengers: {
               adults: ferryItem.passengers?.adults || 0,
               children: ferryItem.passengers?.children || 0,
@@ -279,32 +307,242 @@ export async function POST(request: NextRequest) {
             totalAmount: bookingData.totalPrice,
           };
 
-          console.log(
-            "🚢 Initiating ferry provider booking:",
-            bookingRequest.operator
-          );
-          providerBookingResult = await FerryBookingService.bookFerry(
+          console.log("🚢 Initiating ferry provider booking:", {
+            operator: bookingRequest.operator,
+            ferryId: bookingRequest.ferryId,
+            passengers: bookingRequest.passengers,
+            seats: bookingRequest.selectedSeats?.length || 0,
+            paymentRef: razorpay_payment_id,
+          });
+
+          // Set a timeout for the entire ferry booking process
+          const FERRY_BOOKING_TIMEOUT = 45000; // 45 seconds total timeout
+
+          const ferryBookingPromise = FerryBookingService.bookFerry(
             bookingRequest as any
           );
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Ferry booking process timeout")),
+              FERRY_BOOKING_TIMEOUT
+            )
+          );
 
-          if (!providerBookingResult.success) {
-            console.error(
-              "Ferry provider booking failed:",
-              providerBookingResult.error
-            );
-            // Note: Payment was successful but ferry booking failed
-            // This needs to be handled carefully - maybe refund or manual intervention
+          try {
+            providerBookingResult = await Promise.race([
+              ferryBookingPromise,
+              timeoutPromise,
+            ]);
+          } catch (timeoutError: any) {
+            if (timeoutError.message.includes("timeout")) {
+              console.warn(
+                "⏱️ Ferry booking process timed out after 45 seconds"
+              );
+              providerBookingResult = {
+                success: false,
+                error:
+                  "Ferry booking timed out. Your payment was successful, but the ferry booking is still processing. You will receive an email confirmation once it's complete, or contact support if you don't hear back within 30 minutes.",
+                errorType: "timeout",
+                shouldRetry: false,
+              };
+            } else {
+              throw timeoutError;
+            }
           }
-        } catch (ferryBookingError) {
-          console.error("Ferry booking service error:", ferryBookingError);
-          // Payment successful but ferry booking failed
+
+          // Handle the booking result with enhanced error messaging
+          if (!providerBookingResult.success) {
+            console.error("❌ Ferry provider booking failed:", {
+              error: providerBookingResult.error,
+              errorType: (providerBookingResult as any).errorType,
+              shouldRetry: (providerBookingResult as any).shouldRetry,
+            });
+
+            // Update booking record with detailed error information
+            const currentBooking = await payload.findByID({
+              collection: "bookings",
+              id: bookingRecord.id,
+            });
+
+            if (
+              currentBooking.bookedFerries &&
+              currentBooking.bookedFerries.length > 0
+            ) {
+              const updatedFerries = [...currentBooking.bookedFerries];
+
+              // Set appropriate status based on error type
+              let bookingStatus: "failed" | "pending" = "failed";
+              let errorMessage =
+                providerBookingResult.error || "Provider booking failed";
+
+              if ((providerBookingResult as any).errorType === "timeout") {
+                bookingStatus = "pending"; // Timeout means it might still succeed
+                errorMessage = "Booking timed out - may still be processing";
+              }
+
+              updatedFerries[0] = {
+                ...updatedFerries[0],
+                providerBooking: {
+                  ...updatedFerries[0].providerBooking,
+                  bookingStatus,
+                  errorMessage,
+                  operatorBookingId:
+                    (providerBookingResult as any).errorType || "unknown",
+                  pnr: (providerBookingResult as any).shouldRetry
+                    ? "retry"
+                    : "failed",
+                },
+              };
+
+              await payload.update({
+                collection: "bookings",
+                id: bookingRecord.id,
+                data: {
+                  bookedFerries: updatedFerries,
+                  status: "confirmed",
+                  internalNotes: `Ferry booking failed: ${errorMessage} (${new Date().toISOString()})`,
+                },
+              });
+            }
+          } else {
+            // Handle successful ferry booking
+            console.log("✅ Ferry provider booking successful:", {
+              providerBookingId: providerBookingResult.providerBookingId,
+              pnr: providerBookingResult.confirmationDetails?.pnr,
+              operator: providerBookingResult.confirmationDetails?.operator,
+            });
+
+            // Update booking record with successful booking details
+            const currentBooking = await payload.findByID({
+              collection: "bookings",
+              id: bookingRecord.id,
+            });
+
+            if (
+              currentBooking.bookedFerries &&
+              currentBooking.bookedFerries.length > 0
+            ) {
+              const updatedFerries = [...currentBooking.bookedFerries];
+              const confirmationDetails =
+                providerBookingResult.confirmationDetails;
+
+              updatedFerries[0] = {
+                ...updatedFerries[0],
+                providerBooking: {
+                  ...updatedFerries[0].providerBooking,
+                  bookingStatus: "confirmed" as const,
+                  pnr:
+                    confirmationDetails?.pnr ||
+                    providerBookingResult.providerBookingId,
+                  operatorBookingId: providerBookingResult.providerBookingId,
+                  providerResponse: JSON.stringify({
+                    operator: confirmationDetails?.operator,
+                    pnr: confirmationDetails?.pnr,
+                    totalAmount: confirmationDetails?.totalAmount,
+                    totalCommission: confirmationDetails?.totalCommission,
+                    ferryId: confirmationDetails?.ferryId,
+                    travelDate: confirmationDetails?.travelDate,
+                    adultCount: confirmationDetails?.adultCount,
+                    infantCount: confirmationDetails?.infantCount,
+                    seats: confirmationDetails?.seats,
+                    tickets: confirmationDetails?.tickets,
+                  }),
+                },
+              };
+
+              await payload.update({
+                collection: "bookings",
+                id: bookingRecord.id,
+                data: {
+                  bookedFerries: updatedFerries,
+                  status: "confirmed",
+                  internalNotes: `Ferry booking confirmed: PNR ${
+                    confirmationDetails?.pnr ||
+                    providerBookingResult.providerBookingId
+                  } (${new Date().toISOString()})`,
+                },
+              });
+            }
+          }
+        } catch (error) {
+          console.error("❌ Ferry booking service error:", {
+            error: error instanceof Error ? error.message : "Unknown error",
+            stack:
+              error instanceof Error
+                ? error.stack?.split("\n").slice(0, 2).join("\n")
+                : "",
+            paymentId: razorpay_payment_id,
+          });
+
+          // Determine error type and message
+          let errorMessage = "Ferry booking failed";
+          let errorType = "unknown";
+          let bookingStatus: "failed" | "pending" = "failed";
+
+          if (error instanceof Error && error.message.includes("timeout")) {
+            errorMessage = "Ferry booking timed out - may still be processing";
+            errorType = "timeout";
+            bookingStatus = "pending";
+          } else if (
+            error instanceof Error &&
+            error.message.includes("network")
+          ) {
+            errorMessage = "Network error during ferry booking";
+            errorType = "network";
+            bookingStatus = "failed";
+          } else {
+            errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Unexpected ferry booking error";
+            errorType = "service_error";
+            bookingStatus = "failed";
+          }
+
           providerBookingResult = {
             success: false,
-            error:
-              ferryBookingError instanceof Error
-                ? ferryBookingError.message
-                : "Ferry booking failed",
+            error: errorMessage,
+            errorType: errorType,
+            shouldRetry: errorType === "timeout" || errorType === "network",
           };
+
+          // Update booking record with error
+          try {
+            const currentBooking = await payload.findByID({
+              collection: "bookings",
+              id: bookingRecord.id,
+            });
+
+            if (
+              currentBooking.bookedFerries &&
+              currentBooking.bookedFerries.length > 0
+            ) {
+              const updatedFerries = [...currentBooking.bookedFerries];
+              updatedFerries[0] = {
+                ...updatedFerries[0],
+                providerBooking: {
+                  ...updatedFerries[0].providerBooking,
+                  bookingStatus,
+                  errorMessage,
+                  operatorBookingId: (providerBookingResult as any).shouldRetry
+                    ? "failed"
+                    : "failed",
+                },
+              };
+
+              await payload.update({
+                collection: "bookings",
+                id: bookingRecord.id,
+                data: {
+                  bookedFerries: updatedFerries,
+                  status: bookingStatus === "pending" ? "pending" : "confirmed",
+                  internalNotes: `Ferry booking error: ${errorMessage} (${new Date().toISOString()})`,
+                },
+              });
+            }
+          } catch (updateError) {
+            console.error("Failed to update booking with error:", updateError);
+          }
         }
       }
 

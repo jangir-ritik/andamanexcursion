@@ -250,7 +250,7 @@ export class GreenOceanService {
     return this.transformSeatLayout(response.data.layout);
   }
 
-  // Fixed: Proper hash generation following PHP example exactly
+  // Updated: Hash generation matching API documentation exactly
   private static generateHash(requestData: any): string {
     // Hash sequence as per Green Ocean documentation
     const hashSequence =
@@ -259,8 +259,8 @@ export class GreenOceanService {
 
     let hashString = "";
 
-    // Build hash string according to exact sequence - no extra pipes
-    sequenceArray.forEach((key, index) => {
+    // Build hash string according to exact sequence with proper pipe separators
+    sequenceArray.forEach((key) => {
       const value = requestData[key];
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -269,23 +269,23 @@ export class GreenOceanService {
           hashString += value.toString();
         }
       }
-      // Add pipe separator except for the last element
-      if (index < sequenceArray.length - 1) {
-        hashString += "|";
-      }
+      // Add pipe separator after each element
+      hashString += "|";
     });
 
-    // Add private key at the end with a pipe separator
-    hashString += "|" + this.PRIVATE_KEY;
+    // Add private key at the end (no additional pipe needed)
+    hashString += this.PRIVATE_KEY;
 
-    console.log(`Green Ocean hash string for validation: ${hashString}`);
+    console.log(`🔒 Green Ocean hash string: ${hashString}`);
 
     // Create SHA512 hash and convert to lowercase
     const hash = crypto.createHash("sha512");
     hash.update(hashString, "utf-8");
     const generatedHash = hash.digest("hex").toLowerCase();
 
-    console.log(`Green Ocean generated hash: ${generatedHash}`);
+    console.log(
+      `🔑 Green Ocean generated hash: ${generatedHash.substring(0, 20)}...`
+    );
     return generatedHash;
   }
 
@@ -410,6 +410,7 @@ export class GreenOceanService {
       seats: seats.map((seat, index) => ({
         id: seat.seat_no,
         number: seat.seat_numbering,
+        seat_numbering: seat.seat_numbering,
         status: seat.status === "booked" ? "booked" : "available",
         type: this.determineSeatType(seat.seat_numbering),
         position: {
@@ -539,8 +540,9 @@ export class GreenOceanService {
     return `${hours}h ${minutes}m`;
   }
 
+  // Update for GreenOceanService.bookTicket method
   /**
-   * Book ticket using Green Ocean API based on 4-book-ticket.php
+   * Book ticket using Green Ocean API with enhanced error handling and timeout management
    */
   async bookTicket(bookingData: {
     ship_id: number;
@@ -558,114 +560,191 @@ export class GreenOceanService {
     gender: string[];
     nationality: string[];
     passport_numb: string[];
-    passport_expiry: string[];
+    passport_expairy: string[]; // Note: API has typo
     country: string[];
     infant_prefix: string[];
     infant_name: string[];
     infant_age: string[];
     infant_gender: string[];
+    public_key: string;
+    hash_string?: string; // Optional - will be generated if not provided
   }): Promise<any> {
     try {
       console.log("🎫 Green Ocean: Creating ticket booking...", {
         ship_id: bookingData.ship_id,
         passengers: bookingData.number_of_adults,
+        infants: bookingData.number_of_infants,
         seats: bookingData.seat_id,
+        travel_date: bookingData.travel_date,
       });
 
-      // Generate hash according to PHP example
+      // Generate hash if not provided
       const hashSequence =
         "ship_id|from_id|dest_to|route_id|class_id|number_of_adults|number_of_infants|travel_date|seat_id|public_key";
+      const hashString = this.generateBookingHash(bookingData, hashSequence);
 
-      const requestData: any = {
-        ship_id: bookingData.ship_id,
-        from_id: bookingData.from_id,
-        dest_to: bookingData.dest_to,
-        route_id: bookingData.route_id,
-        class_id: bookingData.class_id,
-        number_of_adults: bookingData.number_of_adults,
-        number_of_infants: bookingData.number_of_infants,
-        travel_date: bookingData.travel_date,
-        seat_id: bookingData.seat_id,
-        passenger_prefix: bookingData.passenger_prefix,
-        passenger_name: bookingData.passenger_name,
-        passenger_age: bookingData.passenger_age,
-        gender: bookingData.gender,
-        nationality: bookingData.nationality,
-        passport_numb: bookingData.passport_numb,
-        passport_expiry: bookingData.passport_expiry,
-        country: bookingData.country,
-        infant_prefix: bookingData.infant_prefix,
-        infant_name: bookingData.infant_name,
-        infant_age: bookingData.infant_age,
-        infant_gender: bookingData.infant_gender,
-        public_key: GreenOceanService.PUBLIC_KEY,
+      const requestData = {
+        ...bookingData,
+        hash_string: hashString,
       };
 
-      // Add hash after requestData is defined
-      requestData.hash_string = this.generateBookingHash(
-        requestData,
-        hashSequence
-      );
+      console.log("🔐 Green Ocean booking request data:", {
+        ship_id: requestData.ship_id,
+        from_id: requestData.from_id,
+        dest_to: requestData.dest_to,
+        route_id: requestData.route_id,
+        class_id: requestData.class_id,
+        number_of_adults: requestData.number_of_adults,
+        number_of_infants: requestData.number_of_infants,
+        travel_date: requestData.travel_date,
+        seat_id: requestData.seat_id,
+        passenger_count: requestData.passenger_name.length,
+        hash_preview: hashString.substring(0, 20) + "...",
+      });
 
-      console.log(
-        "🔐 Green Ocean booking hash string:",
-        requestData.hash_string
-      );
+      // Use the enhanced booking API call with longer timeout
+      const response = await FerryApiService.callBookingApi(async () => {
+        const apiUrl = `${GreenOceanService.BASE_URL}v1/book-ticket`;
+        console.log(`🌐 Calling Green Ocean API: ${apiUrl}`);
 
-      const response = await FerryApiService.callWithRetry(async () => {
-        const apiResponse = await fetch(
-          `${GreenOceanService.BASE_URL}v1/book-ticket`,
+        // Use the enhanced fetch with timeout
+        const apiResponse = await FerryApiService.fetchWithTimeout(
+          apiUrl,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Accept: "application/json",
+              "User-Agent": "Ferry-Booking-System/1.0",
             },
             body: JSON.stringify(requestData),
-          }
+          },
+          30000 // 30 second timeout for booking operations
         );
 
         if (!apiResponse.ok) {
+          const errorText = await apiResponse.text();
+          console.error(`Green Ocean API HTTP Error:`, {
+            status: apiResponse.status,
+            statusText: apiResponse.statusText,
+            response: errorText,
+          });
           throw new Error(
-            `HTTP ${apiResponse.status}: ${apiResponse.statusText}`
+            `HTTP ${apiResponse.status}: ${apiResponse.statusText} - ${errorText}`
           );
         }
 
-        return await apiResponse.json();
+        const responseText = await apiResponse.text();
+        console.log(
+          `Green Ocean raw response:`,
+          responseText.substring(0, 500)
+        );
+
+        try {
+          return JSON.parse(responseText);
+        } catch (parseError) {
+          console.error(`Green Ocean JSON parse error:`, parseError);
+          throw new Error(
+            `Invalid JSON response: ${responseText.substring(0, 100)}`
+          );
+        }
       }, "GreenOcean-BookTicket");
 
-      if (response.status === "success") {
-        console.log("✅ Green Ocean booking successful:", response);
+      console.log("🔍 Green Ocean API Response:", {
+        status: response?.status,
+        message: response?.message,
+        pnr: response?.pnr,
+        pdf_base64: response?.pdf_base64,
+      });
+
+      if (response?.status === "success" && response?.pnr) {
+        console.log("✅ Green Ocean booking successful:", {
+          pnr: response.pnr,
+          totalAmount: response.total_amount,
+          ferryId: response.ferry_id,
+        });
+
         return {
-          success: true,
-          booking_id: response.data?.booking_id,
-          tickets: response.data?.tickets,
+          status: "success",
+          pnr: response.pnr,
+          total_amount: response.total_amount,
+          total_commission: response.total_commission,
+          adult_no: response.adult_no,
+          infant_no: response.infant_no,
+          ferry_id: response.ferry_id,
+          travel_date: response.travel_date,
           message: response.message,
           data: response.data,
         };
       } else {
-        console.error("❌ Green Ocean booking failed:", response);
+        // Handle various error scenarios
+        console.error("❌ Green Ocean booking failed:", {
+          status: response?.status,
+          message: response?.message,
+          errorlist: response?.errorlist,
+        });
+
+        let errorMessage = "Green Ocean booking failed";
+
+        if (response?.message) {
+          errorMessage = response.message;
+        } else if (response?.errorlist?.input) {
+          errorMessage = Array.isArray(response.errorlist.input)
+            ? response.errorlist.input.join(", ")
+            : response.errorlist.input;
+        } else if (response?.errorlist) {
+          errorMessage = JSON.stringify(response.errorlist);
+        }
+
         return {
-          success: false,
-          message: response.message || "Booking failed",
-          error: response.errorlist || [],
+          status: "failed",
+          message: errorMessage,
+          errorlist: response?.errorlist || [],
+          originalResponse: response,
         };
       }
     } catch (error) {
-      console.error("🚨 Green Ocean booking error:", error);
+      console.error("🚨 Green Ocean booking error:", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : "No stack trace",
+        isTimeout: error instanceof Error && error.message.includes("timeout"),
+      });
+
+      // Provide more specific error messages
+      let errorMessage = "Green Ocean booking failed";
+
+      if (error instanceof Error && error.message.includes("timeout")) {
+        errorMessage =
+          "Green Ocean booking timed out. The booking may still be processing. Please check your booking status or contact support.";
+      } else if (error instanceof Error && error.message.includes("network")) {
+        errorMessage =
+          "Network error occurred while booking. Please try again.";
+      } else if (error instanceof Error && error.message.includes("JSON")) {
+        errorMessage =
+          "Invalid response from Green Ocean API. Please try again.";
+      } else {
+        errorMessage = error instanceof Error ? error.message : "Unknown error";
+      }
+
       return {
-        success: false,
-        message: error instanceof Error ? error.message : "Booking failed",
+        status: "failed",
+        message: errorMessage,
         error: error,
+        isTimeout: error instanceof Error && error.message.includes("timeout"),
+        isNetworkError:
+          error instanceof Error && error.message.includes("network"),
       };
     }
   }
 
   /**
-   * Generate booking hash for Green Ocean API
+   * Generate booking hash for Green Ocean API - Enhanced version with better debugging
    */
   private generateBookingHash(requestData: any, hashSequence: string): string {
     const keys = hashSequence.split("|");
     let hashString = "";
+
+    console.log("🔐 Building hash with sequence:", hashSequence);
 
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
@@ -673,32 +752,48 @@ export class GreenOceanService {
 
       if (key === "seat_id") {
         // Handle seat_id array - join with commas
-        value = Array.isArray(requestData[key])
-          ? requestData[key].join(",")
-          : "";
+        value =
+          Array.isArray(requestData[key]) && requestData[key].length > 0
+            ? requestData[key].join(",")
+            : "";
       } else {
-        value = requestData[key] ? requestData[key].toString() : "";
+        // Handle zero values properly (critical fix)
+        const rawValue = requestData[key];
+
+        if (rawValue === 0 || rawValue === "0") {
+          value = "0"; // Explicitly convert zero to string "0"
+        } else if (
+          rawValue === null ||
+          rawValue === undefined ||
+          rawValue === ""
+        ) {
+          value = ""; // Keep null/undefined/empty as empty string
+        } else {
+          value = String(rawValue); // Convert everything else to string
+        }
       }
 
       hashString += value;
+      hashString += "|";
 
-      // Add pipe separator except for the last element
-      if (i < keys.length - 1) {
-        hashString += "|";
-      }
+      console.log(`  ${i + 1}. ${key}: ${requestData[key]} → "${value}"`);
     }
 
     // Add private key at the end
-    hashString += "|" + GreenOceanService.PRIVATE_KEY;
+    hashString += GreenOceanService.PRIVATE_KEY;
 
-    console.log("🔐 Green Ocean booking hash components:", {
-      sequence: hashSequence,
-      hashString: hashString.substring(0, 100) + "...", // Log first 100 chars
-    });
+    console.log("🔐 Final hash string:", hashString);
+    console.log("🔐 Hash length:", hashString.length);
 
-    return require("crypto")
-      .createHash("sha256")
-      .update(hashString)
-      .digest("hex");
+    // Use SHA-512 as specified in the API documentation
+    const crypto = require("crypto");
+    const hash = crypto
+      .createHash("sha512")
+      .update(hashString, "utf8")
+      .digest("hex")
+      .toLowerCase();
+
+    console.log("🔐 Generated hash:", hash.substring(0, 20) + "...");
+    return hash;
   }
 }

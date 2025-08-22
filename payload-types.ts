@@ -1521,6 +1521,114 @@ export interface Booking {
         id?: string | null;
       }[]
     | null;
+  bookedFerries?:
+    | {
+        /**
+         * Ferry operator/provider
+         */
+        operator: 'sealink' | 'makruzz' | 'greenocean';
+        /**
+         * Name of the ferry (e.g., Makruzz, Green Ocean 1)
+         */
+        ferryName: string;
+        route: {
+          /**
+           * Departure location
+           */
+          from: string;
+          /**
+           * Arrival location
+           */
+          to: string;
+          /**
+           * Port code for departure (e.g., PB, SW, SH)
+           */
+          fromCode?: string | null;
+          /**
+           * Port code for arrival (e.g., PB, SW, SH)
+           */
+          toCode?: string | null;
+        };
+        schedule: {
+          /**
+           * Departure time (HH:MM format)
+           */
+          departureTime: string;
+          /**
+           * Arrival time (HH:MM format)
+           */
+          arrivalTime: string;
+          /**
+           * Journey duration (e.g., 1h 30m)
+           */
+          duration?: string | null;
+          /**
+           * Date of travel
+           */
+          travelDate: string;
+        };
+        selectedClass: {
+          classId: string;
+          /**
+           * Class name (e.g., Premium, Economy, Royal)
+           */
+          className: string;
+          /**
+           * Price per seat for this class
+           */
+          price: number;
+        };
+        passengers: {
+          adults: number;
+          children?: number | null;
+          infants?: number | null;
+        };
+        selectedSeats?:
+          | {
+              /**
+               * Seat number (e.g., 1A, 2B)
+               */
+              seatNumber: string;
+              /**
+               * Internal seat ID from operator
+               */
+              seatId?: string | null;
+              /**
+               * Name of passenger assigned to this seat
+               */
+              passengerName?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Booking details from ferry operator
+         */
+        providerBooking?: {
+          /**
+           * PNR/Booking reference from ferry operator
+           */
+          pnr?: string | null;
+          /**
+           * Booking ID from ferry operator system
+           */
+          operatorBookingId?: string | null;
+          bookingStatus?: ('confirmed' | 'failed' | 'pending') | null;
+          /**
+           * Raw response from ferry operator API (JSON)
+           */
+          providerResponse?: string | null;
+          /**
+           * Error message if booking failed
+           */
+          errorMessage?: string | null;
+        };
+        /**
+         * Total price for this ferry booking
+         */
+        totalPrice: number;
+        id?: string | null;
+      }[]
+    | null;
   passengers?:
     | {
         /**
@@ -3034,6 +3142,61 @@ export interface BookingsSelect<T extends boolean = true> {
               children?: T;
               infants?: T;
             };
+        id?: T;
+      };
+  bookedFerries?:
+    | T
+    | {
+        operator?: T;
+        ferryName?: T;
+        route?:
+          | T
+          | {
+              from?: T;
+              to?: T;
+              fromCode?: T;
+              toCode?: T;
+            };
+        schedule?:
+          | T
+          | {
+              departureTime?: T;
+              arrivalTime?: T;
+              duration?: T;
+              travelDate?: T;
+            };
+        selectedClass?:
+          | T
+          | {
+              classId?: T;
+              className?: T;
+              price?: T;
+            };
+        passengers?:
+          | T
+          | {
+              adults?: T;
+              children?: T;
+              infants?: T;
+            };
+        selectedSeats?:
+          | T
+          | {
+              seatNumber?: T;
+              seatId?: T;
+              passengerName?: T;
+              id?: T;
+            };
+        providerBooking?:
+          | T
+          | {
+              pnr?: T;
+              operatorBookingId?: T;
+              bookingStatus?: T;
+              providerResponse?: T;
+              errorMessage?: T;
+            };
+        totalPrice?: T;
         id?: T;
       };
   passengers?:

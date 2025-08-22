@@ -58,8 +58,8 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             index: index,
             type: "Ferry" as const,
             title: item.title,
-            location: `${item.ferry?.route?.from?.name || "N/A"} → ${
-              item.ferry?.route?.to?.name || "N/A"
+            location: `${item.ferry?.fromLocation || "N/A"} → ${
+              item.ferry?.toLocation || "N/A"
             }`,
             date: item.date,
             time: item.ferry?.schedule?.departureTime || item.time || "N/A",
@@ -73,9 +73,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 (item.passengers.adults || 0) + (item.passengers.children || 0),
             },
             // Add ferry-specific details
-            seats: item.selectedSeats || [],
+            seats: item.ferry?.selectedSeats || [],
             ferryName: item.ferry?.ferryName || "Ferry",
-            class: item.selectedClass?.name || "N/A",
+            class:
+              item.ferry?.selectedClass?.className ||
+              item.ferry?.selectedClass?.name ||
+              "N/A",
           };
         }
         return null;

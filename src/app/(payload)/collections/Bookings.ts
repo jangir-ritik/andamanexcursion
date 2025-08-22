@@ -120,7 +120,7 @@ const Bookings: CollectionConfig = {
     {
       name: "bookedActivities",
       type: "array",
-      minRows: 1,
+      minRows: 0, // Change to 0 since ferry bookings won't have activities
       fields: [
         {
           name: "activity",
@@ -192,6 +192,241 @@ const Bookings: CollectionConfig = {
               defaultValue: 0,
             },
           ],
+        },
+      ],
+    },
+
+    // === BOOKED FERRIES ===
+    {
+      name: "bookedFerries",
+      type: "array",
+      minRows: 0,
+      fields: [
+        {
+          name: "operator",
+          type: "select",
+          required: true,
+          options: [
+            { label: "Sealink Adventures", value: "sealink" },
+            { label: "Makruzz", value: "makruzz" },
+            { label: "Green Ocean Seaways", value: "greenocean" },
+          ],
+          admin: {
+            description: "Ferry operator/provider",
+          },
+        },
+        {
+          name: "ferryName",
+          type: "text",
+          required: true,
+          admin: {
+            description: "Name of the ferry (e.g., Makruzz, Green Ocean 1)",
+          },
+        },
+        {
+          name: "route",
+          type: "group",
+          fields: [
+            {
+              name: "from",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Departure location",
+              },
+            },
+            {
+              name: "to",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Arrival location",
+              },
+            },
+            {
+              name: "fromCode",
+              type: "text",
+              admin: {
+                description: "Port code for departure (e.g., PB, SW, SH)",
+              },
+            },
+            {
+              name: "toCode",
+              type: "text",
+              admin: {
+                description: "Port code for arrival (e.g., PB, SW, SH)",
+              },
+            },
+          ],
+        },
+        {
+          name: "schedule",
+          type: "group",
+          fields: [
+            {
+              name: "departureTime",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Departure time (HH:MM format)",
+              },
+            },
+            {
+              name: "arrivalTime",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Arrival time (HH:MM format)",
+              },
+            },
+            {
+              name: "duration",
+              type: "text",
+              admin: {
+                description: "Journey duration (e.g., 1h 30m)",
+              },
+            },
+            {
+              name: "travelDate",
+              type: "date",
+              required: true,
+              admin: {
+                description: "Date of travel",
+              },
+            },
+          ],
+        },
+        {
+          name: "selectedClass",
+          type: "group",
+          fields: [
+            {
+              name: "classId",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "className",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Class name (e.g., Premium, Economy, Royal)",
+              },
+            },
+            {
+              name: "price",
+              type: "number",
+              required: true,
+              admin: {
+                description: "Price per seat for this class",
+              },
+            },
+          ],
+        },
+        {
+          name: "passengers",
+          type: "group",
+          fields: [
+            {
+              name: "adults",
+              type: "number",
+              required: true,
+              defaultValue: 0,
+            },
+            {
+              name: "children",
+              type: "number",
+              defaultValue: 0,
+            },
+            {
+              name: "infants",
+              type: "number",
+              defaultValue: 0,
+            },
+          ],
+        },
+        {
+          name: "selectedSeats",
+          type: "array",
+          fields: [
+            {
+              name: "seatNumber",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Seat number (e.g., 1A, 2B)",
+              },
+            },
+            {
+              name: "seatId",
+              type: "text",
+              admin: {
+                description: "Internal seat ID from operator",
+              },
+            },
+            {
+              name: "passengerName",
+              type: "text",
+              admin: {
+                description: "Name of passenger assigned to this seat",
+              },
+            },
+          ],
+        },
+        {
+          name: "providerBooking",
+          type: "group",
+          admin: {
+            description: "Booking details from ferry operator",
+          },
+          fields: [
+            {
+              name: "pnr",
+              type: "text",
+              admin: {
+                description: "PNR/Booking reference from ferry operator",
+              },
+            },
+            {
+              name: "operatorBookingId",
+              type: "text",
+              admin: {
+                description: "Booking ID from ferry operator system",
+              },
+            },
+            {
+              name: "bookingStatus",
+              type: "select",
+              options: [
+                { label: "Confirmed", value: "confirmed" },
+                { label: "Failed", value: "failed" },
+                { label: "Pending", value: "pending" },
+              ],
+              defaultValue: "pending",
+            },
+            {
+              name: "providerResponse",
+              type: "textarea",
+              admin: {
+                description: "Raw response from ferry operator API (JSON)",
+              },
+            },
+            {
+              name: "errorMessage",
+              type: "text",
+              admin: {
+                description: "Error message if booking failed",
+              },
+            },
+          ],
+        },
+        {
+          name: "totalPrice",
+          type: "number",
+          required: true,
+          admin: {
+            description: "Total price for this ferry booking",
+          },
         },
       ],
     },

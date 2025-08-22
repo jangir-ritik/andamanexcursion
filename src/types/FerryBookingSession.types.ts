@@ -97,11 +97,17 @@ export interface UnifiedFerryResult {
     authToken?: string;
   };
   isActive: boolean;
+  // Additional properties added during checkout processing
+  fromLocation?: string;
+  toLocation?: string;
+  selectedClass?: FerryClass;
+  selectedSeats?: string[];
 }
 
 export interface FerryClass {
   id: string;
   name: string; // "Economy", "Premium", "Luxury", "Royal"
+  className?: string; // Alternative property name used in some contexts
   price: number;
   availableSeats: number;
   amenities: string[];
@@ -112,14 +118,29 @@ export interface SeatLayout {
   rows: number;
   seatsPerRow: number;
   seats: Seat[];
+  layout_config?: {
+    rows: number;
+    seatsPerRow: number;
+    aislePositions: number[];
+    emergency_exits: number[];
+  };
 }
 
 export interface Seat {
   id: string;
   number: string; // "1A", "2B", etc.
-  status: "available" | "booked" | "blocked" | "selected";
+  seat_numbering: string; // From Green Ocean API
+  status:
+    | "available"
+    | "booked"
+    | "blocked"
+    | "selected"
+    | "temporarily_blocked";
   type: "window" | "aisle" | "middle";
   position: { row: number; column: number };
+  price?: number;
+  isAccessible?: boolean;
+  isPremium?: boolean;
 }
 
 export interface FerrySearchParams {

@@ -486,6 +486,8 @@ export default function FerryBookingDetailPage() {
                       <div className={styles.seatLayoutWrapper}>
                         <SeatLayoutComponent
                           seatLayout={seatLayout}
+                          // Pass layout_config separately if it exists, otherwise let component handle it
+                          layout_config={seatLayout.layout_config}
                           selectedSeats={selectedSeatIds}
                           onSeatSelect={handleSeatSelection}
                           maxSeats={
@@ -493,6 +495,14 @@ export default function FerryBookingDetailPage() {
                             ferrySearchParams.children
                           }
                           className={styles.seatLayout}
+                          onRefreshLayout={refreshSeatLayout}
+                          isLoading={loadingSeatLayout}
+                          ferryInfo={{
+                            name: ferry.ferryName,
+                            route: `${ferry.route.from.name} → ${ferry.route.to.name}`,
+                            departureTime: ferry.schedule.departureTime,
+                            estimatedDuration: ferry.schedule.duration || "N/A",
+                          }}
                         />
 
                         <div className={styles.seatLegend}>
