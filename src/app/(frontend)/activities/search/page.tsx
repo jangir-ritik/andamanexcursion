@@ -121,6 +121,10 @@ const ActivitySearchContent = () => {
     [currentParams.adults, currentParams.children]
   );
 
+  // Get search results to show accurate count in SearchSummary
+  const { data: activities = [], isLoading: isLoadingActivities } =
+    useActivitiesSearch(currentParams, !!currentParams.activityType);
+
   // Optimized scroll handler with useCallback
   const handleAddMore = useCallback(() => {
     const formElement = document.getElementById("booking-form-section");
@@ -136,11 +140,11 @@ const ActivitySearchContent = () => {
       {/* Search Summary & Results Container */}
       <Section className={styles.resultsSection}>
         <Column gap="var(--space-4)" fullWidth>
-          {/* Search Summary - Static for now, ActivityResultsRQ will handle dynamic state */}
+          {/* Search Summary - Now shows dynamic result count */}
           {currentParams.activityType && (
             <SearchSummary
-              loading={false}
-              resultCount={0}
+              loading={isLoadingActivities}
+              resultCount={activities.length}
               activity={currentParams.activityType}
               activityName={displayNames.activityName}
               location={currentParams.location}

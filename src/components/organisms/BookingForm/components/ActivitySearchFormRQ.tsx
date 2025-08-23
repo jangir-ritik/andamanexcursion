@@ -118,8 +118,9 @@ export function ActivitySearchFormRQ({
 
   // Filter time slots based on category data (simplified for new architecture)
   const timeSlotOptions = useMemo(() => {
+    // Don't show any time slots until an activity is selected
     if (!selectedActivityCategory) {
-      return allTimeSlots;
+      return [];
     }
 
     if (categoryTimeSlots.length > 0) {
@@ -137,7 +138,7 @@ export function ActivitySearchFormRQ({
       return activityBasedSlots;
     }
 
-    // Create standard time slots for better UX
+    // Create standard time slots for better UX when no specific slots are configured
     const standardSlots = [
       {
         id: "morning",
@@ -167,7 +168,7 @@ export function ActivitySearchFormRQ({
       selectedActivityCategory.label
     );
     return standardSlots;
-  }, [selectedActivityCategory, categoryTimeSlots, allTimeSlots]);
+  }, [selectedActivityCategory, categoryTimeSlots]);
 
   // Memoize default values to prevent recreating on each render
   const defaultValues = useMemo(
@@ -388,16 +389,17 @@ export function ActivitySearchFormRQ({
               <div className={styles.spinner} />
               Filtering available time slots...
             </div>
-          ) : timeSlotOptions.length < allTimeSlots.length ? (
+          ) : timeSlotOptions.length > 0 ? (
             <div className={styles.infoFeedback}>
-              Showing {timeSlotOptions.length} available time slots for{" "}
+              Showing {timeSlotOptions.length} available time slot
+              {timeSlotOptions.length !== 1 ? "s" : ""} for{" "}
               {selectedActivityCategory.label}
             </div>
           ) : (
             <div className={styles.infoFeedback}>
               <span className={styles.infoHint}>
-                ⏰ Time slots shown match {selectedActivityCategory.label}{" "}
-                activities
+                ⏰ Select a location to see available time slots for{" "}
+                {selectedActivityCategory.label}
               </span>
             </div>
           )}
@@ -471,7 +473,7 @@ export function ActivitySearchFormRQ({
         </div>
 
         {/* Time Slot */}
-        <div className={styles.formField}>
+        <div className={cn(styles.formField, styles.timeSlotField)}>
           <Controller
             control={control}
             name="selectedSlot"

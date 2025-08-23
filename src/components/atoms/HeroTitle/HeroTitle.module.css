@@ -3,9 +3,8 @@
   flex-direction: column;
   align-items: flex-start;
   padding: var(--space-0);
-  gap: var(--space-4);
+  gap: unset;
   width: 449px;
-  height: 173px;
 }
 
 .primary {
