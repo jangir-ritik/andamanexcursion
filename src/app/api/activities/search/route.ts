@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
               const startMinutes = timeToMinutes(slot.startTime);
               const endMinutes = timeToMinutes(slot.endTime);
               return (
-                timeInMinutes >= startMinutes && timeInMinutes < endMinutes
+                timeInMinutes >= startMinutes && timeInMinutes <= endMinutes
               );
             }
 
