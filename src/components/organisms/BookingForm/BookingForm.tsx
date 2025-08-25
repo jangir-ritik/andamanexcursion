@@ -6,6 +6,7 @@ import { TAB_CONFIG } from "./config/formConfig";
 import type { BookingFormProps } from "./BookingForm.types";
 import { ActivitySearchFormRQ } from "./components/ActivitySearchFormRQ";
 import { FerrySearchForm } from "./components/FerrySearchForm";
+import { BoatSearchForm } from "./components/BoatSearchForm";
 
 export function BookingForm({
   className,
@@ -30,7 +31,7 @@ export function BookingForm({
         }`}
       >
         {initialTab === "ferry" && <FerrySearchForm variant={variant} />}
-        {/* {selectedTab === "local-boat" && <BoatBookingForm variant={variant} />} */}
+        {initialTab === "local-boat" && <BoatSearchForm variant={variant} />}
         {initialTab === "activities" && (
           <ActivitySearchFormRQ variant={variant} />
         )}
@@ -64,8 +65,7 @@ export function BookingForm({
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="local-boat">
-          {/* <BoatBookingForm variant={variant} /> */}
-          null
+          <BoatSearchForm variant={variant} />
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="activities">

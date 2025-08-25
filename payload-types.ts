@@ -79,6 +79,8 @@ export interface Config {
     'time-slots': TimeSlot;
     'activity-time-slots': ActivityTimeSlot;
     'activity-inventory': ActivityInventory;
+    'boat-routes': BoatRoute;
+    boats: Boat;
     bookings: Booking;
     payments: Payment;
     'booking-sessions': BookingSession;
@@ -101,6 +103,8 @@ export interface Config {
     'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
     'activity-time-slots': ActivityTimeSlotsSelect<false> | ActivityTimeSlotsSelect<true>;
     'activity-inventory': ActivityInventorySelect<false> | ActivityInventorySelect<true>;
+    'boat-routes': BoatRoutesSelect<false> | BoatRoutesSelect<true>;
+    boats: BoatsSelect<false> | BoatsSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'booking-sessions': BookingSessionsSelect<false> | BookingSessionsSelect<true>;
@@ -1453,6 +1457,197 @@ export interface ActivityInventory {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "boat-routes".
+ */
+export interface BoatRoute {
+  id: string;
+  /**
+   * e.g., 'Port Blair to Ross Island', 'Havelock to Elephant Beach'
+   */
+  name: string;
+  /**
+   * URL-friendly version (auto-generated from name)
+   */
+  slug: string;
+  /**
+   * Brief description of this boat route
+   */
+  description?: string | null;
+  /**
+   * Starting point of the boat route
+   */
+  fromLocation: string | Location;
+  /**
+   * Destination(s) - can be multiple islands
+   */
+  toLocation: string;
+  /**
+   * Round trip fare per person in INR
+   */
+  fare: number;
+  /**
+   * Minimum time allowed to spend at destination
+   */
+  duration?: string | null;
+  /**
+   * Available departure times for this route
+   */
+  availableTimings: {
+    /**
+     * Departure time in HH:MM format (e.g., 09:00)
+     */
+    departureTime: string;
+    /**
+     * Formatted time for display (e.g., 9:00 AM)
+     */
+    displayTime?: string | null;
+    id?: string | null;
+  }[];
+  /**
+   * Uncheck to hide this route from public view
+   */
+  isActive?: boolean | null;
+  /**
+   * Display order (0 = first, higher numbers = later)
+   */
+  sortOrder?: number | null;
+  /**
+   * Additional route information
+   */
+  metadata?: {
+    /**
+     * Is this a round trip route?
+     */
+    isRoundTrip?: boolean | null;
+    /**
+     * Maximum passengers per trip
+     */
+    capacity?: number | null;
+    /**
+     * Key highlights of this route
+     */
+    highlights?:
+      | {
+          highlight: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Main image for this boat route
+   */
+  featuredImage?: (string | null) | Media;
+  /**
+   * Additional images for this route
+   */
+  gallery?:
+    | {
+        image: string | Media;
+        /**
+         * Optional caption for the image
+         */
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "boats".
+ */
+export interface Boat {
+  id: string;
+  /**
+   * Name of the boat or service
+   */
+  name: string;
+  /**
+   * URL-friendly version (auto-generated from name)
+   */
+  slug: string;
+  /**
+   * The route this boat operates on
+   */
+  route: string | BoatRoute;
+  boatInfo: {
+    /**
+     * Description of the boat and services
+     */
+    description?: string | null;
+    /**
+     * Maximum number of passengers
+     */
+    capacity: number;
+    /**
+     * Boat operator/company name
+     */
+    operator?: string | null;
+    /**
+     * Type of boat
+     */
+    boatType?: ('speed-boat' | 'ferry' | 'catamaran' | 'traditional') | null;
+  };
+  /**
+   * Available amenities on the boat
+   */
+  amenities?:
+    | {
+        amenity: 'life-jackets' | 'refreshments' | 'toilet' | 'covered-seating' | 'open-deck' | 'photography' | 'guide';
+        id?: string | null;
+      }[]
+    | null;
+  pricing: {
+    /**
+     * Base price per person (from route data)
+     */
+    basePrice: number;
+    /**
+     * Discounted price per person (optional)
+     */
+    discountedPrice?: number | null;
+    /**
+     * Discount percentage for children
+     */
+    childDiscount?: number | null;
+  };
+  /**
+   * Main image for this boat
+   */
+  featuredImage?: (string | null) | Media;
+  /**
+   * Additional images of the boat
+   */
+  gallery?:
+    | {
+        image: string | Media;
+        /**
+         * Optional caption for the image
+         */
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Status and visibility settings
+   */
+  status?: {
+    isActive?: boolean | null;
+    /**
+     * Show this boat in featured sections
+     */
+    isFeatured?: boolean | null;
+    /**
+     * Higher numbers appear first in listings
+     */
+    priority?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings".
  */
 export interface Booking {
@@ -2151,6 +2346,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'activity-inventory';
         value: string | ActivityInventory;
+      } | null)
+    | ({
+        relationTo: 'boat-routes';
+        value: string | BoatRoute;
+      } | null)
+    | ({
+        relationTo: 'boats';
+        value: string | Boat;
       } | null)
     | ({
         relationTo: 'bookings';
@@ -3104,6 +3307,97 @@ export interface ActivityInventorySelect<T extends boolean = true> {
   operationalNotes?: T;
   weatherDependency?: T;
   locationOverride?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "boat-routes_select".
+ */
+export interface BoatRoutesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  fromLocation?: T;
+  toLocation?: T;
+  fare?: T;
+  duration?: T;
+  availableTimings?:
+    | T
+    | {
+        departureTime?: T;
+        displayTime?: T;
+        id?: T;
+      };
+  isActive?: T;
+  sortOrder?: T;
+  metadata?:
+    | T
+    | {
+        isRoundTrip?: T;
+        capacity?: T;
+        highlights?:
+          | T
+          | {
+              highlight?: T;
+              id?: T;
+            };
+      };
+  featuredImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "boats_select".
+ */
+export interface BoatsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  route?: T;
+  boatInfo?:
+    | T
+    | {
+        description?: T;
+        capacity?: T;
+        operator?: T;
+        boatType?: T;
+      };
+  amenities?:
+    | T
+    | {
+        amenity?: T;
+        id?: T;
+      };
+  pricing?:
+    | T
+    | {
+        basePrice?: T;
+        discountedPrice?: T;
+        childDiscount?: T;
+      };
+  featuredImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  status?:
+    | T
+    | {
+        isActive?: T;
+        isFeatured?: T;
+        priority?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

@@ -10,6 +10,7 @@ import type {
   CartItem,
 } from "@/store/ActivityStore";
 import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
+import type { Boat, BoatSearchParams, BoatCartItem } from "@/store/BoatStore";
 import type {
   UnifiedFerryResult,
   FerryClass,
@@ -20,7 +21,7 @@ import type {
 } from "@/store/SimpleCheckoutStore";
 
 // Unified interfaces
-export type BookingType = "activity" | "ferry" | "mixed";
+export type BookingType = "activity" | "ferry" | "boat" | "mixed";
 
 export interface UnifiedBookingData {
   type: BookingType;
@@ -32,7 +33,7 @@ export interface UnifiedBookingData {
 
 export interface UnifiedBookingItem {
   id: string;
-  type: "activity" | "ferry";
+  type: "activity" | "ferry" | "boat";
   title: string;
   passengers: {
     adults: number;
@@ -50,6 +51,10 @@ export interface UnifiedBookingItem {
   ferry?: UnifiedFerryResult;
   selectedClass?: FerryClass;
   selectedSeats?: string[];
+  // Boat-specific
+  boat?: Boat;
+  boatSearchParams?: BoatSearchParams;
+  selectedTime?: string;
 }
 
 export interface PassengerRequirements {
@@ -57,7 +62,7 @@ export interface PassengerRequirements {
   bookings: Array<{
     title: string;
     passengers: number;
-    type: "activity" | "ferry";
+    type: "activity" | "ferry" | "boat";
   }>;
 }
 
@@ -85,7 +90,12 @@ export class CheckoutAdapter {
    */
   static detectBookingType(searchParams: URLSearchParams): BookingType {
     const type = searchParams.get("type");
-    if (type === "ferry" || type === "activity" || type === "mixed") {
+    if (
+      type === "ferry" ||
+      type === "activity" ||
+      type === "boat" ||
+      type === "mixed"
+    ) {
       return type as BookingType;
     }
     return "activity"; // Default
@@ -100,6 +110,8 @@ export class CheckoutAdapter {
         return CheckoutAdapter.getActivityCheckoutData();
       case "ferry":
         return CheckoutAdapter.getFerryCheckoutData();
+      case "boat":
+        return CheckoutAdapter.getBoatCheckoutData();
       case "mixed":
         return CheckoutAdapter.getMixedCheckoutData();
       default:
@@ -293,6 +305,73 @@ export class CheckoutAdapter {
   }
 
   /**
+   * Get boat checkout data from BoatStore
+   */
+  private static getBoatCheckoutData(): UnifiedBookingData {
+    // Check if we're in browser environment
+    if (typeof window === "undefined") {
+      throw new Error("Boat checkout data not available during SSR");
+    }
+
+    // Access the BoatStore directly
+    const boatStore = (window as any).__BOAT_STORE__ || {
+      cart: [],
+      searchParams: { adults: 1, children: 0 },
+    };
+
+    const items: UnifiedBookingItem[] = boatStore.cart.map(
+      (cartItem: BoatCartItem) => ({
+        id: cartItem.id,
+        type: "boat" as const,
+        title:
+          cartItem.boat.name ||
+          `${cartItem.boat.route.from} to ${cartItem.boat.route.to}`,
+        passengers: {
+          adults: cartItem.searchParams.adults || 0,
+          children: cartItem.searchParams.children || 0,
+          infants: 0,
+        },
+        price: cartItem.totalPrice,
+        date: cartItem.searchParams.date || "",
+        time: cartItem.selectedTime || "",
+        location: cartItem.boat.route.from || "",
+        boat: cartItem.boat,
+        boatSearchParams: cartItem.searchParams,
+        selectedTime: cartItem.selectedTime,
+      })
+    );
+
+    const totalPassengers = items.reduce(
+      (sum, item) =>
+        sum +
+        item.passengers.adults +
+        item.passengers.children +
+        item.passengers.infants,
+      0
+    );
+
+    const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+
+    return {
+      type: "boat",
+      items,
+      totalPassengers,
+      totalPrice,
+      requirements: {
+        totalRequired: totalPassengers,
+        bookings: items.map((item) => ({
+          title: item.title,
+          passengers:
+            item.passengers.adults +
+            item.passengers.children +
+            item.passengers.infants,
+          type: "boat",
+        })),
+      },
+    };
+  }
+
+  /**
    * Format location name for display
    */
   private static formatLocationName(location: string): string {
@@ -305,22 +384,31 @@ export class CheckoutAdapter {
   }
 
   /**
-   * Get mixed checkout data (activities + ferries)
+   * Get mixed checkout data (activities + ferries + boats)
    */
   public static getMixedCheckoutData(): UnifiedBookingData {
     const activityData = CheckoutAdapter.getActivityCheckoutData();
     const ferryData = CheckoutAdapter.getFerryCheckoutData();
+    const boatData = CheckoutAdapter.getBoatCheckoutData();
 
     return {
       type: "mixed",
-      items: [...activityData.items, ...ferryData.items],
-      totalPassengers: activityData.totalPassengers + ferryData.totalPassengers,
-      totalPrice: activityData.totalPrice + ferryData.totalPrice,
+      items: [...activityData.items, ...ferryData.items, ...boatData.items],
+      totalPassengers:
+        activityData.totalPassengers +
+        ferryData.totalPassengers +
+        boatData.totalPassengers,
+      totalPrice:
+        activityData.totalPrice + ferryData.totalPrice + boatData.totalPrice,
       requirements: {
-        totalRequired: activityData.totalPassengers + ferryData.totalPassengers,
+        totalRequired:
+          activityData.totalPassengers +
+          ferryData.totalPassengers +
+          boatData.totalPassengers,
         bookings: [
           ...activityData.requirements.bookings,
           ...ferryData.requirements.bookings,
+          ...boatData.requirements.bookings,
         ],
       },
     };
