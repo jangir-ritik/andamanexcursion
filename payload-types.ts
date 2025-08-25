@@ -849,7 +849,7 @@ export interface PackageCategory {
    */
   title: string;
   /**
-   * URL slug (e.g., "honeymoon-retreat")
+   * URL slug (auto-generated from title, e.g., "honeymoon-retreat")
    */
   slug: string;
   categoryDetails: {
@@ -906,7 +906,7 @@ export interface PackageCategory {
      */
     highlights?:
       | {
-          highlight?: string | null;
+          highlight: string;
           id?: string | null;
         }[]
       | null;
@@ -915,7 +915,7 @@ export interface PackageCategory {
      */
     popularDestinations?:
       | {
-          destination?: string | null;
+          destination: string;
           isPopular?: boolean | null;
           id?: string | null;
         }[]
@@ -936,7 +936,7 @@ export interface PackageCategory {
      */
     keywords?:
       | {
-          keyword?: string | null;
+          keyword: string;
           id?: string | null;
         }[]
       | null;

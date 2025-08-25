@@ -6,7 +6,7 @@
 
 .tabsList {
   display: flex;
-  border-bottom: 1px solid var(--color-border-secondary);
+  /* border-bottom: 1px solid var(--color-border-secondary); */
 }
 
 .tabsTrigger {

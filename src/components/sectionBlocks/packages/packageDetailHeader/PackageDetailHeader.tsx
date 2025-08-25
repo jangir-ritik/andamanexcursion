@@ -52,13 +52,29 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
           responsiveAlignItems="start"
           responsiveGap="var(--space-2)"
         >
-          <p className={styles.price}>
+          <p role="text" aria-label="Price" className={styles.price}>
             ₹{packageData.pricing?.price || 0}/adult
           </p>
 
-          <Row gap={1}>
-            <p className={styles.location}>{locationDisplay}</p>
-            <p className={styles.period}>{periodDisplay}</p>
+          <Row
+            gap={1}
+            responsive
+            responsiveGap="var(--space-2)"
+            alignItems="start"
+          >
+            <p role="text" aria-label="Location" className={styles.location}>
+              {locationDisplay}
+            </p>
+            <span
+              role="separator"
+              aria-label="Separator"
+              className={styles.separator}
+            >
+              •
+            </span>
+            <p role="text" aria-label="Period" className={styles.period}>
+              {periodDisplay}
+            </p>
           </Row>
         </Column>
       </Row>

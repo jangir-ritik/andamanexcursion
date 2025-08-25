@@ -19,6 +19,7 @@
   font-weight: 400;
   color: var(--color-secondary);
   font-size: var(--font-size-heading-2);
+  max-width: 60%;
 }
 
 .infoContainer {
@@ -27,6 +28,9 @@
   color: var(--color-black);
 }
 
+.separator {
+  color: var(--color-text-secondary);
+}
 .price {
   font-weight: 600;
 }
@@ -34,4 +38,14 @@
 .packageSelectorWrapper {
   padding-top: var(--space-20);
   min-height: 150px; /* Fixed height to prevent layout shift */
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    max-width: 100%;
+  }
+
+  .separator {
+    display: none;
+  }
 }

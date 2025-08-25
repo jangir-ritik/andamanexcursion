@@ -6,6 +6,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { ImageContainer, InlineLink } from "@/components/atoms";
 import { cn } from "@/utils/cn";
+import { ArrowRightIcon, MoveRightIcon } from "lucide-react";
 
 export const PackageCard = ({
   title,
@@ -34,6 +35,10 @@ export const PackageCard = ({
         {href && isWrappedInLink && (
           <div className={styles.viewDetailsContainer}>
             <span className={styles.viewDetailsText}>View Details</span>
+            <MoveRightIcon
+              color="var(--color-primary)"
+              className={styles.arrowIcon}
+            />
           </div>
         )}
       </div>
@@ -63,7 +68,10 @@ export const PackageCard = ({
               <ImageContainer
                 src={image.image}
                 alt={image.alt}
-                className={cn(styles.image, isMiddleImage && styles.middleImage)}
+                className={cn(
+                  styles.image,
+                  isMiddleImage && styles.middleImage
+                )}
                 fullWidth
                 // sizes={
                 //   isMiddleImage

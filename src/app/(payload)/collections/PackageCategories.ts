@@ -28,7 +28,25 @@ const PackageCategories: CollectionConfig = {
       required: true,
       unique: true,
       admin: {
-        description: 'URL slug (e.g., "honeymoon-retreat")',
+        description:
+          'URL slug (auto-generated from title, e.g., "honeymoon-retreat")',
+        readOnly: false, // Allow manual editing if needed
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value, data }) => {
+            // Auto-generate slug from title if not provided or if title changed
+            if ((!value || value === "") && data?.title) {
+              return data.title
+                .toLowerCase()
+                .replace(/[^a-z0-9 -]/g, "")
+                .replace(/\s+/g, "-")
+                .replace(/-+/g, "-")
+                .trim();
+            }
+            return value;
+          },
+        ],
       },
     },
     // Category Details
@@ -36,15 +54,6 @@ const PackageCategories: CollectionConfig = {
       type: "group",
       name: "categoryDetails",
       fields: [
-        // {
-        //   name: "categoryId",
-        //   type: "text",
-        //   required: true,
-        //   unique: true,
-        //   admin: {
-        //     description: "Internal category ID (used in packages and filters)",
-        //   },
-        // },
         {
           name: "description",
           type: "textarea",
@@ -165,6 +174,7 @@ const PackageCategories: CollectionConfig = {
             {
               name: "highlight",
               type: "text",
+              required: true,
             },
           ],
         },
@@ -179,6 +189,7 @@ const PackageCategories: CollectionConfig = {
             {
               name: "destination",
               type: "text",
+              required: true,
             },
             {
               name: "isPopular",
@@ -227,6 +238,7 @@ const PackageCategories: CollectionConfig = {
             {
               name: "keyword",
               type: "text",
+              required: true,
             },
           ],
         },
@@ -243,19 +255,10 @@ const PackageCategories: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data }) => {
-        // Auto-generate slug from title if not provided
-        if (!data?.slug && data?.title) {
-          data.slug = data.title
-            .toLowerCase()
-            .replace(/[^a-z0-9 -]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-")
-            .trim();
+        // Ensure systemCategoryId is always set based on slug
+        if (data?.slug) {
+          data.systemCategoryId = data.slug;
         }
-
-        // Auto-generate a system categoryId for internal use
-        // This creates a stable identifier based on the slug
-        data.systemCategoryId = data.slug;
 
         // Auto-generate pageTitle and specialWord if not provided
         if (!data?.displaySettings?.pageTitle && data?.title) {
@@ -292,6 +295,18 @@ const PackageCategories: CollectionConfig = {
           };
         }
 
+        return data;
+      },
+    ],
+    beforeValidate: [
+      ({ data }) => {
+        // Remove any legacy categoryId field from incoming data
+        if (data?.categoryDetails?.categoryId) {
+          delete data.categoryDetails.categoryId;
+        }
+        if (data?.categoryId) {
+          delete data.categoryId;
+        }
         return data;
       },
     ],

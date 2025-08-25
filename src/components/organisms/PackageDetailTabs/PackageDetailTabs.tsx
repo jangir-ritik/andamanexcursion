@@ -20,7 +20,11 @@ export const PackageDetailTabs: React.FC<{ packageData: PayloadPackage }> = ({
   const notes = packageData.packageDetails?.notes;
 
   return (
-    <Tabs.Root className={styles.tabsRoot} defaultValue="overview">
+    <Tabs.Root
+      className={styles.tabsRoot}
+      defaultValue="overview"
+      orientation="vertical"
+    >
       <Tabs.List className={styles.tabsList} aria-label="Package details">
         <Tabs.Trigger
           className={styles.tabsTrigger}
