@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { activityApi } from "@/services/api/activities";
-import type { ActivitySearchParams } from "@/store/ActivityStore";
+import { ActivitySearchParams } from "@/store/ActivityStoreRQ";
 
 export function useActivitiesSearch(
   searchParams: ActivitySearchParams,

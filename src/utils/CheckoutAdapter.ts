@@ -4,12 +4,16 @@
 // Implements the "Source of Truth" pattern to eliminate complex state management
 
 // Type imports for proper typing
-import type {
-  Activity,
+// import type {
+//   Activity,
+//   ActivitySearchParams,
+//   CartItem,
+// } from "@/store/ActivityStore";
+import {
   ActivitySearchParams,
   CartItem,
-} from "@/store/ActivityStore";
-import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
+  useActivityStoreRQ,
+} from "@/store/ActivityStoreRQ";
 import type { Boat, BoatSearchParams, BoatCartItem } from "@/store/BoatStore";
 import type {
   UnifiedFerryResult,
@@ -19,6 +23,7 @@ import type {
   MemberDetails,
   CheckoutFormData,
 } from "@/store/SimpleCheckoutStore";
+import { Activity } from "@payload-types";
 
 // Unified interfaces
 export type BookingType = "activity" | "ferry" | "boat" | "mixed";

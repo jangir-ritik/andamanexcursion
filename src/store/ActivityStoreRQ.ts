@@ -4,13 +4,131 @@ import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
 import { nanoid } from "nanoid";
 
-// Import types from original store
-import type {
-  ActivitySearchParams,
-  Activity,
-  CartItem,
-  TimeSlotOption,
-} from "@/store/ActivityStore";
+export interface ActivitySearchParams {
+  activityType: string;
+  location: string;
+  date: string;
+  time: string;
+  adults: number;
+  children: number;
+  // Removed: infants: number; - now combined into children
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  slug: string;
+  coreInfo: {
+    description: string;
+    shortDescription?: string;
+    category: Array<{
+      id: string;
+      name?: string;
+      slug?: string;
+    }>;
+    location: Array<{
+      id: string;
+      name?: string;
+      slug?: string;
+    }>;
+    basePrice: number;
+    discountedPrice?: number; // Optional discounted price
+    duration: string;
+    maxCapacity?: number;
+  };
+  availableTimeSlots?: Array<{
+    id: string;
+    startTime: string;
+    endTime?: string;
+    displayTime: string; // e.g., "10:00 - 12:00 hr"
+    isAvailable: boolean;
+  }>;
+  scheduling?: {
+    availableTimeSlots?: Array<{
+      id: string;
+      startTime: string;
+      endTime?: string;
+      twelveHourTime?: string;
+      slug: string;
+      status?: {
+        isActive?: boolean;
+        priority?: number;
+        isPopular?: boolean;
+      };
+    }>;
+    defaultTimeSlots?: Array<{
+      id: string;
+      startTime: string;
+      endTime?: string;
+      twelveHourTime?: string;
+      slug: string;
+      status?: {
+        isActive?: boolean;
+        priority?: number;
+        isPopular?: boolean;
+      };
+    }>;
+    useCustomTimeSlots?: boolean;
+  };
+  media: {
+    featuredImage?: {
+      id: string;
+      url?: string;
+    };
+    gallery?: Array<{
+      image: {
+        id: string;
+        url?: string;
+      };
+      alt: string;
+    }>;
+  };
+  activityOptions: Array<{
+    id?: string;
+    optionTitle: string;
+    optionDescription: string;
+    price: number;
+    discountedPrice?: number;
+    duration?: string;
+    maxCapacity?: number;
+    isActive: boolean;
+  }>;
+  status: {
+    isActive: boolean;
+    isFeatured: boolean;
+    priority: number;
+  };
+}
+
+export interface CartItem {
+  id: string; // Unique cart item ID
+  activity: Activity;
+  quantity: number;
+  totalPrice: number;
+  activityOptionId?: string;
+  searchParams: ActivitySearchParams; // Store the search params for each item
+  addedAt: string; // Timestamp when added
+}
+
+export interface FormOption {
+  id: string;
+  name: string;
+  slug: string;
+  value: string;
+  label: string;
+}
+
+export interface TimeSlotOption extends FormOption {
+  time: string;
+}
+
+export interface FormOptions {
+  locations: FormOption[];
+  timeSlots: TimeSlotOption[];
+  activityTypes: FormOption[];
+  isLoading: boolean;
+  error: string | null;
+}
 
 // Simplified state for cart management only (data fetching handled by React Query)
 interface ActivityStoreState {

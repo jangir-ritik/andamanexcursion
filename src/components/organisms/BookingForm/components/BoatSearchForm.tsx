@@ -119,12 +119,12 @@ export function BoatSearchForm({
     }
 
     return selectedRoute.availableTimings.map((timing) => ({
-      id: timing.departureTime?.replace(":", "-") || timing.id,
-      name: timing.displayTime || timing.departureTime,
-      slug: timing.departureTime?.replace(":", "-") || timing.id,
-      value: timing.departureTime?.replace(":", "-") || timing.id,
-      label: timing.displayTime || timing.departureTime,
-      time: timing.displayTime || timing.departureTime,
+      id: timing.departureTime?.replace(":", "-") || timing.id || `slot-${Math.random().toString(36).substr(2, 9)}`,
+      name: timing.displayTime || timing.departureTime || "Unknown Time",
+      slug: timing.departureTime?.replace(":", "-") || timing.id || `slot-${Math.random().toString(36).substr(2, 9)}`,
+      value: timing.departureTime?.replace(":", "-") || timing.id || `slot-${Math.random().toString(36).substr(2, 9)}`,
+      label: timing.displayTime || timing.departureTime || "Unknown Time",
+      time: timing.displayTime || timing.departureTime || "Unknown Time",
     }));
   }, [currentSearchParams.toLocation, boatRoutes.data]);
 
@@ -383,7 +383,7 @@ export function BoatSearchForm({
                 options={toLocationOptions}
                 placeholder="Select Destination"
                 hasError={!!errors.toLocation}
-                disabled={!currentSearchParams.fromLocation}
+                // disabled={!currentSearchParams.fromLocation}
               />
             )}
           />

@@ -137,13 +137,26 @@ const BoatSearchContent = () => {
     );
     if (!selectedRoute) return [];
 
+    // Transform route data to match Boat.route interface
+    const routeData = {
+      id: selectedRoute.id,
+      from: typeof selectedRoute.fromLocation === 'string' ? selectedRoute.fromLocation : selectedRoute.fromLocation.name,
+      to: selectedRoute.toLocation,
+      fare: selectedRoute.fare,
+      timing: selectedRoute.availableTimings
+        ?.map((t) => t.departureTime)
+        .filter(Boolean) || [],
+      minTimeAllowed: selectedRoute.duration || "Full day",
+      description: selectedRoute.description || undefined,
+    };
+
     // If we have boats for this route, return them
     if (availableBoatsForRoute.length > 0) {
       return availableBoatsForRoute.map((boat) => ({
         id: boat.id,
-        route: selectedRoute,
+        route: routeData,
         name: boat.name,
-        description: boat.boatInfo?.description || selectedRoute.description,
+        description: boat.boatInfo?.description || selectedRoute.description || undefined,
         fare: boat.pricing?.basePrice || selectedRoute.fare,
         timing:
           selectedRoute.availableTimings
@@ -159,9 +172,9 @@ const BoatSearchContent = () => {
     return [
       {
         id: selectedRoute.id,
-        route: selectedRoute,
+        route: routeData,
         name: selectedRoute.name,
-        description: selectedRoute.description,
+        description: selectedRoute.description || undefined,
         fare: selectedRoute.fare,
         timing:
           selectedRoute.availableTimings

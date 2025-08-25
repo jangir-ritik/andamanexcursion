@@ -38,12 +38,17 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             title: item.title,
             location:
               item.location ||
-              item.activity?.coreInfo?.location?.[0]?.name ||
+              (typeof item.activity?.coreInfo?.location?.[0] === "string"
+                ? item.activity.coreInfo.location[0]
+                : item.activity?.coreInfo?.location?.[0]?.name) ||
               "N/A",
             date: item.date,
             time: item.time,
             duration: item.activity?.coreInfo?.duration || "N/A",
-            image: item.activity?.media?.featuredImage?.url || null,
+            image:
+              typeof item.activity?.media?.featuredImage === "string"
+                ? item.activity.media.featuredImage
+                : item.activity?.media?.featuredImage?.url || null,
             price: item.price,
             passengers: {
               adults: item.passengers.adults || 0,

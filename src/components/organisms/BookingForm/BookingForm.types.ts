@@ -2,7 +2,7 @@ import { TimeSlot } from "@/components/atoms/SlotSelect/SlotSelect.types";
 import { Activity } from "@/components/atoms/ActivitySelect/ActivitySelect.types";
 import { Location } from "@/components/atoms/LocationSelect/LocationSelect.types";
 // import { ACTIVITIES as ACTIVITIES_LIST } from "@/data/activities";
-import { FERRY_LOCATIONS } from "@/data/ferries";
+// import { FERRY_LOCATIONS } from "@/data/ferries";
 
 export interface BookingFormProps {
   className?: string;
@@ -21,7 +21,7 @@ export interface TabConfig {
 }
 
 // Import locations from central data sources
-export const LOCATIONS: Location[] = FERRY_LOCATIONS;
+// export const LOCATIONS: Location[] = FERRY_LOCATIONS;
 
 // Import activities from central data source
 // export const ACTIVITIES: Activity[] = ACTIVITIES_LIST;

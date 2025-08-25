@@ -1,4 +1,4 @@
-import { LOCATIONS, TIME_SLOTS } from "../BookingForm.types";
+import { TIME_SLOTS } from "../BookingForm.types";
 import { TabConfig } from "../BookingForm.types";
 
 // Custom time slots for specific tabs
@@ -39,14 +39,14 @@ export const TAB_CONFIG: TabConfig[] = [
     id: "ferry",
     label: "Ferry",
     type: "transport",
-    locations: LOCATIONS,
+    // locations: LOCATIONS,
     timeSlots: TIME_SLOTS,
   },
   {
     id: "local-boat",
     label: "Local Boat",
     type: "transport",
-    locations: LOCATIONS,
+    // locations: LOCATIONS,
     timeSlots: LOCAL_BOAT_TIME_SLOTS,
   },
   {

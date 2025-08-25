@@ -16,7 +16,7 @@ interface SearchSummaryProps {
   time: string;
   timeFilter?: string | null; // Make optional
   passengers: number;
-  type: "ferry" | "activity";
+  type: "ferry" | "activity" | "boat";
 }
 
 export const SearchSummary = memo<SearchSummaryProps>(

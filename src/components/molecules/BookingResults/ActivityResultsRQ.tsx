@@ -2,8 +2,7 @@
 import React, { memo, useMemo, useCallback } from "react";
 import { Button } from "@/components/atoms";
 import { Column } from "@/components/layout";
-import type { ActivitySearchParams } from "@/store/ActivityStore";
-import { useActivityRQ } from "@/store/ActivityStoreRQ";
+import { ActivitySearchParams, useActivityRQ } from "@/store/ActivityStoreRQ";
 import { useActivitiesSearch } from "@/hooks/queries/useActivitiesSearch";
 import { transformActivitiesToCards } from "@/utils/activityTransformers";
 import styles from "./BookingResults.module.css";

@@ -1,4 +1,4 @@
-import type { Activity, ActivitySearchParams } from "@/store/ActivityStore";
+import type { Activity, ActivitySearchParams } from "@/store/ActivityStoreRQ";
 
 // Types for transformed data
 export interface TransformedActivityCard {

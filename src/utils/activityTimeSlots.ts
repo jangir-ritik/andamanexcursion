@@ -1,8 +1,8 @@
-import { Activity, TimeSlotOption } from "@/store/ActivityStore";
 import {
   activityTimeSlotApi,
   ActivityTimeSlot,
 } from "@/services/api/activityTimeSlots";
+import { Activity, TimeSlotOption } from "@/store/ActivityStoreRQ";
 
 /**
  * Get filtered time slots for an activity
