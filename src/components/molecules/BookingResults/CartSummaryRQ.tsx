@@ -59,7 +59,9 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
   const editingItemCategory = useMemo(() => {
     if (!editingField || editingField.field !== "time") return null;
     const item = cart.find((item) => item.id === editingField.itemId);
-    return item?.activity.coreInfo.category[0]?.slug || null;
+    return typeof item?.activity.coreInfo.category[0] === "string"
+      ? item?.activity.coreInfo.category[0]
+      : item?.activity.coreInfo.category[0]?.slug || null;
   }, [editingField, cart]);
 
   // Use React Query to get time slots for the editing item's category
@@ -79,7 +81,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
     let timeSlotOptions = [];
 
     // 1. Try to get activity's direct time slots
-    const activitySlots = activity?.availableTimeSlots;
+    const activitySlots = activity?.scheduling?.availableTimeSlots;
 
     if (activitySlots && activitySlots.length > 0) {
       timeSlotOptions = activitySlots.map((slot: any) => ({
@@ -300,8 +302,10 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                       <div className={styles.imageWithBadge}>
                         <img
                           src={
-                            activity.media.featuredImage?.url ||
-                            "/placeholder.jpg"
+                            typeof activity.media.featuredImage === "string"
+                              ? activity.media.featuredImage
+                              : activity.media.featuredImage?.url ||
+                                "/placeholder.jpg"
                           }
                           alt={activity.title}
                           className={styles.compactImage}
@@ -389,8 +393,12 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                       <div className={styles.detailRow}>
                         <MapPin size={14} />
                         <span>
-                          {activity.coreInfo.location[0]?.name ||
-                            "Unknown Location"}
+                          {typeof activity.coreInfo.location === "string"
+                            ? activity.coreInfo.location
+                            : typeof activity.coreInfo.location[0] === "string"
+                            ? activity.coreInfo.location[0]
+                            : activity.coreInfo.location[0]?.name ||
+                              "Unknown Location"}
                         </span>
                       </div>
                     </div>
@@ -419,8 +427,10 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                       <div className={styles.imageWithBadge}>
                         <img
                           src={
-                            activity.media.featuredImage?.url ||
-                            "/placeholder.jpg"
+                            typeof activity.media.featuredImage === "string"
+                              ? activity.media.featuredImage
+                              : activity.media.featuredImage?.url ||
+                                "/placeholder.jpg"
                           }
                           alt={activity.title}
                           className={styles.activityImage}
@@ -438,7 +448,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                       <h4 className={styles.cartItemTitle}>{activity.title}</h4>
                       {item.activityOptionId && (
                         <div className={styles.optionBadge}>
-                          {activity.activityOptions.find(
+                          {activity.activityOptions?.find(
                             (opt) => opt.id === item.activityOptionId
                           )?.optionTitle || "Standard Option"}
                         </div>
@@ -446,8 +456,12 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                       <div className={styles.locationInfo}>
                         <MapPin size={14} />
                         <span>
-                          {activity.coreInfo.location[0]?.name ||
-                            "Unknown Location"}
+                          {typeof activity.coreInfo.location === "string"
+                            ? activity.coreInfo.location
+                            : typeof activity.coreInfo.location[0] === "string"
+                            ? activity.coreInfo.location[0]
+                            : activity.coreInfo.location[0]?.name ||
+                              "Unknown Location"}
                         </span>
                       </div>
                     </div>

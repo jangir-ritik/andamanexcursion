@@ -1,4 +1,12 @@
 // services/api/timeSlots.ts
+
+/*
+ time slots have activity which is incorrect (as activity time slots are different than the ones defined here for ferries)
+ boat time slots are different as well
+ packages have day periods and not time slots
+ so, effectively, this time slot service layer is only fetching time slots necessary and required for ferry booking
+*/
+
 import { TimeSlot } from "@payload-types";
 
 const API_BASE = process.env.NEXT_PUBLIC_PAYLOAD_URL || "http://localhost:3000";

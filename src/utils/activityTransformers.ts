@@ -1,4 +1,5 @@
-import type { Activity, ActivitySearchParams } from "@/store/ActivityStoreRQ";
+import type { ActivitySearchParams } from "@/store/ActivityStoreRQ";
+import { Activity } from "@payload-types";
 
 // Types for transformed data
 export interface TransformedActivityCard {
@@ -94,7 +95,10 @@ export function transformActivityImages(
 ): Array<{ src: string; alt: string }> {
   const images = [
     {
-      src: activity.media?.featuredImage?.url || "/images/placeholder.png",
+      src:
+        typeof activity.media.featuredImage === "string"
+          ? activity.media.featuredImage
+          : activity.media.featuredImage?.url || "/images/placeholder.png",
       alt: activity.title || "Activity image",
     },
   ];
@@ -102,7 +106,10 @@ export function transformActivityImages(
   if (activity.media?.gallery?.length) {
     images.push(
       ...activity.media.gallery.map((img) => ({
-        src: img.image?.url || "/images/placeholder.png",
+        src:
+          typeof img.image === "string"
+            ? img.image
+            : img.image?.url || "/images/placeholder.png",
         alt: img.alt || "Activity gallery image",
       }))
     );
@@ -195,26 +202,28 @@ export function getActivityTimeSlots(activity: Activity): TimeSlot[] {
     activity.scheduling?.availableTimeSlots?.length
   ) {
     return activity.scheduling.availableTimeSlots.map((slot) => ({
-      id: slot.id,
-      startTime: slot.startTime,
-      endTime: slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
+      id: typeof slot === "string" ? slot : slot.id,
+      startTime: typeof slot === "string" ? slot : slot.startTime,
+      endTime: typeof slot === "string" ? slot : slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
       displayTime:
-        slot.twelveHourTime ||
-        `${slot.startTime} - ${slot.endTime || slot.startTime}`,
-      isAvailable: slot.status?.isActive !== false,
+        typeof slot === "string"
+          ? slot
+          : `${slot.startTime} - ${slot.endTime || slot.startTime}`,
+      isAvailable: typeof slot === "string" ? true : slot.isActive !== false,
     }));
   }
 
   // 2. Default: Use activity's default time slots
   if (activity.scheduling?.defaultTimeSlots?.length) {
     return activity.scheduling.defaultTimeSlots.map((slot) => ({
-      id: slot.id,
-      startTime: slot.startTime,
-      endTime: slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
+      id: typeof slot === "string" ? slot : slot.id,
+      startTime: typeof slot === "string" ? slot : slot.startTime,
+      endTime: typeof slot === "string" ? slot : slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
       displayTime:
-        slot.twelveHourTime ||
-        `${slot.startTime} - ${slot.endTime || slot.startTime}`,
-      isAvailable: slot.status?.isActive !== false,
+        typeof slot === "string"
+          ? slot
+          : `${slot.startTime} - ${slot.endTime || slot.startTime}`,
+      isAvailable: typeof slot === "string" ? true : slot.isActive !== false,
     }));
   }
 
@@ -274,13 +283,22 @@ export function transformActivityToCard(
     totalPrice,
     originalPrice: discountedPrice ? basePrice : undefined,
     originalTotalPrice,
-    type: activity.coreInfo?.category[0]?.name || "Activity",
-    duration: activity.coreInfo?.duration || "2 hours",
+    type:
+      typeof activity.coreInfo?.category === "string"
+        ? activity.coreInfo?.category
+        : "Activity",
+    duration:
+      typeof activity.coreInfo?.duration === "string"
+        ? activity.coreInfo?.duration
+        : "2 hours",
     href: `/activities/${activity.slug}`,
     activityOptions: transformedOptions,
     availableTimeSlots,
     onSelectActivity: handleActivitySelection,
-    location: activity.coreInfo?.location[0]?.name,
+    location:
+      typeof activity.coreInfo?.location === "string"
+        ? activity.coreInfo?.location
+        : "Andaman",
     totalGuests: searchParams.adults + searchParams.children,
     timeSlots: availableTimeSlots.map((slot) => slot.displayTime),
   };

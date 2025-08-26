@@ -4,17 +4,73 @@ import React, { Suspense, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
-import { SectionTitle, Button } from "@/components/atoms";
+import { SectionTitle } from "@/components/atoms";
 import { UnifiedSearchingForm } from "@/components/organisms";
-import { useActivityRQ } from "@/store/ActivityStoreRQ";
-import { useActivitiesSearch } from "@/hooks/queries/useActivitiesSearch";
-import { useFormOptions } from "@/hooks/queries/useFormOptions";
+import { useActivityRQ } from "@/store";
+
 import {
+  ActivityResultsRQ,
+  CartSummaryRQ,
   SearchSummary,
-  TimeFilters,
 } from "@/components/molecules/BookingResults";
-import { CartSummaryRQ } from "@/components/molecules/BookingResults/CartSummaryRQ";
-import { ActivityResultsRQ } from "@/components/molecules/BookingResults/ActivityResultsRQ";
+import { useActivitiesSearch, useFormOptions } from "@/hooks/queries";
+
+// Main page component with React Query integration
+export default function ActivitiesSearchPageRQ() {
+  return (
+    <main className={styles.main}>
+      {/* Management Section - Cart + Booking Form */}
+      <Section
+        ariaLabelledby="management-section"
+        id="booking-form-section"
+        className={styles.managementSection}
+      >
+        <Column gap="var(--space-6)" fullWidth alignItems="start">
+          {/* Top - Booking Form */}
+          <h1 className={styles.sectionHeading}>Your Activities</h1>
+          <Row gap="var(--space-3)" className={styles.formColumn}>
+            <UnifiedSearchingForm
+              variant="embedded"
+              initialTab="activities"
+              className={styles.bookingForm}
+            />
+          </Row>
+          {/* Bottom - Your Activities Cart */}
+          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
+            <Suspense
+              fallback={
+                <div className={styles.cartLoading}>Loading cart...</div>
+              }
+            >
+              <ActivityCartContent />
+            </Suspense>
+          </Row>
+        </Column>
+      </Section>
+
+      {/* Search Results Section */}
+      <Section
+        id="search-results"
+        aria-labelledby="search-results-content"
+        className={styles.contentArea}
+      >
+        <Suspense fallback={<div>Loading...</div>}>
+          <ActivityPageTitle />
+        </Suspense>
+        <Suspense
+          fallback={
+            <div className={styles.loadingFallback}>
+              <div className={styles.spinner} />
+              <p>Loading your activity search...</p>
+            </div>
+          }
+        >
+          <ActivitySearchContent />
+        </Suspense>
+      </Section>
+    </main>
+  );
+}
 
 // Component for cart content with empty state
 const ActivityCartContent = () => {
@@ -91,9 +147,6 @@ const ActivitySearchContent = () => {
       initializedRef.current = true;
     }
   }, [urlSearchParams, updateSearchParams]);
-
-  // Note: We don't call useActivitiesSearch here anymore to avoid duplicate subscriptions
-  // ActivityResultsRQ will handle the search query itself
 
   // Memoize display names to prevent unnecessary re-computations
   const displayNames = useMemo(() => {
@@ -191,60 +244,3 @@ const ActivityPageTitle = React.memo(() => {
 });
 
 ActivityPageTitle.displayName = "ActivityPageTitle";
-
-// Main page component with React Query integration
-export default function ActivitiesSearchPageRQ() {
-  return (
-    <main className={styles.main}>
-      {/* Management Section - Cart + Booking Form */}
-      <Section
-        ariaLabelledby="management-section"
-        id="booking-form-section"
-        className={styles.managementSection}
-      >
-        <Column gap="var(--space-6)" fullWidth alignItems="start">
-          {/* Top - Booking Form */}
-          <h1 className={styles.sectionHeading}>Your Activities</h1>
-          <Row gap="var(--space-3)" className={styles.formColumn}>
-            <UnifiedSearchingForm
-              variant="embedded"
-              initialTab="activities"
-              className={styles.bookingForm}
-            />
-          </Row>
-          {/* Bottom - Your Activities Cart */}
-          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
-            <Suspense
-              fallback={
-                <div className={styles.cartLoading}>Loading cart...</div>
-              }
-            >
-              <ActivityCartContent />
-            </Suspense>
-          </Row>
-        </Column>
-      </Section>
-
-      {/* Search Results Section */}
-      <Section
-        id="search-results"
-        aria-labelledby="search-results-content"
-        className={styles.contentArea}
-      >
-        <Suspense fallback={<div>Loading...</div>}>
-          <ActivityPageTitle />
-        </Suspense>
-        <Suspense
-          fallback={
-            <div className={styles.loadingFallback}>
-              <div className={styles.spinner} />
-              <p>Loading your activity search...</p>
-            </div>
-          }
-        >
-          <ActivitySearchContent />
-        </Suspense>
-      </Section>
-    </main>
-  );
-}

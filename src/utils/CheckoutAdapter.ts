@@ -191,7 +191,7 @@ export class CheckoutAdapter {
         price: cartItem.totalPrice,
         date: cartItem.searchParams.date || "",
         time: cartItem.searchParams.time || "",
-        location: cartItem.activity.coreInfo?.location?.[0]?.name || "",
+        location: cartItem.activity.coreInfo?.location || "",
         activity: cartItem.activity,
         searchParams: cartItem.searchParams,
       })
@@ -506,7 +506,7 @@ function getActivityCheckoutDataRQ(activityStore: any): UnifiedBookingData {
     price: cartItem.totalPrice,
     date: cartItem.searchParams.date || "",
     time: cartItem.searchParams.time || "",
-    location: cartItem.activity.coreInfo?.location?.[0]?.name || "",
+    location: cartItem.activity.coreInfo?.location || "",
     activity: cartItem.activity,
     searchParams: cartItem.searchParams,
   }));
