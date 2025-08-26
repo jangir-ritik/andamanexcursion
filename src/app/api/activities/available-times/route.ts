@@ -51,40 +51,14 @@ export async function GET(request: NextRequest) {
     const timeSlotDetails = new Map<string, any>();
 
     activities.docs.forEach((activity: any) => {
-      // Check for time slots in scheduling configuration
-      const scheduling = activity.scheduling;
+      // Check for time slots in coreInfo.defaultTimeSlots
+      const defaultTimeSlots = activity.coreInfo?.defaultTimeSlots;
 
-      if (
-        scheduling?.defaultTimeSlots &&
-        Array.isArray(scheduling.defaultTimeSlots)
-      ) {
-        scheduling.defaultTimeSlots.forEach((slot: any) => {
+      if (defaultTimeSlots && Array.isArray(defaultTimeSlots)) {
+        defaultTimeSlots.forEach((slot: any) => {
           if (slot.startTime && slot.endTime) {
             const slotKey = slot.startTime.replace(":", "-");
             timeSlotSet.add(slotKey);
-
-            if (!timeSlotDetails.has(slotKey)) {
-              timeSlotDetails.set(slotKey, {
-                value: slotKey,
-                label:
-                  slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-              });
-            }
-          }
-        });
-      }
-
-      if (
-        scheduling?.availableTimeSlots &&
-        Array.isArray(scheduling.availableTimeSlots)
-      ) {
-        scheduling.availableTimeSlots.forEach((slot: any) => {
-          if (slot.startTime && slot.endTime) {
-            const slotKey = slot.startTime.replace(":", "-");
-            timeSlotSet.add(slotKey);
-
             if (!timeSlotDetails.has(slotKey)) {
               timeSlotDetails.set(slotKey, {
                 value: slotKey,

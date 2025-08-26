@@ -64,8 +64,7 @@ export function getStableOptionId(activityId: string, index: number): string {
 export function transformActivityOptions(
   options: any[],
   activityId: string,
-  searchParams: ActivitySearchParams,
-  defaultMaxCapacity: number
+  searchParams: ActivitySearchParams
 ): TransformedActivityOption[] {
   return options.map((option, index) => {
     const optionCurrentPrice = option.discountedPrice || option.price;
@@ -83,7 +82,7 @@ export function transformActivityOptions(
       originalTotalPrice: optionOriginalPrice
         ? calculateTotalPrice(optionOriginalPrice, searchParams)
         : undefined,
-      seatsLeft: option.maxCapacity || defaultMaxCapacity,
+      seatsLeft: option.maxCapacity,
       amenities: [],
     };
   });
@@ -135,73 +134,10 @@ export function addHours(timeStr: string, hours: number): string {
     .padStart(2, "0")}`;
 }
 
-// Check if activity is water-based (cached)
-const waterActivityCache = new Map<string, boolean>();
-export function isWaterActivity(activity: Activity): boolean {
-  const cacheKey = activity.id;
-  if (!waterActivityCache.has(cacheKey)) {
-    const title = activity.title?.toLowerCase() || "";
-    const isWater =
-      title.includes("scuba") ||
-      title.includes("snorkel") ||
-      title.includes("diving") ||
-      title.includes("kayak");
-    waterActivityCache.set(cacheKey, isWater);
-  }
-  return waterActivityCache.get(cacheKey)!;
-}
-
-// Create duration-based time slots (pure function)
-export function createDurationBasedTimeSlots(activity: Activity): TimeSlot[] {
-  const duration = activity.coreInfo?.duration || "2 hours";
-  const durationHours = parseDuration(duration);
-  const isWater = isWaterActivity(activity);
-
-  if (isWater) {
-    return [
-      {
-        id: "morning",
-        startTime: "09:00",
-        endTime: addHours("09:00", durationHours),
-        displayTime: `09:00 - ${addHours("09:00", durationHours)} hrs`,
-        isAvailable: true,
-      },
-      {
-        id: "afternoon",
-        startTime: "14:00",
-        endTime: addHours("14:00", durationHours),
-        displayTime: `14:00 - ${addHours("14:00", durationHours)} hrs`,
-        isAvailable: true,
-      },
-    ];
-  } else {
-    return [
-      {
-        id: "morning",
-        startTime: "10:00",
-        endTime: addHours("10:00", durationHours),
-        displayTime: `10:00 - ${addHours("10:00", durationHours)} hrs`,
-        isAvailable: true,
-      },
-      {
-        id: "afternoon",
-        startTime: "15:00",
-        endTime: addHours("15:00", durationHours),
-        displayTime: `15:00 - ${addHours("15:00", durationHours)} hrs`,
-        isAvailable: true,
-      },
-    ];
-  }
-}
-
 // Get time slots for activity (simplified)
 export function getActivityTimeSlots(activity: Activity): TimeSlot[] {
-  // 1. Primary: Use custom time slots if enabled
-  if (
-    activity.scheduling?.useCustomTimeSlots &&
-    activity.scheduling?.availableTimeSlots?.length
-  ) {
-    return activity.scheduling.availableTimeSlots.map((slot) => ({
+  if (activity.coreInfo?.defaultTimeSlots?.length) {
+    return activity.coreInfo.defaultTimeSlots.map((slot) => ({
       id: typeof slot === "string" ? slot : slot.id,
       startTime: typeof slot === "string" ? slot : slot.startTime,
       endTime: typeof slot === "string" ? slot : slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
@@ -212,38 +148,7 @@ export function getActivityTimeSlots(activity: Activity): TimeSlot[] {
       isAvailable: typeof slot === "string" ? true : slot.isActive !== false,
     }));
   }
-
-  // 2. Default: Use activity's default time slots
-  if (activity.scheduling?.defaultTimeSlots?.length) {
-    return activity.scheduling.defaultTimeSlots.map((slot) => ({
-      id: typeof slot === "string" ? slot : slot.id,
-      startTime: typeof slot === "string" ? slot : slot.startTime,
-      endTime: typeof slot === "string" ? slot : slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
-      displayTime:
-        typeof slot === "string"
-          ? slot
-          : `${slot.startTime} - ${slot.endTime || slot.startTime}`,
-      isAvailable: typeof slot === "string" ? true : slot.isActive !== false,
-    }));
-  }
-
-  // 3. Fallback: Simple standard slots
-  return [
-    {
-      id: "morning",
-      startTime: "09:00",
-      endTime: "12:00",
-      displayTime: "9:00 AM - 12:00 PM",
-      isAvailable: true,
-    },
-    {
-      id: "afternoon",
-      startTime: "14:00",
-      endTime: "17:00",
-      displayTime: "2:00 PM - 5:00 PM",
-      isAvailable: true,
-    },
-  ];
+  return [];
 }
 
 // Main transformation function (pure)
@@ -264,8 +169,7 @@ export function transformActivityToCard(
   const transformedOptions = transformActivityOptions(
     activity.activityOptions || [],
     activity.id,
-    searchParams,
-    activity.coreInfo?.maxCapacity || 10
+    searchParams
   );
 
   const images = transformActivityImages(activity);
@@ -286,7 +190,9 @@ export function transformActivityToCard(
     type:
       typeof activity.coreInfo?.category === "string"
         ? activity.coreInfo?.category
-        : "Activity",
+        : typeof activity.coreInfo?.category[0] === "string"
+        ? activity.coreInfo?.category[0]
+        : activity.coreInfo?.category[0].name,
     duration:
       typeof activity.coreInfo?.duration === "string"
         ? activity.coreInfo?.duration

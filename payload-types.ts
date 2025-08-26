@@ -1188,6 +1188,10 @@ export interface Activity {
     category: (string | ActivityCategory)[];
     location: (string | Location)[];
     /**
+     * Available time slots for this activity
+     */
+    defaultTimeSlots?: (string | ActivityTimeSlot)[] | null;
+    /**
      * Base price per person
      */
     basePrice: number;
@@ -1199,10 +1203,6 @@ export interface Activity {
      * e.g., '2 hours', '1 day'
      */
     duration: string;
-    /**
-     * Maximum number of participants per session
-     */
-    maxCapacity?: number | null;
   };
   media: {
     featuredImage: string | Media;
@@ -1245,23 +1245,6 @@ export interface Activity {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Time slots and scheduling settings
-   */
-  scheduling?: {
-    /**
-     * Use specific time slots instead of category defaults
-     */
-    useCustomTimeSlots?: boolean | null;
-    /**
-     * Specific time slots for this activity (only used if 'Use Custom Time Slots' is enabled)
-     */
-    availableTimeSlots?: (string | ActivityTimeSlot)[] | null;
-    /**
-     * Default time slots for this activity (recommended approach)
-     */
-    defaultTimeSlots?: (string | ActivityTimeSlot)[] | null;
-  };
   /**
    * Search engine optimization settings
    */
@@ -3114,10 +3097,10 @@ export interface ActivitiesSelect<T extends boolean = true> {
         shortDescription?: T;
         category?: T;
         location?: T;
+        defaultTimeSlots?: T;
         basePrice?: T;
         discountedPrice?: T;
         duration?: T;
-        maxCapacity?: T;
       };
   media?:
     | T
@@ -3143,13 +3126,6 @@ export interface ActivitiesSelect<T extends boolean = true> {
         icon?: T;
         isActive?: T;
         id?: T;
-      };
-  scheduling?:
-    | T
-    | {
-        useCustomTimeSlots?: T;
-        availableTimeSlots?: T;
-        defaultTimeSlots?: T;
       };
   seo?:
     | T

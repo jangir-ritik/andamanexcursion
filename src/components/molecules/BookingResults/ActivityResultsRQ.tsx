@@ -1,52 +1,19 @@
 // src/components/molecules/BookingResults/ActivityResultsRQ.tsx
 import React, { memo, useMemo, useCallback } from "react";
-import { Button } from "@/components/atoms";
 import { Column } from "@/components/layout";
 import { ActivitySearchParams, useActivityRQ } from "@/store";
 import { useActivitiesSearch } from "@/hooks/queries";
 import { transformActivitiesToCards } from "@/utils/activityTransformers";
 import styles from "./BookingResults.module.css";
 import ActivityCard from "../Cards/ActivityCard/ActivityCard";
+import NoActivitiesCard from "../Cards/ComponentStateCards/NoActivitiesCard";
+import ErrorCard from "../Cards/ComponentStateCards/ErrorCard";
+import LoadingCard from "../Cards/ComponentStateCards/LoadingCard";
 
 interface ActivityResultsRQProps {
   searchParams: ActivitySearchParams;
   className?: string;
 }
-
-// Memoized loading component
-const LoadingState = memo(() => (
-  <div className={styles.loadingContainer}>
-    <p>Loading available activities...</p>
-  </div>
-));
-LoadingState.displayName = "LoadingState";
-
-// Memoized no results component
-const NoResultsState = memo(() => (
-  <div className={styles.noResultsContainer}>
-    <p>
-      No activities found for your search. Please try different dates or
-      activities.
-    </p>
-    <Button href="/activities" variant="primary">
-      Back to Search
-    </Button>
-  </div>
-));
-NoResultsState.displayName = "NoResultsState";
-
-// Memoized error state component
-const ErrorState = memo(
-  ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
-    <div className={styles.errorContainer}>
-      <p>Error loading activities: {error.message}</p>
-      <Button variant="secondary" onClick={onRetry}>
-        Try Again
-      </Button>
-    </div>
-  )
-);
-ErrorState.displayName = "ErrorState";
 
 export const ActivityResultsRQ = memo<ActivityResultsRQProps>(
   ({ searchParams, className }) => {
@@ -63,20 +30,20 @@ export const ActivityResultsRQ = memo<ActivityResultsRQProps>(
       status,
     } = useActivitiesSearch(searchParams, !!searchParams.activityType);
 
-    // Debug logging
-    console.log("🔎 ActivityResultsRQ - Render state:", {
-      searchParams,
-      enabled: !!searchParams.activityType,
-      isLoading,
-      isFetching,
-      error: error?.message,
-      activitiesCount: activities?.length || 0,
-      activities: activities?.map((a) => ({ id: a.id, title: a.title })) || [],
-      dataUpdatedAt,
-      isSuccess,
-      isError,
-      status,
-    });
+    // // Debug logging
+    // console.log("🔎 ActivityResultsRQ - Render state:", {
+    //   searchParams,
+    //   enabled: !!searchParams.activityType,
+    //   isLoading,
+    //   isFetching,
+    //   error: error?.message,
+    //   activitiesCount: activities?.length || 0,
+    //   activities: activities?.map((a) => ({ id: a.id, title: a.title })) || [],
+    //   dataUpdatedAt,
+    //   isSuccess,
+    //   isError,
+    //   status,
+    // });
 
     // Use the modernized Zustand store for cart operations
     const { addToCart, saveEditedItem, editingItemId, getCartItemById } =
@@ -149,15 +116,22 @@ export const ActivityResultsRQ = memo<ActivityResultsRQProps>(
 
     // Render states
     if (isLoading) {
-      return <LoadingState />;
+      return <LoadingCard className={styles.loadingContainer} />;
     }
 
     if (error) {
-      return <ErrorState error={error as Error} onRetry={handleRetry} />;
+      return (
+        <ErrorCard
+          error={error as Error}
+          onRetry={handleRetry}
+          className={styles.errorContainer}
+          text="Error loading activities"
+        />
+      );
     }
 
     if (!activities || activities.length === 0) {
-      return <NoResultsState />;
+      return <NoActivitiesCard className={styles.noResultsContainer} />;
     }
 
     return (

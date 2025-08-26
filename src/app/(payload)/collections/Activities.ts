@@ -66,6 +66,15 @@ const Activities: CollectionConfig = {
           index: true,
         },
         {
+          name: "defaultTimeSlots",
+          type: "relationship",
+          relationTo: "activity-time-slots",
+          hasMany: true,
+          admin: {
+            description: "Available time slots for this activity",
+          },
+        },
+        {
           name: "basePrice",
           type: "number",
           required: true,
@@ -86,14 +95,6 @@ const Activities: CollectionConfig = {
           required: true,
           admin: {
             description: "e.g., '2 hours', '1 day'",
-          },
-        },
-        {
-          name: "maxCapacity",
-          type: "number",
-          index: true,
-          admin: {
-            description: "Maximum number of participants per session",
           },
         },
       ],
@@ -189,44 +190,6 @@ const Activities: CollectionConfig = {
           name: "isActive",
           type: "checkbox",
           defaultValue: true,
-        },
-      ],
-    },
-    {
-      name: "scheduling",
-      type: "group",
-      admin: {
-        description: "Time slots and scheduling settings",
-      },
-      fields: [
-        {
-          name: "useCustomTimeSlots",
-          type: "checkbox",
-          defaultValue: false,
-          admin: {
-            description: "Use specific time slots instead of category defaults",
-          },
-        },
-        {
-          name: "availableTimeSlots",
-          type: "relationship",
-          relationTo: "activity-time-slots",
-          hasMany: true,
-          admin: {
-            description:
-              "Specific time slots for this activity (only used if 'Use Custom Time Slots' is enabled)",
-            condition: (data: any) => data?.useCustomTimeSlots === true,
-          },
-        },
-        {
-          name: "defaultTimeSlots",
-          type: "relationship",
-          relationTo: "activity-time-slots",
-          hasMany: true,
-          admin: {
-            description:
-              "Default time slots for this activity (recommended approach)",
-          },
         },
       ],
     },

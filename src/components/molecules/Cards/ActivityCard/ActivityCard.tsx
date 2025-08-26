@@ -1,16 +1,20 @@
 "use client";
 
-import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  memo,
+  useMemo,
+  useEffect,
+} from "react";
 import type { ActivityCardProps } from "./ActivityCard.types";
 import clsx from "clsx";
 import styles from "./ActivityCard.module.css";
 import { Button, ImageContainer } from "@/components/atoms";
-import clockIcon from "@public/icons/misc/clock.svg";
-import snorkelingIcon from "@public/icons/misc/snorkeling.svg";
-import Image from "next/image";
 import { ImageSlider } from "../FerryCard/components/ImageSlider";
 import { ClassCard } from "../ClassCard/ClassCard";
-import { ChevronDown, Clock, MapPin, Waves } from "lucide-react";
+import { ChevronDown, Clock, MapPin, User } from "lucide-react";
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   id,
@@ -34,6 +38,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   timeSlots = [],
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
 
   // Success state
   const [addedActivityId, setAddedActivityId] = useState<string | null>(null);
@@ -64,13 +69,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     }
   }, [selectedOptionId, activityOptions]);
 
-  // Optimized toggle handler with explicit event handling
-  const toggleExpand = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsExpanded((prev) => !prev);
-  }, []);
-
   // Optimized add activity handler
   const handleAddActivity = useCallback(
     (optionId: string) => {
@@ -79,6 +77,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
         // Show success feedback
         setAddedActivityId(optionId);
+
+        const formElement = document.getElementById("booking-form-section");
+        if (formElement) {
+          formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
 
         // Clear success feedback after 3 seconds
         setTimeout(() => {
@@ -94,23 +97,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     setSelectedOptionIndex(index);
   }, []);
 
-  // Prevent any potential navigation when card is expanded
-  // const handleCardClick = useCallback(
-  //   (e: React.MouseEvent) => {
-  //     if (isExpanded) {
-  //       e.preventDefault();
-  //       e.stopPropagation();
-  //     }
-  //   },
-  //   [isExpanded]
-  // );
+  // Fixed card click handler - simplified logic
   const handleCardClick = useCallback((e: React.MouseEvent) => {
-    // Don't expand if clicking on interactive elements
+    // Prevent expansion if clicking on interactive elements
     const target = e.target as HTMLElement;
-    if (target.closest("button") || target.closest('[role="button"]')) {
+    const isInteractiveElement =
+      target.closest("button") ||
+      target.closest('[role="button"]') ||
+      target.tagName === "BUTTON";
+
+    if (isInteractiveElement) {
       return;
     }
 
+    // Toggle expansion state
     setIsExpanded((prev) => !prev);
   }, []);
 
@@ -126,6 +126,13 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       e.preventDefault();
       setIsExpanded((prev) => !prev);
     }
+  }, []);
+
+  // Dedicated toggle handler for the "View Details" button
+  const toggleExpand = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded((prev) => !prev);
   }, []);
 
   // Calculate discount percentage if original prices exist
@@ -173,7 +180,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
     >
-      <div className={styles.contentWrapper}>
+      <div
+        className={styles.contentWrapper}
+        data-expanded={isExpanded}
+        ref={contentWrapperRef}
+      >
         {/* Image Section */}
         <div className={styles.imageWrapper}>
           <ImageContainer src={images[0].src} alt={images[0].alt} />
@@ -205,6 +216,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
                   <div className={styles.locationContainer}>
                     <MapPin size={16} color="var(--color-text-secondary)" />
                     <span className={styles.location}>{location}</span>
+                  </div>
+                )}
+                {totalGuests && (
+                  <div className={styles.locationContainer}>
+                    <User
+                      size={16}
+                      className={styles.guestsIcon}
+                      color="var(--color-text-secondary)"
+                    />
+                    <span className={styles.location}>{totalGuests}</span>
                   </div>
                 )}
               </div>

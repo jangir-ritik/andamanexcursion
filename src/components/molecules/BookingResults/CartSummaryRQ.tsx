@@ -99,8 +99,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
 
     // Fallback: Try to get activity's direct time slots
     const activitySlots =
-      activity?.scheduling?.availableTimeSlots ||
-      activity?.scheduling?.defaultTimeSlots;
+      activity?.coreInfo?.defaultTimeSlots;
 
     if (activitySlots && activitySlots.length > 0) {
       const timeSlotOptions = activitySlots.map((slot: any) => ({

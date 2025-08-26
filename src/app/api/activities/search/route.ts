@@ -22,10 +22,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const activityType = searchParams.get("activityType");
     const location = searchParams.get("location");
-    const date = searchParams.get("date");
     const time = searchParams.get("time");
-    const adults = parseInt(searchParams.get("adults") || "0", 10);
-    const children = parseInt(searchParams.get("children") || "0", 10);
 
     // Validate required parameters - only activityType is required
     if (!activityType) {
@@ -38,7 +35,7 @@ export async function GET(request: NextRequest) {
     // Get payload instance
     const payload = await getCachedPayload();
 
-    // First, find the category by slug to get its ID
+    // Find the category by slug to get its ID
     const categoryResults = await payload.find({
       collection: "activity-categories",
       where: {
@@ -58,25 +55,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find all child categories as well (for hierarchical search)
-    const childCategoriesResults = await payload.find({
-      collection: "activity-categories",
-      where: {
-        or: [
-          { id: { equals: categoryId } }, // Include the parent category itself
-          { parentCategory: { equals: categoryId } }, // Include child categories
-        ],
-      },
-      limit: 50,
-    });
-
-    const allCategoryIds = childCategoriesResults.docs.map((cat) => cat.id);
-
     // Build the where clause conditions
     const conditions: any[] = [
       {
         "coreInfo.category.id": {
-          in: allCategoryIds, // Search in parent and child categories
+          equals: categoryId, // Search only in the specified category
         },
       },
       {
@@ -113,14 +96,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Note: Max capacity filtering removed as per client requirements
-    // All activities are available regardless of passenger count
-
     const whereClause = {
       and: conditions,
     };
 
-    // Search for activities initially
+    // Search for activities
     const activities = await payload.find({
       collection: "activities",
       where: whereClause,
@@ -131,17 +111,15 @@ export async function GET(request: NextRequest) {
 
     let filteredActivities = activities.docs;
 
-    // Filter activities by time availability using new architecture
+    // Filter activities by time availability using simplified architecture
     if (time && time !== "") {
       const timeFilteredActivities = [];
 
       for (const activity of filteredActivities) {
         let isTimeAvailable = false;
 
-        // Check activity's direct time slot relationships (new architecture)
-        const activityTimeSlots = activity.scheduling?.useCustomTimeSlots
-          ? activity.scheduling?.availableTimeSlots
-          : activity.scheduling?.defaultTimeSlots;
+        // Check activity's direct time slot relationships (simplified architecture)
+        const activityTimeSlots = activity.coreInfo?.defaultTimeSlots;
 
         if (activityTimeSlots?.length) {
           // Check if the selected time matches any of the activity's time slots
@@ -167,8 +145,8 @@ export async function GET(request: NextRequest) {
         } else {
           // Fall back to category-based time slot checking
           try {
-            // Get time slots for all relevant categories (prefetched once per request)
-            const cacheKey = `category-slots:${allCategoryIds.join(",")}`;
+            // Get time slots for the category (cached per request)
+            const cacheKey = `category-slots:${categoryId}`;
             let categoryTimeSlots = perRequestCache.get(cacheKey);
             if (!categoryTimeSlots) {
               categoryTimeSlots = await payload.find({
@@ -176,7 +154,7 @@ export async function GET(request: NextRequest) {
                 where: {
                   and: [
                     { isActive: { equals: true } },
-                    { activityTypes: { in: allCategoryIds } }, // Check all relevant categories
+                    { activityTypes: { equals: categoryId } },
                   ],
                 },
                 depth: 0,
