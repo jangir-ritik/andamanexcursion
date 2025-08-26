@@ -104,3 +104,12 @@ export function timeStringToSlotId(timeStr: string): string {
 
   return `${hours}-${minutes}`;
 }
+
+/**
+ * Converts a time string (e.g., "11:00") to minutes since midnight
+ */
+export function timeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  return (hours || 0) * 60 + (minutes || 0);
+}

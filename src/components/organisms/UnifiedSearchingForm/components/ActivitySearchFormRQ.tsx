@@ -4,8 +4,6 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useActivityRQ } from "@/store/ActivityStoreRQ";
-import { useFormOptions } from "@/hooks/queries/useFormOptions";
-import { useActivityTimeSlotsByCategory } from "@/hooks/queries/useActivityTimeSlots";
 import { useRouter } from "next/navigation";
 import styles from "../UnifiedSearchingForm.module.css";
 import { cn } from "@/utils/cn";
@@ -18,6 +16,7 @@ import {
   SlotSelect,
   LocationSelect,
 } from "@/components/atoms";
+import { useActivityTimeSlotsByCategory, useFormOptions } from "@/hooks/queries";
 
 // Move the schema outside component to prevent recreation on each render
 const activitySearchSchema = z.object({
@@ -85,17 +84,6 @@ export function ActivitySearchFormRQ({
       label: loc.name,
     }));
   }, [locations.data]);
-
-  const allTimeSlots = useMemo(() => {
-    return (timeSlots.data || []).map((slot) => ({
-      id: slot.id,
-      name: slot.twelveHourTime || slot.startTime,
-      slug: slot.startTime.replace(":", "-"),
-      value: slot.startTime.replace(":", "-"),
-      label: slot.twelveHourTime || slot.startTime,
-      time: slot.twelveHourTime || slot.startTime,
-    }));
-  }, [timeSlots.data]);
 
   // Check if we're in edit mode
   const isEditMode = !!editingItemId;

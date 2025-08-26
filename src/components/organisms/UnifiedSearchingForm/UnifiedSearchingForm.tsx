@@ -31,24 +31,18 @@ const TAB_CONFIG: TabConfig[] = [
     label: "Ferry",
     type: "transport",
     timeSlots: [],
-    // locations: LOCATIONS,
-    // timeSlots: TIME_SLOTS,
   },
   {
     id: "local-boat",
     label: "Local Boat",
     type: "transport",
     timeSlots: [],
-    // locations: LOCATIONS,
-    // timeSlots: LOCAL_BOAT_TIME_SLOTS,
   },
   {
     id: "activities",
     label: "Activities",
     type: "activity",
     timeSlots: [],
-    // activities: ACTIVITIES,
-    // timeSlots: ACTIVITY_TIME_SLOTS,
   },
 ];
 
@@ -59,12 +53,6 @@ export function UnifiedSearchingForm({
   hideTabs = false,
 }: UnifiedSearchingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
-
-  // Get the tab config for the initial tab
-  // const initialTabConfig = useMemo(
-  //   () => TAB_CONFIG.find((tab) => tab.id === initialTab) || TAB_CONFIG[0],
-  //   [initialTab]
-  // );
 
   // For embedded variant or when hideTabs is true, render just the form content based on selected tab
   if (variant === "embedded" || hideTabs) {

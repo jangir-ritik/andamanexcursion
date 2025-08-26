@@ -1,6 +1,7 @@
 // src/app/api/activities/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getCachedPayload } from "@/services/payload/base/client";
+import { timeToMinutes } from "@/utils/timeUtils";
 
 // Simple per-request cache to avoid repeated category slot fetches
 const perRequestCache = new Map<string, any>();
@@ -18,7 +19,6 @@ export async function GET(request: NextRequest) {
       return new NextResponse(null, { status: 204, headers });
     }
 
-    // Rest of your existing code...
     const searchParams = request.nextUrl.searchParams;
     const activityType = searchParams.get("activityType");
     const location = searchParams.get("location");
@@ -227,11 +227,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Helper function to convert time string (HH:mm) to minutes
-function timeToMinutes(timeStr: string): number {
-  if (!timeStr) return 0;
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  return (hours || 0) * 60 + (minutes || 0);
 }
