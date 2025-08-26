@@ -1,10 +1,6 @@
-// src/hooks/queries/useActivityTimesByCategory.ts
-// This hook is used to get the time slots for a given category and location
-// It is used to populate the time slot dropdown in the unified searching form
-// It is also used to get the time slots for a given activity in the booking results
-
 import { useQuery } from "@tanstack/react-query";
 import { activityApi } from "@/services/api/activities";
+import { ActivitySearchParams } from "@/store/ActivityStoreRQ";
 
 export interface TimeSlot {
   value: string;
@@ -12,6 +8,25 @@ export interface TimeSlot {
   startTime: string;
   endTime: string;
 }
+
+export function useActivitiesSearch(
+  searchParams: ActivitySearchParams,
+  enabled: boolean = true
+) {
+  const queryEnabled = enabled && !!searchParams.activityType;
+
+  return useQuery({
+    queryKey: ["activities", "search", searchParams],
+    queryFn: async () => {
+      const result = await activityApi.search(searchParams);
+      return result;
+    },
+    enabled: queryEnabled,
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+  });
+}
+
 
 export function useActivityTimesByCategory(
   categorySlug: string | null,

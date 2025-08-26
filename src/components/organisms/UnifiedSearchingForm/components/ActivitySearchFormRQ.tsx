@@ -136,20 +136,9 @@ export function ActivitySearchFormRQ({
         time: slot.label,
       }));
 
-      console.log(
-        "🕐 Activity + location specific time slots found:",
-        activityBasedSlots
-      );
       return activityBasedSlots;
     }
 
-    // No time slots available for this combination
-    console.log(
-      "🕐 No time slots found for",
-      selectedActivityCategory.label,
-      "at",
-      selectedLocation.label
-    );
     return [];
   }, [selectedActivityCategory, selectedLocation, categoryLocationTimeSlots]);
 
