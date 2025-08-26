@@ -1,32 +1,76 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
-import styles from "./BookingForm.module.css";
-import { TAB_CONFIG } from "./config/formConfig";
-import type { BookingFormProps } from "./BookingForm.types";
+import styles from "./UnifiedSearchingForm.module.css";
+// import { TAB_CONFIG } from "./config/formConfig";
+// import type { BookingFormProps } from "./BookingForm.types";
 import { ActivitySearchFormRQ } from "./components/ActivitySearchFormRQ";
 import { FerrySearchForm } from "./components/FerrySearchForm";
 import { BoatSearchForm } from "./components/BoatSearchForm";
+import { Activity, TimeSlot } from "@payload-types";
 
-export function BookingForm({
+interface UnifiedSearchingFormProps {
+  className?: string;
+  variant?: "default" | "compact" | "embedded";
+  initialTab?: "ferry" | "local-boat" | "activities";
+  hideTabs?: boolean;
+}
+
+interface TabConfig {
+  id: string;
+  label: string;
+  type: "transport" | "activity";
+  locations?: Location[];
+  activities?: Activity[];
+  timeSlots: TimeSlot[];
+}
+
+const TAB_CONFIG: TabConfig[] = [
+  {
+    id: "ferry",
+    label: "Ferry",
+    type: "transport",
+    timeSlots: [],
+    // locations: LOCATIONS,
+    // timeSlots: TIME_SLOTS,
+  },
+  {
+    id: "local-boat",
+    label: "Local Boat",
+    type: "transport",
+    timeSlots: [],
+    // locations: LOCATIONS,
+    // timeSlots: LOCAL_BOAT_TIME_SLOTS,
+  },
+  {
+    id: "activities",
+    label: "Activities",
+    type: "activity",
+    timeSlots: [],
+    // activities: ACTIVITIES,
+    // timeSlots: ACTIVITY_TIME_SLOTS,
+  },
+];
+
+export function UnifiedSearchingForm({
   className,
   variant = "default",
   initialTab = "ferry",
   hideTabs = false,
-}: BookingFormProps) {
+}: UnifiedSearchingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
 
   // Get the tab config for the initial tab
-  const initialTabConfig = useMemo(
-    () => TAB_CONFIG.find((tab) => tab.id === initialTab) || TAB_CONFIG[0],
-    [initialTab]
-  );
+  // const initialTabConfig = useMemo(
+  //   () => TAB_CONFIG.find((tab) => tab.id === initialTab) || TAB_CONFIG[0],
+  //   [initialTab]
+  // );
 
   // For embedded variant or when hideTabs is true, render just the form content based on selected tab
   if (variant === "embedded" || hideTabs) {
     return (
       <div
-        className={`${styles.bookingForm} ${styles[variant]} ${
+        className={`${styles.unifiedSearchingForm} ${styles[variant]} ${
           className || ""
         }`}
       >
@@ -41,7 +85,7 @@ export function BookingForm({
 
   return (
     <div
-      className={`${styles.bookingForm} ${styles[variant]} ${className || ""}`}
+      className={`${styles.unifiedSearchingForm} ${styles[variant]} ${className || ""}`}
     >
       <Tabs.Root
         className={styles.tabsRoot}

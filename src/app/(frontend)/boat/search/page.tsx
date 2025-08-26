@@ -4,12 +4,12 @@ import { useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
 import { Button } from "@/components/atoms";
-import { BookingForm } from "@/components/organisms";
 import { useBoat } from "@/store/BoatStore";
 import { useBoatFormOptions, useBoatsByRoute } from "@/hooks/queries/useBoats";
 import { SearchSummary } from "@/components/molecules/BookingResults";
 import { BoatResults } from "@/components/molecules/BookingResults/BoatResults";
 import { BoatCartSummary } from "@/components/molecules/BookingResults/BoatCartSummary";
+import { UnifiedSearchingForm } from "@/components/organisms";
 
 // Component for cart content with empty state
 const BoatCartContent = () => {
@@ -140,12 +140,16 @@ const BoatSearchContent = () => {
     // Transform route data to match Boat.route interface
     const routeData = {
       id: selectedRoute.id,
-      from: typeof selectedRoute.fromLocation === 'string' ? selectedRoute.fromLocation : selectedRoute.fromLocation.name,
+      from:
+        typeof selectedRoute.fromLocation === "string"
+          ? selectedRoute.fromLocation
+          : selectedRoute.fromLocation.name,
       to: selectedRoute.toLocation,
       fare: selectedRoute.fare,
-      timing: selectedRoute.availableTimings
-        ?.map((t) => t.departureTime)
-        .filter(Boolean) || [],
+      timing:
+        selectedRoute.availableTimings
+          ?.map((t) => t.departureTime)
+          .filter(Boolean) || [],
       minTimeAllowed: selectedRoute.duration || "Full day",
       description: selectedRoute.description || undefined,
     };
@@ -156,7 +160,8 @@ const BoatSearchContent = () => {
         id: boat.id,
         route: routeData,
         name: boat.name,
-        description: boat.boatInfo?.description || selectedRoute.description || undefined,
+        description:
+          boat.boatInfo?.description || selectedRoute.description || undefined,
         fare: boat.pricing?.basePrice || selectedRoute.fare,
         timing:
           selectedRoute.availableTimings
@@ -234,7 +239,7 @@ export default function BoatSearchPage() {
           {/* Top - Booking Form */}
           <h1 className={styles.sectionHeading}>Your Boat Trips</h1>
           <Row gap="var(--space-3)" className={styles.formColumn}>
-            <BookingForm
+            <UnifiedSearchingForm
               variant="embedded"
               initialTab="local-boat"
               className={styles.bookingForm}

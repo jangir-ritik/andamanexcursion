@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
 import { SectionTitle, Button } from "@/components/atoms";
-import { BookingForm } from "@/components/organisms";
+import { UnifiedSearchingForm } from "@/components/organisms";
 import { useActivityRQ } from "@/store/ActivityStoreRQ";
 import { useActivitiesSearch } from "@/hooks/queries/useActivitiesSearch";
 import { useFormOptions } from "@/hooks/queries/useFormOptions";
@@ -206,7 +206,7 @@ export default function ActivitiesSearchPageRQ() {
           {/* Top - Booking Form */}
           <h1 className={styles.sectionHeading}>Your Activities</h1>
           <Row gap="var(--space-3)" className={styles.formColumn}>
-            <BookingForm
+            <UnifiedSearchingForm
               variant="embedded"
               initialTab="activities"
               className={styles.bookingForm}

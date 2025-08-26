@@ -11,7 +11,6 @@ export { default as ActivityCategories } from "./ActivityCategories";
 export { default as Activities } from "./Activities";
 export { default as TimeSlots } from "./TimeSlots";
 export { default as ActivityTimeSlots } from "./ActivityTimeSlots";
-export { default as ActivityInventory } from "./ActivityInventory";
 export { default as BoatRoutes } from "./BoatRoutes";
 export { default as Boats } from "./Boats";
 export { default as Bookings } from "./Bookings";

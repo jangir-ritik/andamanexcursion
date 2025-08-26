@@ -9,7 +9,7 @@ import {
   useBoatFormOptions,
   useBoatRoutesByFromLocation,
 } from "@/hooks/queries/useBoats";
-import styles from "../BookingForm.module.css";
+import styles from "../UnifiedSearchingForm.module.css";
 import { cn } from "@/utils/cn";
 
 import {
@@ -119,10 +119,19 @@ export function BoatSearchForm({
     }
 
     return selectedRoute.availableTimings.map((timing) => ({
-      id: timing.departureTime?.replace(":", "-") || timing.id || `slot-${Math.random().toString(36).substr(2, 9)}`,
+      id:
+        timing.departureTime?.replace(":", "-") ||
+        timing.id ||
+        `slot-${Math.random().toString(36).substr(2, 9)}`,
       name: timing.displayTime || timing.departureTime || "Unknown Time",
-      slug: timing.departureTime?.replace(":", "-") || timing.id || `slot-${Math.random().toString(36).substr(2, 9)}`,
-      value: timing.departureTime?.replace(":", "-") || timing.id || `slot-${Math.random().toString(36).substr(2, 9)}`,
+      slug:
+        timing.departureTime?.replace(":", "-") ||
+        timing.id ||
+        `slot-${Math.random().toString(36).substr(2, 9)}`,
+      value:
+        timing.departureTime?.replace(":", "-") ||
+        timing.id ||
+        `slot-${Math.random().toString(36).substr(2, 9)}`,
       label: timing.displayTime || timing.departureTime || "Unknown Time",
       time: timing.displayTime || timing.departureTime || "Unknown Time",
     }));

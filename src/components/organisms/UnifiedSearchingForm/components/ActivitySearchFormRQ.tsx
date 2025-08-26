@@ -7,7 +7,7 @@ import { useActivityRQ } from "@/store/ActivityStoreRQ";
 import { useFormOptions } from "@/hooks/queries/useFormOptions";
 import { useActivityTimeSlotsByCategory } from "@/hooks/queries/useActivityTimeSlots";
 import { useRouter } from "next/navigation";
-import styles from "../BookingForm.module.css";
+import styles from "../UnifiedSearchingForm.module.css";
 import { cn } from "@/utils/cn";
 
 import {

@@ -78,7 +78,6 @@ export interface Config {
     activities: Activity;
     'time-slots': TimeSlot;
     'activity-time-slots': ActivityTimeSlot;
-    'activity-inventory': ActivityInventory;
     'boat-routes': BoatRoute;
     boats: Boat;
     bookings: Booking;
@@ -102,7 +101,6 @@ export interface Config {
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
     'activity-time-slots': ActivityTimeSlotsSelect<false> | ActivityTimeSlotsSelect<true>;
-    'activity-inventory': ActivityInventorySelect<false> | ActivityInventorySelect<true>;
     'boat-routes': BoatRoutesSelect<false> | BoatRoutesSelect<true>;
     boats: BoatsSelect<false> | BoatsSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
@@ -1387,76 +1385,6 @@ export interface TimeSlot {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activity-inventory".
- */
-export interface ActivityInventory {
-  id: string;
-  title?: string | null;
-  /**
-   * The activity this inventory is for
-   */
-  activity: string | Activity;
-  /**
-   * Specific activity option/variant (if applicable)
-   */
-  activityOption?: string | null;
-  /**
-   * Service date (YYYY-MM-DD)
-   */
-  date: string;
-  /**
-   * Time slot for this inventory (optional for full-day activities)
-   */
-  timeSlot?: (string | null) | TimeSlot;
-  /**
-   * Maximum number of people that can be accommodated
-   */
-  totalCapacity: number;
-  /**
-   * Number of people currently booked
-   */
-  bookedCapacity?: number | null;
-  /**
-   * Remaining capacity (auto-calculated)
-   */
-  availableCapacity?: number | null;
-  /**
-   * Temporarily held capacity (for pending payments)
-   */
-  reservedCapacity?: number | null;
-  status: 'available' | 'fully_booked' | 'cancelled' | 'suspended';
-  /**
-   * Is this inventory slot active for booking?
-   */
-  isActive?: boolean | null;
-  /**
-   * Optional price overrides for this specific date/time
-   */
-  priceOverrides?: {
-    hasOverride?: boolean | null;
-    /**
-     * Override price for adults
-     */
-    adultPrice?: number | null;
-    /**
-     * Override price for children
-     */
-    childPrice?: number | null;
-  };
-  /**
-   * Special notes for this date/time (weather, equipment, etc.)
-   */
-  operationalNotes?: string | null;
-  weatherDependency?: ('no' | 'dependent' | 'indoor') | null;
-  /**
-   * Override location for this specific date/time (if different from activity default)
-   */
-  locationOverride?: (string | null) | Location;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "boat-routes".
  */
 export interface BoatRoute {
@@ -2342,10 +2270,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'activity-time-slots';
         value: string | ActivityTimeSlot;
-      } | null)
-    | ({
-        relationTo: 'activity-inventory';
-        value: string | ActivityInventory;
       } | null)
     | ({
         relationTo: 'boat-routes';
@@ -3278,35 +3202,6 @@ export interface ActivityTimeSlotsSelect<T extends boolean = true> {
   isActive?: T;
   sortOrder?: T;
   notes?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activity-inventory_select".
- */
-export interface ActivityInventorySelect<T extends boolean = true> {
-  title?: T;
-  activity?: T;
-  activityOption?: T;
-  date?: T;
-  timeSlot?: T;
-  totalCapacity?: T;
-  bookedCapacity?: T;
-  availableCapacity?: T;
-  reservedCapacity?: T;
-  status?: T;
-  isActive?: T;
-  priceOverrides?:
-    | T
-    | {
-        hasOverride?: T;
-        adultPrice?: T;
-        childPrice?: T;
-      };
-  operationalNotes?: T;
-  weatherDependency?: T;
-  locationOverride?: T;
   updatedAt?: T;
   createdAt?: T;
 }

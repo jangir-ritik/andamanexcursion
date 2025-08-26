@@ -1,4 +1,4 @@
-.bookingForm {
+.unifiedSearchingForm {
   width: 100%;
   max-width: unset;
   filter: drop-shadow(-1px 1px 7px rgba(0, 0, 0, 0.1));
@@ -227,7 +227,7 @@
 
 /* Mobile: Single column stacked layout */
 @media (max-width: 768px) {
-  .bookingForm {
+  .unifiedSearchingForm {
     max-width: unset;
     width: 100%;
     padding: var(--space-2);
@@ -342,7 +342,7 @@
 
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
-  .bookingForm {
+  .unifiedSearchingForm {
     padding: var(--space-1);
   }
 

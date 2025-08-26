@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFerryStore } from "@/store/FerryStore";
 import { useRouter } from "next/navigation";
-import styles from "../BookingForm.module.css";
+import styles from "../UnifiedSearchingForm.module.css";
 import { cn } from "@/utils/cn";
 
 import {

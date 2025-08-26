@@ -1,10 +1,10 @@
 import { Section, Column, Row } from "@/components/layout";
 import type { BannerProps } from "./Banner.types";
 import { HeroTitle, DescriptionText, ImageContainer } from "@/components/atoms";
-import { BookingForm } from "@/components/organisms";
 import { cn } from "@/utils/cn";
 
 import styles from "./Banner.module.css";
+import { UnifiedSearchingForm } from "@/components/organisms";
 
 export const Banner = ({ className, id = "hero", content }: BannerProps) => {
   return (
@@ -53,7 +53,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
           fullWidth
         />
 
-        <BookingForm initialTab={content.initialTab} />
+        <UnifiedSearchingForm initialTab={content.initialTab} />
       </Column>
     </Section>
   );

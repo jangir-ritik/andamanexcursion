@@ -4,12 +4,12 @@ import { useSearchParams } from "next/navigation";
 import { Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { useFerryStore } from "@/store/FerryStore";
-import { BookingForm } from "@/components/organisms";
 import { FerryResults } from "./components/FerryResults";
 import { SearchSummary } from "./components/SearchSummary";
 import { TimeFilters } from "./components/TimeFilters";
 import { UnifiedFerryResult } from "@/types/FerryBookingSession.types";
 import styles from "./page.module.css";
+import { UnifiedSearchingForm } from "@/components/organisms";
 
 interface SmartFilteredResults {
   preferredTime: UnifiedFerryResult[];
@@ -149,7 +149,10 @@ const FerryResultsContent = () => {
       {/* Modify Search Section - Always on top */}
       <div className={styles.modifySearchSection}>
         <SectionTitle text="Modify Search" specialWord="Search" />
-        <BookingForm variant="embedded" className={styles.bookingForm} />
+        <UnifiedSearchingForm
+          variant="embedded"
+          className={styles.bookingForm}
+        />
       </div>
 
       {/* Search Summary */}
