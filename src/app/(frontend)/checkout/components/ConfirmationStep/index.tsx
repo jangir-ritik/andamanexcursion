@@ -11,6 +11,7 @@ import type {
   UnifiedBookingData,
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
+import { Location } from "@payload-types";
 
 interface ConfirmationStepProps {
   bookingData: UnifiedBookingData;
@@ -196,7 +197,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                   <div className={styles.tripDetail}>
                     <span className={styles.detailLabel}>Location</span>
                     <span className={styles.detailValue}>
-                      {bookingDetail.location}
+                      {typeof bookingDetail.location === "string"
+                        ? bookingDetail.location
+                        : (bookingDetail.location as Location[])[0]?.name}
                     </span>
                   </div>
                   <div className={styles.tripDetail}>

@@ -16,12 +16,12 @@ import {
   SlotSelect,
   LocationSelect,
 } from "@/components/atoms";
-import { useActivityTimeSlotsByCategory, useFormOptions } from "@/hooks/queries";
+import { useFormOptions, useActivityTimesByCategory } from "@/hooks/queries";
 
 // Move the schema outside component to prevent recreation on each render
 const activitySearchSchema = z.object({
   selectedActivity: z.string().min(1, "Please select an activity type"),
-  activityLocation: z.string().optional(), // Make location optional for browsing
+  activityLocation: z.string().min(1, "Please select a location"), // Location now required for time slot filtering
   selectedDate: z.date({ required_error: "Please select a date" }),
   selectedSlot: z.string().min(1, "Please select a time"),
   passengers: z.object({
@@ -100,63 +100,58 @@ export function ActivitySearchFormRQ({
     );
   }, [currentSearchParams.activityType, activityOptions]);
 
-  // Use React Query to get filtered time slots for the selected category
-  const { data: categoryTimeSlots = [], isLoading: isLoadingTimeSlots } =
-    useActivityTimeSlotsByCategory(selectedActivityCategory?.slug || null);
+  // Get the currently selected location
+  const selectedLocation = useMemo(() => {
+    if (!currentSearchParams.location) return null;
+    return locationOptions.find(
+      (opt) => opt.value === currentSearchParams.location
+    );
+  }, [currentSearchParams.location, locationOptions]);
 
-  // Filter time slots based on category data (simplified for new architecture)
+  // Use new React Query hook to get time slots based on category + location
+  const {
+    data: categoryLocationTimeSlots = [],
+    isLoading: isLoadingTimeSlots,
+  } = useActivityTimesByCategory(
+    selectedActivityCategory?.slug || null,
+    selectedLocation?.slug || null
+  );
+
+  // Filter time slots based on category + location data
   const timeSlotOptions = useMemo(() => {
-    // Don't show any time slots until an activity is selected
-    if (!selectedActivityCategory) {
+    // Don't show any time slots until both category and location are selected
+    if (!selectedActivityCategory || !selectedLocation) {
       return [];
     }
 
-    if (categoryTimeSlots.length > 0) {
-      // Transform ActivityTimeSlots to the UI format expected by SlotSelect
-      const activityBasedSlots = categoryTimeSlots.map((slot) => ({
-        id: slot.id,
-        name: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
-        slug: slot.startTime.replace(":", "-"),
-        value: slot.startTime.replace(":", "-"),
-        label: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
-        time: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
+    // Use the new category + location based time slots
+    if (categoryLocationTimeSlots.length > 0) {
+      // Transform the API response to the UI format expected by SlotSelect
+      const activityBasedSlots = categoryLocationTimeSlots.map((slot: any) => ({
+        id: slot.value,
+        name: slot.label,
+        slug: slot.value,
+        value: slot.value,
+        label: slot.label,
+        time: slot.label,
       }));
 
-      console.log("🕐 Activity-specific time slots found:", activityBasedSlots);
+      console.log(
+        "🕐 Activity + location specific time slots found:",
+        activityBasedSlots
+      );
       return activityBasedSlots;
     }
 
-    // Create standard time slots for better UX when no specific slots are configured
-    const standardSlots = [
-      {
-        id: "morning",
-        slug: "09-00",
-        value: "09-00",
-        label: "9:00 AM - 11:00 AM",
-        time: "9:00 AM - 11:00 AM",
-      },
-      {
-        id: "afternoon",
-        slug: "14-00",
-        value: "14-00",
-        label: "2:00 PM - 4:00 PM",
-        time: "2:00 PM - 4:00 PM",
-      },
-      {
-        id: "evening",
-        slug: "16-00",
-        value: "16-00",
-        label: "4:00 PM - 6:00 PM",
-        time: "4:00 PM - 6:00 PM",
-      },
-    ];
-
+    // No time slots available for this combination
     console.log(
-      "🕐 Using standard time slots for",
-      selectedActivityCategory.label
+      "🕐 No time slots found for",
+      selectedActivityCategory.label,
+      "at",
+      selectedLocation.label
     );
-    return standardSlots;
-  }, [selectedActivityCategory, categoryTimeSlots]);
+    return [];
+  }, [selectedActivityCategory, selectedLocation, categoryLocationTimeSlots]);
 
   // Memoize default values to prevent recreating on each render
   const defaultValues = useMemo(
@@ -199,9 +194,17 @@ export function ActivitySearchFormRQ({
       }
       if (name === "selectedActivity" && value.selectedActivity !== undefined) {
         updates.activityType = value.selectedActivity;
+        // Clear time slot when activity changes
+        if (value.selectedSlot) {
+          updates.time = "";
+        }
       }
       if (name === "activityLocation" && value.activityLocation !== undefined) {
         updates.location = value.activityLocation;
+        // Clear time slot when location changes
+        if (value.selectedSlot) {
+          updates.time = "";
+        }
       }
       if (name === "selectedDate" && value.selectedDate !== undefined) {
         updates.date = value.selectedDate.toISOString().split("T")[0];
@@ -218,6 +221,17 @@ export function ActivitySearchFormRQ({
 
     return () => subscription.unsubscribe();
   }, [watch, updateSearchParams]);
+
+  // Clear time slot when category or location changes
+  React.useEffect(() => {
+    const currentValues = watch();
+    if (
+      currentValues.selectedSlot &&
+      (!selectedActivityCategory || !selectedLocation)
+    ) {
+      updateSearchParams({ time: "" });
+    }
+  }, [selectedActivityCategory, selectedLocation, watch, updateSearchParams]);
 
   // Reset form values when edit mode is triggered
   React.useEffect(() => {
@@ -250,7 +264,7 @@ export function ActivitySearchFormRQ({
       // Convert form data to search params format
       const searchParamsUpdate = {
         activityType: data.selectedActivity,
-        location: data.activityLocation || "", // Allow empty location
+        location: data.activityLocation, // Location is now required
         date: data.selectedDate.toISOString().split("T")[0],
         time: data.selectedSlot,
         adults: data.passengers.adults,
@@ -372,22 +386,30 @@ export function ActivitySearchFormRQ({
       {/* Add user feedback for time slot filtering */}
       {selectedActivityCategory && (
         <div className={styles.filterFeedback}>
-          {isLoadingTimeSlots ? (
+          {!selectedLocation ? (
+            <div className={styles.infoFeedback}>
+              <span className={styles.infoHint}>
+                📍 Select a location to see available time slots for{" "}
+                {selectedActivityCategory.label}
+              </span>
+            </div>
+          ) : isLoadingTimeSlots ? (
             <div className={styles.loadingFeedback}>
               <div className={styles.spinner} />
-              Filtering available time slots...
+              Loading time slots for {selectedActivityCategory.label} at{" "}
+              {selectedLocation.label}...
             </div>
           ) : timeSlotOptions.length > 0 ? (
             <div className={styles.infoFeedback}>
               Showing {timeSlotOptions.length} available time slot
               {timeSlotOptions.length !== 1 ? "s" : ""} for{" "}
-              {selectedActivityCategory.label}
+              {selectedActivityCategory.label} at {selectedLocation.label}
             </div>
           ) : (
             <div className={styles.infoFeedback}>
               <span className={styles.infoHint}>
-                ⏰ Select a location to see available time slots for{" "}
-                {selectedActivityCategory.label}
+                ⚠️ No time slots available for {selectedActivityCategory.label}{" "}
+                at {selectedLocation.label}
               </span>
             </div>
           )}
@@ -470,9 +492,24 @@ export function ActivitySearchFormRQ({
                 value={field.value}
                 onChange={field.onChange}
                 options={timeSlotOptions}
-                placeholder="Select Time"
+                placeholder={
+                  !selectedActivityCategory
+                    ? "Select activity first"
+                    : !selectedLocation
+                    ? "Select location first"
+                    : isLoadingTimeSlots
+                    ? "Loading times..."
+                    : timeSlotOptions.length === 0
+                    ? "No times available"
+                    : "Select Time"
+                }
                 hasError={!!errors.selectedSlot}
                 isLoading={isLoadingTimeSlots}
+                disabled={
+                  !selectedActivityCategory ||
+                  !selectedLocation ||
+                  isLoadingTimeSlots
+                }
               />
             )}
           />

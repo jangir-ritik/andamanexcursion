@@ -23,7 +23,7 @@ import type {
   MemberDetails,
   CheckoutFormData,
 } from "@/store/SimpleCheckoutStore";
-import { Activity } from "@payload-types";
+import { Activity, Location } from "@payload-types";
 
 // Unified interfaces
 export type BookingType = "activity" | "ferry" | "boat" | "mixed";
@@ -48,7 +48,7 @@ export interface UnifiedBookingItem {
   price: number;
   date: string;
   time?: string;
-  location?: string;
+  location?: string | Location | Location[];
   // Activity-specific
   activity?: Activity;
   searchParams?: ActivitySearchParams;

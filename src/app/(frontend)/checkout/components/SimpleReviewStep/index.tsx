@@ -221,9 +221,9 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                       <Clock size={16} /> {item.time}
                     </span>
                   )}
-                  {item.location && (
+                  {item.location && Array.isArray(item.location) && (
                     <span>
-                      <MapPin size={16} /> {item.location}
+                      <MapPin size={16} /> {item.location[0].name}
                     </span>
                   )}
                   {/* Ferry-specific details */}

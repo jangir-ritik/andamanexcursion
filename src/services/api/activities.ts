@@ -135,4 +135,26 @@ export const activityApi = {
       return null;
     }
   },
+
+  // Get available time slots for category and location combination
+  async getAvailableTimesByCategory(
+    categorySlug: string,
+    locationSlug: string
+  ): Promise<any[]> {
+    try {
+      const response = await fetch(
+        `${NEXT_API_BASE}/activities/available-times?category=${categorySlug}&location=${locationSlug}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch available times: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.timeSlots || [];
+    } catch (error) {
+      console.error("Error fetching available times by category:", error);
+      return [];
+    }
+  },
 };

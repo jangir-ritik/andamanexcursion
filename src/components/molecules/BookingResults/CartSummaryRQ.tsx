@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-  useEffect,
-} from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Calendar,
@@ -18,13 +12,10 @@ import {
   Trash2,
   Plus,
 } from "lucide-react";
-import { Button } from "@/components/atoms/Button/Button";
-import { PassengerCounter } from "@/components/atoms/PassengerCounter/PassengerCounter";
-import { DateSelect } from "@/components/atoms/DateSelect/DateSelect";
-import { useActivityRQ } from "@/store/ActivityStoreRQ";
-import { useFormOptions } from "@/hooks/queries/useFormOptions";
-import { useActivityTimeSlotsByCategory } from "@/hooks/queries/useActivityTimeSlots";
-import type { PassengerCount } from "@/components/atoms/PassengerCounter/PassengerCounter.types";
+import { Button, PassengerCounter, DateSelect } from "@/components/atoms";
+import type { PassengerCount } from "@/components/atoms";
+import { useActivityRQ } from "@/store";
+import { useFormOptions, useActivityTimesByCategory } from "@/hooks/queries";
 import type { CartSummaryProps } from "./CartSummary.types";
 import styles from "./CartSummary.module.css";
 
@@ -55,18 +46,37 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
 
   const editingOverlayRef = useRef<HTMLDivElement>(null);
 
-  // Get the category for the currently editing item
-  const editingItemCategory = useMemo(() => {
-    if (!editingField || editingField.field !== "time") return null;
+  // Get the category and location for the currently editing item
+  const editingItemDetails = useMemo(() => {
+    if (!editingField || editingField.field !== "time")
+      return { category: null, location: null };
+
     const item = cart.find((item) => item.id === editingField.itemId);
-    return typeof item?.activity.coreInfo.category[0] === "string"
-      ? item?.activity.coreInfo.category[0]
-      : item?.activity.coreInfo.category[0]?.slug || null;
+    if (!item) return { category: null, location: null };
+
+    const activity = item.activity;
+
+    // Extract category slug
+    const categorySlug =
+      typeof activity.coreInfo.category[0] === "string"
+        ? activity.coreInfo.category[0]
+        : activity.coreInfo.category[0]?.slug || null;
+
+    // Extract location slug
+    const locationSlug =
+      typeof activity.coreInfo.location[0] === "string"
+        ? activity.coreInfo.location[0]
+        : activity.coreInfo.location[0]?.slug || null;
+
+    return { category: categorySlug, location: locationSlug };
   }, [editingField, cart]);
 
-  // Use React Query to get time slots for the editing item's category
-  const { data: categoryTimeSlots = [] } =
-    useActivityTimeSlotsByCategory(editingItemCategory);
+  // Use the correct hook to get time slots for the editing item's category and location
+  const { data: categoryTimeSlots = [], isLoading: isLoadingTimeSlots } =
+    useActivityTimesByCategory(
+      editingItemDetails.category,
+      editingItemDetails.location
+    );
 
   // Transform time slots for editing
   const editingTimeSlots = useMemo(() => {
@@ -77,14 +87,23 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
     const item = cart.find((item) => item.id === editingField.itemId);
     const activity = item?.activity;
 
-    // Simplified: Use activity's time slots with fallback
-    let timeSlotOptions = [];
+    // Use the fetched category time slots first
+    if (categoryTimeSlots && categoryTimeSlots.length > 0) {
+      return categoryTimeSlots.map((slot) => ({
+        id: slot.value,
+        value: slot.value,
+        label: slot.label,
+        time: slot.label,
+      }));
+    }
 
-    // 1. Try to get activity's direct time slots
-    const activitySlots = activity?.scheduling?.availableTimeSlots;
+    // Fallback: Try to get activity's direct time slots
+    const activitySlots =
+      activity?.scheduling?.availableTimeSlots ||
+      activity?.scheduling?.defaultTimeSlots;
 
     if (activitySlots && activitySlots.length > 0) {
-      timeSlotOptions = activitySlots.map((slot: any) => ({
+      const timeSlotOptions = activitySlots.map((slot: any) => ({
         id: slot.id,
         value: slot.startTime.replace(":", "-"),
         label: slot.displayTime || `${slot.startTime} - ${slot.endTime}`,
@@ -93,8 +112,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
       return timeSlotOptions;
     }
 
-    // 2. Fallback: Simple standard options
-    timeSlotOptions = [
+    // Final fallback: Simple standard options
+    const fallbackOptions = [
       {
         id: "morning",
         value: "09-00",
@@ -109,8 +128,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
       },
     ];
 
-    return timeSlotOptions;
-  }, [editingField, cart, categoryTimeSlots, timeSlots.data]);
+    return fallbackOptions;
+  }, [editingField, cart, categoryTimeSlots]);
 
   // Handle direct updates to cart items using the existing store methods
   const updateCartItem = useCallback(
@@ -569,23 +588,34 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                     {editingField.field === "time" && (
                       <div className={styles.inlineEditSection}>
                         <h4 className={styles.editSectionTitle}>Select Time</h4>
-                        <div className={styles.timeSlotGrid}>
-                          {editingTimeSlots.map((slot) => (
-                            <button
-                              key={slot.value}
-                              className={`${styles.timeSlotButton} ${
-                                searchParams.time === slot.value
-                                  ? styles.selected
-                                  : ""
-                              }`}
-                              onClick={() =>
-                                handleTimeChange(item.id, slot.value)
-                              }
-                            >
-                              {slot.label}
-                            </button>
-                          ))}
-                        </div>
+                        {isLoadingTimeSlots ? (
+                          <div className={styles.loadingTimeSlots}>
+                            Loading available times...
+                          </div>
+                        ) : (
+                          <div className={styles.timeSlotGrid}>
+                            {editingTimeSlots.map((slot) => (
+                              <button
+                                key={slot.value}
+                                className={`${styles.timeSlotButton} ${
+                                  searchParams.time === slot.value
+                                    ? styles.selected
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  handleTimeChange(item.id, slot.value)
+                                }
+                              >
+                                {slot.label}
+                              </button>
+                            ))}
+                            {editingTimeSlots.length === 0 && (
+                              <div className={styles.noTimeSlots}>
+                                No time slots available for this activity
+                              </div>
+                            )}
+                          </div>
+                        )}
                         <div className={styles.inlineEditActions}>
                           <Button
                             variant="outline"

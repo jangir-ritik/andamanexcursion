@@ -10,3 +10,4 @@ export {
   useActivityTimeSlotsByCategory,
   useActivityTimeSlotsById,
 } from "./useActivityTimeSlots";
+export { useActivityTimesByCategory } from "./useActivityTimesByCategory";
