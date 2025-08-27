@@ -98,8 +98,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
     }
 
     // Fallback: Try to get activity's direct time slots
-    const activitySlots =
-      activity?.coreInfo?.defaultTimeSlots;
+    const activitySlots = activity?.coreInfo?.defaultTimeSlots;
 
     if (activitySlots && activitySlots.length > 0) {
       const timeSlotOptions = activitySlots.map((slot: any) => ({
@@ -282,7 +281,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
       {/* Desktop Header */}
       <div className={styles.header}>
         <h3 className={styles.title}>Your Selection</h3>
-        <Button
+        {/* <Button
           variant="outline"
           className={styles.addMoreButton}
           onClick={onAddMore}
@@ -290,7 +289,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
           <Plus size={16} />
           <span className={styles.addMoreText}>Add More Activities</span>
           <span className={styles.addMoreTextShort}>Add</span>
-        </Button>
+        </Button> */}
       </div>
 
       {/* Cart Content */}

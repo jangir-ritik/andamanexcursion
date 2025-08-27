@@ -1208,8 +1208,7 @@ export interface Activity {
     featuredImage: string | Media;
     gallery?:
       | {
-          image: string | Media;
-          alt: string;
+          media: string | Media;
           id?: string | null;
         }[]
       | null;
@@ -3109,8 +3108,7 @@ export interface ActivitiesSelect<T extends boolean = true> {
         gallery?:
           | T
           | {
-              image?: T;
-              alt?: T;
+              media?: T;
               id?: T;
             };
       };

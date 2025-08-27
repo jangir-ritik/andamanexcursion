@@ -75,15 +75,20 @@ export function ActivitySearchFormRQ({
     }));
   }, [categories.data]);
 
+  // filter out neil-island from locations
+  const locationsWithoutNeilIsland = locations.data?.filter(
+    (loc) => loc.name !== "Neil Island"
+  );
+
   const locationOptions = useMemo(() => {
-    return (locations.data || []).map((loc) => ({
+    return (locationsWithoutNeilIsland || []).map((loc) => ({
       id: loc.id,
       name: loc.name,
       slug: loc.slug,
       value: loc.slug,
       label: loc.name,
     }));
-  }, [locations.data]);
+  }, [locationsWithoutNeilIsland]);
 
   // Check if we're in edit mode
   const isEditMode = !!editingItemId;

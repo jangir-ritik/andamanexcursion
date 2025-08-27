@@ -48,7 +48,7 @@
   justify-content: center;
   margin: var(--space-4);
   width: 320px;
-  height: 180px;
+  /* height: 180px; */
   position: relative;
   background-color: var(--color-border-secondary);
   border-radius: 20px 20px 20px 60px !important;
@@ -222,6 +222,7 @@
   line-height: 1.4;
   color: var(--color-secondary);
   margin: 0;
+  white-space: nowrap;
 }
 
 .duration {
@@ -246,6 +247,7 @@
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.4;
+  white-space: nowrap;
 }
 
 /* THIRD ROW: Available Times */
@@ -355,14 +357,13 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: stretch;
-  padding: var(--space-6);
+  /* align-items: stretch; */
+  align-items: flex-start;
+  padding: var(--space-4);
   gap: var(--space-6);
   width: 100%;
   border-top: 1px solid var(--color-border-secondary);
-  margin-top: var(--space-6);
   opacity: 0;
-  max-height: 0;
   overflow: hidden;
   transform: translateY(-10px);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -370,9 +371,12 @@
 
 .expanded .classesContainer {
   opacity: 1;
-  max-height: 800px;
   transform: translateY(0);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fullWidth {
+  width: 100% !important;
 }
 
 .classesWrapper {
@@ -407,7 +411,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  margin-bottom: var(--space-3);
+  margin-top: var(--space-3);
 }
 
 /* Mobile Responsive */
@@ -494,10 +498,9 @@
 
   .classesContainer {
     flex-direction: column;
-    padding: 0;
+    padding: var(--space-4);
     gap: var(--space-4);
     margin-top: var(--space-4);
-    max-height: 600px;
   }
 
   .classesWrapper {
@@ -538,7 +541,6 @@
 
   .classesContainer {
     gap: var(--space-3);
-    max-height: 500px;
     padding: var(--space-3);
   }
 }

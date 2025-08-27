@@ -12,7 +12,7 @@ import type { ActivityCardProps } from "./ActivityCard.types";
 import clsx from "clsx";
 import styles from "./ActivityCard.module.css";
 import { Button, ImageContainer } from "@/components/atoms";
-import { ImageSlider } from "../FerryCard/components/ImageSlider";
+import { MediaSlider } from "@/components/layout/MediaSlider/MediaSlider";
 import { ClassCard } from "../ClassCard/ClassCard";
 import { ChevronDown, Clock, MapPin, User } from "lucide-react";
 
@@ -20,7 +20,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   id,
   title,
   description,
-  images,
+  media,
   price,
   totalPrice,
   originalPrice,
@@ -152,11 +152,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     return null;
   }, [originalTotalPrice, totalPrice]);
 
-  // Separate gallery images from featured image for slider
-  const galleryImages = React.useMemo(
-    () => images.slice(1).map((image) => image.src),
-    [images]
-  );
+  // Separate gallery media from featured media for slider
+  const galleryMedia = React.useMemo(() => {
+    // Skip the first media item (featured image) and format the rest for MediaSlider
+    const galleryItems = media.slice(1).map((mediaItem) => {
+      return {
+        src: mediaItem.src, // This should be the Media object or string - NOT 'image'
+        alt: mediaItem.alt || `${title} gallery image`,
+      };
+    });
+    return galleryItems;
+  }, [media, title]);
 
   // Get properly formatted time slots for display
   const displayTimeSlots = useMemo(() => {
@@ -185,9 +191,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         data-expanded={isExpanded}
         ref={contentWrapperRef}
       >
-        {/* Image Section */}
+        {/* Image Section - Updated to use first media item */}
         <div className={styles.imageWrapper}>
-          <ImageContainer src={images[0].src} alt={images[0].alt} />
+          <ImageContainer
+            src={media[0]?.src}
+            alt={media[0]?.alt || `${title} image`}
+          />
         </div>
 
         {/* Content Section - New improved layout */}
@@ -195,6 +204,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           {/* TOP ROW: Title and Pricing */}
           <div className={styles.topRow}>
             <div className={styles.titleSection}>
+              <h3 className={styles.title}>{title}</h3>
               <div className={styles.activityMetadata}>
                 {type && (
                   <div className={styles.typeContainer}>
@@ -229,7 +239,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
                   </div>
                 )}
               </div>
-              <h3 className={styles.title}>{title}</h3>
               {/* SECOND ROW: Activity Info */}
             </div>
 
@@ -308,7 +317,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           <div className={styles.bottomRow}>
             <p className={styles.description}>{description}</p>
             <Button
-              variant="secondary"
+              variant="outline"
               onClick={toggleExpand}
               type="button"
               size="small"
@@ -338,7 +347,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           role="region"
           aria-label={`${title} booking options`}
         >
-          <div className={styles.classesWrapper}>
+          <div
+            className={clsx(
+              galleryMedia.length === 0 && styles.fullWidth,
+              styles.classesWrapper
+            )}
+          >
             {activityOptions.map((activityOption, index) => (
               <ClassCard
                 key={activityOption.id}
@@ -354,11 +368,13 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             ))}
           </div>
 
-          {/* Image Slider */}
-          <ImageSlider
-            images={galleryImages}
-            altText={`${title} activity gallery`}
-          />
+          {/* Media Slider - Updated to handle both images and videos */}
+          {galleryMedia.length > 0 && (
+            <MediaSlider
+              media={galleryMedia}
+              altText={`${title} activity gallery`}
+            />
+          )}
         </section>
       )}
     </article>

@@ -1,12 +1,12 @@
 import type { ActivitySearchParams } from "@/store/ActivityStoreRQ";
-import { Activity } from "@payload-types";
+import { Activity, Media } from "@payload-types";
 
 // Types for transformed data
 export interface TransformedActivityCard {
   id: string;
   title: string;
   description: string;
-  images: Array<{ src: string; alt: string }>;
+  media: Array<{ src: string | Media; alt: string; isVideo?: boolean }>;
   price: number;
   totalPrice: number;
   originalPrice?: number;
@@ -32,6 +32,7 @@ export interface TransformedActivityOption {
   originalTotalPrice?: number;
   seatsLeft: number;
   amenities: any[];
+  media?: (string | Media)[];
 }
 
 export interface TimeSlot {
@@ -40,6 +41,145 @@ export interface TimeSlot {
   endTime: string;
   displayTime: string;
   isAvailable: boolean;
+}
+
+// Helper function to safely extract media URL
+function extractMediaUrl(mediaItem: any): string | Media {
+  console.log("Extracting media URL from:", mediaItem);
+
+  // If it's already a string URL
+  if (typeof mediaItem === "string") {
+    return mediaItem;
+  }
+
+  // If it's a Media object with url property
+  if (mediaItem && typeof mediaItem === "object" && mediaItem.url) {
+    return mediaItem;
+  }
+
+  // If it has nested media property
+  if (mediaItem && mediaItem.media) {
+    if (typeof mediaItem.media === "string") {
+      return mediaItem.media;
+    }
+    if (mediaItem.media && mediaItem.media.url) {
+      return mediaItem.media;
+    }
+  }
+
+  // If it has image property (legacy support)
+  if (mediaItem && mediaItem.image) {
+    if (typeof mediaItem.image === "string") {
+      return mediaItem.image;
+    }
+    if (mediaItem.image && mediaItem.image.url) {
+      return mediaItem.image;
+    }
+  }
+
+  console.warn("Could not extract media URL from:", mediaItem);
+  return "/images/placeholder.png";
+}
+
+// Helper function to determine if media is video
+function isVideoMedia(mediaItem: any): boolean {
+  // Check if it's explicitly marked as video
+  if (mediaItem && mediaItem.isVideo) return true;
+
+  // Check mediaType property
+  if (mediaItem && mediaItem.mediaType === "video") return true;
+
+  // Check mimeType
+  if (mediaItem && mediaItem.mimeType?.startsWith("video/")) return true;
+
+  // Check nested media object
+  if (mediaItem && mediaItem.media) {
+    if (mediaItem.media.mediaType === "video") return true;
+    if (mediaItem.media.mimeType?.startsWith("video/")) return true;
+  }
+
+  // Check file extension if it's a string URL
+  if (typeof mediaItem === "string") {
+    return /\.(mp4|webm|ogg|avi|mov|wmv)$/i.test(mediaItem);
+  }
+
+  // Check URL property for file extension
+  if (mediaItem && mediaItem.url && typeof mediaItem.url === "string") {
+    return /\.(mp4|webm|ogg|avi|mov|wmv)$/i.test(mediaItem.url);
+  }
+
+  return false;
+}
+
+// FIXED: Transform activity media function
+export function transformActivityMedia(
+  activity: Activity
+): Array<{ src: string | Media; alt: string; isVideo?: boolean }> {
+  console.log("Transforming activity media for:", activity.title);
+  console.log("Activity media structure:", activity.media);
+
+  const media: Array<{ src: string | Media; alt: string; isVideo?: boolean }> =
+    [];
+
+  // Handle featured image first
+  if (activity.media?.featuredImage) {
+    console.log("Processing featured image:", activity.media.featuredImage);
+
+    const featuredSrc = extractMediaUrl(activity.media.featuredImage);
+    media.push({
+      src: featuredSrc,
+      alt: activity.title || "Activity featured image",
+      isVideo: isVideoMedia(activity.media.featuredImage),
+    });
+  }
+
+  // Handle gallery items
+  if (activity.media?.gallery && Array.isArray(activity.media.gallery)) {
+    console.log("Processing gallery items:", activity.media.gallery);
+
+    activity.media.gallery.forEach((galleryItem: any, index: number) => {
+      console.log(`Processing gallery item ${index}:`, galleryItem);
+
+      // Extract the media source
+      const mediaSrc = extractMediaUrl(galleryItem);
+
+      // Only add if we got a valid source
+      if (mediaSrc && mediaSrc !== "/images/placeholder.png") {
+        const altText =
+          galleryItem.alt ||
+          (galleryItem.media && galleryItem.media.alt) ||
+          (galleryItem.image && galleryItem.image.alt) ||
+          `Activity gallery image ${index + 1}`;
+
+        media.push({
+          src: mediaSrc,
+          alt: altText,
+          isVideo: isVideoMedia(galleryItem),
+        });
+
+        console.log(`Added gallery item ${index}:`, {
+          src: mediaSrc,
+          alt: altText,
+          isVideo: isVideoMedia(galleryItem),
+        });
+      } else {
+        console.warn(`Skipped invalid gallery item ${index}:`, galleryItem);
+      }
+    });
+  }
+
+  // Ensure we always return at least the featured image
+  if (media.length === 0) {
+    console.warn("No media found, using placeholder");
+    media.push({
+      src: "/images/placeholder.png",
+      alt: activity.title || "Activity placeholder image",
+      isVideo: false,
+    });
+  }
+
+  console.log("Final transformed media:", media);
+  return media;
 }
 
 // Utility functions for price calculations
@@ -60,6 +200,17 @@ export function getStableOptionId(activityId: string, index: number): string {
   return optionIdCache.get(key)!;
 }
 
+// Transform activity option media (pure function)
+export function transformActivityOptionMedia(
+  optionMedia: any[]
+): (string | Media)[] {
+  if (!optionMedia || !Array.isArray(optionMedia)) {
+    return [];
+  }
+
+  return optionMedia.map((mediaItem) => extractMediaUrl(mediaItem));
+}
+
 // Transform activity options (pure function)
 export function transformActivityOptions(
   options: any[],
@@ -71,6 +222,11 @@ export function transformActivityOptions(
     const optionOriginalPrice = option.discountedPrice
       ? option.price
       : undefined;
+
+    // Transform option media/images
+    const optionMedia = transformActivityOptionMedia(
+      option.media || option.images || option.gallery || []
+    );
 
     return {
       id: option.id || getStableOptionId(activityId, index),
@@ -84,37 +240,9 @@ export function transformActivityOptions(
         : undefined,
       seatsLeft: option.maxCapacity,
       amenities: [],
+      media: optionMedia,
     };
   });
-}
-
-// Transform activity images (pure function)
-export function transformActivityImages(
-  activity: Activity
-): Array<{ src: string; alt: string }> {
-  const images = [
-    {
-      src:
-        typeof activity.media.featuredImage === "string"
-          ? activity.media.featuredImage
-          : activity.media.featuredImage?.url || "/images/placeholder.png",
-      alt: activity.title || "Activity image",
-    },
-  ];
-
-  if (activity.media?.gallery?.length) {
-    images.push(
-      ...activity.media.gallery.map((img) => ({
-        src:
-          typeof img.image === "string"
-            ? img.image
-            : img.image?.url || "/images/placeholder.png",
-        alt: img.alt || "Activity gallery image",
-      }))
-    );
-  }
-
-  return images;
 }
 
 // Helper to parse duration string like "2 hours" -> 2
@@ -140,7 +268,7 @@ export function getActivityTimeSlots(activity: Activity): TimeSlot[] {
     return activity.coreInfo.defaultTimeSlots.map((slot) => ({
       id: typeof slot === "string" ? slot : slot.id,
       startTime: typeof slot === "string" ? slot : slot.startTime,
-      endTime: typeof slot === "string" ? slot : slot.endTime || slot.startTime, // Fallback to startTime if endTime is undefined
+      endTime: typeof slot === "string" ? slot : slot.endTime || slot.startTime,
       displayTime:
         typeof slot === "string"
           ? slot
@@ -172,7 +300,7 @@ export function transformActivityToCard(
     searchParams
   );
 
-  const images = transformActivityImages(activity);
+  const media = transformActivityMedia(activity);
   const availableTimeSlots = getActivityTimeSlots(activity);
 
   return {
@@ -182,7 +310,7 @@ export function transformActivityToCard(
       activity.coreInfo?.description ||
       activity.coreInfo?.shortDescription ||
       "Experience this amazing activity in Andaman!",
-    images,
+    media,
     price: currentPrice,
     totalPrice,
     originalPrice: discountedPrice ? basePrice : undefined,
@@ -204,7 +332,9 @@ export function transformActivityToCard(
     location:
       typeof activity.coreInfo?.location === "string"
         ? activity.coreInfo?.location
-        : "Andaman",
+        : typeof activity.coreInfo?.location[0] === "string"
+        ? activity.coreInfo?.location[0]
+        : activity.coreInfo?.location[0].name,
     totalGuests: searchParams.adults + searchParams.children,
     timeSlots: availableTimeSlots.map((slot) => slot.displayTime),
   };

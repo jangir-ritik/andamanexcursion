@@ -114,14 +114,9 @@ const Activities: CollectionConfig = {
           type: "array",
           fields: [
             {
-              name: "image",
+              name: "media",
               type: "upload",
               relationTo: "media",
-              required: true,
-            },
-            {
-              name: "alt",
-              type: "text",
               required: true,
             },
           ],
