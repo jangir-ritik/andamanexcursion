@@ -424,7 +424,7 @@ export function BoatSearchForm({
         </div>
 
         {/* Time Slot */}
-        <div className={cn(styles.formField, styles.timeSlotField)}>
+        <div className={cn(styles.formField)}>
           <Controller
             control={control}
             name="selectedSlot"

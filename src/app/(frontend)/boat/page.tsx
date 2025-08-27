@@ -1,17 +1,24 @@
-"use client";
+import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
+import { pageService } from "@/services/payload";
+import { notFound } from "next/navigation";
 
-import React from "react";
-import styles from "./page.module.css";
-import { UnifiedSearchingForm } from "@/components/organisms";
+type PageProps = {
+  params: Promise<{ slug?: string }>;
+};
 
-export default function BoatPage() {
-  return (
-    <main className={styles.main}>
-      <UnifiedSearchingForm className={styles.bookingForm} initialTab="local-boat" />
-      <div className={styles.content}>
-        <h1>Local Boat Booking</h1>
-        <p>This page is under development.</p>
-      </div>
-    </main>
-  );
+export default async function Home({ params }: PageProps) {
+  const resolvedParams = await params;
+  const slug = resolvedParams?.slug || "boat";
+
+  const page = await pageService.getBySlug(slug);
+
+  if (!page || !page.pageContent?.content) {
+    notFound();
+  }
+
+  if (page.publishingSettings?.status !== "published") {
+    notFound();
+  }
+
+  return <BlockRenderer blocks={page.pageContent.content} />;
 }
