@@ -5,7 +5,7 @@ import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
 import { Button } from "@/components/atoms";
 import { useBoat } from "@/store/BoatStore";
-import { useBoatFormOptions, useBoatsByRoute } from "@/hooks/queries/useBoats";
+import { useBoatFormOptions } from "@/hooks/queries/useBoats";
 import { SearchSummary } from "@/components/molecules/BookingResults";
 import { BoatResults } from "@/components/molecules/BookingResults/BoatResults";
 import { BoatCartSummary } from "@/components/molecules/BookingResults/BoatCartSummary";
@@ -97,9 +97,6 @@ const BoatSearchContent = () => {
     isLoading: isLoadingBoatOptions,
   } = useBoatFormOptions();
 
-  const { data: availableBoatsForRoute = [], isLoading: isLoadingBoats } =
-    useBoatsByRoute(currentParams.toLocation);
-
   // Memoize display names to prevent unnecessary re-computations
   const displayNames = useMemo(() => {
     const fromLocationName = fromLocations.find(
@@ -154,25 +151,6 @@ const BoatSearchContent = () => {
       description: selectedRoute.description || undefined,
     };
 
-    // If we have boats for this route, return them
-    if (availableBoatsForRoute.length > 0) {
-      return availableBoatsForRoute.map((boat) => ({
-        id: boat.id,
-        route: routeData,
-        name: boat.name,
-        description:
-          boat.boatInfo?.description || selectedRoute.description || undefined,
-        fare: boat.pricing?.basePrice || selectedRoute.fare,
-        timing:
-          selectedRoute.availableTimings
-            ?.map((t) => t.departureTime)
-            .filter(Boolean) || [],
-        minTimeAllowed: selectedRoute.duration || "Full day",
-        capacity: boat.boatInfo?.capacity || 50,
-        operator: boat.boatInfo?.operator || "Andaman Excursion",
-      }));
-    }
-
     // Fallback: create a boat from the route data
     return [
       {
@@ -190,7 +168,7 @@ const BoatSearchContent = () => {
         operator: "Andaman Excursion",
       },
     ];
-  }, [currentParams.toLocation, boatRoutes.data, availableBoatsForRoute]);
+  }, [currentParams.toLocation, boatRoutes.data]);
 
   return (
     <Column gap="var(--space-6)" fullWidth>
@@ -200,7 +178,7 @@ const BoatSearchContent = () => {
           {/* Search Summary */}
           {currentParams.fromLocation && (
             <SearchSummary
-              loading={isLoadingBoatOptions || isLoadingBoats}
+              loading={isLoadingBoatOptions}
               resultCount={availableBoats.length}
               activity={`${displayNames.fromLocationName} to ${displayNames.toLocationName}`}
               activityName=""
@@ -217,7 +195,7 @@ const BoatSearchContent = () => {
           <BoatResults
             searchParams={currentParams}
             boats={availableBoats}
-            loading={isLoadingBoatOptions || isLoadingBoats}
+            loading={isLoadingBoatOptions}
           />
         </Column>
       </Section>

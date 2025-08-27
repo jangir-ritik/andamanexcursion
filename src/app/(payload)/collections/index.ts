@@ -12,7 +12,6 @@ export { default as Activities } from "./Activities";
 export { default as TimeSlots } from "./TimeSlots";
 export { default as ActivityTimeSlots } from "./ActivityTimeSlots";
 export { default as BoatRoutes } from "./BoatRoutes";
-export { default as Boats } from "./Boats";
 export { default as Bookings } from "./Bookings";
 export { default as Payments } from "./Payments";
 export { default as BookingSessions } from "./BookingSessions";

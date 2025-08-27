@@ -79,7 +79,6 @@ export interface Config {
     'time-slots': TimeSlot;
     'activity-time-slots': ActivityTimeSlot;
     'boat-routes': BoatRoute;
-    boats: Boat;
     bookings: Booking;
     payments: Payment;
     'booking-sessions': BookingSession;
@@ -102,7 +101,6 @@ export interface Config {
     'time-slots': TimeSlotsSelect<false> | TimeSlotsSelect<true>;
     'activity-time-slots': ActivityTimeSlotsSelect<false> | ActivityTimeSlotsSelect<true>;
     'boat-routes': BoatRoutesSelect<false> | BoatRoutesSelect<true>;
-    boats: BoatsSelect<false> | BoatsSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'booking-sessions': BookingSessionsSelect<false> | BookingSessionsSelect<true>;
@@ -1465,99 +1463,6 @@ export interface BoatRoute {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "boats".
- */
-export interface Boat {
-  id: string;
-  /**
-   * Name of the boat or service
-   */
-  name: string;
-  /**
-   * URL-friendly version (auto-generated from name)
-   */
-  slug: string;
-  /**
-   * The route this boat operates on
-   */
-  route: string | BoatRoute;
-  boatInfo: {
-    /**
-     * Description of the boat and services
-     */
-    description?: string | null;
-    /**
-     * Maximum number of passengers
-     */
-    capacity: number;
-    /**
-     * Boat operator/company name
-     */
-    operator?: string | null;
-    /**
-     * Type of boat
-     */
-    boatType?: ('speed-boat' | 'ferry' | 'catamaran' | 'traditional') | null;
-  };
-  /**
-   * Available amenities on the boat
-   */
-  amenities?:
-    | {
-        amenity: 'life-jackets' | 'refreshments' | 'toilet' | 'covered-seating' | 'open-deck' | 'photography' | 'guide';
-        id?: string | null;
-      }[]
-    | null;
-  pricing: {
-    /**
-     * Base price per person (from route data)
-     */
-    basePrice: number;
-    /**
-     * Discounted price per person (optional)
-     */
-    discountedPrice?: number | null;
-    /**
-     * Discount percentage for children
-     */
-    childDiscount?: number | null;
-  };
-  /**
-   * Main image for this boat
-   */
-  featuredImage?: (string | null) | Media;
-  /**
-   * Additional images of the boat
-   */
-  gallery?:
-    | {
-        image: string | Media;
-        /**
-         * Optional caption for the image
-         */
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Status and visibility settings
-   */
-  status?: {
-    isActive?: boolean | null;
-    /**
-     * Show this boat in featured sections
-     */
-    isFeatured?: boolean | null;
-    /**
-     * Higher numbers appear first in listings
-     */
-    priority?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings".
  */
 export interface Booking {
@@ -2256,10 +2161,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'boat-routes';
         value: string | BoatRoute;
-      } | null)
-    | ({
-        relationTo: 'boats';
-        value: string | Boat;
       } | null)
     | ({
         relationTo: 'bookings';
@@ -3219,53 +3120,6 @@ export interface BoatRoutesSelect<T extends boolean = true> {
         image?: T;
         caption?: T;
         id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "boats_select".
- */
-export interface BoatsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  route?: T;
-  boatInfo?:
-    | T
-    | {
-        description?: T;
-        capacity?: T;
-        operator?: T;
-        boatType?: T;
-      };
-  amenities?:
-    | T
-    | {
-        amenity?: T;
-        id?: T;
-      };
-  pricing?:
-    | T
-    | {
-        basePrice?: T;
-        discountedPrice?: T;
-        childDiscount?: T;
-      };
-  featuredImage?: T;
-  gallery?:
-    | T
-    | {
-        image?: T;
-        caption?: T;
-        id?: T;
-      };
-  status?:
-    | T
-    | {
-        isActive?: T;
-        isFeatured?: T;
-        priority?: T;
       };
   updatedAt?: T;
   createdAt?: T;
