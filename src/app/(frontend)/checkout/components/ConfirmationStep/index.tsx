@@ -86,6 +86,30 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
               item.ferry?.selectedClass?.name ||
               "N/A",
           };
+        } else if (item.type === "boat") {
+          return {
+            id: item.id,
+            index: index,
+            type: "Boat" as const,
+            title: item.title,
+            location: `${item.boat?.route?.from || "N/A"} → ${
+              item.boat?.route?.to || "N/A"
+            }`,
+            date: item.date,
+            time: item.selectedTime || item.time || "N/A",
+            duration: "1h 30m", // Default boat duration
+            image: null,
+            price: item.price,
+            passengers: {
+              adults: item.passengers.adults || 0,
+              children: item.passengers.children || 0,
+              total:
+                (item.passengers.adults || 0) + (item.passengers.children || 0),
+            },
+            // Add boat-specific details
+            boatName: item.boat?.name || "Boat",
+            route: `${item.boat?.route?.from || "N/A"} → ${item.boat?.route?.to || "N/A"}`,
+          };
         }
         return null;
       })
@@ -166,7 +190,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <div className={styles.bookingHeader}>
           <h3 className={styles.bookingTitle}>
             Booking Details ({allBookingDetails.length}{" "}
-            {allBookingDetails.length === 1 ? "Activity" : "Activities"})
+            {allBookingDetails.length === 1 ? "Item" : "Items"})
           </h3>
           <div className={styles.bookingId}>
             <span className={styles.bookingIdLabel}>Booking ID:</span>
@@ -240,6 +264,15 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                         </div>
                       )}
                     </>
+                  )}
+                  {/* Boat-specific details */}
+                  {bookingDetail.type === "Boat" && (
+                    <div className={styles.tripDetail}>
+                      <span className={styles.detailLabel}>Boat</span>
+                      <span className={styles.detailValue}>
+                        {(bookingDetail as any).boatName}
+                      </span>
+                    </div>
                   )}
                   <div className={styles.tripDetail}>
                     <span className={styles.detailLabel}>Passengers</span>
@@ -335,9 +368,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           onClick={() => {
             resetAfterBooking();
             // Navigate back to home or booking page
+            const firstItemType = bookingData?.items?.[0]?.type;
             window.location.href =
-              bookingData?.items?.[0]?.type === "ferry"
+              firstItemType === "ferry"
                 ? "/ferry"
+                : firstItemType === "boat"
+                ? "/boat"
                 : "/activities";
           }}
           className={styles.newBookingButton}

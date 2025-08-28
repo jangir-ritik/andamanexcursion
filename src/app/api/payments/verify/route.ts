@@ -863,12 +863,9 @@ export async function POST(request: NextRequest) {
       // ✅ FIX: Properly extract serviceDate based on booking type
       const getServiceDate = (bookingData: any): string => {
         if (
-          bookingData.bookingType === "ferry" &&
-          bookingData.items?.[0]?.date
-        ) {
-          return bookingData.items[0].date;
-        } else if (
-          bookingData.bookingType === "activity" &&
+          (bookingData.bookingType === "ferry" ||
+           bookingData.bookingType === "boat" ||
+           bookingData.bookingType === "activity") &&
           bookingData.items?.[0]?.date
         ) {
           return bookingData.items[0].date;
@@ -1003,6 +1000,50 @@ export async function POST(request: NextRequest) {
           },
           // ✅ FIX: Use processed activities
           bookedActivities: processedActivities,
+          // Handle boat bookings
+          bookedBoats:
+            bookingData.bookingType === "boat" && bookingData.items?.[0]
+              ? [
+                  {
+                    boatRoute: bookingData.items[0].boat?.id || null,
+                    boatName:
+                      bookingData.items[0].boat?.name ||
+                      bookingData.items[0].title ||
+                      "Unknown Boat",
+                    route: {
+                      from:
+                        bookingData.items[0].boat?.route?.from ||
+                        bookingData.items[0].location ||
+                        "Unknown",
+                      to:
+                        bookingData.items[0].boat?.route?.to ||
+                        "Unknown",
+                    },
+                    schedule: {
+                      departureTime:
+                        bookingData.items[0].selectedTime ||
+                        bookingData.items[0].time ||
+                        "Unknown",
+                      duration:
+                        bookingData.items[0].boat?.route?.minTimeAllowed ||
+                        bookingData.items[0].boat?.minTimeAllowed ||
+                        "Unknown",
+                      travelDate: new Date(
+                        bookingData.items[0].date || getServiceDate(bookingData)
+                      ).toISOString(),
+                    },
+                    passengers: {
+                      adults: bookingData.items[0].passengers?.adults || 0,
+                      children: bookingData.items[0].passengers?.children || 0,
+                      infants: bookingData.items[0].passengers?.infants || 0,
+                    },
+                    totalPrice:
+                      bookingData.items[0].price ||
+                      bookingData.totalPrice ||
+                      0,
+                  },
+                ]
+              : [],
           // Handle ferry bookings
           bookedFerries:
             bookingData.bookingType === "ferry" && bookingData.items?.[0]

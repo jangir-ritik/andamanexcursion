@@ -36,13 +36,13 @@ export interface TimeSlotOption extends FormOption {
   time: string;
 }
 
-export interface FormOptions {
-  locations: FormOption[];
-  timeSlots: TimeSlotOption[];
-  activityTypes: FormOption[];
-  isLoading: boolean;
-  error: string | null;
-}
+// export interface FormOptions {
+//   locations: FormOption[];
+//   timeSlots: TimeSlotOption[];
+//   activityTypes: FormOption[];
+//   isLoading: boolean;
+//   error: string | null;
+// }
 
 // Simplified state for cart management only (data fetching handled by React Query)
 interface ActivityStoreState {

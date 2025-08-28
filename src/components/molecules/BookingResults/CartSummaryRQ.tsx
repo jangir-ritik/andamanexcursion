@@ -1,3 +1,5 @@
+// This file could be better named as ActivityCartSummary (least of my concerns right now tho)
+
 "use client";
 
 import React, { useState, useCallback, useMemo, useRef } from "react";
@@ -10,7 +12,6 @@ import {
   Edit2,
   ChevronDown,
   Trash2,
-  Plus,
 } from "lucide-react";
 import { Button, PassengerCounter, DateSelect } from "@/components/atoms";
 import type { PassengerCount } from "@/components/atoms";

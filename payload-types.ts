@@ -1490,7 +1490,7 @@ export interface Booking {
     customerPhone: string;
     nationality?: string | null;
   };
-  bookingType: 'activity' | 'ferry' | 'package' | 'mixed';
+  bookingType: 'activity' | 'ferry' | 'boat' | 'package' | 'mixed';
   /**
    * Date when the booking was made (auto-generated)
    */
@@ -1528,6 +1528,52 @@ export interface Booking {
           children?: number | null;
           infants?: number | null;
         };
+        id?: string | null;
+      }[]
+    | null;
+  bookedBoats?:
+    | {
+        /**
+         * Reference to the boat route
+         */
+        boatRoute: string | BoatRoute;
+        /**
+         * Name of the boat service
+         */
+        boatName: string;
+        route: {
+          /**
+           * Departure location
+           */
+          from: string;
+          /**
+           * Destination location
+           */
+          to: string;
+        };
+        schedule: {
+          /**
+           * Departure time (HH:MM format)
+           */
+          departureTime: string;
+          /**
+           * Trip duration (e.g., 2h 30m)
+           */
+          duration?: string | null;
+          /**
+           * Date of travel
+           */
+          travelDate: string;
+        };
+        passengers: {
+          adults: number;
+          children?: number | null;
+          infants?: number | null;
+        };
+        /**
+         * Total price for this boat booking
+         */
+        totalPrice: number;
         id?: string | null;
       }[]
     | null;
@@ -3159,6 +3205,34 @@ export interface BookingsSelect<T extends boolean = true> {
               children?: T;
               infants?: T;
             };
+        id?: T;
+      };
+  bookedBoats?:
+    | T
+    | {
+        boatRoute?: T;
+        boatName?: T;
+        route?:
+          | T
+          | {
+              from?: T;
+              to?: T;
+            };
+        schedule?:
+          | T
+          | {
+              departureTime?: T;
+              duration?: T;
+              travelDate?: T;
+            };
+        passengers?:
+          | T
+          | {
+              adults?: T;
+              children?: T;
+              infants?: T;
+            };
+        totalPrice?: T;
         id?: T;
       };
   bookedFerries?:

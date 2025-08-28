@@ -22,6 +22,7 @@ import {
   Phone,
   Mail,
   Loader2,
+  Anchor,
 } from "lucide-react";
 
 interface SimpleReviewStepProps {
@@ -110,7 +111,11 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
         currency: orderResult.order.currency,
         name: "Andaman Excursion",
         description: `${
-          bookingData?.items?.[0]?.type === "ferry" ? "Ferry" : "Activity"
+          bookingData?.items?.[0]?.type === "ferry" 
+            ? "Ferry" 
+            : bookingData?.items?.[0]?.type === "boat" 
+            ? "Boat" 
+            : "Activity"
         } Booking`,
         order_id: orderResult.order.id,
         prefill: {
@@ -206,6 +211,8 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
               <div className={styles.itemIcon}>
                 {item.type === "ferry" ? (
                   <Ship color="var(--color-primary)" size={24} />
+                ) : item.type === "boat" ? (
+                  <Anchor color="var(--color-primary)" size={24} />
                 ) : (
                   <Target size={24} />
                 )}
@@ -221,9 +228,15 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                       <Clock size={16} /> {item.time}
                     </span>
                   )}
-                  {item.location && Array.isArray(item.location) && (
+                  {item.location && (
                     <span>
-                      <MapPin size={16} /> {item.location[0].name}
+                      <MapPin size={16} /> 
+                      {Array.isArray(item.location) 
+                        ? item.location[0].name 
+                        : typeof item.location === 'string' 
+                        ? item.location 
+                        : item.location.name || 'Location'
+                      }
                     </span>
                   )}
                   {/* Ferry-specific details */}
@@ -240,6 +253,17 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                         {item.selectedSeats.join(", ")}
                       </span>
                     )}
+                  {/* Boat-specific details */}
+                  {item.type === "boat" && item.boat?.route && (
+                    <span>
+                      <MapPin size={16} /> {item.boat.route.from} → {item.boat.route.to}
+                    </span>
+                  )}
+                  {item.type === "boat" && item.boat?.minTimeAllowed && (
+                    <span>
+                      <Clock size={16} /> Duration: {item.boat.minTimeAllowed}
+                    </span>
+                  )}
                   <div className={styles.passengerInfo}>
                     <Users size={16} />
                     {item.passengers.adults} adults, {item.passengers.children}{" "}

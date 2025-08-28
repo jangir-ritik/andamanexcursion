@@ -40,6 +40,8 @@ function CheckoutContent() {
       setTimeout(() => {
         if (bookingType === "ferry") {
           router.push("/ferry");
+        } else if (bookingType === "boat") {
+          router.push("/boat");
         } else {
           router.push("/activities");
         }
@@ -52,6 +54,8 @@ function CheckoutContent() {
       console.warn("No booking data found, redirecting...");
       if (bookingType === "ferry") {
         router.push("/ferry");
+      } else if (bookingType === "boat") {
+        router.push("/boat");
       } else {
         router.push("/activities");
       }

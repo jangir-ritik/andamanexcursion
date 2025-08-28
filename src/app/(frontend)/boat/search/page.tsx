@@ -1,6 +1,6 @@
 "use client";
 import React, { Suspense, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
 import { SectionTitle } from "@/components/atoms";
@@ -14,6 +14,7 @@ import { UnifiedSearchingForm } from "@/components/organisms";
 // Component for cart content with empty state
 const BoatCartContent = () => {
   const { cart } = useBoat();
+  const router = useRouter();
 
   // Optimized scroll handler
   const handleAddMore = useCallback(() => {
@@ -39,8 +40,8 @@ const BoatCartContent = () => {
       cart={cart}
       onAddMore={handleAddMore}
       onCheckout={() => {
-        // Navigate to checkout
-        window.location.href = "/checkout";
+        // Navigate to checkout with type as boat
+        router.push("/checkout?type=boat");
       }}
     />
   );
@@ -210,10 +211,11 @@ const BoatPageTitle = React.memo(() => {
 
   // Memoize the title computation
   const titleData = useMemo(() => {
-    const fromLocationName = fromLocations.find(
-      (location) => location.slug === searchParams.fromLocation
-    )?.name || "Boat Trips";
-    
+    const fromLocationName =
+      fromLocations.find(
+        (location) => location.slug === searchParams.fromLocation
+      )?.name || "Boat Trips";
+
     const titleText = `${fromLocationName} Ferry Services`;
 
     return { fromLocationName, titleText };

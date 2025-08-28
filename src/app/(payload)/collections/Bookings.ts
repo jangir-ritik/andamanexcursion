@@ -95,6 +95,7 @@ const Bookings: CollectionConfig = {
       options: [
         { label: "Activity", value: "activity" },
         { label: "Ferry", value: "ferry" },
+        { label: "Boat", value: "boat" },
         { label: "Package", value: "package" },
         { label: "Mixed", value: "mixed" },
       ],
@@ -192,6 +193,113 @@ const Bookings: CollectionConfig = {
               defaultValue: 0,
             },
           ],
+        },
+      ],
+    },
+
+    // === BOOKED BOATS ===
+    {
+      name: "bookedBoats",
+      type: "array",
+      minRows: 0,
+      fields: [
+        {
+          name: "boatRoute",
+          type: "relationship",
+          relationTo: "boat-routes",
+          required: true,
+          admin: {
+            description: "Reference to the boat route",
+          },
+        },
+        {
+          name: "boatName",
+          type: "text",
+          required: true,
+          admin: {
+            description: "Name of the boat service",
+          },
+        },
+        {
+          name: "route",
+          type: "group",
+          fields: [
+            {
+              name: "from",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Departure location",
+              },
+            },
+            {
+              name: "to",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Destination location",
+              },
+            },
+          ],
+        },
+        {
+          name: "schedule",
+          type: "group",
+          fields: [
+            {
+              name: "departureTime",
+              type: "text",
+              required: true,
+              admin: {
+                description: "Departure time (HH:MM format)",
+              },
+            },
+            {
+              name: "duration",
+              type: "text",
+              admin: {
+                description: "Trip duration (e.g., 2h 30m)",
+              },
+            },
+            {
+              name: "travelDate",
+              type: "date",
+              required: true,
+              admin: {
+                description: "Date of travel",
+              },
+            },
+          ],
+        },
+        {
+          name: "passengers",
+          type: "group",
+          fields: [
+            {
+              name: "adults",
+              type: "number",
+              required: true,
+              defaultValue: 0,
+            },
+            {
+              name: "children",
+              type: "number",
+              defaultValue: 0,
+            },
+            {
+              name: "infants",
+              type: "number",
+              defaultValue: 0,
+            },
+          ],
+        },
+        {
+          name: "totalPrice",
+          type: "number",
+          required: true,
+          admin: {
+            description: "Total price for this boat booking",
+          },
         },
       ],
     },

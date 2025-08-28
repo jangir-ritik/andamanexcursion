@@ -15,6 +15,7 @@ import {
   useActivityStoreRQ,
 } from "@/store/ActivityStoreRQ";
 import type { Boat, BoatSearchParams, BoatCartItem } from "@/store/BoatStore";
+import { useBoat } from "@/store/BoatStore";
 import type {
   UnifiedFerryResult,
   FerryClass,
@@ -312,7 +313,7 @@ export class CheckoutAdapter {
   /**
    * Get boat checkout data from BoatStore
    */
-  private static getBoatCheckoutData(): UnifiedBookingData {
+  public static getBoatCheckoutData(): UnifiedBookingData {
     // Check if we're in browser environment
     if (typeof window === "undefined") {
       throw new Error("Boat checkout data not available during SSR");
@@ -453,6 +454,7 @@ export const useCheckoutAdapter = (searchParams: URLSearchParams) => {
  */
 export const useCheckoutAdapterRQ = (searchParams: URLSearchParams) => {
   const activityStore = useActivityStoreRQ();
+  const boatStore = useBoat();
 
   try {
     const bookingType = CheckoutAdapter.detectBookingType(searchParams);
@@ -463,6 +465,8 @@ export const useCheckoutAdapterRQ = (searchParams: URLSearchParams) => {
       bookingData = getActivityCheckoutDataRQ(activityStore);
     } else if (bookingType === "ferry") {
       bookingData = CheckoutAdapter.getFerryCheckoutData();
+    } else if (bookingType === "boat") {
+      bookingData = getBoatCheckoutDataRQ(boatStore);
     } else {
       bookingData = CheckoutAdapter.getMixedCheckoutData();
     }
@@ -487,6 +491,57 @@ export const useCheckoutAdapterRQ = (searchParams: URLSearchParams) => {
     };
   }
 };
+
+/**
+ * Helper function to get boat checkout data from React Query store
+ */
+function getBoatCheckoutDataRQ(boatStore: any): UnifiedBookingData {
+  const { cart } = boatStore;
+
+  const items: UnifiedBookingItem[] = cart.map((cartItem: BoatCartItem) => ({
+    id: cartItem.id,
+    type: "boat" as const,
+    title:
+      cartItem.boat.name ||
+      `${cartItem.boat.route.from} to ${cartItem.boat.route.to}`,
+    passengers: {
+      adults: cartItem.searchParams.adults || 0,
+      children: cartItem.searchParams.children || 0,
+      infants: 0,
+    },
+    price: cartItem.totalPrice,
+    date: cartItem.searchParams.date || "",
+    time: cartItem.selectedTime || "",
+    location: cartItem.boat.route.from || "",
+    boat: cartItem.boat,
+    boatSearchParams: cartItem.searchParams,
+    selectedTime: cartItem.selectedTime,
+  }));
+
+  const totalPassengers = items.reduce(
+    (sum, item) => sum + item.passengers.adults + item.passengers.children,
+    0
+  );
+
+  const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+
+  const requirements: PassengerRequirements = {
+    totalRequired: totalPassengers,
+    bookings: items.map((item) => ({
+      title: item.title,
+      passengers: item.passengers.adults + item.passengers.children,
+      type: item.type,
+    })),
+  };
+
+  return {
+    type: "boat",
+    items,
+    totalPassengers,
+    totalPrice,
+    requirements,
+  };
+}
 
 /**
  * Helper function to get activity checkout data from React Query store

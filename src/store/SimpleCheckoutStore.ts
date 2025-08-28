@@ -83,6 +83,7 @@ const initialState: SimpleCheckoutState = {
 };
 
 // Generate unique member ID
+// TODO: use nanoid to generate member id
 const generateMemberId = (): string => {
   return `member-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
