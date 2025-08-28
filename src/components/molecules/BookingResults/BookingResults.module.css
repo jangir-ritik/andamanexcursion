@@ -23,6 +23,17 @@
   margin: 0;
 }
 
+.resultsHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(-space-4);
+}
+
+.resultsHeader h2,
+.resultsHeader p {
+  color: var(--color-text-primary);
+}
+
 .resultCount {
   display: flex;
   align-items: center;
@@ -68,6 +79,12 @@
   font-size: var(--font-size-lg);
   margin-bottom: var(--space-6);
   color: var(--color-text-secondary);
+}
+
+.resultsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .timeFilters {

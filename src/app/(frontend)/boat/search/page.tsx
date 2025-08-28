@@ -3,7 +3,7 @@ import React, { Suspense, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
-import { Button } from "@/components/atoms";
+import { SectionTitle } from "@/components/atoms";
 import { useBoat } from "@/store/BoatStore";
 import { useBoatFormOptions } from "@/hooks/queries/useBoats";
 import { SearchSummary } from "@/components/molecules/BookingResults";
@@ -203,7 +203,34 @@ const BoatSearchContent = () => {
   );
 };
 
-// Main page component
+// Memoized component for the page title
+const BoatPageTitle = React.memo(() => {
+  const { searchParams } = useBoat();
+  const { fromLocations } = useBoatFormOptions();
+
+  // Memoize the title computation
+  const titleData = useMemo(() => {
+    const fromLocationName = fromLocations.find(
+      (location) => location.slug === searchParams.fromLocation
+    )?.name || "Boat Trips";
+    
+    const titleText = `${fromLocationName} Ferry Services`;
+
+    return { fromLocationName, titleText };
+  }, [fromLocations, searchParams.fromLocation]);
+
+  return (
+    <SectionTitle
+      specialWord={titleData.fromLocationName}
+      text={titleData.titleText}
+      id="available-boats-title"
+    />
+  );
+});
+
+BoatPageTitle.displayName = "BoatPageTitle";
+
+// Main page component with React Query integration
 export default function BoatSearchPage() {
   return (
     <main className={styles.main}>
@@ -242,6 +269,9 @@ export default function BoatSearchPage() {
         aria-labelledby="search-results-content"
         className={styles.contentArea}
       >
+        <Suspense fallback={<div>Loading...</div>}>
+          <BoatPageTitle />
+        </Suspense>
         <Suspense
           fallback={
             <div className={styles.loadingFallback}>

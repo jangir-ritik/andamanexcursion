@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/atoms";
+import { Calendar, Clock, Users } from "lucide-react";
 import { type BoatCartItem } from "@/store/BoatStore";
-import styles from "./CartSummary.module.css";
+import styles from "./boatCartSummary.module.css";
 
 interface BoatCartSummaryProps {
   cart: BoatCartItem[];
@@ -24,7 +25,7 @@ export const BoatCartSummary: React.FC<BoatCartSummaryProps> = ({
   return (
     <div className={styles.cartSummary}>
       <div className={styles.cartHeader}>
-        <h3 className={styles.cartTitle}>Your Boat Trips</h3>
+        <h3 className={styles.cartTitle}>Your Selection</h3>
         <span className={styles.cartCount}>
           {cart.length} trip{cart.length !== 1 ? "s" : ""}
         </span>
@@ -39,12 +40,17 @@ export const BoatCartSummary: React.FC<BoatCartSummaryProps> = ({
                 {item.boat.route.from} → {item.boat.route.to}
               </p>
               <div className={styles.itemDetails}>
-                <span className={styles.itemDate}>
-                  📅 {new Date(item.searchParams.date).toLocaleDateString()}
+                <span className={styles.itemDetail}>
+                  <Calendar size={14} className={styles.detailIcon} />
+                  {new Date(item.searchParams.date).toLocaleDateString()}
                 </span>
-                <span className={styles.itemTime}>🕒 {item.selectedTime}</span>
-                <span className={styles.itemPassengers}>
-                  👥 {item.searchParams.adults + item.searchParams.children}{" "}
+                <span className={styles.itemDetail}>
+                  <Clock size={14} className={styles.detailIcon} />
+                  {item.selectedTime}
+                </span>
+                <span className={styles.itemDetail}>
+                  <Users size={14} className={styles.detailIcon} />
+                  {item.searchParams.adults + item.searchParams.children}{" "}
                   passengers
                 </span>
               </div>
@@ -71,16 +77,15 @@ export const BoatCartSummary: React.FC<BoatCartSummaryProps> = ({
             </span>
           </div>
         </div>
-
         <div className={styles.cartActions}>
-          <Button
+          {/* <Button
             variant="secondary"
             size="small"
             onClick={onAddMore}
             className={styles.addMoreButton}
           >
             Add More Trips
-          </Button>
+          </Button> */}
           <Button
             variant="primary"
             size="medium"
@@ -88,7 +93,7 @@ export const BoatCartSummary: React.FC<BoatCartSummaryProps> = ({
             className={styles.checkoutButton}
             showArrow
           >
-            Proceed to Checkout
+            Proceed to Booking
           </Button>
         </div>
       </div>

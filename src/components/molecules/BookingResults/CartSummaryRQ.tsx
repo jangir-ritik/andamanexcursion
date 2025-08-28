@@ -683,6 +683,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
           <Button
             className={styles.enhancedNextButton}
             onClick={() => router.push("/checkout?type=activity")}
+            showArrow
           >
             Proceed to Booking
           </Button>

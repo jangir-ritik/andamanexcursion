@@ -283,7 +283,7 @@ export function BoatSearchForm({
       case "embedded":
         return "Find Boats";
       default:
-        return "Search Boats";
+        return "Search";
     }
   }, [variant, isEditMode]);
 
@@ -367,7 +367,7 @@ export function BoatSearchForm({
                 value={field.value}
                 onChange={field.onChange}
                 options={fromLocationOptions}
-                placeholder="Select Departure"
+                placeholder="Departure Port"
                 hasError={!!errors.fromLocation}
               />
             )}
@@ -390,7 +390,7 @@ export function BoatSearchForm({
                 value={field.value || ""}
                 onChange={field.onChange}
                 options={toLocationOptions}
-                placeholder="Select Destination"
+                placeholder="Destination Port"
                 hasError={!!errors.toLocation}
                 // disabled={!currentSearchParams.fromLocation}
               />
