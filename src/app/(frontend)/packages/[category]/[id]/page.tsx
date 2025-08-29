@@ -1,20 +1,17 @@
 import React from "react";
 import { Section, Column, Row } from "@/components/layout";
 import { EnquireButton } from "@/components/atoms";
-import {
-  pageService,
-  pageDataService,
-  packageService,
-} from "@/services/payload";
+import { pageService, pageDataService } from "@/services/payload";
 import { notFound } from "next/navigation";
 import styles from "../../page.module.css";
 import { PackageDetailTabs } from "@/components/organisms";
 import { PackageDetailHeader } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader";
 import { PayloadPackage } from "@/components/sectionBlocks/packages/packageDetailHeader/PackageDetailHeader.types";
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
-import { getImageUrl } from "@/utils/getImageUrl";
 import { Metadata } from "next";
-import { packageCategoryService } from "@/services/payload/collections/navigation";
+import { getImageUrl } from "@/utils/getImageUrl";
+import { packageCategoryService, packageService } from "@/services/payload";
+
 interface PackageDetailPageProps {
   params: Promise<{
     category: string;
@@ -29,6 +26,7 @@ export default async function PackageDetailPage({
 
   // Get package data from API
   const result = await pageDataService.getPackageDetailPageData(category, id);
+
   if (!result || !result.packageData) {
     notFound();
   }
@@ -77,7 +75,6 @@ export default async function PackageDetailPage({
           </Row>
         </Column>
       </Section>
-
       {/* Render additional CMS blocks if they exist */}
       {enrichedBlocks.length > 0 && (
         <BlockRenderer blocks={enrichedBlocks as any} />
@@ -98,18 +95,16 @@ export async function generateStaticParams() {
       try {
         const packages = await packageService.getAll({
           categorySlug: category.slug,
-          limit: 1000,
+          limit: 1000, // Set a high limit to get all packages
         });
 
         // Add each package to static params
         for (const pkg of packages) {
-          // Only include published packages
-          if (pkg.publishingSettings?.status === "published") {
-            staticParams.push({
-              category: category.slug,
-              id: pkg.slug, // Using slug as ID based on your URL structure
-            });
-          }
+          // packageService.getAll already filters for published content via getPublishedQuery
+          staticParams.push({
+            category: category.slug,
+            id: pkg.slug, // Using slug as ID based on your URL structure
+          });
         }
       } catch (error) {
         console.error(
@@ -154,9 +149,11 @@ export async function generateMetadata({
 
     // Extract SEO data from package structure
     const title =
+      // packageData.seo?.metaTitle ||
       packageData.meta?.title || `${packageData.title} | Andaman Excursion`;
 
     const description =
+      // packageData.seo?.metaDescription ||
       packageData.meta?.description ||
       packageData.descriptions?.shortDescription ||
       packageData.descriptions?.description ||
@@ -167,7 +164,9 @@ export async function generateMetadata({
     if (packageData.media?.images && packageData.media.images.length > 0) {
       const firstImage = packageData.media.images[0];
       imageUrl = getImageUrl(firstImage.image);
-    } else if (packageData.meta) {
+      // } else if (packageData.seo?.metaImage) {
+      //   imageUrl = getImageUrl(packageData.seo.metaImage);
+    } else if (packageData.meta?.image) {
       imageUrl = getImageUrl(packageData.meta.image);
     }
 
@@ -189,7 +188,9 @@ export async function generateMetadata({
         ...(packageData.coreInfo?.locations || []).map((loc: any) =>
           typeof loc === "object" ? loc.name : loc
         ),
-        packageData.coreInfo?.period?.toString || packageData.coreInfo?.period,
+        typeof packageData.coreInfo?.period === "string"
+          ? packageData.coreInfo?.period
+          : packageData.coreInfo?.period.title,
       ]
         .filter(Boolean)
         .join(", ");
@@ -198,7 +199,7 @@ export async function generateMetadata({
       title,
       description,
       keywords: typeof keywords === "string" ? keywords : [],
-      // : keywords?.join(", ")
+      // keywords?.join(", "),
       openGraph: {
         title,
         description,

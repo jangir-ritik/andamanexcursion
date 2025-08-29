@@ -42,7 +42,6 @@ export default async function PackagesPage() {
     <div className={styles.main}>
       {/* Render static content blocks */}
       <BlockRenderer blocks={enrichedBlocks} />
-
       {/* Client-side component for URL param handling */}
       <PackagesPageClient />
     </div>
@@ -89,6 +88,9 @@ export async function generateMetadata(): Promise<Metadata> {
       "Andaman packages, travel packages, Andaman tours, vacation packages, island tours, Andaman excursion";
 
     return {
+      metadataBase: new URL(
+        process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
+      ),
       title: seoTitle,
       description: seoDescription,
       keywords: typeof keywords === "string" ? keywords : [],

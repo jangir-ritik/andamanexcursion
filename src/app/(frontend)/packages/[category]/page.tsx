@@ -150,6 +150,9 @@ export async function generateMetadata({
       ].join(", ");
 
     return {
+      metadataBase: new URL(
+        process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
+      ),
       title,
       description,
       keywords: typeof keywords === "string" ? keywords : [],
