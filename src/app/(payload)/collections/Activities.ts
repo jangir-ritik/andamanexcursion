@@ -189,31 +189,6 @@ const Activities: CollectionConfig = {
       ],
     },
     {
-      name: "seo",
-      type: "group",
-      admin: {
-        description: "Search engine optimization settings",
-        position: "sidebar",
-      },
-      fields: [
-        {
-          name: "metaTitle",
-          type: "text",
-        },
-        {
-          name: "metaDescription",
-          type: "textarea",
-        },
-        {
-          name: "keywords",
-          type: "text",
-          admin: {
-            description: "Comma-separated keywords",
-          },
-        },
-      ],
-    },
-    {
       name: "status",
       type: "group",
       admin: {

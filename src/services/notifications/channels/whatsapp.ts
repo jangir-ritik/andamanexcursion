@@ -15,7 +15,7 @@ import {
 } from "./base";
 
 // Twilio SDK for WhatsApp
-import { Twilio } from "twilio";
+import twilio from "twilio";
 
 // WhatsApp template types for type safety
 export interface WhatsAppTemplate {
@@ -40,7 +40,7 @@ export interface WhatsAppTemplate {
 
 export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   name = "whatsapp";
-  private client: Twilio | null = null;
+  private client: twilio.Twilio | null = null;
 
   private readonly config: Required<ChannelConfig["whatsapp"]> = {
     accountId: process.env.TWILIO_ACCOUNT_SID || "",
@@ -62,7 +62,7 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
 
     if (this.isEnabled()) {
       try {
-        this.client = new Twilio(
+        this.client = twilio(
           process.env.TWILIO_ACCOUNT_SID!,
           process.env.TWILIO_AUTH_TOKEN!
         );
@@ -92,15 +92,15 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
     const fromNumber = this.getFromNumber();
     const environment = process.env.NODE_ENV || "development";
 
-    console.log("[WhatsApp Debug] Environment check:");
-    console.log("- TWILIO_ACCOUNT_SID:", accountSid ? "✓ Set" : "✗ Missing");
-    console.log("- TWILIO_AUTH_TOKEN:", authToken ? "✓ Set" : "✗ Missing");
-    console.log("- TWILIO_WHATSAPP_NUMBER:", fromNumber || "✗ Missing");
-    console.log("- Environment:", environment);
-    console.log(
-      "- FromNumber starts with 'whatsapp:':",
-      fromNumber?.startsWith("whatsapp:") ? "✓ Yes" : "✗ No"
-    );
+    // console.log("[WhatsApp Debug] Environment check:");
+    // console.log("- TWILIO_ACCOUNT_SID:", accountSid ? "✓ Set" : "✗ Missing");
+    // console.log("- TWILIO_AUTH_TOKEN:", authToken ? "✓ Set" : "✗ Missing");
+    // console.log("- TWILIO_WHATSAPP_NUMBER:", fromNumber || "✗ Missing");
+    // console.log("- Environment:", environment);
+    // console.log(
+    //   "- FromNumber starts with 'whatsapp:':",
+    //   fromNumber?.startsWith("whatsapp:") ? "✓ Yes" : "✗ No"
+    // );
 
     const enabled = !!(
       accountSid &&
@@ -109,11 +109,11 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
       fromNumber.startsWith("whatsapp:")
     );
 
-    console.log("- Channel enabled:", enabled ? "✓ YES" : "✗ NO");
+    // console.log("- Channel enabled:", enabled ? "✓ YES" : "✗ NO");
     return enabled;
   }
 
-  private getClient(): Twilio {
+  private getClient(): twilio.Twilio {
     if (!this.client) {
       throw new Error(
         "WhatsApp client not initialized - service may not be enabled"
@@ -123,15 +123,15 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   async send<T>(payload: NotificationPayload<T>): Promise<NotificationResult> {
-    console.log("[WhatsApp Debug] Send called with:", {
-      type: payload.type,
-      recipient: payload.recipient,
-      enabled: this.isEnabled(),
-      environment: process.env.NODE_ENV || "development",
-    });
+    // console.log("[WhatsApp Debug] Send called with:", {
+    //   type: payload.type,
+    //   recipient: payload.recipient,
+    //   enabled: this.isEnabled(),
+    //   environment: process.env.NODE_ENV || "development",
+    // });
 
     if (!this.isEnabled()) {
-      console.log("[WhatsApp Debug] Channel not enabled - skipping");
+      // console.log("[WhatsApp Debug] Channel not enabled - skipping");
       return this.createResult(
         false,
         undefined,
@@ -140,11 +140,11 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
     }
 
     if (!this.validatePhoneNumber(payload.recipient)) {
-      console.log("[WhatsApp Debug] Invalid phone number:", payload.recipient);
+      // console.log("[WhatsApp Debug] Invalid phone number:", payload.recipient);
       return this.createResult(false, undefined, "Invalid phone number format");
     }
 
-    console.log("[WhatsApp Debug] Proceeding with send...");
+    // console.log("[WhatsApp Debug] Proceeding with send...");
 
     try {
       const client = this.getClient();
@@ -224,10 +224,10 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private validatePhoneNumber(phone: string): boolean {
-    console.log("[WhatsApp Debug] Validating phone:", phone);
+    // console.log("[WhatsApp Debug] Validating phone:", phone);
 
     if (!this.validateRecipient(phone)) {
-      console.log("[WhatsApp Debug] Basic validation failed");
+      // console.log("[WhatsApp Debug] Basic validation failed");
       return false;
     }
 
@@ -235,13 +235,13 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     const isValid = phoneRegex.test(phone.trim());
 
-    console.log(
-      "[WhatsApp Debug] Regex validation:",
-      isValid ? "✓ Pass" : "✗ Fail"
-    );
-    console.log(
-      "[WhatsApp Debug] Expected format: +[country][number] (e.g., +918107664041)"
-    );
+    // console.log(
+    //   "[WhatsApp Debug] Regex validation:",
+    //   isValid ? "✓ Pass" : "✗ Fail"
+    // );
+    // console.log(
+    //   "[WhatsApp Debug] Expected format: +[country][number] (e.g., +918107664041)"
+    // );
 
     return isValid;
   }
@@ -557,7 +557,7 @@ Contact us anytime:
   }
 
   private async sendWhatsAppMessage(
-    client: Twilio,
+    client: twilio.Twilio,
     to: string,
     messageData: {
       templateName?: string;
@@ -573,11 +573,11 @@ Contact us anytime:
         const message =
           messageData.body || this.buildSimpleMessage(messageData.templateData);
 
-        console.log(`[WhatsApp Debug] Sending sandbox message to: ${to}`);
-        console.log(
-          `[WhatsApp Debug] Message preview:`,
-          message.substring(0, 100) + "..."
-        );
+        // console.log(`[WhatsApp Debug] Sending sandbox message to: ${to}`);
+        // console.log(
+        //   `[WhatsApp Debug] Message preview:`,
+        //   message.substring(0, 100) + "..."
+        // );
 
         result = await client.messages.create({
           from: this.getFromNumber(),
@@ -590,9 +590,9 @@ Contact us anytime:
           const contentSid = this.getContentSid(messageData.templateName);
 
           if (!contentSid) {
-            console.log(
-              `[WhatsApp Debug] No content SID found for template: ${messageData.templateName}, falling back to simple message`
-            );
+            // console.log(
+            //   `[WhatsApp Debug] No content SID found for template: ${messageData.templateName}, falling back to simple message`
+            // );
 
             const fallbackMessage = this.buildSimpleMessage(
               messageData.templateData
@@ -607,11 +607,11 @@ Contact us anytime:
               messageData.templateData
             );
 
-            console.log(`[WhatsApp Debug] Sending template message:`, {
-              contentSid,
-              contentVariables,
-              to,
-            });
+            // console.log(`[WhatsApp Debug] Sending template message:`, {
+            //   contentSid,
+            //   contentVariables,
+            //   to,
+            // });
 
             result = await client.messages.create({
               from: this.getFromNumber(),
@@ -631,7 +631,7 @@ Contact us anytime:
         }
       }
 
-      console.log(`[WhatsApp Debug] Message sent successfully:`, result.sid);
+      // console.log(`[WhatsApp Debug] Message sent successfully:`, result.sid);
       return { sid: result.sid };
     } catch (error: any) {
       console.error("Twilio WhatsApp API error:", error);

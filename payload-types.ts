@@ -350,14 +350,6 @@ export interface Page {
     };
   };
   /**
-   * Search engine optimization settings
-   */
-  seoMeta?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    metaImage?: (string | null) | Media;
-  };
-  /**
    * Main content blocks for this page
    */
   pageContent?: {
@@ -671,6 +663,23 @@ export interface Page {
               blockType: 'testimonials';
             }
           | {
+              blockName?: string | null;
+              /**
+               * Enable/disable this testimonials section
+               */
+              enabled?: boolean | null;
+              /**
+               * Optional custom title (leave empty to use default)
+               */
+              customTitle?: string | null;
+              /**
+               * Optional custom subtitle (leave empty to use default)
+               */
+              customSubtitle?: string | null;
+              id?: string | null;
+              blockType: 'googleTestimonials';
+            }
+          | {
               title: string;
               subtitle: string;
               description?: string | null;
@@ -783,6 +792,14 @@ export interface Page {
      */
     publishedAt?: string | null;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -820,18 +837,13 @@ export interface ActivityCategory {
    * Image representing this category (recommended: square format, min 64x64px)
    */
   image: string | Media;
-  /**
-   * Search engine optimization settings
-   */
-  seo?: {
+  meta?: {
+    title?: string | null;
+    description?: string | null;
     /**
-     * Leave blank to auto-generate from category name
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    metaTitle?: string | null;
-    /**
-     * Brief description for search engines (150-160 characters recommended)
-     */
-    metaDescription?: string | null;
+    image?: (string | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -921,26 +933,13 @@ export interface PackageCategory {
         }[]
       | null;
   };
-  seo?: {
+  meta?: {
+    title?: string | null;
+    description?: string | null;
     /**
-     * SEO title (leave empty to auto-generate)
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    metaTitle?: string | null;
-    /**
-     * SEO description (leave empty to auto-generate)
-     */
-    metaDescription?: string | null;
-    metaImage?: (string | null) | Media;
-    /**
-     * SEO keywords for this category
-     */
-    keywords?:
-      | {
-          keyword: string;
-          id?: string | null;
-        }[]
-      | null;
-    systemCategoryId?: string | null;
+    image?: (string | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -1056,23 +1055,6 @@ export interface Package {
     featuredOrder?: number | null;
   };
   /**
-   * SEO settings (auto-populated from package data)
-   */
-  seo?: {
-    /**
-     * Auto-populated from title if empty
-     */
-    metaTitle?: string | null;
-    /**
-     * Auto-populated from short description if empty
-     */
-    metaDescription?: string | null;
-    /**
-     * Auto-populated from first package image if empty
-     */
-    metaImage?: (string | null) | Media;
-  };
-  /**
    * Control page visibility and publishing
    */
   publishingSettings?: {
@@ -1084,6 +1066,14 @@ export interface Package {
      * When this page was published
      */
     publishedAt?: string | null;
+  };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -1153,10 +1143,6 @@ export interface Location {
           id?: string | null;
         }[]
       | null;
-  };
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
   };
   isActive?: boolean | null;
   /**
@@ -1243,17 +1229,6 @@ export interface Activity {
       }[]
     | null;
   /**
-   * Search engine optimization settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    /**
-     * Comma-separated keywords
-     */
-    keywords?: string | null;
-  };
-  /**
    * Status and visibility settings
    */
   status?: {
@@ -1266,6 +1241,14 @@ export interface Activity {
      * Higher numbers appear first in listings
      */
     priority?: number | null;
+  };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -1458,6 +1441,14 @@ export interface BoatRoute {
         id?: string | null;
       }[]
     | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -2413,13 +2404,6 @@ export interface PagesSelect<T extends boolean = true> {
               navigationLabel?: T;
             };
       };
-  seoMeta?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        metaImage?: T;
-      };
   pageContent?:
     | T
     | {
@@ -2689,6 +2673,15 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
+              googleTestimonials?:
+                | T
+                | {
+                    blockName?: T;
+                    enabled?: T;
+                    customTitle?: T;
+                    customSubtitle?: T;
+                    id?: T;
+                  };
               secondaryBanner?:
                 | T
                 | {
@@ -2789,6 +2782,13 @@ export interface PagesSelect<T extends boolean = true> {
         status?: T;
         publishedAt?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2878,18 +2878,18 @@ export interface PackagesSelect<T extends boolean = true> {
         featured?: T;
         featuredOrder?: T;
       };
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        metaImage?: T;
-      };
   publishingSettings?:
     | T
     | {
         status?: T;
         publishedAt?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2945,19 +2945,12 @@ export interface PackageCategoriesSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  seo?:
+  meta?:
     | T
     | {
-        metaTitle?: T;
-        metaDescription?: T;
-        metaImage?: T;
-        keywords?:
-          | T
-          | {
-              keyword?: T;
-              id?: T;
-            };
-        systemCategoryId?: T;
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2997,12 +2990,6 @@ export interface LocationsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-      };
   isActive?: T;
   priority?: T;
   updatedAt?: T;
@@ -3020,11 +3007,12 @@ export interface ActivityCategoriesSelect<T extends boolean = true> {
   sortOrder?: T;
   parentCategory?: T;
   image?: T;
-  seo?:
+  meta?:
     | T
     | {
-        metaTitle?: T;
-        metaDescription?: T;
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -3072,19 +3060,19 @@ export interface ActivitiesSelect<T extends boolean = true> {
         isActive?: T;
         id?: T;
       };
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        keywords?: T;
-      };
   status?:
     | T
     | {
         isActive?: T;
         isFeatured?: T;
         priority?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -3166,6 +3154,13 @@ export interface BoatRoutesSelect<T extends boolean = true> {
         image?: T;
         caption?: T;
         id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;

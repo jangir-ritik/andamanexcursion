@@ -200,57 +200,6 @@ const PackageCategories: CollectionConfig = {
         },
       ],
     },
-    // SEO (Sidebar)
-    {
-      name: "seo",
-      type: "group",
-      admin: {
-        position: "sidebar",
-      },
-      fields: [
-        {
-          name: "metaTitle",
-          type: "text",
-          admin: {
-            description: "SEO title (leave empty to auto-generate)",
-          },
-        },
-        {
-          name: "metaDescription",
-          type: "textarea",
-          admin: {
-            description: "SEO description (leave empty to auto-generate)",
-          },
-        },
-        {
-          name: "metaImage",
-          type: "upload",
-          relationTo: "media",
-        },
-        {
-          name: "keywords",
-          type: "array",
-          maxRows: 10,
-          admin: {
-            description: "SEO keywords for this category",
-          },
-          fields: [
-            {
-              name: "keyword",
-              type: "text",
-              required: true,
-            },
-          ],
-        },
-        {
-          name: "systemCategoryId",
-          type: "text",
-          admin: {
-            hidden: true, // Hide from admin UI
-          },
-        },
-      ],
-    },
   ],
   hooks: {
     beforeChange: [
@@ -275,23 +224,6 @@ const PackageCategories: CollectionConfig = {
           data.displaySettings = {
             ...data.displaySettings,
             specialWord: data.displaySettings.pageTitle,
-          };
-        }
-
-        // Auto-generate SEO fields if not provided
-        if (!data?.seo?.metaTitle && data?.title) {
-          data.seo = {
-            ...data.seo,
-            metaTitle: `${data.title} - Best Travel Packages & Deals`,
-          };
-        }
-
-        if (!data?.seo?.metaDescription && data?.categoryDetails?.description) {
-          data.seo = {
-            ...data.seo,
-            metaDescription: `${
-              data.categoryDetails.description
-            } Book your perfect ${data.title.toLowerCase()} with us today.`,
           };
         }
 

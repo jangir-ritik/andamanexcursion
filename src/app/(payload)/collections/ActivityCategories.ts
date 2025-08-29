@@ -85,55 +85,11 @@ const ActivityCategories: CollectionConfig = {
           "Image representing this category (recommended: square format, min 64x64px)",
       },
     },
-    {
-      name: "seo",
-      type: "group",
-      label: "SEO Settings",
-      admin: {
-        description: "Search engine optimization settings",
-        condition: (data) => data.isActive, // Only show SEO if category is active
-        position: "sidebar",
-      },
-      fields: [
-        {
-          name: "metaTitle",
-          type: "text",
-          admin: {
-            description: "Leave blank to auto-generate from category name",
-            placeholder: "Auto-generated from name if empty",
-          },
-        },
-        {
-          name: "metaDescription",
-          type: "textarea",
-          admin: {
-            description:
-              "Brief description for search engines (150-160 characters recommended)",
-            rows: 2,
-          },
-          validate: (val) => {
-            if (val && val.length > 160) {
-              return "Meta description should be under 160 characters for best SEO results";
-            }
-            return true;
-          },
-        },
-      ],
-    },
   ],
   hooks: {
     beforeChange: [
       // Auto-generate slug using utility function
       createSlugHook("name", "slug", { maxLength: 60 }),
-
-      // Auto-generate meta title
-      ({ data }) => {
-        if (data.isActive && data.name && !data.seo?.metaTitle) {
-          data.seo = data.seo || {};
-          data.seo.metaTitle = `${data.name} Activities | Your Site Name`;
-        }
-        return data;
-      },
     ],
     beforeValidate: [
       ({ data, originalDoc, operation }) => {

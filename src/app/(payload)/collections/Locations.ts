@@ -83,23 +83,6 @@ const Locations: CollectionConfig = {
       ],
     },
     {
-      name: "seo",
-      type: "group",
-      admin: {
-        position: "sidebar",
-      },
-      fields: [
-        {
-          name: "metaTitle",
-          type: "text",
-        },
-        {
-          name: "metaDescription",
-          type: "textarea",
-        },
-      ],
-    },
-    {
       name: "isActive",
       type: "checkbox",
       admin: {

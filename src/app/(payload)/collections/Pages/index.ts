@@ -1,6 +1,6 @@
 import { CollectionConfig } from "payload";
 import { pageTypeOptions } from "@/shared/constants/page-types";
-import { seoFields } from "./fields/seo";
+// import { seoFields } from "./fields/seo";
 import { contentBlocks } from "./blocks";
 
 const Pages: CollectionConfig = {
@@ -299,18 +299,6 @@ const Pages: CollectionConfig = {
           ],
         },
       ],
-    },
-
-    // === SEO & METADATA ===
-    {
-      name: "seoMeta",
-      type: "group",
-      label: "SEO & Metadata",
-      admin: {
-        description: "Search engine optimization settings",
-        position: "sidebar",
-      },
-      fields: [...seoFields.fields],
     },
 
     // === PAGE CONTENT ===

@@ -2,6 +2,7 @@ import sharp from "sharp";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { buildConfig } from "payload";
+import { seoPlugin } from "@payloadcms/plugin-seo";
 import { fileURLToPath } from "node:url";
 import path from "path";
 
@@ -108,4 +109,55 @@ export default buildConfig({
       },
     },
   },
+  plugins: [
+    seoPlugin({
+      collections: [
+        "pages", // ✅ Static pages
+        "packages", // ✅ Package detail pages
+        "package-categories", // ✅ Category landing pages
+        "activities", // ✅ Activity detail pages
+        "activity-categories", // ✅ Activity category pages
+        "boat-routes", // ✅ Boat booking pages (if needed)
+      ],
+      uploadsCollection: "media",
+      generateTitle: ({ doc, collectionSlug }) => {
+        const siteName = "Andaman Excursion";
+
+        switch (collectionSlug) {
+          case "activities":
+            return `${doc.title} | Activities | ${siteName}`;
+          case "packages":
+            return `${doc.title} | Packages | ${siteName}`;
+          case "package-categories":
+            return `${doc.name} Packages | ${siteName}`;
+          case "activity-categories":
+            return `${doc.name} Activities | ${siteName}`;
+          case "boat-routes":
+            return `${doc.routeName} Ferry | Boat Booking | ${siteName}`;
+          default:
+            return `${doc.title || doc.name} | ${siteName}`;
+        }
+      },
+      generateDescription: ({ doc, collectionSlug }) => {
+        switch (collectionSlug) {
+          case "activities":
+            return (
+              doc.coreInfo?.shortDescription ||
+              `Experience ${doc.title} in the Andaman Islands`
+            );
+          case "packages":
+            return (
+              doc.shortDescription ||
+              `Discover our ${doc.title} package in Andaman`
+            );
+          case "package-categories":
+            return `Explore ${doc.name} packages in the Andaman Islands`;
+          case "activity-categories":
+            return `Find the best ${doc.name} activities in Andaman`;
+          default:
+            return doc.description?.substring(0, 160);
+        }
+      },
+    }),
+  ],
 });
