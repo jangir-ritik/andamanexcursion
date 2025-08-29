@@ -10,6 +10,7 @@ export const SectionTitle = ({
   className,
   specialWord,
   id,
+  headingLevel = "h2", // Default to h2
 }: SectionTitleProps) => {
   const titleClasses = [styles.sectionTitle, className || ""].join(" ").trim();
   const [isHovered, setIsHovered] = useState(false);
@@ -17,7 +18,7 @@ export const SectionTitle = ({
     Array<{ left: number; top: number; width: number }>
   >([]);
   const specialWordRef = useRef<HTMLSpanElement | null>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -97,9 +98,15 @@ export const SectionTitle = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <h2 ref={titleRef} className={styles.title} id={id}>
-        {renderTextWithSpecialWord()}
-      </h2>
+      {headingLevel === "h1" ? (
+        <h1 ref={titleRef} className={styles.title} id={id}>
+          {renderTextWithSpecialWord()}
+        </h1>
+      ) : (
+        <h2 ref={titleRef} className={styles.title} id={id}>
+          {renderTextWithSpecialWord()}
+        </h2>
+      )}
       {specialWord &&
         underlinePositions.map((position, index) => (
           <div

@@ -44,7 +44,7 @@ export const dynamicPackagesBlock: Block = {
       name: "selectorTitle",
       type: "text",
       label: "Selector Section Title",
-      defaultValue: "Choose Your Package",
+      defaultValue: "Chosen Package",
       admin: {
         condition: (data, siblingData) =>
           siblingData?.showPackageSelector === true,

@@ -126,7 +126,11 @@ export const DynamicCategoryPackagesBlock: React.FC<
             fullWidth
             style={{ minHeight: "150px" }}
           >
-            <SectionTitle text={displayTitle} specialWord={specialWord} />
+            <SectionTitle
+              headingLevel="h1"
+              text={displayTitle}
+              specialWord={specialWord}
+            />
             <PackageSelector
               packageOptions={packageOptions}
               periodOptions={periodOptions}

@@ -42,7 +42,7 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
         responsive
         responsiveGap="var(--space-4)"
       >
-        <h3 className={styles.sectionTitle}>{packageData.title}</h3>
+        <h1 className={styles.sectionTitle}>{packageData.title}</h1>
 
         <Column
           gap={1}

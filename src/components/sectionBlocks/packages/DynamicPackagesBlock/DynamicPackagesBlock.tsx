@@ -44,7 +44,7 @@ export const DynamicPackagesBlock: React.FC<DynamicPackagesBlockProps> = ({
     description = "Crafted Just For You!",
     specialWord = "Packages",
     showPackageSelector = true,
-    selectorTitle = "Choose Your Package",
+    selectorTitle = "Choosen Package",
     categoryFilter,
     styling,
     packageOptions,
@@ -171,7 +171,7 @@ export const DynamicPackagesBlock: React.FC<DynamicPackagesBlockProps> = ({
             fullWidth
             style={{ minHeight: "150px" }}
           >
-            <SectionTitle text={selectorTitle} />
+            <SectionTitle headingLevel="h1" text={selectorTitle} />
             <PackageSelector
               packageOptions={packageOptions}
               periodOptions={periodOptions}
