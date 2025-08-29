@@ -55,10 +55,7 @@ export const navigationService = {
       const { docs } = await payload.find({
         collection: "package-categories",
         where: {
-          and: [
-            { isActive: { equals: true } },
-            { "displaySettings.isActive": { equals: true } },
-          ],
+          "displaySettings.isActive": { equals: true },
         },
         sort: "displaySettings.order",
         limit: 20,
@@ -110,7 +107,6 @@ export const packageCategoryService = {
         where: {
           and: [
             { slug: { equals: slug } },
-            { isActive: { equals: true } },
             { "displaySettings.isActive": { equals: true } },
           ],
         },
