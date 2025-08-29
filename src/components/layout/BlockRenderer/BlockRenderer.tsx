@@ -27,6 +27,7 @@ import {
 import { Page } from "@payload-types";
 import { FeatureSection } from "@/components/molecules/FeatureSection/FeatureSection";
 import { DynamicCategoryPackagesBlock } from "@/components/sectionBlocks/packages/DynamicCategoryPackagesBlock/DynamicCategoryPackagesBlock";
+import { GoogleTestimonials } from "@/components/sectionBlocks/common/googleTestimonials/GoogleTestimonials";
 
 const blockComponentsMap = {
   hero: Banner,
@@ -42,6 +43,7 @@ const blockComponentsMap = {
   topActivityCategories: TopActivityCategories,
   topAdventures: TopAdventures,
   testimonials: Testimonials,
+  googleTestimonials: GoogleTestimonials,
   serviceFeature: FeatureSection,
   serviceTeaser: ServiceTeaser,
   trivia: Trivia,

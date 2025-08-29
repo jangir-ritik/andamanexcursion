@@ -6,10 +6,11 @@ import { Media } from "@payload-types";
 import { cn } from "@/utils/cn";
 import { ImageContainer } from "@/components/atoms";
 
+// Updated interface to handle both Payload Media and Google Reviews avatar structure
 interface TestimonialCardInternalProps {
   text: string;
   author: string;
-  avatar: Media;
+  avatar: Media | { url: string; alt: string };
   rotation?: number;
 }
 
@@ -25,6 +26,10 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
     if (rotation > 0) return styles.rotatePositive;
     return "";
   };
+
+  // Check if avatar is a simple object with url and alt (Google Reviews format)
+  const isSimpleAvatar =
+    avatar && typeof avatar === "object" && "url" in avatar && "alt" in avatar;
 
   return (
     <div
@@ -43,12 +48,28 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
         <div className={styles.authorSection}>
           <div className={styles.divider} aria-hidden="true" />
           <div className={styles.authorInfo}>
-            <ImageContainer
-              src={avatar}
-              alt={`${author}'s profile picture`}
-              aspectRatio="square"
-              className={styles.avatar}
-            />
+            {isSimpleAvatar ? (
+              // Handle Google Reviews avatar format
+              <div className={styles.avatar}>
+                {avatar.url && (
+                  <Image
+                    src={avatar.url}
+                    alt={avatar.alt}
+                    width={48}
+                    height={48}
+                    className={styles.avatarImage}
+                  />
+                )}
+              </div>
+            ) : (
+              // Handle Payload CMS Media format
+              <ImageContainer
+                src={avatar as Media}
+                alt={`${author}'s profile picture`}
+                aspectRatio="square"
+                className={styles.avatar}
+              />
+            )}
             <span className={styles.authorName}>{author}</span>
           </div>
         </div>

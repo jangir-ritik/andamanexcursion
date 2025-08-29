@@ -22,6 +22,7 @@ import { trustedFerriesBlock } from "./trustedFerries";
 import { serviceFeatureBlock } from "./serviceFeature";
 import { dynamicPackagesBlock } from "./dynamicPackages";
 import { dynamicCategoryPackagesBlock } from "./dynamicCategoryPackages";
+import { googleTestimonialsBlock } from "./googleTestimonials";
 
 export const contentBlocks: Block[] = [
   heroBlock,
@@ -41,6 +42,7 @@ export const contentBlocks: Block[] = [
   partnersBlock,
   storyBlock,
   testimonialsBlock,
+  googleTestimonialsBlock,
   secondaryBannerBlock,
   planInFourEasyStepsBlock,
   trustedFerriesBlock,
