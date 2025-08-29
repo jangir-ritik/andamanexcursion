@@ -87,25 +87,25 @@ export async function generateStaticParams() {
 }
 
 // Add metadata generation
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ category: string; id: string }>;
-}) {
-  const { category, id } = await params;
-  const result = await pageDataService.getPackageDetailPageData(category, id);
-  if (!result || !result.packageData) {
-    return {
-      title: "Package Not Found",
-      description: "The requested package does not exist.",
-    };
-  }
-  const packageData = result.packageData as PayloadPackage;
-  return {
-    title: `${packageData.title} | Andaman Excursion`,
-    description:
-      packageData.descriptions?.shortDescription ||
-      packageData.descriptions?.description ||
-      `${packageData.title} - Book Now`,
-  };
-}
+// export async function generateMetadata({
+//   params,
+// }: {
+//   params: Promise<{ category: string; id: string }>;
+// }) {
+//   const { category, id } = await params;
+//   const result = await pageDataService.getPackageDetailPageData(category, id);
+//   if (!result || !result.packageData) {
+//     return {
+//       title: "Package Not Found",
+//       description: "The requested package does not exist.",
+//     };
+//   }
+//   const packageData = result.packageData as PayloadPackage;
+//   return {
+//     title: `${packageData.title} | Andaman Excursion`,
+//     description:
+//       packageData.descriptions?.shortDescription ||
+//       packageData.descriptions?.description ||
+//       `${packageData.title} - Book Now`,
+//   };
+// }

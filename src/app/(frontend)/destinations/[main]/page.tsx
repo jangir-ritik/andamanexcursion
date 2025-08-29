@@ -79,23 +79,23 @@ export default async function MainDestinationPage({ params }: PageProps) {
 }
 
 // Generate metadata for the page
-export async function generateMetadata({ params }: PageProps) {
-  const { main: mainCategorySlug } = await params;
-  const page = await pageService.getMainDestinationBySlug(mainCategorySlug);
+// export async function generateMetadata({ params }: PageProps) {
+//   const { main: mainCategorySlug } = await params;
+//   const page = await pageService.getMainDestinationBySlug(mainCategorySlug);
 
-  if (!page) {
-    return {
-      title: "Destination Not Found",
-    };
-  }
+//   if (!page) {
+//     return {
+//       title: "Destination Not Found",
+//     };
+//   }
 
-  return {
-    title: page.seoMeta?.metaTitle || page.title,
-    description: page.seoMeta?.metaDescription,
-    openGraph: {
-      title: page.seoMeta?.metaTitle || page.title,
-      description: page.seoMeta?.metaDescription,
-      images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
-    },
-  };
-}
+//   return {
+//     title: page.seoMeta?.metaTitle || page.title,
+//     description: page.seoMeta?.metaDescription,
+//     openGraph: {
+//       title: page.seoMeta?.metaTitle || page.title,
+//       description: page.seoMeta?.metaDescription,
+//       images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
+//     },
+//   };
+// }

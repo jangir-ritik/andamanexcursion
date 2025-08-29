@@ -31,27 +31,27 @@ export default async function SubDestinationPage({ params }: PageProps) {
 }
 
 // Generate metadata for the page
-export async function generateMetadata({ params }: PageProps) {
-  const { main: mainCategorySlug, sub: subcategorySlug } = await params;
+// export async function generateMetadata({ params }: PageProps) {
+//   const { main: mainCategorySlug, sub: subcategorySlug } = await params;
 
-  const page = await pageService.getSubDestinationBySlug(
-    mainCategorySlug,
-    subcategorySlug
-  );
+//   const page = await pageService.getSubDestinationBySlug(
+//     mainCategorySlug,
+//     subcategorySlug
+//   );
 
-  if (!page) {
-    return {
-      title: "Destination Not Found",
-    };
-  }
+//   if (!page) {
+//     return {
+//       title: "Destination Not Found",
+//     };
+//   }
 
-  return {
-    title: page.seoMeta?.metaTitle || page.title,
-    description: page.seoMeta?.metaDescription,
-    openGraph: {
-      title: page.seoMeta?.metaTitle || page.title,
-      description: page.seoMeta?.metaDescription,
-      images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
-    },
-  };
-}
+//   return {
+//     title: page.seoMeta?.metaTitle || page.title,
+//     description: page.seoMeta?.metaDescription,
+//     openGraph: {
+//       title: page.seoMeta?.metaTitle || page.title,
+//       description: page.seoMeta?.metaDescription,
+//       images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
+//     },
+//   };
+// }

@@ -21,23 +21,23 @@ export default async function DestinationsIndexPage() {
 }
 
 // Generate metadata for the page
-export async function generateMetadata() {
-  const page = await pageService.getDestinationsIndex();
+// export async function generateMetadata() {
+//   const page = await pageService.getDestinationsIndex();
 
-  if (!page) {
-    return {
-      title: "Destinations",
-      description: "Explore amazing destinations in the Andaman Islands",
-    };
-  }
+//   if (!page) {
+//     return {
+//       title: "Destinations",
+//       description: "Explore amazing destinations in the Andaman Islands",
+//     };
+//   }
 
-  return {
-    title: page.seoMeta?.metaTitle || page.title,
-    description: page.seoMeta?.metaDescription,
-    openGraph: {
-      title: page.seoMeta?.metaTitle || page.title,
-      description: page.seoMeta?.metaDescription,
-      images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
-    },
-  };
-}
+//   return {
+//     title: page.seoMeta?.metaTitle || page.title,
+//     description: page.seoMeta?.metaDescription,
+//     openGraph: {
+//       title: page.seoMeta?.metaTitle || page.title,
+//       description: page.seoMeta?.metaDescription,
+//       images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
+//     },
+//   };
+// }
