@@ -11,9 +11,11 @@ export const HeroTitle = ({
   const titleClasses = [styles.heroTitle, className || ""].join(" ").trim();
 
   return (
-    <div className={titleClasses} id={id} role="heading" aria-level={1}>
-      <h1 className={styles.primary}>{primaryText}</h1>
-      <h1 className={styles.secondary}>{secondaryText}</h1>
+    <div className={titleClasses} id={id}>
+      <h1 className={styles.fullTitle}>
+        <span className={styles.primary}>{primaryText}</span>
+        <span className={styles.secondary}>{secondaryText}</span>
+      </h1>
     </div>
   );
 };

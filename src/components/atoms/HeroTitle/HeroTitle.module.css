@@ -33,6 +33,13 @@
   margin: var(--space-0);
 }
 
+.fullTitle {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
 /* Tablet Responsive Design */
 @media (max-width: 1024px) {
   .heroTitle {
