@@ -45,7 +45,7 @@ export class NotificationService {
       // Prepare recipients and preferences
       const recipients = {
         email: booking.customerInfo?.customerEmail,
-        phone: booking.customerInfo?.customerPhone,
+        phone: this.formatPhoneNumber(booking.customerInfo?.customerPhone),
       };
 
       const preferences: NotificationPreferences = {
@@ -370,8 +370,21 @@ export class NotificationService {
           gender: passenger.gender,
         })) || [],
       specialRequests: booking.specialRequests,
-      contactPhone: booking.customerInfo.customerPhone,
+      contactPhone: this.formatPhoneNumber(booking.customerInfo.customerPhone),
     };
+  }
+
+  private static formatPhoneNumber(phone: string): string {
+    if (!phone) return "";
+
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
+
+    if (cleanPhone.startsWith("+91")) return cleanPhone;
+    if (cleanPhone.length === 10 && /^[6-9]\d{9}$/.test(cleanPhone)) {
+      return "+91" + cleanPhone;
+    }
+
+    return phone; // Return original if can't format
   }
 
   /**
