@@ -108,14 +108,21 @@ export async function generateMetadata({
     }
 
     const category = data.category;
-    const canonicalUrl = `${
-      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
-    }/packages/${categorySlug}`;
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+    const canonicalUrl = `${baseUrl.replace(
+      /\/$/,
+      ""
+    )}/packages/${categorySlug}`;
 
     // Extract SEO data with fallbacks
     const title =
       // category.seo?.metaTitle ||
-      category.meta?.title || `${category.title} | Andaman Excursion`;
+      category.meta?.title ||
+      `${category.title?.replace(
+        " Packages",
+        ""
+      )} Packages | Andaman Excursion`;
 
     const description =
       // category.seo?.metaDescription ||

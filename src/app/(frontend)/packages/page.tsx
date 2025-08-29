@@ -78,9 +78,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
     const seoImageUrl = getImageUrl(page.meta?.image);
 
-    const canonicalUrl = `${
-      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
-    }/packages`;
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+    const canonicalUrl = `${baseUrl.replace(/\/$/, "")}/packages`;
 
     const keywords =
       // page.seo?.keywords ||

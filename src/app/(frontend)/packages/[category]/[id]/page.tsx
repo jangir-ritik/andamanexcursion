@@ -170,9 +170,12 @@ export async function generateMetadata({
       imageUrl = getImageUrl(packageData.meta.image);
     }
 
-    const canonicalUrl = `${
-      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
-    }/packages/${category}/${id}`;
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+    const canonicalUrl = `${baseUrl.replace(
+      /\/$/,
+      ""
+    )}/packages/${category}/${id}`;
 
     // Build keywords from package data
     const keywords =
