@@ -9,4 +9,6 @@ export interface PassengerCounterProps {
   onChange: (type: keyof PassengerCount, value: number) => void;
   className?: string;
   hasError?: boolean;
+  errorMessage?: string;
+  label?: string;
 }

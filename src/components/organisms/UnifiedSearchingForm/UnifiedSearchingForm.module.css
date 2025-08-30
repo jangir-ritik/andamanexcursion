@@ -44,7 +44,7 @@
 .embedded .formGrid {
   gap: var(--space-2);
   padding: var(--space-3);
-  background-color: var(--color-white);
+  background-color: var(--color-bg-primary);
   border-radius: var(--radius-md);
 }
 
@@ -61,9 +61,9 @@
   align-items: center;
   padding: 0;
   width: 337px;
-  height: 48px;
+  height: var(--size-tab-height);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  background: var(--color-white);
+  background: var(--color-bg-primary);
   overflow: hidden;
 }
 
@@ -72,14 +72,14 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  height: 48px;
+  height: var(--size-tab-height);
   font-family: var(--font-family-primary);
   font-weight: 400;
   font-size: var(--font-size-sm);
-  line-height: 18px;
+  line-height: var(--space-4);
   color: var(--color-text-secondary);
   background: var(--color-bg-secondary);
-  border: 1px solid #cccccc;
+  border: 1px solid var(--color-tab-border);
   cursor: pointer;
   flex: 1;
 }
@@ -98,8 +98,8 @@
 }
 
 .tabsTrigger[data-state="active"] {
-  background: var(--color-white);
-  color: var(--color-black);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-weight: 500;
   border: none;
 }
@@ -110,7 +110,7 @@
   align-items: flex-start;
   padding: var(--space-4);
   gap: var(--space-4);
-  background: var(--color-white);
+  background: var(--color-bg-primary);
   border-radius: 0 var(--radius-md) var(--radius-md);
   width: 100%;
 }
@@ -257,7 +257,7 @@
     min-width: 0;
     font-size: var(--font-size-xs);
     padding: var(--space-2);
-    height: 40px;
+    height: var(--size-tab-height-mobile);
   }
 
   .tabsContent {
@@ -302,6 +302,16 @@
     flex-direction: column;
     gap: var(--space-2);
   }
+
+  .errorMessage {
+    font-size: var(--font-size-error-mobile);
+    line-height: var(--line-height-error-mobile);
+  }
+
+  .selectWrapper,
+  .fieldContainer > .selectWrapper {
+    min-height: var(--size-form-field-min-height-mobile);
+  }
 }
 
 /* Simplified component containers */
@@ -331,13 +341,59 @@
 
 /* Error Messages */
 .errorMessage {
-  position: relative;
-  width: 100%;
   font-family: var(--font-family-primary);
+  font-size: var(--font-size-error);
+  font-weight: 400;
+  line-height: var(--line-height-error);
   color: var(--color-alert-error);
-  font-size: var(--font-size-xs);
-  text-align: left;
-  z-index: 10;
+  margin: var(--space-1) 0 0 0;
+  animation: slideIn var(--duration-fast) var(--easing-standard);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form field containers */
+.selectWrapper,
+.fieldContainer > .selectWrapper {
+  min-height: var(--size-form-field-min-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.slotPickerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--space-2);
+  flex: 1;
+  margin-top: auto;
+}
+
+/* Error states */
+.error {
+  border-color: var(--color-error-border-subtle) !important;
+  background-color: var(--color-error-bg-subtle);
+}
+
+.error:hover,
+.error:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px var(--color-error-focus) !important;
 }
 
 /* Small Mobile Responsive Design */
@@ -357,7 +413,7 @@
   .tabsTrigger {
     font-size: var(--font-size-xs);
     padding: var(--space-1) var(--space-2);
-    height: 36px;
+    height: var(--size-tab-height-small);
   }
 
   .formGrid {
@@ -386,7 +442,7 @@
 }
 
 .editModeIcon {
-  font-size: 2rem;
+  font-size: var(--font-size-edit-icon);
   animation: editModeIconBounce 1.5s ease-in-out infinite;
 }
 
@@ -417,20 +473,20 @@
 
 .cancelEditButton {
   flex-shrink: 0;
-  background: var(--color-white);
+  background: var(--color-bg-primary);
   border: 1px solid var(--color-secondary);
   color: var(--color-secondary);
   font-weight: 600;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
-  transition: all 0.2s ease;
+  transition: all var(--duration-base) ease;
 }
 
 .cancelEditButton:hover {
   background: var(--color-secondary);
-  color: var(--color-white);
+  color: var(--color-text-inverse);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 138, 52, 0.3);
+  box-shadow: 0 var(--space-1) var(--space-2) var(--color-edit-button-shadow);
 }
 
 /* Animations */
@@ -464,11 +520,11 @@
   }
 
   .editModeIcon {
-    font-size: 1.5rem;
+    font-size: var(--font-size-edit-icon-mobile);
   }
 
   .editModeTitle {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-base);
   }
 
   .editModeSubtitle {
@@ -489,19 +545,13 @@
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-4);
-  background: var(--color-red-50);
-  border: 1px solid var(--color-red-200);
+  background: var(--color-error-container-bg);
+  border: 1px solid var(--color-error-container-border);
   border-radius: var(--radius-md);
 }
 
-.errorMessage {
-  color: var(--color-red-700);
-  text-align: center;
-  font-weight: 500;
-}
-
 .retryButton {
-  min-width: 120px;
+  min-width: var(--size-retry-button-width);
 }
 
 /* Time slot filtering feedback styles */
@@ -510,16 +560,16 @@
   margin-bottom: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
-  background: var(--color-blue-50);
-  border: 1px solid var(--color-blue-200);
+  background: var(--color-feedback-bg);
+  border: 1px solid var(--color-feedback-border);
 }
 
 .loadingFeedback {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--color-blue-700);
-  font-size: 0.875rem;
+  color: var(--color-feedback-text);
+  font-size: var(--font-size-xs);
   font-weight: 500;
 }
 
@@ -527,21 +577,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  color: var(--color-blue-700);
-  font-size: 0.875rem;
+  color: var(--color-feedback-text);
+  font-size: var(--font-size-xs);
 }
 
 .infoHint {
-  font-size: 0.75rem;
-  color: var(--color-blue-600);
+  font-size: var(--font-size-hint);
+  color: var(--color-feedback-hint);
   font-style: italic;
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--color-blue-200);
-  border-top: 2px solid var(--color-blue-600);
+  width: var(--size-spinner);
+  height: var(--size-spinner);
+  border: 2px solid var(--color-spinner-track);
+  border-top: 2px solid var(--color-spinner-active);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -556,5 +606,5 @@
 }
 
 .timeSlotField {
-  min-width: 260px;
+  min-width: var(--size-time-slot-field-width);
 }

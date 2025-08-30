@@ -1,19 +1,28 @@
+/* Field container to match input structure */
+.fieldContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .selectWrapper {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
-  padding: var(--space-4);
+  padding: var(--space-3);
   gap: var(--space-1);
   min-width: var(--size-form-field-min-width);
-  height: var(--size-form-field-height);
-  background: var(--color-white);
-  border: 1px solid var(--color-border-secondary);
+  min-height: var(--size-form-field-height);
+  height: auto; /* Allow height to expand for error messages */
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
   width: 100%;
-  position: relative; /* Added position relative */
+  position: relative;
+  transition: all var(--duration-fast) var(--easing-standard);
 }
 
 .selectWrapper:hover {
@@ -22,35 +31,55 @@
 
 .selectWrapper:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-focus-blue);
 }
 
-/* Error state */
+/* Error state matching Input component */
 .error {
-  border-color: var(--color-alert-error) !important;
+  border-color: var(--color-error-border-subtle) !important;
+  background-color: var(--color-error-bg-subtle);
 }
 
 .error:hover,
 .error:focus-within {
   border-color: var(--color-alert-error) !important;
-  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+  box-shadow: 0 0 0 2px var(--color-error-focus) !important;
 }
 
 .selectLabel {
   font-family: var(--font-family-primary);
+  font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-xs);
+  line-height: var(--space-5);
   color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--easing-standard);
+  margin-bottom: 0;
+  display: block;
+  width: 100%;
+}
+
+.selectLabel:hover {
+  color: var(--color-primary);
+}
+
+/* Required asterisk styling matching Input component */
+.required {
+  color: var(--color-alert-error);
+  margin-left: var(--space-1);
 }
 
 .selectValue {
   font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: var(--font-size-base);
-  line-height: 20px;
+  line-height: 0.6;
   color: var(--color-text-primary);
   padding: 0 var(--space-2);
   white-space: nowrap;
+  text-align: center;
+  flex: 1;
 }
 
 .slotPickerInner {
@@ -58,7 +87,9 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: var(--space-1);
+  gap: var(--space-2);
+  flex: 1; /* Take remaining space */
+  margin-top: auto; /* Push to bottom of available space */
 }
 
 .slotNavButton {
@@ -71,49 +102,20 @@
   color: var(--color-text-primary);
   padding: 0;
   margin: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-xs);
+  transition: all var(--duration-fast) var(--easing-standard);
 }
 
 .slotNavButton:hover:not(:disabled) {
   color: var(--color-primary);
+  background: var(--color-bg-secondary);
 }
 
 .slotNavButton:disabled {
   color: var(--color-text-disabled);
   cursor: not-allowed;
-}
-
-@keyframes slideDownAndFade {
-  from {
-    opacity: 0;
-    transform: translateY(-2px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Tablet Responsive Design */
-@media (max-width: 768px) {
-  .selectWrapper {
-    width: 100%;
-  }
-}
-
-/* Mobile Responsive Design */
-@media (max-width: 480px) {
-  .selectValue {
-    font-size: var(--font-size-sm);
-  }
-}
-
-.errorMessage {
-  color: var(--color-alert-error);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  text-align: left;
 }
 
 /* Disabled state styles */
@@ -128,4 +130,75 @@
 .selectWrapper.disabled .slotNavButton {
   cursor: not-allowed;
   color: var(--color-text-disabled);
+}
+
+/* Ensure consistent minimum heights across all form fields */
+.selectWrapper,
+.fieldContainer > .selectWrapper {
+  min-height: var(
+    --size-form-field-min-height
+  ); /* Fixed minimum height for consistency */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Error message styling matching Input component */
+.errorMessage {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-error);
+  font-weight: 400;
+  line-height: var(--line-height-error);
+  color: var(--color-alert-error);
+  margin: var(--space-1) 0 0 0;
+  animation: slideIn var(--duration-fast) var(--easing-standard);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .selectWrapper {
+    width: 100%;
+    padding: var(--space-2);
+  }
+
+  .selectLabel {
+    font-size: var(--font-size-xs);
+    line-height: var(--space-4);
+  }
+
+  .selectValue {
+    font-size: var(--font-size-sm);
+    line-height: 0.6;
+  }
+
+  .errorMessage {
+    font-size: var(--font-size-error-mobile);
+    line-height: var(--line-height-error-mobile);
+  }
+
+  .selectWrapper,
+  .fieldContainer > .selectWrapper {
+    min-height: var(--size-form-field-min-height-mobile);
+  }
+}
+
+@media (max-width: 480px) {
+  .selectValue {
+    font-size: var(--font-size-sm);
+  }
 }

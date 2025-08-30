@@ -1,137 +1,306 @@
-.passengerCounter {
-  display: flex;
-  gap: var(--space-2);
-  width: 100%;
-}
-
-.counterWrapper {
-  box-sizing: border-box;
+/* Passenger counter group container */
+.passengerCounterGroup {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: var(--space-4);
-  gap: var(--space-2);
-  min-width: var(--size-form-field-min-width);
-  height: var(--size-form-field-height);
-  background: var(--color-white);
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
   width: 100%;
+  gap: var(--space-2);
 }
 
-.counterWrapper:hover {
-  border-color: var(--color-primary);
-}
-
-.counterWrapper:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-border-focus);
-}
-
-/* Error state */
-.error .counterWrapper {
-  border-color: var(--color-alert-error) !important;
-}
-
-.error .counterWrapper:hover,
-.error .counterWrapper:focus-within {
-  border-color: var(--color-alert-error) !important;
-  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
-}
-
-.counterWrapper label {
-  white-space: nowrap;
+/* Main group label with tooltip */
+.groupLabel {
   font-family: var(--font-family-primary);
+  font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-}
-
-.counter {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  padding: 0;
-  gap: var(--space-0);
-  width: 100%;
-  height: 24px;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
-.counter button {
-  width: 20px;
-  height: 21px;
-  font-family: var(--font-family-primary);
-  font-weight: 500;
-  font-size: var(--font-size-xl);
-  line-height: 16px;
-  color: var(--color-text-primary);
-  background: transparent;
-  border: none;
+/* Required asterisk styling */
+.required {
+  color: var(--color-alert-error);
+  margin-left: var(--space-1);
+}
+
+/* Tooltip container and styling */
+.tooltipContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: var(--space-1);
+}
+
+.infoIcon {
+  color: var(--color-text-secondary);
+  cursor: help;
+  transition: color var(--duration-fast) var(--easing-standard);
+}
+
+.infoIcon:hover {
+  color: var(--color-primary);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-surface-tooltip);
+  color: var(--color-text-inverse);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: var(--z-index-tooltip);
+  box-shadow: var(--shadow-elevated);
+  animation: tooltipFadeIn var(--duration-fast) var(--easing-standard);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--color-surface-tooltip);
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Container for the two counter fields */
+.countersContainer {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Individual field container to match other form components */
+.fieldContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.selectWrapper {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: var(--space-3);
+  gap: var(--space-1);
+  min-width: var(--size-form-field-min-width);
+  min-height: var(--size-form-field-min-height);
+  height: auto; /* Allow height to expand for error messages */
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  width: 100%;
+  position: relative;
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.selectWrapper:hover {
+  border-color: var(--color-primary);
+}
+
+.selectWrapper:hover .counterButton {
+  color: var(--color-primary);
+}
+
+.selectWrapper:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-focus-blue);
+}
+
+/* Error state matching other form components */
+.error {
+  border-color: var(--color-error-border-subtle) !important;
+  background-color: var(--color-error-bg-subtle);
+}
+
+.error:hover,
+.error:focus,
+.error:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px var(--color-error-focus) !important;
+}
+
+.selectLabel {
+  font-family: var(--font-family-primary);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--font-size-xs);
+  line-height: var(--space-5);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--easing-standard);
+  margin-bottom: 0;
+  display: block;
+  width: 100%;
+}
+
+.selectLabel:hover {
+  color: var(--color-primary);
+}
+
+.counterInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--space-2);
+  flex: 1;
+  margin-top: auto;
+}
+
+.kidSelectLabel {
+  display: flex;
+}
+.counterButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  padding: 0;
+  margin: 0;
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  transition: all var(--duration-fast) var(--easing-standard);
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
 }
 
-.counter button:hover:not(:disabled) {
-  color: var(--color-primary-hover);
+.counterButton:hover:not(:disabled) {
+  color: var(--color-primary);
+  background: var(--color-bg-secondary);
 }
 
-.counter button:disabled {
+.counterButton:disabled {
   color: var(--color-text-disabled);
   cursor: not-allowed;
 }
 
-.counter span {
+.counterValue {
   font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: var(--font-size-base);
-  line-height: 20px;
+  line-height: 1;
   color: var(--color-text-primary);
   text-align: center;
-  min-width: 20px;
+  min-width: var(--space-5);
 }
 
+/* Error message styling for the entire group */
 .errorMessage {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-error);
+  font-weight: 400;
+  line-height: var(--line-height-error);
   color: var(--color-alert-error);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  text-align: left;
+  margin: var(--space-1) 0 0 0;
+  animation: slideIn var(--duration-fast) var(--easing-standard);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Tablet Responsive Design */
-@media (max-width: 1024px) {
-  /* .passengerCounter {
-    flex-direction: column;
-  } */
-
-  .counterWrapper {
-    width: 100%;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* Mobile Responsive Design */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .passengerCounter {
-    width: 100%;
+  .selectWrapper {
+    padding: var(--space-2);
+  }
+
+  .selectLabel {
+    font-size: var(--font-size-xs);
+    line-height: var(--space-4);
+  }
+
+  .counterValue {
+    font-size: var(--font-size-sm);
+    line-height: 1;
+  }
+
+  .errorMessage {
+    font-size: var(--font-size-error-mobile);
+    line-height: var(--line-height-error-mobile);
+  }
+
+  .selectWrapper,
+  .fieldContainer > .selectWrapper {
+    min-height: var(--size-form-field-min-height-mobile);
+  }
+
+  .counterButton {
+    width: var(--space-5);
+    height: var(--space-5);
+    font-size: var(--font-size-base);
+  }
+
+  .countersContainer {
+    gap: var(--space-1);
+  }
+
+  /* Adjust tooltip positioning on mobile */
+  .tooltip {
+    bottom: auto;
+    top: calc(100% + var(--space-2));
+    font-size: var(--font-size-xs);
+    white-space: normal;
+    max-width: 200px;
+  }
+
+  .tooltip::after {
+    top: -4px;
+    border-top-color: transparent;
+    border-bottom-color: var(--color-surface-tooltip);
   }
 }
 
-/* Small Mobile Responsive Design */
 @media (max-width: 480px) {
-  .passengerCounter {
-    flex-direction: row; /* Keep in a single row */
+  .countersContainer {
+    flex-direction: column;
     gap: var(--space-2);
   }
 
-  .counterWrapper {
-    width: calc(50% - var(--space-1));
+  .fieldContainer {
+    width: 100%;
   }
 }

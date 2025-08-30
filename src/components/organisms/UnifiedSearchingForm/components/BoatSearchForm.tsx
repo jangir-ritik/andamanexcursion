@@ -23,7 +23,7 @@ import {
 // Schema for boat search form
 const boatSearchSchema = z.object({
   fromLocation: z.string().min(1, "Please select departure location"),
-  toLocation: z.string().min(1, "Please select destination"),
+  toLocation: z.string().min(1, "Please select destination location"),
   selectedDate: z.date({ required_error: "Please select a date" }),
   selectedSlot: z.string().min(1, "Please select a time"),
   passengers: z.object({
@@ -369,14 +369,15 @@ export function BoatSearchForm({
                 options={fromLocationOptions}
                 placeholder="Departure Port"
                 hasError={!!errors.fromLocation}
+                errorMessage={errors.fromLocation?.message}
               />
             )}
           />
-          {errors.fromLocation && (
+          {/* {errors.fromLocation && (
             <div className={styles.errorMessage}>
               {errors.fromLocation.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* To Location */}
@@ -392,15 +393,16 @@ export function BoatSearchForm({
                 options={toLocationOptions}
                 placeholder="Destination Port"
                 hasError={!!errors.toLocation}
+                errorMessage={errors.toLocation?.message}
                 // disabled={!currentSearchParams.fromLocation}
               />
             )}
           />
-          {errors.toLocation && (
+          {/* {errors.toLocation && (
             <div className={styles.errorMessage}>
               {errors.toLocation.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Date */}
@@ -435,15 +437,16 @@ export function BoatSearchForm({
                 options={timeSlotOptions}
                 placeholder="Select Time"
                 hasError={!!errors.selectedSlot}
+                errorMessage={errors.selectedSlot?.message}
                 disabled={!currentSearchParams.toLocation}
               />
             )}
           />
-          {errors.selectedSlot && (
+          {/* {errors.selectedSlot && (
             <div className={styles.errorMessage}>
               {errors.selectedSlot.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Passengers */}

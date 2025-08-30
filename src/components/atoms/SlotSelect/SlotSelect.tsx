@@ -1,9 +1,13 @@
 "use client";
-
 import React, { useCallback, memo, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./SlotSelect.module.css";
 import type { SlotSelectProps } from "./SlotSelect.types";
+
+// Add error message prop to the interface
+interface SlotSelectPropsWithError extends SlotSelectProps {
+  errorMessage?: string;
+}
 
 const SlotSelect = memo(
   ({
@@ -15,7 +19,8 @@ const SlotSelect = memo(
     placeholder,
     disabled = false,
     isLoading = false,
-  }: SlotSelectProps) => {
+    errorMessage,
+  }: SlotSelectPropsWithError) => {
     // Select first slot if value is empty and options exist
     useEffect(() => {
       if (!value && options.length > 0) {
@@ -57,32 +62,44 @@ const SlotSelect = memo(
     const isDisabled = disabled || isLoading;
 
     return (
-      <div
-        className={`${styles.selectWrapper} ${className || ""} ${
-          hasError ? styles.error : ""
-        } ${isDisabled ? styles.disabled : ""}`}
-      >
-        <span className={styles.selectLabel}>Slot</span>
-        <div className={styles.slotPickerInner}>
-          <button
-            type="button"
-            aria-label="Previous Slot"
-            className={styles.slotNavButton}
-            onClick={handlePrevious}
-            disabled={isDisabled || currentIndex <= 0}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <span className={styles.selectValue}>{displayText}</span>
-          <button
-            type="button"
-            aria-label="Next Slot"
-            className={styles.slotNavButton}
-            onClick={handleNext}
-            disabled={isDisabled || currentIndex >= options.length - 1}
-          >
-            <ChevronRight size={20} />
-          </button>
+      <div className={styles.fieldContainer}>
+        <div
+          className={`${styles.selectWrapper} ${className || ""} ${
+            hasError ? styles.error : ""
+          } ${isDisabled ? styles.disabled : ""}`}
+        >
+          <span className={styles.selectLabel}>
+            Slot
+            <span className={styles.required}>*</span>
+          </span>
+          <div className={styles.slotPickerInner}>
+            <button
+              type="button"
+              aria-label="Previous Slot"
+              className={styles.slotNavButton}
+              onClick={handlePrevious}
+              disabled={isDisabled || currentIndex <= 0}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <span className={styles.selectValue}>{displayText}</span>
+            <button
+              type="button"
+              aria-label="Next Slot"
+              className={styles.slotNavButton}
+              onClick={handleNext}
+              disabled={isDisabled || currentIndex >= options.length - 1}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+
+          {/* Inline error message */}
+          {hasError && errorMessage && (
+            <p className={styles.errorMessage} role="alert">
+              {errorMessage}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -90,5 +107,4 @@ const SlotSelect = memo(
 );
 
 SlotSelect.displayName = "SlotSelect";
-
 export { SlotSelect };

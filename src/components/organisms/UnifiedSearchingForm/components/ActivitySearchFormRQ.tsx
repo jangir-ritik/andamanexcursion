@@ -423,14 +423,15 @@ export function ActivitySearchFormRQ({
                 options={activityOptions}
                 placeholder="Select Type"
                 hasError={!!errors.selectedActivity}
+                errorMessage={errors.selectedActivity?.message}
               />
             )}
           />
-          {errors.selectedActivity && (
+          {/* {errors.selectedActivity && (
             <div className={styles.errorMessage}>
               {errors.selectedActivity.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Location */}
@@ -444,16 +445,17 @@ export function ActivitySearchFormRQ({
                 value={field.value || ""}
                 onChange={field.onChange}
                 options={locationOptions}
-                placeholder="Select Location"
+                placeholder="Select Area"
                 hasError={!!errors.activityLocation}
+                errorMessage={errors.activityLocation?.message}
               />
             )}
           />
-          {errors.activityLocation && (
+          {/* {errors.activityLocation && (
             <div className={styles.errorMessage}>
               {errors.activityLocation.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Date */}
@@ -499,6 +501,7 @@ export function ActivitySearchFormRQ({
                 }
                 hasError={!!errors.selectedSlot}
                 isLoading={isLoadingTimeSlots}
+                errorMessage={errors.selectedSlot?.message}
                 disabled={
                   !selectedActivityCategory ||
                   !selectedLocation ||
@@ -507,11 +510,11 @@ export function ActivitySearchFormRQ({
               />
             )}
           />
-          {errors.selectedSlot && (
+          {/* {errors.selectedSlot && (
             <div className={styles.errorMessage}>
               {errors.selectedSlot.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Passengers */}

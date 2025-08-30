@@ -21,7 +21,7 @@ import { LocationMappingService } from "@/services/ferryServices/locationMapping
 // Ferry search schema
 const ferrySearchSchema = z.object({
   fromLocation: z.string().min(1, "Please select departure location"),
-  toLocation: z.string().min(1, "Please select destination"),
+  toLocation: z.string().min(1, "Please select destination location"),
   selectedDate: z.date({ required_error: "Please select a date" }),
   selectedSlot: z.string().optional(), // Time slot is optional for ferries
   passengers: z.object({
@@ -292,14 +292,15 @@ export function FerrySearchForm({
                 options={availableDepartures}
                 placeholder="Departure Port"
                 hasError={!!errors.fromLocation}
+                errorMessage={errors.fromLocation?.message}
               />
             )}
           />
-          {errors.fromLocation && (
+          {/* {errors.fromLocation && (
             <div className={styles.errorMessage}>
               {errors.fromLocation.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* To Location */}
@@ -315,14 +316,15 @@ export function FerrySearchForm({
                 options={availableDestinations}
                 placeholder="Destination Port"
                 hasError={!!errors.toLocation}
+                errorMessage={errors.toLocation?.message}
               />
             )}
           />
-          {errors.toLocation && (
+          {/* {errors.toLocation && (
             <div className={styles.errorMessage}>
               {errors.toLocation.message}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Date */}
