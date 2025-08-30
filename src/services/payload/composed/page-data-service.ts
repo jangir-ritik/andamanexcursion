@@ -8,7 +8,8 @@ import {
   packagePeriodService,
   packageService,
 } from "../collections/packages";
-import { extractImageUrl } from "../base/utils";
+import { extractImageUrl, getPublishedQuery } from "../base/utils";
+import { getCachedPayload } from "../base/client";
 
 /**
  * Page Data Service
@@ -358,6 +359,129 @@ export const pageDataService = {
           locationOptions: [{ id: "all", label: "All Locations" }],
         },
       };
+    }
+  },
+
+  /**
+   * Get all specials pages for navigation or listing
+   */
+  async getSpecialsPageData() {
+    try {
+      const payload = await getCachedPayload();
+      const { docs } = await payload.find({
+        collection: "pages",
+        where: getPublishedQuery("pages", [
+          { "basicInfo.pageType": { equals: "specials" } },
+        ]),
+        sort: "title",
+        depth: 2,
+      });
+
+      return {
+        specials: docs.map((special: any) => ({
+          id: special.id,
+          slug: special.slug,
+          title: special.title,
+          description: special.meta?.description || "",
+          image: extractImageUrl(special.meta?.image),
+          href: `/specials/${special.slug}`,
+          // Extract any other useful data for listing/navigation
+          status: special.publishingSettings?.status,
+          publishedAt: special.publishingSettings?.publishedAt,
+        })),
+        totalCount: docs.length,
+      };
+    } catch (error) {
+      console.error("Error getting specials page data:", error);
+      return {
+        specials: [],
+        totalCount: 0,
+      };
+    }
+  },
+
+  /**
+   * Get specific special page data by slug
+   */
+  async getSpecialPageData(slug: string) {
+    try {
+      const payload = await getCachedPayload();
+      const { docs } = await payload.find({
+        collection: "pages",
+        where: getPublishedQuery("pages", [
+          { "basicInfo.pageType": { equals: "specials" } },
+          { slug: { equals: slug } },
+        ]),
+        limit: 1,
+        depth: 2,
+      });
+
+      const special = docs[0];
+      if (!special) return null;
+
+      // Get related specials (other specials excluding current one)
+      const { docs: relatedDocs } = await payload.find({
+        collection: "pages",
+        where: getPublishedQuery("pages", [
+          { "basicInfo.pageType": { equals: "specials" } },
+          { id: { not_equals: special.id } },
+        ]),
+        limit: 2,
+        depth: 1,
+      });
+
+      return {
+        special: {
+          ...special,
+          // Process any images or media if needed
+          // heroImage: extractImageUrl(special.pageContent?.content),
+          seoImage: extractImageUrl(special.meta?.image),
+        },
+        relatedSpecials: relatedDocs.map((related: any) => ({
+          id: related.id,
+          slug: related.slug,
+          title: related.title,
+          description: related.meta?.description || "",
+          image: extractImageUrl(related.meta?.image),
+          href: `/specials/${related.slug}`,
+        })),
+        breadcrumbs: [
+          { label: "Home", href: "/" },
+          { label: "Specials", href: "/specials" },
+          { label: special.title, href: `/specials/${special.slug}` },
+        ],
+      };
+    } catch (error) {
+      console.error(`Error getting special page data for slug ${slug}:`, error);
+      return null;
+    }
+  },
+
+  /**
+   * Get static params for specials pages (for generateStaticParams)
+   */
+  async getSpecialsStaticParams() {
+    try {
+      const payload = await getCachedPayload();
+      const { docs } = await payload.find({
+        collection: "pages",
+        where: getPublishedQuery("pages", [
+          { "basicInfo.pageType": { equals: "specials" } },
+        ]),
+        limit: 100, // Reasonable limit for specials pages
+      });
+
+      return docs.map((special: any) => ({
+        slug: special.slug,
+      }));
+    } catch (error) {
+      console.error("Error getting specials static params:", error);
+      // Fallback to known slugs if database query fails
+      return [
+        { slug: "marriage" },
+        { slug: "engagement" },
+        { slug: "photoshoot" },
+      ];
     }
   },
 };

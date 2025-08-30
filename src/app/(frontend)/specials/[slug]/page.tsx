@@ -1,144 +1,124 @@
-// import React from "react";
-// import { FAQ, LargeCardSection } from "@/components/sectionBlocks/common";
-// import { Column, Row } from "@/components/layout";
-// import { Section } from "@/components/layout";
-// import {
-//   Button,
-//   DecorativeCurlyArrow,
-//   DescriptionText,
-//   ImageContainer,
-//   SectionTitle,
-// } from "@/components/atoms";
-// import { ExperienceSection } from "./components/ExperienceSection";
-
-// import styles from "./page.module.css";
-// import { content } from "./page.content";
-
-// export default async function SpecialsPage() {
-//   return (
-//     <main className={styles.main}>
-//       <Section className={styles.section}>
-//         <Row
-//           fullWidth
-//           gap="var(--space-8)"
-//           className={styles.contentContainer}
-//           alignItems="start"
-//           responsive
-//           responsiveGap="var(--space-4)"
-//           responsiveAlignItems="start"
-//         >
-//           <Column fullWidth className={styles.titleContainer}>
-//             <h1 className={styles.highlight}>
-//               {content.title.text} <br />
-//               <span className={styles.title}>{content.title.specialWord}</span>
-//             </h1>
-//           </Column>
-//         </Row>
-//         <Row
-//           gap="var(--space-8)"
-//           fullWidth
-//           responsive
-//           alignItems="start"
-//           responsiveGap="var(--space-4)"
-//           responsiveAlignItems="start"
-//         >
-//           <ImageContainer
-//             src={content.banner.image}
-//             alt={content.banner.imageAlt}
-//             aspectRatio="banner"
-//             priority
-//             fullWidth
-//           />
-//         </Row>
-//       </Section>
-
-//       <Section fullBleed className={styles.waveContainer}>
-//         <Row
-//           fullWidth
-//           gap="var(--space-6)"
-//           justifyContent="between"
-//           alignItems="start"
-//           className={styles.contentContainer}
-//           responsive
-//           responsiveGap="var(--space-4)"
-//           responsiveAlignItems="start"
-//         >
-//           <SectionTitle
-//             className={styles.featureTitle}
-//             text={content.feature.title}
-//             specialWord={content.feature.specialWord}
-//           />
-//           <DecorativeCurlyArrow
-//             top="50%"
-//             left="20%"
-//             flip
-//             rotation={210}
-//             scale={1.5}
-//           />
-//           <Column fullWidth className={styles.imageContainer}>
-//             <ImageContainer
-//               src={content.feature.image}
-//               alt={content.feature.imageAlt}
-//               aspectRatio="square"
-//               priority
-//               fullWidth
-//               className={styles.image}
-//             />
-//           </Column>
-//           <Column
-//             gap={3}
-//             alignItems="start"
-//             responsive
-//             responsiveGap="var(--space-4)"
-//             responsiveAlignItems="start"
-//           >
-//             <DescriptionText
-//               text={content.feature.description}
-//               className={styles.description}
-//             />
-//             <Button showArrow href={content.feature.ctaHref}>
-//               {content.feature.ctaText}
-//             </Button>
-//           </Column>
-//         </Row>
-//       </Section>
-
-//       <ExperienceSection content={content.experience} />
-
-//       <FAQ content={content.faq} />
-
-//       <LargeCardSection content={content.largeCardSection} />
-//     </main>
-//   );
-// }
-
 import { BlockRenderer } from "@/components/layout/BlockRenderer/BlockRenderer";
-import { pageService } from "@/services/payload";
+
 import { notFound } from "next/navigation";
 import styles from "./page.module.css";
+import { Metadata } from "next";
+import { getImageUrl } from "@/utils/getImageUrl";
+import { pageDataService } from "@/services/payload";
 
 type PageProps = {
-  params: Promise<{ slug?: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 export default async function SpecialsPage({ params }: PageProps) {
-  // Use 'home' as default slug for the homepage
   const resolvedParams = await params;
-  const slug = resolvedParams?.slug || "specials";
+  const { slug } = resolvedParams;
 
-  const page = await pageService.getBySlug(slug);
+  // Use the new pageDataService method
+  const pageData = await pageDataService.getSpecialPageData(slug);
 
-  if (!page || !page.pageContent?.content) {
+  if (!pageData || !pageData.special?.pageContent?.content) {
     notFound();
   }
 
-  if (page.publishingSettings?.status !== "published") {
+  const { special } = pageData;
+
+  if (special.publishingSettings?.status !== "published") {
     notFound();
   }
 
   return (
     <main className={styles.main}>
-      <BlockRenderer blocks={page.pageContent?.content} />
+      <BlockRenderer blocks={special.pageContent?.content} />
     </main>
   );
+}
+
+// Generate static params for all specials pages
+export async function generateStaticParams() {
+  try {
+    return await pageDataService.getSpecialsStaticParams();
+  } catch (error) {
+    console.error("Error generating static params for specials:", error);
+    // Fallback to known slugs if database query fails
+    return [
+      { slug: "marriage" },
+      { slug: "engagement" },
+      { slug: "photoshoot" },
+    ];
+  }
+}
+
+// Generate dynamic metadata
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
+
+  const pageData = await pageDataService.getSpecialPageData(slug);
+
+  if (
+    !pageData ||
+    pageData.special?.publishingSettings?.status !== "published"
+  ) {
+    return {
+      title: "Page Not Found | Andaman Excursion",
+      description: "The page you're looking for doesn't exist.",
+    };
+  }
+
+  const { special } = pageData;
+
+  // Use SEO plugin data (meta field) or fallback to page data
+  const seoTitle = special.meta?.title || special.title || "Andaman Excursion";
+  const seoDescription =
+    special.meta?.description || "Special experiences in Andaman";
+  const seoImageUrl = getImageUrl(special.meta?.image);
+
+  const canonicalUrl = `${
+    process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
+  }/specials/${slug}`;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      url: canonicalUrl,
+      siteName: "Andaman Excursion",
+      images: seoImageUrl
+        ? [
+            {
+              url: seoImageUrl,
+              width: 1200,
+              height: 630,
+              alt: special.title || seoTitle,
+            },
+          ]
+        : undefined,
+      type: "website",
+      locale: "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seoTitle,
+      description: seoDescription,
+      images: seoImageUrl ? [seoImageUrl] : undefined,
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
 }
