@@ -47,7 +47,7 @@ export async function generateMetadata({
   const seoImageUrl = getImageUrl(page.meta?.image);
   const canonicalUrl = `${
     process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
-  }${slug === "home" ? "" : `/${slug}`}`;
+  }${slug === "home" ? "" : `${slug}`}`;
 
   return {
     title: seoTitle,
