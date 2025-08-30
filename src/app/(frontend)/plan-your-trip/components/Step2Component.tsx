@@ -18,24 +18,114 @@ interface Step2ComponentProps {
 }
 
 const DESTINATIONS: Location[] = [
-  { id: "havelock", name: "Havelock Island", slug: "havelock", value: "havelock", label: "Havelock Island" },
-  { id: "neil", name: "Neil Island", slug: "neil", value: "neil", label: "Neil Island" },
-  { id: "port-blair", name: "Port Blair", slug: "port-blair", value: "port-blair", label: "Port Blair" },
-  { id: "ross", name: "Ross Island", slug: "ross", value: "ross", label: "Ross Island" },
-  { id: "baratang", name: "Baratang Island", slug: "baratang", value: "baratang", label: "Baratang Island" },
-  { id: "rangat", name: "Rangat", slug: "rangat", value: "rangat", label: "Rangat" },
-  { id: "diglipur", name: "Diglipur", slug: "diglipur", value: "diglipur", label: "Diglipur" },
+  {
+    id: "havelock",
+    name: "Havelock Island",
+    slug: "havelock",
+    value: "havelock",
+    label: "Havelock Island",
+  },
+  {
+    id: "neil",
+    name: "Neil Island",
+    slug: "neil",
+    value: "neil",
+    label: "Neil Island",
+  },
+  {
+    id: "port-blair",
+    name: "Port Blair",
+    slug: "port-blair",
+    value: "port-blair",
+    label: "Port Blair",
+  },
+  {
+    id: "ross",
+    name: "Ross Island",
+    slug: "ross",
+    value: "ross",
+    label: "Ross Island",
+  },
+  {
+    id: "baratang",
+    name: "Baratang Island",
+    slug: "baratang",
+    value: "baratang",
+    label: "Baratang Island",
+  },
+  {
+    id: "rangat",
+    name: "Rangat",
+    slug: "rangat",
+    value: "rangat",
+    label: "Rangat",
+  },
+  {
+    id: "diglipur",
+    name: "Diglipur",
+    slug: "diglipur",
+    value: "diglipur",
+    label: "Diglipur",
+  },
 ];
 
 const ACTIVITIES: Activity[] = [
-  { id: "scuba-diving", name: "Scuba Diving", slug: "scuba-diving", value: "scuba-diving", label: "Scuba Diving" },
-  { id: "snorkeling", name: "Snorkeling", slug: "snorkeling", value: "snorkeling", label: "Snorkeling" },
-  { id: "beach-relaxation", name: "Beach Relaxation", slug: "beach-relaxation", value: "beach-relaxation", label: "Beach Relaxation" },
-  { id: "sightseeing", name: "Sightseeing", slug: "sightseeing", value: "sightseeing", label: "Sightseeing" },
-  { id: "water-sports", name: "Water Sports", slug: "water-sports", value: "water-sports", label: "Water Sports" },
-  { id: "mangrove-tour", name: "Mangrove Tour", slug: "mangrove-tour", value: "mangrove-tour", label: "Mangrove Tour" },
-  { id: "historical-sites", name: "Historical Sites", slug: "historical-sites", value: "historical-sites", label: "Historical Sites" },
-  { id: "fishing", name: "Fishing", slug: "fishing", value: "fishing", label: "Fishing" },
+  {
+    id: "scuba-diving",
+    name: "Scuba Diving",
+    slug: "scuba-diving",
+    value: "scuba-diving",
+    label: "Scuba Diving",
+  },
+  {
+    id: "snorkeling",
+    name: "Snorkeling",
+    slug: "snorkeling",
+    value: "snorkeling",
+    label: "Snorkeling",
+  },
+  {
+    id: "beach-relaxation",
+    name: "Beach Relaxation",
+    slug: "beach-relaxation",
+    value: "beach-relaxation",
+    label: "Beach Relaxation",
+  },
+  {
+    id: "sightseeing",
+    name: "Sightseeing",
+    slug: "sightseeing",
+    value: "sightseeing",
+    label: "Sightseeing",
+  },
+  {
+    id: "water-sports",
+    name: "Water Sports",
+    slug: "water-sports",
+    value: "water-sports",
+    label: "Water Sports",
+  },
+  {
+    id: "mangrove-tour",
+    name: "Mangrove Tour",
+    slug: "mangrove-tour",
+    value: "mangrove-tour",
+    label: "Mangrove Tour",
+  },
+  {
+    id: "historical-sites",
+    name: "Historical Sites",
+    slug: "historical-sites",
+    value: "historical-sites",
+    label: "Historical Sites",
+  },
+  {
+    id: "fishing",
+    name: "Fishing",
+    slug: "fishing",
+    value: "fishing",
+    label: "Fishing",
+  },
 ];
 
 // Maximum reasonable number of days to generate
@@ -65,14 +155,11 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
   // Calculate days difference with memoization to avoid recalculation
   const daysDifference = useMemo(() => {
     if (!arrivalDate || !departureDate) return 0;
-
     try {
       const start = new Date(arrivalDate);
       const end = new Date(departureDate);
-
       // Validate dates
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
-
       // Use date-fns for more accurate calculation
       return differenceInDays(end, start) + 1;
     } catch (error) {
@@ -87,11 +174,9 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
   // Auto-generate itinerary days based on dates - optimized
   useEffect(() => {
     if (!arrivalDate || !departureDate) return;
-
     try {
       const start = new Date(arrivalDate);
       const end = new Date(departureDate);
-
       // Validate dates
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
 
@@ -117,7 +202,6 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
 
         // Remove all existing fields at once
         remove();
-
         // Batch append all fields at once
         append(newFields);
 
@@ -189,7 +273,6 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
           >
             {fields.map((field, index) => {
               const hasError = accordionErrorIndices.includes(index);
-
               return (
                 <Accordion.Item
                   key={field.id}
@@ -220,6 +303,7 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
                       </div>
                     </Accordion.Trigger>
                   </Accordion.Header>
+
                   <Accordion.Content className={styles.accordionContent}>
                     <div className={styles.formRow}>
                       <div className={styles.formField}>
@@ -235,15 +319,13 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
                               hasError={
                                 !!errors.itinerary?.[index]?.destination
                               }
+                              errorMessage={
+                                errors.itinerary?.[index]?.destination?.message
+                              }
                               className={styles.selectComponent}
                             />
                           )}
                         />
-                        {errors.itinerary?.[index]?.destination && (
-                          <div className={styles.error}>
-                            {errors.itinerary[index].destination?.message}
-                          </div>
-                        )}
                       </div>
 
                       <div className={styles.formField}>
@@ -256,16 +338,14 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
                               onChange={field.onChange}
                               options={ACTIVITIES}
                               hasError={!!errors.itinerary?.[index]?.activity}
+                              errorMessage={
+                                errors.itinerary?.[index]?.activity?.message
+                              }
                               className={styles.selectComponent}
                               placeholder="Select your activity"
                             />
                           )}
                         />
-                        {errors.itinerary?.[index]?.activity && (
-                          <div className={styles.error}>
-                            {errors.itinerary[index].activity?.message}
-                          </div>
-                        )}
                       </div>
 
                       <div className={styles.formField}>

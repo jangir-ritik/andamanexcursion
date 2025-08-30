@@ -21,8 +21,14 @@ const COUNTRY_CODES = [
   { code: "+39", country: "Italy", flag: "🇮🇹" },
 ] as const;
 
+// Add error message prop to the interface
+interface PhoneInputPropsWithError<T extends FieldValues = FieldValues>
+  extends PhoneInputProps<T> {
+  errorMessage?: string;
+}
+
 export const PhoneInput = <T extends FieldValues = FieldValues>(
-  props: PhoneInputProps<T>
+  props: PhoneInputPropsWithError<T>
 ) => {
   const {
     name,
@@ -33,6 +39,7 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
     disabled = false,
     className = "",
     hasError = false,
+    errorMessage,
   } = props;
   const [selectedCountryCode, setSelectedCountryCode] = useState("+91");
 
@@ -41,83 +48,87 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <div
-          className={cn(
-            styles.phoneInputWrapper,
-            {
-              [styles.error]: error || hasError,
-            },
-            className
-          )}
-          onClick={() => {
-            const inputElement = document.getElementById(name);
-            if (inputElement) {
-              inputElement.focus();
-            }
-          }}
-        >
-          {label && (
-            <Label.Root htmlFor={name} className={styles.label}>
-              {label}
-              {required && <span className={styles.required}>*</span>}
-            </Label.Root>
-          )}
-          <div className={styles.inputContainer}>
-            <Select.Root
-              value={selectedCountryCode}
-              onValueChange={setSelectedCountryCode}
-              disabled={disabled}
-            >
-              <Select.Trigger className={styles.countryCodeTrigger}>
-                <Select.Value />
-                <Select.Icon asChild>
-                  <ChevronDown className={styles.chevronDown} />
-                </Select.Icon>
-              </Select.Trigger>
-              <Select.Portal>
-                <Select.Content className={styles.countryCodeContent}>
-                  <Select.Viewport className={styles.countryCodeViewport}>
-                    {COUNTRY_CODES.map((country) => (
-                      <Select.Item
-                        key={country.code}
-                        value={country.code}
-                        className={styles.countryCodeItem}
-                      >
-                        <Select.ItemText>
-                          <span className={styles.countryCodeOption}>
-                            <span className={styles.flag}>{country.flag}</span>
-                            <span className={styles.code}>{country.code}</span>
-                            {/* <span className={styles.countryName}>
-                              {country.country}
-                            </span> */}
-                          </span>
-                        </Select.ItemText>
-                      </Select.Item>
-                    ))}
-                  </Select.Viewport>
-                </Select.Content>
-              </Select.Portal>
-            </Select.Root>
-            <input
-              {...field}
-              id={name}
-              type="tel"
-              placeholder={placeholder}
-              disabled={disabled}
-              className={styles.phoneInput}
-              aria-invalid={error ? "true" : "false"}
-              aria-describedby={error ? `${name}-error` : undefined}
-            />
+        <div className={styles.fieldContainer}>
+          <div
+            className={cn(
+              styles.phoneInputWrapper,
+              {
+                [styles.error]: error || hasError,
+              },
+              className
+            )}
+            onClick={() => {
+              const inputElement = document.getElementById(name);
+              if (inputElement) {
+                inputElement.focus();
+              }
+            }}
+          >
+            {label && (
+              <Label.Root htmlFor={name} className={styles.label}>
+                {label}
+                {required && <span className={styles.required}>*</span>}
+              </Label.Root>
+            )}
+            <div className={styles.inputContainer}>
+              <Select.Root
+                value={selectedCountryCode}
+                onValueChange={setSelectedCountryCode}
+                disabled={disabled}
+              >
+                <Select.Trigger className={styles.countryCodeTrigger}>
+                  <Select.Value />
+                  <Select.Icon asChild>
+                    <ChevronDown className={styles.chevronDown} />
+                  </Select.Icon>
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Content className={styles.countryCodeContent}>
+                    <Select.Viewport className={styles.countryCodeViewport}>
+                      {COUNTRY_CODES.map((country) => (
+                        <Select.Item
+                          key={country.code}
+                          value={country.code}
+                          className={styles.countryCodeItem}
+                        >
+                          <Select.ItemText>
+                            <span className={styles.countryCodeOption}>
+                              <span className={styles.flag}>
+                                {country.flag}
+                              </span>
+                              <span className={styles.code}>
+                                {country.code}
+                              </span>
+                            </span>
+                          </Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Viewport>
+                  </Select.Content>
+                </Select.Portal>
+              </Select.Root>
+              <input
+                {...field}
+                id={name}
+                type="tel"
+                placeholder={placeholder}
+                disabled={disabled}
+                className={styles.phoneInput}
+                aria-invalid={error ? "true" : "false"}
+                aria-describedby={error ? `${name}-error` : undefined}
+              />
+            </div>
+            {/* Inline error message inside the border */}
+            {(error || (hasError && errorMessage)) && (
+              <p
+                id={`${name}-error`}
+                className={styles.errorMessage}
+                role="alert"
+              >
+                {error?.message || errorMessage}
+              </p>
+            )}
           </div>
-          {error && (
-            <p
-              id={`${name}-error`}
-              className={styles.errorMessage}
-              role="alert"
-            >
-              {error.message}
-            </p>
-          )}
         </div>
       )}
     />

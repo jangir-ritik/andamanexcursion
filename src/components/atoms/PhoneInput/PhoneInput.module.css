@@ -1,15 +1,30 @@
 /* PhoneInput.module.css */
-.phoneInputWrapper {
+
+/* Field container to match other components structure */
+.fieldContainer {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   width: 100%;
+}
+
+.phoneInputWrapper {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: var(--space-3);
+  gap: var(--space-1);
+  min-width: var(--size-form-field-min-width);
+  min-height: var(--size-form-field-min-height);
+  height: auto; /* Allow height to expand for error messages */
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  transition: all var(--duration-fast) var(--easing-standard);
+  cursor: pointer;
+  width: 100%;
   position: relative;
-  padding: 12px;
+  transition: all var(--duration-fast) var(--easing-standard);
 }
 
 .phoneInputWrapper:hover {
@@ -21,25 +36,29 @@
   box-shadow: 0 0 0 2px var(--color-focus-blue);
 }
 
-.phoneInputWrapper.error {
-  border-color: var(--color-alert-error);
+/* Error state matching other components */
+.error {
+  border-color: var(--color-error-border-subtle) !important;
+  background-color: var(--color-error-bg-subtle);
 }
 
-.phoneInputWrapper.error:focus-within {
-  border-color: var(--color-alert-error);
-  box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1);
+.error:hover,
+.error:focus,
+.error:focus-within {
+  border-color: var(--color-alert-error) !important;
+  box-shadow: 0 0 0 2px var(--color-error-focus) !important;
 }
 
 .label {
   font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: var(--font-size-xs);
+  line-height: var(--space-5);
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: color var(--duration-fast) var(--easing-standard);
-  margin-bottom: 4px;
+  margin-bottom: 0;
   display: block;
   width: 100%;
 }
@@ -50,7 +69,7 @@
 
 .required {
   color: var(--color-alert-error);
-  margin-left: 2px;
+  margin-left: var(--space-1);
 }
 
 .inputContainer {
@@ -58,12 +77,13 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
+  gap: var(--space-2);
 }
 
 .countryCodeTrigger {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: 0;
   background: transparent;
   border: none;
@@ -74,13 +94,13 @@
   font-weight: 500;
   font-size: var(--font-size-base);
   line-height: 25px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
   border-right: 1px solid var(--color-border);
   transition: all var(--duration-fast) var(--easing-standard);
   white-space: nowrap;
   min-width: 60px;
-  margin-right: 8px;
-  padding-right: 8px;
+  margin-right: var(--space-2);
+  padding-right: var(--space-2);
 }
 
 .countryCodeTrigger:hover {
@@ -109,10 +129,10 @@
 
 .countryCodeContent {
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-  z-index: 50;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  z-index: 20000;
   max-height: 200px;
   overflow: hidden;
   animation: slideDown var(--duration-fast) var(--easing-standard);
@@ -134,7 +154,8 @@
 
 .countryCodeItem:hover,
 .countryCodeItem[data-highlighted] {
-  background-color: var(--color-blue-50);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
 }
 
 .countryCodeItem[data-state="checked"] {
@@ -147,7 +168,6 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  /* color: var(--color-text-primary); */
 }
 
 .flag {
@@ -171,7 +191,8 @@
   color: var(--color-text-secondary);
 }
 
-.countryCodeItem[data-state="checked"] .countryName {
+.countryCodeItem[data-state="checked"] .countryName,
+.countryCodeItem[data-state="checked"] .code {
   color: var(--color-white);
 }
 
@@ -206,14 +227,19 @@
   color: var(--color-gray-500);
 }
 
+/* Error message styling matching other components */
 .errorMessage {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-error);
   font-weight: 400;
-  line-height: 18px;
+  line-height: var(--line-height-error);
   color: var(--color-alert-error);
-  margin: 4px 0 0 0;
+  margin: var(--space-1) 0 0 0;
   animation: slideIn var(--duration-fast) var(--easing-standard);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes slideDown {
@@ -241,7 +267,8 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .phoneInputWrapper {
-    padding: 8px;
+    padding: var(--space-2);
+    min-height: var(--size-form-field-min-height-mobile);
   }
 
   .phoneInput {
@@ -253,19 +280,19 @@
     font-size: var(--font-size-sm);
     line-height: 20px;
     min-width: 50px;
-    margin-right: 6px;
-    padding-right: 6px;
+    margin-right: var(--space-1);
+    padding-right: var(--space-1);
   }
 
   .label {
     font-size: var(--font-size-xs);
-    line-height: 18px;
-    margin-bottom: 2px;
+    line-height: var(--space-4);
+    margin-bottom: 0;
   }
 
   .errorMessage {
-    font-size: var(--font-size-xs);
-    line-height: 16px;
+    font-size: var(--font-size-error-mobile);
+    line-height: var(--line-height-error-mobile);
   }
 
   .code {

@@ -82,16 +82,13 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     onChange={field.onChange}
                     label="Hotel Type"
                     options={HOTEL_TYPES}
+                    required
                     hasError={!!errors.hotelPreferences?.hotelType}
                     placeholder="Select hotel type"
+                    errorMessage={errors.hotelPreferences?.hotelType?.message}
                   />
                 )}
               />
-              {errors.hotelPreferences?.hotelType && (
-                <span className={styles.error}>
-                  {errors.hotelPreferences.hotelType.message}
-                </span>
-              )}
             </div>
 
             <div className={styles.formField}>
@@ -104,16 +101,15 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     onChange={field.onChange}
                     label="Room Preference"
                     options={ROOM_PREFERENCES}
+                    required
                     hasError={!!errors.hotelPreferences?.roomPreference}
                     placeholder="Select room preference"
+                    errorMessage={
+                      errors.hotelPreferences?.roomPreference?.message
+                    }
                   />
                 )}
               />
-              {errors.hotelPreferences?.roomPreference && (
-                <span className={styles.error}>
-                  {errors.hotelPreferences.roomPreference.message}
-                </span>
-              )}
             </div>
 
             <div className={styles.formField}>
@@ -123,6 +119,7 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                 label="Specific Hotel (Optional)"
                 placeholder="Enter specific hotel name"
                 hasError={!!errors.hotelPreferences?.specificHotel}
+                errorMessage={errors.hotelPreferences?.specificHotel?.message}
               />
             </div>
           </div>
@@ -146,16 +143,13 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     onChange={field.onChange}
                     label="Ferry Class"
                     options={FERRY_CLASSES}
+                    required
                     hasError={!!errors.ferryPreferences?.ferryClass}
                     placeholder="Select ferry class"
+                    errorMessage={errors.ferryPreferences?.ferryClass?.message}
                   />
                 )}
               />
-              {errors.ferryPreferences?.ferryClass && (
-                <span className={styles.error}>
-                  {errors.ferryPreferences.ferryClass.message}
-                </span>
-              )}
             </div>
 
             <div className={styles.formField}>
@@ -168,16 +162,15 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     onChange={field.onChange}
                     label="Travel Time Slot"
                     options={TIME_SLOTS}
+                    required
                     hasError={!!errors.ferryPreferences?.travelTimeSlot}
                     placeholder="Select time slot"
+                    errorMessage={
+                      errors.ferryPreferences?.travelTimeSlot?.message
+                    }
                   />
                 )}
               />
-              {errors.ferryPreferences?.travelTimeSlot && (
-                <span className={styles.error}>
-                  {errors.ferryPreferences.travelTimeSlot.message}
-                </span>
-              )}
             </div>
 
             <div className={styles.formField}>
@@ -192,14 +185,12 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     options={FERRY_COMPANIES}
                     hasError={!!errors.ferryPreferences?.preferredFerry}
                     placeholder="Select preferred ferry"
+                    errorMessage={
+                      errors.ferryPreferences?.preferredFerry?.message
+                    }
                   />
                 )}
               />
-              {errors.ferryPreferences?.preferredFerry && (
-                <span className={styles.error}>
-                  {errors.ferryPreferences.preferredFerry.message}
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -262,16 +253,13 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     onChange={field.onChange}
                     label="Meal Preference"
                     options={MEAL_PREFERENCES}
+                    required
                     hasError={!!errors.addOns?.mealPreference}
                     placeholder="Select meal preference"
+                    errorMessage={errors.addOns?.mealPreference?.message}
                   />
                 )}
               />
-              {errors.addOns?.mealPreference && (
-                <span className={styles.error}>
-                  {errors.addOns.mealPreference.message}
-                </span>
-              )}
             </div>
 
             <div className={styles.formField}>
@@ -284,16 +272,13 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     onChange={field.onChange}
                     label="Transportation"
                     options={TRANSPORTATION_OPTIONS}
+                    required
                     hasError={!!errors.addOns?.transportation}
                     placeholder="Select transportation"
+                    errorMessage={errors.addOns?.transportation?.message}
                   />
                 )}
               />
-              {errors.addOns?.transportation && (
-                <span className={styles.error}>
-                  {errors.addOns.transportation.message}
-                </span>
-              )}
             </div>
           </div>
         </div>

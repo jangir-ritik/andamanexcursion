@@ -1,15 +1,16 @@
 "use client";
-
 import React from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./DateSelect.module.css";
 import type { DateSelectProps } from "./DateSelect.types";
+import { cn } from "@/utils/cn";
 
 // Add error message prop to the interface
 interface DateSelectPropsWithError extends DateSelectProps {
   errorMessage?: string;
+  required?: boolean;
 }
 
 export const DateSelect = ({
@@ -19,6 +20,7 @@ export const DateSelect = ({
   hasError,
   label = "Date",
   errorMessage,
+  required = false,
 }: DateSelectPropsWithError) => {
   // Ensure selected is a valid Date object
   const selectedDate =
@@ -49,15 +51,16 @@ export const DateSelect = ({
     <div className={styles.fieldContainer}>
       <div
         aria-label="Date Select"
-        className={`${styles.selectWrapper} ${className || ""} ${
-          hasError ? styles.error : ""
-        }`}
+        className={cn(
+          styles.selectWrapper,
+          className,
+          hasError && styles.error
+        )}
       >
         <span className={styles.selectLabel}>
           {label}
-          <span className={styles.required}>*</span>
+          {required && <span className={styles.required}>*</span>}
         </span>
-
         <div aria-label="Date Picker" className={styles.datePickerInner}>
           <button
             type="button"
@@ -67,7 +70,6 @@ export const DateSelect = ({
           >
             <ChevronLeft size={20} />
           </button>
-
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
@@ -81,7 +83,6 @@ export const DateSelect = ({
               }
             }}
           />
-
           <button
             type="button"
             aria-label="Next Day"
@@ -91,7 +92,6 @@ export const DateSelect = ({
             <ChevronRight size={20} />
           </button>
         </div>
-
         {/* Inline error message inside the border */}
         {hasError && errorMessage && (
           <p className={styles.errorMessage} role="alert">

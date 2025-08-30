@@ -76,7 +76,9 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
               control={control}
               label="Name"
               placeholder="Enter your name"
+              required
               hasError={!!errors.personalDetails?.name}
+              errorMessage={errors.personalDetails?.name?.message}
             />
           </div>
 
@@ -87,7 +89,9 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
               label="Contact Details"
               placeholder="+91 00000 00000"
               type="tel"
+              required
               hasError={!!errors.personalDetails?.phone}
+              errorMessage={errors.personalDetails?.phone?.message}
             />
           </div>
 
@@ -98,7 +102,9 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
               label="Mail ID"
               placeholder="Enter your email"
               type="email"
+              required
               hasError={!!errors.personalDetails?.email}
+              errorMessage={errors.personalDetails?.email?.message}
             />
           </div>
         </div>
@@ -142,15 +148,12 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
                     trigger("tripDetails.arrivalDate");
                   }}
                   label="Arrival Dates"
+                  required
                   hasError={!!errors.tripDetails?.arrivalDate}
+                  errorMessage={errors.tripDetails?.arrivalDate?.message}
                 />
               )}
             />
-            {errors.tripDetails?.arrivalDate && (
-              <span className={styles.error}>
-                {errors.tripDetails.arrivalDate.message}
-              </span>
-            )}
           </div>
 
           <div className={styles.formField}>
@@ -176,16 +179,13 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
                       trigger("tripDetails.departureDate");
                     }}
                     label="Departure Dates"
+                    required
                     hasError={!!errors.tripDetails?.departureDate}
+                    errorMessage={errors.tripDetails?.departureDate?.message}
                   />
                 );
               }}
             />
-            {errors.tripDetails?.departureDate && (
-              <span className={styles.error}>
-                {errors.tripDetails.departureDate.message}
-              </span>
-            )}
           </div>
 
           <div className={styles.formField}>
@@ -200,16 +200,6 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
               }
               className={styles.passengerCounter}
             />
-            {errors.tripDetails?.adults && (
-              <span className={styles.error}>
-                {errors.tripDetails.adults.message}
-              </span>
-            )}
-            {errors.tripDetails?.children && (
-              <span className={styles.error}>
-                {errors.tripDetails.children.message}
-              </span>
-            )}
           </div>
         </div>
       </div>

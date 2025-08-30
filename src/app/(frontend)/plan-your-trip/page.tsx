@@ -38,28 +38,32 @@ export default async function TripPlanningPage() {
 }
 
 // Generate metadata from CMS
-// export async function generateMetadata() {
-//   try {
-//     const tripPlanningPage = await pageService.getBySlug("trip-planning");
+export async function generateMetadata() {
+  try {
+    const tripPlanningPage = await pageService.getBySlug("trip-planning");
 
-//     if (!tripPlanningPage) {
-//       return {
-//         title: "Plan Your Trip | Andaman Excursion",
-//         description: "Plan your perfect Andaman adventure with our trip planning tools.",
-//       };
-//     }
+    if (!tripPlanningPage) {
+      return {
+        title: "Plan Your Trip | Andaman Excursion",
+        description:
+          "Plan your perfect Andaman adventure with our trip planning tools.",
+      };
+    }
 
-//     return {
-//       title: tripPlanningPage.meta?.title || "Plan Your Trip | Andaman Excursion",
-//       description: tripPlanningPage.meta?.description ||
-//                   "Plan your perfect Andaman adventure with our trip planning tools.",
-//       keywords: tripPlanningPage.meta?.keywords,
-//     };
-//   } catch (error) {
-//     console.error("Error generating metadata:", error);
-//     return {
-//       title: "Plan Your Trip | Andaman Excursion",
-//       description: "Plan your perfect Andaman adventure with our trip planning tools.",
-//     };
-//   }
-// }
+    return {
+      title:
+        tripPlanningPage.meta?.title || "Plan Your Trip | Andaman Excursion",
+      description:
+        tripPlanningPage.meta?.description ||
+        "Plan your perfect Andaman adventure with our trip planning tools.",
+      // keywords: tripPlanningPage.meta?.keywords,
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Plan Your Trip | Andaman Excursion",
+      description:
+        "Plan your perfect Andaman adventure with our trip planning tools.",
+    };
+  }
+}
