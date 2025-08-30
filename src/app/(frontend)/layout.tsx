@@ -24,6 +24,9 @@ const baseUrl =
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
   metadataBase: new URL(baseUrl),
+  publisher: "Andaman Excursion",
+  authors: [{ name: "Andaman Excursion", url: "https://andamanexcursion.com" }],
+  creator: "Andaman Excursion",
   description:
     "Discover pristine beaches, hidden adventures, and unforgettable experiences across the Andaman Islands with our perfectly designed travel packages.",
   keywords: [
@@ -42,6 +45,11 @@ export const metadata: Metadata = {
     siteName: "Andaman Excursion",
     locale: "en_US",
     type: "website",
+  },
+  other: {
+    "og:type": "website",
+    "business:contact_data:locality": "Andaman and Nicobar Islands",
+    "business:contact_data:region": "India",
   },
 };
 

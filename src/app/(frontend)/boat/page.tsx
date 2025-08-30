@@ -22,13 +22,31 @@ export default async function Home({ params }: PageProps) {
     notFound();
   }
 
-  return <BlockRenderer blocks={page.pageContent.content} />;
+  return (
+    <>
+      <h1
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          margin: "-1px",
+          padding: 0,
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          border: 0,
+        }}
+      >
+        Island hopping starts here
+      </h1>
+      <BlockRenderer blocks={page.pageContent.content} />
+    </>
+  );
 }
 
 // Generate static params for boat pages
 export async function generateStaticParams() {
   try {
-    // Since you mentioned there are only 3 boat routes and no categories,
+    // Since there are only 3 boat routes and no categories,
     // we'll generate static params for the main boat pages
     const staticParams = [];
 
