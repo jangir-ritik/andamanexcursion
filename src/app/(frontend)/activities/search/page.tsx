@@ -1,246 +1,158 @@
-// src/app/activities/search/page-rq.tsx
-"use client";
-import React, { Suspense, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
-import { Section, Column, Row } from "@/components/layout";
-import styles from "./page.module.css";
-import { SectionTitle } from "@/components/atoms";
-import { UnifiedSearchingForm } from "@/components/organisms";
-import { useActivityRQ } from "@/store";
+// src/app/activities/search/page.tsx (Server Component)
+import React, { Suspense } from "react";
+import { Metadata } from "next";
+import { activityCategoryApi } from "@/services/api/activityCategories";
+import { getImageUrl } from "@/utils/getImageUrl";
+import ActivitiesSearchPageRQ from "./page-client";
 
-import {
-  ActivityResultsRQ,
-  CartSummaryRQ,
-  SearchSummary,
-} from "@/components/molecules/BookingResults";
-import { useActivitiesSearch, useFormOptions } from "@/hooks/queries";
+// Force dynamic rendering for this route
+export const dynamic = "force-dynamic";
 
-// Main page component with React Query integration
-export default function ActivitiesSearchPageRQ() {
-  return (
-    <main className={styles.main}>
-      {/* Management Section - Cart + Booking Form */}
-      <Section
-        ariaLabelledby="management-section"
-        id="booking-form-section"
-        className={styles.managementSection}
-      >
-        <Column gap="var(--space-6)" fullWidth alignItems="start">
-          {/* Top - Booking Form */}
-          <h1 className={styles.sectionHeading}>Your Activities</h1>
-          <Row gap="var(--space-3)" className={styles.formColumn}>
-            <UnifiedSearchingForm
-              variant="embedded"
-              initialTab="activities"
-              className={styles.bookingForm}
-            />
-          </Row>
-          {/* Bottom - Your Activities Cart */}
-          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
-            <Suspense
-              fallback={
-                <div className={styles.cartLoading}>Loading cart...</div>
-              }
-            >
-              <ActivityCartContent />
-            </Suspense>
-          </Row>
-        </Column>
-      </Section>
+type SearchPageProps = {
+  searchParams: Promise<{
+    activityType?: string;
+    location?: string;
+    date?: string;
+    time?: string;
+    adults?: string;
+    children?: string;
+    infants?: string;
+  }>;
+};
 
-      {/* Search Results Section */}
-      <Section
-        id="search-results"
-        aria-labelledby="search-results-content"
-        className={styles.contentArea}
-      >
-        <Suspense fallback={<div>Loading...</div>}>
-          <ActivityPageTitle />
-        </Suspense>
-        <Suspense
-          fallback={
-            <div className={styles.loadingFallback}>
-              <div className={styles.spinner} />
-              <p>Loading your activity search...</p>
-            </div>
-          }
-        >
-          <ActivitySearchContent />
-        </Suspense>
-      </Section>
-    </main>
-  );
+// Server component that handles metadata
+export default function ActivitiesSearchPage({
+  searchParams,
+}: SearchPageProps) {
+  return <ActivitiesSearchPageRQ />;
 }
 
-// Component for cart content with empty state
-const ActivityCartContent = () => {
-  const { cart } = useActivityRQ();
-
-  // Optimized scroll handler
-  const handleAddMore = useCallback(() => {
-    const formElement = document.getElementById("booking-form-section");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
-  if (cart.length === 0) {
-    return (
-      <div className={styles.emptyCart}>
-        <p className={styles.emptyCartText}>No activities selected yet</p>
-        <p className={styles.emptyCartSubtext}>
-          Use the form to search and add activities
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <CartSummaryRQ onAddMore={handleAddMore} className={styles.cartContent} />
-  );
-};
-
-// Component that handles search params and displays results
-const ActivitySearchContent = () => {
-  const searchParams = useSearchParams();
-  const { searchParams: currentParams, updateSearchParams } = useActivityRQ();
-  const initializedRef = React.useRef(false);
-
-  // Use React Query for form options to get display names
-  const { categories, locations } = useFormOptions();
-
-  // Memoize search params extraction to avoid re-computation
-  const urlSearchParams = useMemo(() => {
-    const activityType = searchParams.get("activityType");
-    const location = searchParams.get("location");
-    const date = searchParams.get("date");
-    const time = searchParams.get("time");
-    const adults = parseInt(searchParams.get("adults") || "2", 10);
-    const children = parseInt(searchParams.get("children") || "0", 10);
-
-    return {
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  try {
+    const params = await searchParams;
+    const {
       activityType,
       location,
-      date: date || new Date().toISOString().split("T")[0],
-      time: time || "",
-      adults,
-      children,
-    };
-  }, [searchParams]);
+      date,
+      adults = "2",
+      children = "0",
+      infants = "0",
+    } = params;
 
-  // Load search params from URL on mount only once
-  useEffect(() => {
-    if (initializedRef.current) return;
+    let title = "Activity Search Results | Andaman Excursion";
+    let description =
+      "Find and book exciting activities in the Andaman Islands";
+    let keywords = "andaman activities, booking, water sports, adventure";
 
-    const { activityType, location, ...restParams } = urlSearchParams;
-
-    // Trigger search if we have activityType (for category browsing)
+    // Get category details for better SEO
+    let categoryData = null;
     if (activityType) {
-      const params = {
-        activityType,
-        location: location || "", // Optional location
-        ...restParams,
-      };
-
-      // Update params (React Query will automatically trigger search)
-      updateSearchParams(params);
-      initializedRef.current = true;
+      try {
+        categoryData = await activityCategoryApi.getBySlug(activityType);
+      } catch (error) {
+        console.error("Error fetching category for metadata:", error);
+      }
     }
-  }, [urlSearchParams, updateSearchParams]);
 
-  // Memoize display names to prevent unnecessary re-computations
-  const displayNames = useMemo(() => {
-    const selectedActivity = (categories.data || []).find(
-      (activity) => activity.slug === currentParams.activityType
-    );
-    const selectedLocation = (locations.data || []).find(
-      (location) => location.slug === currentParams.location
-    );
+    // Build dynamic title and description
+    if (categoryData) {
+      const locationText = location
+        ? ` in ${location.replace("-", " ")}`
+        : " in Andaman Islands";
+      title = `${categoryData.name} Activities${locationText} | Andaman Excursion`;
+      description = `Book ${categoryData.name.toLowerCase()} activities${locationText}. ${
+        categoryData.description || "Amazing experiences await you."
+      }`;
+      keywords = `${categoryData.name}, ${keywords}`;
+    }
+
+    // Add passenger info to description if available
+    const totalPassengers =
+      parseInt(adults) + parseInt(children) + parseInt(infants);
+    if (totalPassengers > 0) {
+      description += ` Perfect for ${totalPassengers} ${
+        totalPassengers === 1 ? "person" : "people"
+      }.`;
+    }
+
+    // Add date info if available
+    if (date) {
+      try {
+        const formattedDate = new Date(date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        description += ` Available for ${formattedDate}.`;
+      } catch (error) {
+        // Invalid date, skip adding date info
+      }
+    }
+
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+    const currentUrl = new URL("/activities/search", baseUrl);
+
+    // Preserve search params in canonical URL for SEO
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) currentUrl.searchParams.set(key, value);
+    });
+
+    let imageUrl = null;
+    if (categoryData?.image) {
+      imageUrl = getImageUrl(categoryData.image);
+    }
 
     return {
-      activityName: selectedActivity?.name,
-      locationName: selectedLocation?.name,
+      title,
+      description,
+      keywords,
+      openGraph: {
+        title,
+        description,
+        url: currentUrl.toString(),
+        siteName: "Andaman Excursion",
+        images: imageUrl
+          ? [
+              {
+                url: imageUrl,
+                width: 1200,
+                height: 630,
+                alt: title,
+              },
+            ]
+          : undefined,
+        locale: "en_US",
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: imageUrl ? [imageUrl] : undefined,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
+      alternates: {
+        canonical: currentUrl.toString(),
+      },
     };
-  }, [
-    categories.data,
-    locations.data,
-    currentParams.activityType,
-    currentParams.location,
-  ]);
-
-  // Memoize total passengers calculation
-  const totalPassengers = useMemo(
-    () => currentParams.adults + currentParams.children,
-    [currentParams.adults, currentParams.children]
-  );
-
-  // Get search results to show accurate count in SearchSummary
-  const { data: activities = [], isLoading: isLoadingActivities } =
-    useActivitiesSearch(currentParams, !!currentParams.activityType);
-
-  // Optimized scroll handler with useCallback
-  const handleAddMore = useCallback(() => {
-    const formElement = document.getElementById("booking-form-section");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
-  // Retry handler will be handled by ActivityResultsRQ component
-
-  return (
-    <Column gap="var(--space-6)" fullWidth>
-      {/* Search Summary & Results Container */}
-      <Section className={styles.resultsSection}>
-        <Column gap="var(--space-4)" fullWidth>
-          {/* Search Summary - Now shows dynamic result count */}
-          {currentParams.activityType && (
-            <SearchSummary
-              loading={isLoadingActivities}
-              resultCount={activities.length}
-              activity={currentParams.activityType}
-              activityName={displayNames.activityName}
-              location={currentParams.location}
-              locationName={displayNames.locationName}
-              date={currentParams.date}
-              time={currentParams.time}
-              passengers={totalPassengers}
-              type="activity"
-            />
-          )}
-
-          {/* Activity Results - using React Query version */}
-          <ActivityResultsRQ searchParams={currentParams} />
-        </Column>
-      </Section>
-    </Column>
-  );
-};
-
-// Memoized component for the page title
-const ActivityPageTitle = React.memo(() => {
-  const { searchParams } = useActivityRQ();
-  const { categories } = useFormOptions();
-
-  // Memoize the title computation
-  const titleData = useMemo(() => {
-    const selectedActivity = (categories.data || []).find(
-      (activity) => activity.slug === searchParams.activityType
-    );
-
-    const activityName = selectedActivity?.name || "Activities";
-    const titleText = `${activityName} in Andaman`;
-
-    return { activityName, titleText };
-  }, [categories.data, searchParams.activityType]);
-
-  return (
-    <SectionTitle
-      specialWord={titleData.activityName}
-      text={titleData.titleText}
-      id="available-activities-title"
-    />
-  );
-});
-
-ActivityPageTitle.displayName = "ActivityPageTitle";
+  } catch (error) {
+    console.error("Error generating metadata for activities search:", error);
+    return {
+      title: "Activity Search Results | Andaman Excursion",
+      description: "Find and book exciting activities in the Andaman Islands",
+    };
+  }
+}
