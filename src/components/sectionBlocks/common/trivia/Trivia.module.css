@@ -58,7 +58,6 @@
   position: relative;
   color: var(--color-secondary);
   font-family: var(--font-family-display);
-  /* REMOVED white-space: nowrap to allow natural wrapping */
   display: inline;
   /* Enhanced wrapping behavior */
   word-break: keep-all; /* Prefer word boundaries */
@@ -114,8 +113,8 @@
   }
 
   .underlineWrapper {
-    /* Slightly smaller underlines on mobile for better proportion */
-    transform: scaleY(0.85);
+    /* Remove scaling - let responsive offset handle spacing */
+    transform: translateZ(0); /* GPU acceleration only */
   }
 }
 
@@ -138,7 +137,8 @@
   }
 
   .underlineWrapper {
-    transform: scaleY(0.8);
+    /* Remove scaling that was causing cramped appearance */
+    transform: translateZ(0);
   }
 }
 
@@ -155,7 +155,8 @@
   }
 
   .underlineWrapper {
-    transform: scaleY(0.75);
+    /* Remove aggressive scaling */
+    transform: translateZ(0);
   }
 }
 
@@ -168,9 +169,13 @@
 }
 
 /* High DPI display adjustments */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+  (min-resolution: 192dpi),
+  (min-resolution: 2dppx) {
   .underlineWrapper {
     /* Sharper underlines on high-DPI displays */
     image-rendering: crisp-edges;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

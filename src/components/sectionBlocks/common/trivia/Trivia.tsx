@@ -33,12 +33,26 @@ export const Trivia = ({
   const textRef = useRef<HTMLParagraphElement>(null);
   const highlightRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
 
-  // Use the custom hook for underline positioning
+  // Calculate responsive offset based on viewport for text highlighting
+  const getResponsiveOffset = () => {
+    if (typeof window === "undefined") return 8; // SSR fallback
+
+    const vw = window.innerWidth;
+
+    // Responsive offset values for text highlighting
+    if (vw <= 360) return 2; // Very small screens
+    if (vw <= 480) return 1; // Small mobile
+    if (vw <= 768) return 4; // Mobile
+    if (vw <= 1024) return 7; // Tablet
+    return 8; // Desktop
+  };
+
+  // Use the custom hook for underline positioning with responsive offset
   const { positions: underlinePositions } = useTextHighlightUnderlines(
     textRef,
     highlightRefs,
     highlightedPhrases,
-    8 // offset
+    getResponsiveOffset()
   );
 
   // Improved text processing that handles single and multiple highlights better
@@ -157,7 +171,7 @@ export const Trivia = ({
                 height={6}
                 style={{
                   width: "100%",
-                  height: "6px",
+                  height: "0.375rem", // Use rem instead of fixed pixels
                   objectFit: "cover",
                   objectPosition: "center",
                 }}

@@ -140,13 +140,54 @@ export const useTextHighlightUnderlines = (
 };
 
 // Specialized hook for single element underlining (like SectionTitle)
+// export const useSingleElementUnderline = (
+//   containerRef: RefObject<HTMLElement | null>,
+//   targetRef: RefObject<HTMLElement | null>,
+//   dependencies: any[] = [],
+//   offset: number = 10
+// ) => {
+//   const targetRefsMap = useRef<Map<number, HTMLElement>>(new Map());
+
+//   // Update the map when targetRef changes
+//   useEffect(() => {
+//     if (targetRef.current) {
+//       targetRefsMap.current.set(0, targetRef.current);
+//     } else {
+//       targetRefsMap.current.clear();
+//     }
+//   }, [targetRef.current, ...dependencies]);
+
+//   return useUnderlinePositioning({
+//     containerRef,
+//     targetRefs: targetRefsMap,
+//     dependencies,
+//     offset,
+//     debounceMs: 50, // Faster for single elements
+//   });
+// };
+
+// Helper function to convert rem to pixels
+const remToPx = (rem: number): number => {
+  return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+};
+
+// Update the useSingleElementUnderline hook signature
 export const useSingleElementUnderline = (
   containerRef: RefObject<HTMLElement | null>,
   targetRef: RefObject<HTMLElement | null>,
   dependencies: any[] = [],
-  offset: number = 10
+  offset: number | string = 10 // Can now accept "0.625rem" or 10
 ) => {
   const targetRefsMap = useRef<Map<number, HTMLElement>>(new Map());
+
+  // Convert offset to pixels if it's a rem value
+  const getOffsetInPixels = useCallback(() => {
+    if (typeof offset === "string" && offset.endsWith("rem")) {
+      const remValue = parseFloat(offset.replace("rem", ""));
+      return remToPx(remValue);
+    }
+    return typeof offset === "number" ? offset : 10;
+  }, [offset]);
 
   // Update the map when targetRef changes
   useEffect(() => {
@@ -161,7 +202,7 @@ export const useSingleElementUnderline = (
     containerRef,
     targetRefs: targetRefsMap,
     dependencies,
-    offset,
-    debounceMs: 50, // Faster for single elements
+    offset: getOffsetInPixels(),
+    debounceMs: 50,
   });
 };

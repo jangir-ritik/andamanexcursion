@@ -1,3 +1,4 @@
+// Updated SectionTitle component with responsive offset
 "use client";
 import React, { useState, useRef } from "react";
 import styles from "./SectionTitle.module.css";
@@ -11,20 +12,32 @@ export const SectionTitle = ({
   className,
   specialWord,
   id,
-  headingLevel = "h2", // Default to h2
+  headingLevel = "h2",
 }: SectionTitleProps) => {
   const titleClasses = [styles.sectionTitle, className || ""].join(" ").trim();
   const [isHovered, setIsHovered] = useState(false);
-
   const specialWordRef = useRef<HTMLSpanElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement | null>(null);
 
-  // Use the utility hook for underline positioning
+  // Calculate responsive offset based on viewport
+  const getResponsiveOffset = () => {
+    if (typeof window === "undefined") return 10; // SSR fallback
+
+    const vw = window.innerWidth;
+
+    // Use rem-based calculations for consistent scaling
+    if (vw <= 480) return 2; // 0.375rem equivalent (incorrect, I updated the values, so recalculation needed)
+    if (vw <= 768) return 3; // 0.5rem equivalent
+    if (vw <= 1024) return 10; // 0.625rem equivalent
+    return 12; // 0.75rem equivalent for desktop
+  };
+
+  // Use the utility hook for underline positioning with responsive offset
   const { positions: underlinePositions } = useSingleElementUnderline(
     titleRef,
     specialWordRef,
     [specialWord, text],
-    10 // offset
+    getResponsiveOffset()
   );
 
   const handleMouseEnter = () => {
@@ -56,7 +69,7 @@ export const SectionTitle = ({
         result.push(
           <span
             key={`special-${index}`}
-            ref={index === 0 ? specialWordRef : null} // Only ref the first occurrence
+            ref={index === 0 ? specialWordRef : null}
             className={styles.specialWord}
             data-hover={isHovered}
           >
@@ -84,7 +97,6 @@ export const SectionTitle = ({
           {renderTextWithSpecialWord()}
         </h2>
       )}
-
       {specialWord &&
         underlinePositions.map((position, index) => (
           <div
@@ -103,7 +115,7 @@ export const SectionTitle = ({
               height={5}
               style={{
                 width: "100%",
-                height: "6px",
+                height: "0.375rem", // Use rem instead of fixed pixels
                 objectFit: "cover",
                 objectPosition: "center",
               }}

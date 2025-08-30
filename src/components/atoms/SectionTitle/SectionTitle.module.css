@@ -28,18 +28,15 @@
   transition: color 0.3s ease;
   position: relative;
   display: inline;
-  /* REMOVED white-space: nowrap to allow wrapping */
-  /* Allow natural text flow and wrapping */
-  word-break: keep-all; /* Prefer to break at word boundaries */
-  overflow-wrap: break-word; /* But allow breaking within words if necessary */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .underline {
   position: absolute;
   z-index: 1;
-  pointer-events: none; /* Prevents interference with text selection */
+  pointer-events: none;
   max-width: 100%;
-  /* Enhanced rendering for better mobile performance */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   will-change: transform;
@@ -54,6 +51,11 @@
   .sectionTitle {
     max-width: 100%;
   }
+  
+  .underline {
+    /* Better scaling for tablet */
+    transform: translateZ(0); /* GPU acceleration */
+  }
 }
 
 /* Mobile Responsive Design */
@@ -65,16 +67,13 @@
     max-width: 100%;
     line-height: 110%;
   }
-
   .specialWord {
-    /* Better mobile text handling */
     word-break: break-word;
     overflow-wrap: anywhere;
   }
-
   .underline {
-    /* Slightly adjust underline for mobile */
-    transform: scaleY(0.9);
+    /* Remove scaling - let the responsive offset handle spacing */
+    transform: translateZ(0);
   }
 }
 
@@ -87,23 +86,31 @@
     font-size: var(--font-size-heading-3);
     line-height: 110%;
   }
-
   .specialWord {
-    /* More aggressive wrapping on very small screens */
     word-break: break-word;
     hyphens: auto;
   }
-
   .underline {
-    transform: scaleY(0.8);
+    /* Remove aggressive scaling that was causing cramped appearance */
+    transform: translateZ(0);
   }
 }
 
 /* Very small screens */
 @media (max-width: 360px) {
   .specialWord {
-    /* Allow breaking anywhere on very constrained screens */
     word-break: break-all;
     overflow-wrap: anywhere;
+  }
+}
+
+/* High-DPI displays - ensure consistent rendering */
+@media (-webkit-min-device-pixel-ratio: 2), 
+       (min-resolution: 192dpi), 
+       (min-resolution: 2dppx) {
+  .underline {
+    /* Ensure crisp rendering on high-DPI displays */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
