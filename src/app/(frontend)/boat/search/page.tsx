@@ -1,290 +1,197 @@
-"use client";
-import React, { Suspense, useEffect, useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Section, Column, Row } from "@/components/layout";
-import styles from "./page.module.css";
-import { SectionTitle } from "@/components/atoms";
-import { useBoat } from "@/store/BoatStore";
-import { useBoatFormOptions } from "@/hooks/queries/useBoats";
-import { SearchSummary } from "@/components/molecules/BookingResults";
-import { BoatResults } from "@/components/molecules/BookingResults/BoatResults";
-import { BoatCartSummary } from "@/components/molecules/BookingResults/BoatCartSummary";
-import { UnifiedSearchingForm } from "@/components/organisms";
+// src/app/(frontend)/boat/search/page.tsx
+import React from "react";
+import { Metadata } from "next";
+import { getImageUrl } from "@/utils/getImageUrl";
+import { boatRouteApi, locationApi } from "@/services/api";
+import { BoatSearchClient } from "./BoatSearchClient";
 
-// Component for cart content with empty state
-const BoatCartContent = () => {
-  const { cart } = useBoat();
-  const router = useRouter();
-
-  // Optimized scroll handler
-  const handleAddMore = useCallback(() => {
-    const formElement = document.getElementById("booking-form-section");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
-  if (cart.length === 0) {
-    return (
-      <div className={styles.emptyCart}>
-        <p className={styles.emptyCartText}>No boats selected yet</p>
-        <p className={styles.emptyCartSubtext}>
-          Use the form to search and add boat trips
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <BoatCartSummary
-      cart={cart}
-      onAddMore={handleAddMore}
-      onCheckout={() => {
-        // Navigate to checkout with type as boat
-        router.push("/checkout?type=boat");
-      }}
-    />
-  );
+type SearchPageProps = {
+  params: Promise<{ slug?: string }>;
+  searchParams: Promise<{
+    fromLocation?: string;
+    toLocation?: string;
+    date?: string;
+    time?: string;
+    adults?: string;
+    children?: string;
+  }>;
 };
 
-// Component that handles search params and displays results
-const BoatSearchContent = () => {
-  const searchParams = useSearchParams();
-  const { searchParams: currentParams, updateSearchParams } = useBoat();
-  const initializedRef = React.useRef(false);
+// Server component - handles metadata generation
+export default async function BoatSearchPage({
+  params,
+  searchParams,
+}: SearchPageProps) {
+  const resolvedSearchParams = await searchParams;
 
-  // Memoize search params extraction to avoid re-computation
-  const urlSearchParams = useMemo(() => {
-    const fromLocation = searchParams.get("fromLocation");
-    const toLocation = searchParams.get("toLocation");
-    const date = searchParams.get("date");
-    const time = searchParams.get("time");
-    const adults = parseInt(searchParams.get("adults") || "2", 10);
-    const children = parseInt(searchParams.get("children") || "0", 10);
-
-    return {
-      fromLocation,
-      toLocation,
-      date: date || new Date().toISOString().split("T")[0],
-      time: time || "",
-      adults,
-      children,
-    };
-  }, [searchParams]);
-
-  // Load search params from URL on mount only once
-  useEffect(() => {
-    if (initializedRef.current) return;
-
-    const { fromLocation, toLocation, ...restParams } = urlSearchParams;
-
-    // Trigger search if we have fromLocation
-    if (fromLocation) {
-      const params = {
-        fromLocation,
-        toLocation: toLocation || "",
-        ...restParams,
-      };
-
-      updateSearchParams(params);
-      initializedRef.current = true;
-    }
-  }, [urlSearchParams, updateSearchParams]);
-
-  // Fetch boat data
-  const {
-    boatRoutes,
-    fromLocations,
-    isLoading: isLoadingBoatOptions,
-  } = useBoatFormOptions();
-
-  // Memoize display names to prevent unnecessary re-computations
-  const displayNames = useMemo(() => {
-    const fromLocationName = fromLocations.find(
-      (location) => location.slug === currentParams.fromLocation
-    )?.name;
-
-    const selectedRoute = boatRoutes.data?.find(
-      (route) => route.id === currentParams.toLocation
-    );
-    const toLocationName = selectedRoute?.toLocation;
-
-    return {
-      fromLocationName,
-      toLocationName,
-    };
-  }, [
-    currentParams.fromLocation,
-    currentParams.toLocation,
-    fromLocations,
-    boatRoutes.data,
-  ]);
-
-  // Memoize total passengers calculation
-  const totalPassengers = useMemo(
-    () => currentParams.adults + currentParams.children,
-    [currentParams.adults, currentParams.children]
-  );
-
-  // Get available boats for the selected route
-  const availableBoats = useMemo(() => {
-    if (!currentParams.toLocation) return [];
-
-    const selectedRoute = boatRoutes.data?.find(
-      (route) => route.id === currentParams.toLocation
-    );
-    if (!selectedRoute) return [];
-
-    // Transform route data to match Boat.route interface
-    const routeData = {
-      id: selectedRoute.id,
-      from:
-        typeof selectedRoute.fromLocation === "string"
-          ? selectedRoute.fromLocation
-          : selectedRoute.fromLocation.name,
-      to: selectedRoute.toLocation,
-      fare: selectedRoute.fare,
-      timing:
-        selectedRoute.availableTimings
-          ?.map((t) => t.departureTime)
-          .filter(Boolean) || [],
-      minTimeAllowed: selectedRoute.duration || "Full day",
-      description: selectedRoute.description || undefined,
-    };
-
-    // Fallback: create a boat from the route data
-    return [
-      {
-        id: selectedRoute.id,
-        route: routeData,
-        name: selectedRoute.name,
-        description: selectedRoute.description || undefined,
-        fare: selectedRoute.fare,
-        timing:
-          selectedRoute.availableTimings
-            ?.map((t) => t.departureTime)
-            .filter(Boolean) || [],
-        minTimeAllowed: selectedRoute.duration || "Full day",
-        capacity: 50, // Default capacity
-        operator: "Andaman Excursion",
-      },
-    ];
-  }, [currentParams.toLocation, boatRoutes.data]);
-
-  return (
-    <Column gap="var(--space-6)" fullWidth>
-      {/* Search Summary & Results Container */}
-      <Section className={styles.resultsSection}>
-        <Column gap="var(--space-4)" fullWidth>
-          {/* Search Summary */}
-          {currentParams.fromLocation && (
-            <SearchSummary
-              loading={isLoadingBoatOptions}
-              resultCount={availableBoats.length}
-              activity={`${displayNames.fromLocationName} to ${displayNames.toLocationName}`}
-              activityName=""
-              location=""
-              locationName=""
-              date={currentParams.date}
-              time={currentParams.time}
-              passengers={totalPassengers}
-              type="boat"
-            />
-          )}
-
-          {/* Boat Results */}
-          <BoatResults
-            searchParams={currentParams}
-            boats={availableBoats}
-            loading={isLoadingBoatOptions}
-          />
-        </Column>
-      </Section>
-    </Column>
-  );
-};
-
-// Memoized component for the page title
-const BoatPageTitle = React.memo(() => {
-  const { searchParams } = useBoat();
-  const { fromLocations } = useBoatFormOptions();
-
-  // Memoize the title computation
-  const titleData = useMemo(() => {
-    const fromLocationName =
-      fromLocations.find(
-        (location) => location.slug === searchParams.fromLocation
-      )?.name || "Boat Trips";
-
-    const titleText = `${fromLocationName} Ferry Services`;
-
-    return { fromLocationName, titleText };
-  }, [fromLocations, searchParams.fromLocation]);
-
-  return (
-    <SectionTitle
-      specialWord={titleData.fromLocationName}
-      text={titleData.titleText}
-      id="available-boats-title"
-    />
-  );
-});
-
-BoatPageTitle.displayName = "BoatPageTitle";
-
-// Main page component with React Query integration
-export default function BoatSearchPage() {
-  return (
-    <main className={styles.main}>
-      {/* Management Section - Cart + Booking Form */}
-      <Section
-        ariaLabelledby="management-section"
-        id="booking-form-section"
-        className={styles.managementSection}
-      >
-        <Column gap="var(--space-6)" fullWidth alignItems="start">
-          {/* Top - Booking Form */}
-          <h1 className={styles.sectionHeading}>Your Boat Trips</h1>
-          <Row gap="var(--space-3)" className={styles.formColumn}>
-            <UnifiedSearchingForm
-              variant="embedded"
-              initialTab="local-boat"
-              className={styles.bookingForm}
-            />
-          </Row>
-          {/* Bottom - Your Boat Cart */}
-          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
-            <Suspense
-              fallback={
-                <div className={styles.cartLoading}>Loading cart...</div>
-              }
-            >
-              <BoatCartContent />
-            </Suspense>
-          </Row>
-        </Column>
-      </Section>
-
-      {/* Search Results Section */}
-      <Section
-        id="search-results"
-        aria-labelledby="search-results-content"
-        className={styles.contentArea}
-      >
-        <Suspense fallback={<div>Loading...</div>}>
-          <BoatPageTitle />
-        </Suspense>
-        <Suspense
-          fallback={
-            <div className={styles.loadingFallback}>
-              <div className={styles.spinner} />
-              <p>Loading your boat search...</p>
-            </div>
-          }
-        >
-          <BoatSearchContent />
-        </Suspense>
-      </Section>
-    </main>
-  );
+  // Pass search params to client component
+  return <BoatSearchClient initialSearchParams={resolvedSearchParams} />;
 }
+
+// Generate metadata for boat search results
+export async function generateMetadata({
+  params,
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  try {
+    const resolvedParams = await params;
+    const resolvedSearchParams = await searchParams;
+
+    // Get search parameters
+    const fromLocation = resolvedSearchParams.fromLocation;
+    const toLocation = resolvedSearchParams.toLocation;
+    const date = resolvedSearchParams.date;
+    const adults = parseInt(resolvedSearchParams.adults || "1", 10);
+    const children = parseInt(resolvedSearchParams.children || "0", 10);
+    const totalPassengers = adults + children;
+
+    // Fetch location and route data for better titles
+    let fromLocationName = "Andaman";
+    let toLocationName = "";
+    let routeData = null;
+
+    try {
+      // Get from location name
+      if (fromLocation) {
+        const locations = await locationApi.getForFerries();
+        const location = locations.find((loc) => loc.slug === fromLocation);
+        fromLocationName = location?.name || fromLocationName;
+      }
+
+      // Get route data if toLocation is provided
+      if (toLocation) {
+        routeData = await boatRouteApi.getById(toLocation);
+        toLocationName = routeData?.toLocation || "";
+      }
+    } catch (error) {
+      console.log("Error fetching location data for metadata:", error);
+    }
+
+    // Build dynamic title based on search parameters
+    let title = "Boat Trip Search Results | Andaman Excursion";
+    if (fromLocationName && toLocationName) {
+      title = `${fromLocationName} to ${toLocationName} Ferry | Andaman Excursion`;
+    } else if (fromLocationName) {
+      title = `Ferry from ${fromLocationName} | Andaman Excursion`;
+    }
+
+    // Build dynamic description
+    let description =
+      "Find and book the best boat trips and ferry services in Andaman Islands.";
+    if (fromLocationName && toLocationName) {
+      description = `Book ferry tickets from ${fromLocationName} to ${toLocationName}. `;
+      if (date) {
+        const formattedDate = new Date(date).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        });
+        description += `Departure on ${formattedDate}. `;
+      }
+      description += `Starting from ₹${
+        routeData?.fare || "XXX"
+      } per person for ${totalPassengers} passenger${
+        totalPassengers > 1 ? "s" : ""
+      }.`;
+    }
+
+    // Get featured image - could be from route data or default boat image
+    let imageUrl = null;
+    if (routeData?.featuredImage) {
+      imageUrl = getImageUrl(routeData.featuredImage);
+    }
+
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+    let canonicalUrl = `${baseUrl.replace(/\/$/, "")}/boat/search`;
+
+    // Add key search parameters to canonical for better SEO
+    if (fromLocation && toLocation) {
+      canonicalUrl += `?fromLocation=${fromLocation}&toLocation=${toLocation}`;
+
+      // Only add date if it's not today (to avoid too many date variations)
+      if (date && date !== new Date().toISOString().split("T")[0]) {
+        canonicalUrl += `&date=${date}`;
+      }
+    }
+
+    // Build keywords dynamically
+    const keywords = [
+      "Andaman ferry booking",
+      "boat trip search",
+      fromLocationName && `${fromLocationName} ferry`,
+      toLocationName && `${toLocationName} boat`,
+      "island hopping",
+      "Andaman boat booking",
+      "ferry tickets",
+      "boat trip results",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    return {
+      title,
+      description,
+      keywords,
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        siteName: "Andaman Excursion",
+        images: imageUrl
+          ? [
+              {
+                url: imageUrl,
+                width: 1200,
+                height: 630,
+                alt: `${fromLocationName} to ${toLocationName} Ferry`,
+              },
+            ]
+          : undefined,
+        type: "website",
+        locale: "en_US",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: imageUrl ? [imageUrl] : undefined,
+      },
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
+      other: {
+        "og:type": "website",
+        "og:section": "Travel Search",
+        ...(routeData?.fare && {
+          "product:price:amount": routeData.fare.toString(),
+          "product:price:currency": "INR",
+        }),
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata for boat search page:", error);
+    return {
+      title: "Boat Trip Search | Andaman Excursion",
+      description:
+        "Find and book the best boat trips and ferry services in Andaman Islands.",
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  }
+}
+
+// search page's expected behaviour is to be dynamic, added this export to resolve build error
+export const dynamic = "force-dynamic";

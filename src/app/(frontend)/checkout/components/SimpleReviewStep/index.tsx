@@ -111,10 +111,10 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
         currency: orderResult.order.currency,
         name: "Andaman Excursion",
         description: `${
-          bookingData?.items?.[0]?.type === "ferry" 
-            ? "Ferry" 
-            : bookingData?.items?.[0]?.type === "boat" 
-            ? "Boat" 
+          bookingData?.items?.[0]?.type === "ferry"
+            ? "Ferry"
+            : bookingData?.items?.[0]?.type === "boat"
+            ? "Boat"
             : "Activity"
         } Booking`,
         order_id: orderResult.order.id,
@@ -198,7 +198,11 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
   return (
     <div className={styles.reviewStep}>
       <div className={styles.header}>
-        <SectionTitle text="Review Your Booking" specialWord="Review" />
+        <SectionTitle
+          text="Review Your Booking"
+          headingLevel="h1"
+          specialWord="Review"
+        />
         <p>Almost there! Give your details a quick look</p>
       </div>
 
@@ -230,13 +234,12 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                   )}
                   {item.location && (
                     <span>
-                      <MapPin size={16} /> 
-                      {Array.isArray(item.location) 
-                        ? item.location[0].name 
-                        : typeof item.location === 'string' 
-                        ? item.location 
-                        : item.location.name || 'Location'
-                      }
+                      <MapPin size={16} />
+                      {Array.isArray(item.location)
+                        ? item.location[0].name
+                        : typeof item.location === "string"
+                        ? item.location
+                        : item.location.name || "Location"}
                     </span>
                   )}
                   {/* Ferry-specific details */}
@@ -256,7 +259,8 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
                   {/* Boat-specific details */}
                   {item.type === "boat" && item.boat?.route && (
                     <span>
-                      <MapPin size={16} /> {item.boat.route.from} → {item.boat.route.to}
+                      <MapPin size={16} /> {item.boat.route.from} →{" "}
+                      {item.boat.route.to}
                     </span>
                   )}
                   {item.type === "boat" && item.boat?.minTimeAllowed && (

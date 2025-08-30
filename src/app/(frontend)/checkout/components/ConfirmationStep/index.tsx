@@ -108,7 +108,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             },
             // Add boat-specific details
             boatName: item.boat?.name || "Boat",
-            route: `${item.boat?.route?.from || "N/A"} → ${item.boat?.route?.to || "N/A"}`,
+            route: `${item.boat?.route?.from || "N/A"} → ${
+              item.boat?.route?.to || "N/A"
+            }`,
           };
         }
         return null;
@@ -181,6 +183,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           text="Booking Confirmed!"
           specialWord="Confirmed!"
           className={styles.title}
+          headingLevel="h1"
         />
         <DescriptionText text="Your booking has been confirmed. You will receive your e-ticket via WhatsApp shortly." />
       </div>

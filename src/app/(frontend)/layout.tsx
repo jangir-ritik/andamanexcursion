@@ -18,8 +18,12 @@ import { activityService } from "@/services/payload/collections/activities";
 import { getNavigationData } from "@/utils/getNavigationData";
 // import { BookingDataProvider } from "@/context/BookingDataProvider";
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+
 export const metadata: Metadata = {
   title: "Andaman Excursion | Explore the Andaman Islands",
+  metadataBase: new URL(baseUrl),
   description:
     "Discover pristine beaches, hidden adventures, and unforgettable experiences across the Andaman Islands with our perfectly designed travel packages.",
   keywords: [

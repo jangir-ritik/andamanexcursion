@@ -181,7 +181,11 @@ export const SimpleMemberDetailsStep: React.FC<
   return (
     <div className={styles.memberDetailsStep}>
       <div className={styles.header}>
-        <SectionTitle text="Passenger Details" specialWord="Passenger" />
+        <SectionTitle
+          text="Passenger Details"
+          headingLevel="h1"
+          specialWord="Passenger"
+        />
         <p>
           Enter details for all passengers. The first passenger will be the
           primary contact.
