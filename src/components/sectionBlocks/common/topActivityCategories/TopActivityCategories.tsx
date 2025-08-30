@@ -23,6 +23,7 @@ export const TopActivityCategories = ({
           text={content.title}
           specialWord={content.specialWord}
           id="activity-category-title"
+          headingLevel="h1"
         />
         <DescriptionText text={content.description} />
         <Grid

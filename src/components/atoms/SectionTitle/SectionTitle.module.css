@@ -28,7 +28,10 @@
   transition: color 0.3s ease;
   position: relative;
   display: inline;
-  white-space: nowrap !important; /* Force special words to stay together */
+  /* REMOVED white-space: nowrap to allow wrapping */
+  /* Allow natural text flow and wrapping */
+  word-break: keep-all; /* Prefer to break at word boundaries */
+  overflow-wrap: break-word; /* But allow breaking within words if necessary */
 }
 
 .underline {
@@ -36,6 +39,10 @@
   z-index: 1;
   pointer-events: none; /* Prevents interference with text selection */
   max-width: 100%;
+  /* Enhanced rendering for better mobile performance */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
 }
 
 /* Tablet Responsive Design */
@@ -44,7 +51,6 @@
     font-size: 36px;
     line-height: 110%;
   }
-
   .sectionTitle {
     max-width: 100%;
   }
@@ -55,10 +61,20 @@
   .sectionTitle {
     width: 100%;
   }
-
   .title {
     max-width: 100%;
     line-height: 110%;
+  }
+
+  .specialWord {
+    /* Better mobile text handling */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .underline {
+    /* Slightly adjust underline for mobile */
+    transform: scaleY(0.9);
   }
 }
 
@@ -67,9 +83,27 @@
   .sectionTitle {
     max-width: 100%;
   }
-
   .title {
     font-size: var(--font-size-heading-3);
     line-height: 110%;
+  }
+
+  .specialWord {
+    /* More aggressive wrapping on very small screens */
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  .underline {
+    transform: scaleY(0.8);
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .specialWord {
+    /* Allow breaking anywhere on very constrained screens */
+    word-break: break-all;
+    overflow-wrap: anywhere;
   }
 }

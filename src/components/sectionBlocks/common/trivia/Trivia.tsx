@@ -1,9 +1,10 @@
 "use client";
-import { Column, Section } from "@/components/layout";
-import React, { useRef, useEffect, useState } from "react";
+import { Section } from "@/components/layout";
+import React, { useRef } from "react";
 import styles from "./Trivia.module.css";
 import Image from "next/image";
 import underlineGraphic from "@public/graphics/underline.svg";
+import { useTextHighlightUnderlines } from "@/utils/underlinePositioning";
 
 export interface HighlightedPhrase {
   phrase: string;
@@ -29,58 +30,16 @@ export const Trivia = ({
 }: TriviaProps) => {
   const { title, text, highlightedPhrases } = content;
 
-  const [underlinePositions, setUnderlinePositions] = useState<
-    Array<{
-      left: number;
-      top: number;
-      width: number;
-    }>
-  >([]);
-
   const textRef = useRef<HTMLParagraphElement>(null);
   const highlightRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
 
-  // Calculate underline positions
-  const calculateUnderlineMetrics = () => {
-    if (textRef.current && highlightRefs.current.size > 0) {
-      const textRect = textRef.current.getBoundingClientRect();
-
-      const positions: Array<{ left: number; top: number; width: number }> = [];
-
-      highlightRefs.current.forEach((ref, index) => {
-        if (!ref) return;
-
-        const highlightRect = ref.getBoundingClientRect();
-
-        // Calculate position relative to the text container
-        const left = highlightRect.left - textRect.left;
-        const top = highlightRect.bottom - textRect.top;
-
-        positions[index] = {
-          left,
-          top: top - 8,
-          width: highlightRect.width,
-        };
-      });
-
-      setUnderlinePositions(positions);
-    }
-  };
-
-  // Calculate underline metrics when component mounts and on resize
-  useEffect(() => {
-    const timeoutId = setTimeout(calculateUnderlineMetrics, 100);
-    return () => clearTimeout(timeoutId);
-  }, [highlightedPhrases]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      calculateUnderlineMetrics();
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // Use the custom hook for underline positioning
+  const { positions: underlinePositions } = useTextHighlightUnderlines(
+    textRef,
+    highlightRefs,
+    highlightedPhrases,
+    8 // offset
+  );
 
   // Improved text processing that handles single and multiple highlights better
   const renderText = () => {
@@ -101,7 +60,7 @@ export const Trivia = ({
     }> = [{ text, isHighlight: false }];
 
     // Process each phrase
-    sortedPhrases.forEach((phraseObj, originalIndex) => {
+    sortedPhrases.forEach((phraseObj) => {
       const newParts: typeof textParts = [];
 
       textParts.forEach((part) => {
@@ -166,7 +125,7 @@ export const Trivia = ({
   return (
     <Section
       id={id}
-      aria-labelledby={`${id}-title`}
+      aria-labelledby={title ? `${id}-title` : undefined}
       className={`${styles.triviaSection} ${className}`}
       noPadding
     >
