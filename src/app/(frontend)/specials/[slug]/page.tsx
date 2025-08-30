@@ -78,7 +78,7 @@ export async function generateMetadata({
 
   const canonicalUrl = `${
     process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
-  }/specials/${slug}`;
+  }/specials${slug}`; // slug already includes a / prefix
 
   return {
     title: seoTitle,
