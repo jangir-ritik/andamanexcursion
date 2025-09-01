@@ -262,8 +262,8 @@ export const Carousel = ({
         </div>
       </div>
 
-      <div className={styles.carouselControls} role="tablist">
-        <div className={styles.indicators}>
+      <div className={styles.carouselControls}>
+        <div className={styles.indicators} role="tablist">
           {slides.map((slide, index) => (
             <button
               key={index}
