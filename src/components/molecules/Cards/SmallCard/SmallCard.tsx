@@ -26,11 +26,6 @@ export const SmallCard = ({
   const CardContent = () => (
     <>
       <div className={styles.imageWrapper}>
-        {/* <div
-          className={styles.imageContainer}
-          style={{ backgroundImage: `url(${image.url})` }}
-          aria-label={imageAlt || title}
-        /> */}
         <MediaContainer
           src={image}
           alt={imageAlt || title}
