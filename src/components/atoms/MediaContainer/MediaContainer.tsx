@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./MediaContainer.module.css";
 import { Media } from "@payload-types";
-import { useImageSrc, useOptimalImageSize } from "@/hooks/useImageSrc";
+import { useImageSrc } from "@/hooks/useImageSrc";
 import { cn } from "@/utils/cn";
 import { ImageOff } from "lucide-react";
 
@@ -199,11 +199,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
         style={fixedSize ? { width, height } : undefined}
       >
         <div className={styles.placeholder}>
-          <ImageOff
-            color="var(--color-gray-500)"
-            size={24}
-            className={styles.placeholderIcon}
-          />
+          <ImageOff size={24} className={styles.placeholderIcon} />
           <span className={styles.placeholderText}>
             {alt || "Media not available"}
           </span>

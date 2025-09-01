@@ -61,11 +61,7 @@ export const IconContainer = ({
       role="img"
       aria-label={alt || "Icon unavailable"}
     >
-      <ImageOff
-        color="var(--color-gray-500)"
-        size={24}
-        className={styles.fallbackIcon}
-      />
+      <ImageOff size={24} className={styles.fallbackIcon} />
     </div>
   );
 

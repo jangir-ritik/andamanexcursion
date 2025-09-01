@@ -22,13 +22,12 @@
   justify-content: center;
   background: transparent;
   border-radius: 4px;
-  color: var(--color-gray-400, #9ca3af);
+  color: var(--color-secondary);
   border: none; /* ADD THIS */
   box-sizing: border-box; /* ADD THIS */
 }
 
 .fallbackIcon {
-  opacity: 0.6;
   width: 100%;
   height: 100%;
 }
@@ -47,7 +46,7 @@
 .loadingSpinner {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--color-gray-200, #e5e7eb);
+  border: 2px solid var(--color-border);
   border-top: 2px solid var(--color-primary, #3b82f6);
   border-radius: 50%;
   animation: spin 1s linear infinite;
