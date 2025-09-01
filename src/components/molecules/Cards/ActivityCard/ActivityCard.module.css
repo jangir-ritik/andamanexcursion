@@ -1,7 +1,7 @@
+/* Base card styles */
 .card {
   position: relative;
   margin-bottom: var(--space-6);
-  overflow: hidden;
   width: 100%;
   display: flex;
   transition: box-shadow 0.3s ease, background-color 0.3s ease,
@@ -12,6 +12,15 @@
   min-height: 200px;
   cursor: pointer;
   outline: none;
+  /* Remove overflow hidden on mobile to prevent clipping */
+  overflow: visible;
+}
+
+/* Desktop overflow control */
+@media (min-width: 769px) {
+  .card {
+    overflow: hidden;
+  }
 }
 
 .card:hover {
@@ -38,26 +47,31 @@
   width: 100%;
   height: 100%;
   gap: 0;
+  /* Ensure content wrapper doesn't clip on mobile */
+  overflow: visible;
 }
 
 /* Image Section */
 .imageWrapper {
-  /* flex: 0 0 320px; */
   display: flex;
   align-items: center;
   justify-content: center;
   margin: var(--space-4);
   width: 320px;
-  /* height: 180px; */
   position: relative;
   background-color: var(--color-border-secondary);
-  border-radius: 20px 20px 20px 60px !important;
+  border-radius: 20px 20px 20px 60px;
   overflow: hidden;
+  /* Ensure image wrapper maintains aspect ratio */
+  aspect-ratio: 16 / 9;
+  flex-shrink: 0;
 }
 
 /* Expanded state adjustments */
 .expanded {
   flex-direction: column;
+  /* Allow expansion without clipping */
+  overflow: visible;
 }
 
 /* Content Section - New improved layout */
@@ -67,6 +81,7 @@
   flex-direction: column;
   padding: var(--space-6) var(--space-6) var(--space-6) var(--space-3);
   gap: 0;
+  min-width: 0; /* Prevent flex item from overflowing */
 }
 
 /* TOP ROW: Title and Pricing side by side */
@@ -88,6 +103,8 @@
   font-size: var(--font-size-2xl);
   line-height: 1.2;
   color: var(--color-black);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* PRICING SECTION - Redesigned for clarity */
@@ -103,6 +120,8 @@
   display: flex;
   align-items: baseline;
   gap: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .currentPrice {
@@ -121,6 +140,7 @@
   line-height: 1;
   color: var(--color-text-secondary);
   margin: 0;
+  white-space: nowrap;
 }
 
 .discountRow {
@@ -128,6 +148,7 @@
   align-items: center;
   gap: var(--space-2);
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .originalPrice {
@@ -150,6 +171,7 @@
   background-color: var(--color-secondary);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 
 .totalPriceInfo {
@@ -157,6 +179,7 @@
   align-items: center;
   gap: 0;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .totalPrice {
@@ -182,8 +205,8 @@
   font-weight: 400;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 /* SECOND ROW: Activity Info */
@@ -200,32 +223,37 @@
   align-items: center;
   gap: var(--space-2);
   flex: 1;
+  flex-wrap: wrap;
 }
 
 .durationContainer,
-.typeContainer {
+.typeContainer,
+.locationContainer {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  flex-shrink: 0;
 }
 
-.durationIcon {
+.durationIcon,
+.guestsIcon {
   color: var(--color-primary);
   flex-shrink: 0;
 }
 
 .duration,
-.type {
+.type,
+.location {
   font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: var(--font-size-xs);
   line-height: 1.4;
-  color: var(--color-secondary);
   margin: 0;
   white-space: nowrap;
 }
 
-.duration {
+.duration,
+.location {
   color: var(--color-text-secondary);
 }
 
@@ -234,20 +262,7 @@
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background-color: var(--color-orange-100);
-}
-
-.locationContainer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.location {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 400;
-  line-height: 1.4;
-  white-space: nowrap;
+  color: var(--color-secondary);
 }
 
 /* THIRD ROW: Available Times */
@@ -312,6 +327,8 @@
   color: var(--color-text-secondary);
   margin: 0;
   flex: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* View Details Button */
@@ -331,6 +348,7 @@
   cursor: pointer;
   white-space: nowrap;
   align-self: flex-end;
+  flex-shrink: 0;
 }
 
 .viewDetailsButton:hover {
@@ -342,6 +360,7 @@
 .chevronIcon {
   color: inherit;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .chevronExpanded {
@@ -357,14 +376,13 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  /* align-items: stretch; */
   align-items: flex-start;
   padding: var(--space-4);
   gap: var(--space-6);
   width: 100%;
   border-top: 1px solid var(--color-border-secondary);
   opacity: 0;
-  overflow: hidden;
+  overflow: visible; /* Allow content to expand */
   transform: translateY(-10px);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -388,6 +406,7 @@
   transform: translateX(-30px);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   transition-delay: 0.1s;
+  min-width: 0; /* Prevent overflow */
 }
 
 .expanded .classesWrapper {
@@ -407,43 +426,50 @@
   transform: translateX(0);
 }
 
-.activityMetadata {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin-top: var(--space-3);
-}
-
-/* Mobile Responsive */
+/* Mobile Responsive - KEY FIXES HERE */
 @media (max-width: 768px) {
   .card {
     margin-bottom: var(--space-4);
     min-height: auto;
+    /* Critical: Allow overflow on mobile */
+    overflow: visible !important;
+    /* Ensure card can expand properly */
+    height: auto;
   }
 
   .contentWrapper {
     flex-direction: column;
+    /* Allow content to flow naturally */
+    overflow: visible;
+    height: auto;
   }
 
   .imageWrapper {
-    width: unset;
+    /* Remove fixed width and let it be responsive */
+    width: calc(100% - (var(--space-4) * 2));
     height: auto;
-  }
-  /* 
-  .imageWrapper {
-    flex: none;
-    width: 100%;
+    /* Maintain aspect ratio but be more flexible */
+    aspect-ratio: 16 / 9;
+    min-height: 180px;
+    max-height: 250px;
+    /* Simplify border-radius on mobile */
+    border-radius: var(--radius-lg) !important;
     margin: var(--space-4) var(--space-4) 0;
-  } */
+    flex-shrink: 0;
+  }
 
   .textContent {
     padding: var(--space-4);
-    gap: 0;
+    gap: var(--space-3);
+    /* Allow text content to expand naturally */
+    min-height: auto;
+    overflow: visible;
   }
 
   .topRow {
     flex-direction: column;
     gap: var(--space-3);
+    align-items: stretch;
   }
 
   .pricingSection {
@@ -452,6 +478,8 @@
 
   .title {
     font-size: var(--font-size-xl);
+    /* Ensure title doesn't get clipped */
+    line-height: 1.3;
   }
 
   .currentPrice {
@@ -464,7 +492,9 @@
   }
 
   .activityMetadata {
-    gap: var(--space-3);
+    gap: var(--space-2);
+    /* Allow wrapping on mobile */
+    flex-wrap: wrap;
   }
 
   .timeSlotsRow {
@@ -493,14 +523,18 @@
   .viewDetailsButton {
     align-self: stretch;
     justify-content: center;
-    padding: var(--space-3) 0;
+    padding: var(--space-3) var(--space-4);
+    min-height: 44px; /* Ensure touch-friendly size */
   }
 
   .classesContainer {
     flex-direction: column;
     padding: var(--space-4);
     gap: var(--space-4);
-    margin-top: var(--space-4);
+    margin-top: 0;
+    /* Critical: Allow expansion without clipping */
+    overflow: visible !important;
+    height: auto;
   }
 
   .classesWrapper {
@@ -510,20 +544,22 @@
 
   .classesContainer > div:last-child {
     order: 1;
-    margin-bottom: var(--space-4);
+    /* margin-bottom: var(--space-4); */
   }
 }
 
 /* Small mobile devices */
 @media (max-width: 480px) {
-  /* .imageWrapper {
+  .imageWrapper {
     margin: var(--space-3) var(--space-3) 0;
-    margin: 0;
-  } */
+    width: calc(100% - (var(--space-3) * 2));
+    min-height: 160px;
+    max-height: 200px;
+  }
 
   .textContent {
     padding: var(--space-3);
-    gap: 0;
+    gap: var(--space-2);
   }
 
   .title {
@@ -536,29 +572,40 @@
 
   .viewDetailsButton {
     padding: var(--space-2) var(--space-3);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
+    min-height: 40px;
   }
 
   .classesContainer {
     gap: var(--space-3);
     padding: var(--space-3);
   }
+
+  .activityMetadata {
+    gap: var(--space-1);
+  }
+
+  .durationContainer,
+  .typeContainer,
+  .locationContainer {
+    margin-bottom: var(--space-1);
+  }
 }
 
 /* Tablet landscape */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* .imageWrapper {
-    flex: 0 0 280px;
+  .imageWrapper {
     width: 280px;
-    height: 160px;
-  } */
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
 
   .textContent {
     padding: var(--space-5);
   }
 }
 
-/* Touch devices */
+/* Touch devices - Prevent hover effects that might cause layout issues */
 @media (hover: none) and (pointer: coarse) {
   .card:hover {
     background-color: var(--color-white);
@@ -577,12 +624,6 @@
 
   .viewDetailsButton:hover .chevronIcon:not(.chevronExpanded) {
     transform: none;
-  }
-
-  .timeSlot:hover {
-    border-color: transparent;
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
   }
 }
 
