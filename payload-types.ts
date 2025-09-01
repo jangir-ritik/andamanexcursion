@@ -178,18 +178,11 @@ export interface Media {
   id: string;
   alt: string;
   caption?: string | null;
-  mediaType: 'image' | 'video';
   videoSettings?: {
     autoplay?: boolean | null;
     loop?: boolean | null;
-    /**
-     * Required for autoplay to work in most browsers
-     */
     muted?: boolean | null;
     controls?: boolean | null;
-    /**
-     * Thumbnail image shown before video plays
-     */
     poster?: (string | null) | Media;
   };
   updatedAt: string;
@@ -212,7 +205,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    smallCard?: {
+    small?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -220,7 +213,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    card?: {
+    medium?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -228,15 +221,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    tablet?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    desktop?: {
+    large?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -2287,7 +2272,6 @@ export interface UsersSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
-  mediaType?: T;
   videoSettings?:
     | T
     | {
@@ -2321,7 +2305,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        smallCard?:
+        small?:
           | T
           | {
               url?: T;
@@ -2331,7 +2315,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        card?:
+        medium?:
           | T
           | {
               url?: T;
@@ -2341,17 +2325,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        tablet?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        desktop?:
+        large?:
           | T
           | {
               url?: T;

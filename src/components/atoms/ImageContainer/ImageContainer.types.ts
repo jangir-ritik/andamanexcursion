@@ -1,3 +1,4 @@
+// ImageContainer.types.ts
 import { Media } from "@payload-types";
 
 export interface ImageContainerProps {
@@ -15,9 +16,8 @@ export interface ImageContainerProps {
   priority?: boolean;
   fullWidth?: boolean;
   decorative?: boolean;
-  preferredSize?: keyof Media["sizes"];
-  // New props for fixed dimensions (ideal for icons)
+  // Removed preferredSize - component now handles this intelligently
   width?: number;
   height?: number;
-  fixedSize?: boolean; // When true, uses width/height instead of aspect ratios
+  fixedSize?: boolean;
 }

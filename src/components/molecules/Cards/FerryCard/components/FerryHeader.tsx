@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import Image from "next/image";
+import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 import Link from "next/link";
 import styles from "../FerryCard.module.css";
 import star from "@public/icons/misc/star.svg";
@@ -31,11 +31,10 @@ export const FerryHeader = memo<FerryHeaderProps>(
     return (
       <div className={styles.ferryInfo}>
         <div className={styles.logoContainer}>
-          <Image
-            src={getOperatorIcon(operator)}
+          <IconContainer
+            src={getOperatorIcon(operator) as string}
             alt={`${operator} logo`}
-            width={48}
-            height={48}
+            size={48}
             className={styles.ferryLogo}
           />
         </div>
@@ -56,7 +55,7 @@ export const FerryHeader = memo<FerryHeaderProps>(
           </h3>
           <div className={styles.ratingContainer}>
             <div className={styles.starIcon}>
-              <Image src={star} alt="star" width={16} height={16} />
+              <IconContainer src={star} alt="star" size={16} />
             </div>
             <span
               className={styles.ratingText}

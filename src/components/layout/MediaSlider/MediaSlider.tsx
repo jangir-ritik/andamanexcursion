@@ -73,7 +73,7 @@ export const MediaSlider = memo<MediaSliderProps>(
 
       // Check Media object properties
       if (typeof mediaItem.src === "object" && mediaItem.src) {
-        if (mediaItem.src.mediaType === "video") return true;
+        // if (mediaItem.src.mediaType === "video") return true;
         if (mediaItem.src.mimeType?.startsWith("video/")) return true;
       }
 

@@ -3,12 +3,18 @@ import { withPayload } from "@payloadcms/next/withPayload";
 /** @type {import('next').NextConfig} */
 const nextConfig = withPayload({
   images: {
+    // Keep unoptimized: true to prevent double processing
     unoptimized: true,
+
+    // Define the exact sizes your Payload generates
+    deviceSizes: [400, 768, 1200, 1920], // Match your Payload imageSizes
+    imageSizes: [150], // Just thumbnail size for small icons
+
+    // Longer cache since images don't change
+    minimumCacheTTL: 31536000, // 1 year
+
+    // Allow your media domain
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
       {
         protocol: "https",
         hostname: "localhost",
@@ -17,16 +23,47 @@ const nextConfig = withPayload({
         protocol: "http",
         hostname: "localhost",
       },
+      // Add your production domain
+      {
+        protocol: "https",
+        hostname: "yourdomain.com", // Replace with actual domain
+      },
     ],
   },
+
+  // Compress static files
+  compress: true,
+
+  // Optimize build output
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
+
   env: {
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
   },
+
   reactStrictMode: true,
+
   eslint: {
-    // Disable ESLint during builds to prevent linting errors from failing the build
     ignoreDuringBuilds: true,
   },
+
+  // Add headers for better caching
+  async headers() {
+    return [
+      {
+        source: "/media/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
+
   redirects: async () => {
     return [
       {

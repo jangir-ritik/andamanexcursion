@@ -1,5 +1,5 @@
 import React from "react";
-import Image from "next/image";
+import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 import checkboxIcon from "@public/icons/misc/checkbox.svg";
 import { HighlightItemProps } from "./HighlightItem.types";
 
@@ -13,7 +13,7 @@ export const HighlightItem: React.FC<HighlightItemProps> = ({ text }) => {
       className={styles.highlightItem}
     >
       <div className={styles.iconContainer}>
-        <Image src={checkboxIcon} width={20} height={20} alt="Checkbox" />
+        <IconContainer src={checkboxIcon} size={20} alt="Checkbox" />
       </div>
       <span className={styles.text}>{text}</span>
     </div>

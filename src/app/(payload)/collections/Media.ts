@@ -14,45 +14,56 @@ const Media: CollectionConfig = {
     imageSizes: [
       {
         name: "thumbnail",
+        width: 150,
+        height: 150,
+        position: "centre",
+        formatOptions: {
+          format: "webp",
+          options: { quality: 75, effort: 6 },
+        },
+      },
+      {
+        name: "small",
         width: 400,
-        height: 300,
+        height: undefined, // Maintain aspect ratio
         position: "centre",
+        formatOptions: {
+          format: "webp",
+          options: { quality: 80, effort: 6 },
+        },
       },
       {
-        name: "smallCard",
-        width: 405,
-        height: 360,
-        position: "centre",
-      },
-      {
-        name: "card",
+        name: "medium",
         width: 768,
-        height: 576,
-        position: "centre",
-      },
-      {
-        name: "tablet",
-        width: 1024,
         height: undefined,
         position: "centre",
+        formatOptions: {
+          format: "webp",
+          options: { quality: 85, effort: 6 },
+        },
       },
       {
-        name: "desktop",
-        width: 1920,
+        name: "large",
+        width: 1200,
         height: undefined,
         position: "centre",
+        formatOptions: {
+          format: "webp",
+          options: { quality: 85, effort: 6 },
+        },
       },
     ],
     adminThumbnail: "thumbnail",
-    mimeTypes: [
-      "image/*",
-      "video/mp4",
-      "video/webm",
-      "video/ogg",
-      "video/avi",
-      "video/mov",
-      "video/wmv",
-    ],
+    mimeTypes: ["image/*", "video/mp4", "video/webm", "video/ogg"],
+
+    // Simple, consistent optimization for originals
+    formatOptions: {
+      format: "webp",
+      options: {
+        quality: 85,
+        effort: 6,
+      },
+    },
   },
   fields: [
     {
@@ -64,24 +75,15 @@ const Media: CollectionConfig = {
       name: "caption",
       type: "text",
     },
-    {
-      name: "mediaType",
-      type: "select",
-      options: [
-        { label: "Image", value: "image" },
-        { label: "Video", value: "video" },
-      ],
-      required: true,
-      admin: {
-        position: "sidebar",
-      },
-    },
-    // Video-specific fields
+    // Remove the complex optimization settings - keep it simple
     {
       name: "videoSettings",
       type: "group",
       admin: {
-        condition: (data) => data.mediaType === "video",
+        condition: (data) => {
+          // Auto-detect video files
+          return data.mimeType?.startsWith("video/");
+        },
       },
       fields: [
         {
@@ -98,9 +100,6 @@ const Media: CollectionConfig = {
           name: "muted",
           type: "checkbox",
           defaultValue: true,
-          admin: {
-            description: "Required for autoplay to work in most browsers",
-          },
         },
         {
           name: "controls",
@@ -112,26 +111,25 @@ const Media: CollectionConfig = {
           type: "upload",
           relationTo: "media",
           admin: {
-            description: "Thumbnail image shown before video plays",
+            condition: (data) => data.mimeType?.startsWith("image/"),
           },
         },
       ],
     },
   ],
   hooks: {
+    // Keep it minimal - just auto-detect media type
     beforeChange: [
       ({ data, req }) => {
-        // Auto-detect media type based on MIME type
-        if (req.file && req.file.mimetype) {
-          if (req.file.mimetype.startsWith("image/")) {
-            data.mediaType = "image";
-          } else if (req.file.mimetype.startsWith("video/")) {
-            data.mediaType = "video";
-          }
+        if (req.file?.mimetype) {
+          data.mediaType = req.file.mimetype.startsWith("image/")
+            ? "image"
+            : "video";
         }
         return data;
       },
     ],
+    // Remove afterChange hook - let Payload handle everything
   },
 };
 

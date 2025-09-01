@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import Image from "next/image";
+import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 import styles from "../FerryCard.module.css";
 import ferryBoatIcon from "@public/icons/misc/boat.svg";
 import circle_unfilled from "@public/icons/misc/circle_unfilled.svg";
@@ -36,23 +36,21 @@ export const JourneyInfo = memo<JourneyInfoProps>(
         <div className={styles.journeyLine} role="presentation">
           <div className={styles.dottedLine} />
           <div className={styles.circleStart}>
-            <Image
+            <IconContainer
               src={circle_unfilled}
               alt=""
-              width={24}
-              height={24}
+              size={24}
               aria-hidden="true"
             />
           </div>
           <div className={styles.ferryIcon}>
-            <Image src={ferryBoatIcon} alt="" aria-hidden="true" />
+            <IconContainer src={ferryBoatIcon} alt="" aria-hidden="true" />
           </div>
           <div className={styles.circleEnd}>
-            <Image
+            <IconContainer
               src={circle_filled}
               alt=""
-              width={24}
-              height={24}
+              size={24}
               aria-hidden="true"
             />
           </div>

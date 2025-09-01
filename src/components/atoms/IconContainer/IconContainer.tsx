@@ -1,8 +1,9 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import styles from "./IconContainer.module.css";
 import { IconContainerProps } from "./IconContainer.types";
+import { ImageOff } from "lucide-react";
 
 export const IconContainer = ({
   src,
@@ -15,9 +16,22 @@ export const IconContainer = ({
   const [iconError, setIconError] = useState(false);
   const [iconLoading, setIconLoading] = useState(true);
 
+  useEffect(() => {
+    setIconError(false);
+    setIconLoading(true);
+  }, [src]);
+
   // Validate src prop
   const isValidSrc =
     src && (typeof src === "string" ? src.trim() !== "" : true);
+
+  console.log("IconContainer Debug:", {
+    src,
+    isValidSrc,
+    iconError,
+    iconLoading,
+    willShowFallback: !isValidSrc || iconError,
+  });
 
   const handleIconError = useCallback(() => {
     setIconError(true);
@@ -26,6 +40,7 @@ export const IconContainer = ({
 
   const handleIconLoad = useCallback(() => {
     setIconLoading(false);
+    setIconError(false); // Ensure error is cleared on successful load
   }, []);
 
   const containerClasses = [
@@ -46,19 +61,11 @@ export const IconContainer = ({
       role="img"
       aria-label={alt || "Icon unavailable"}
     >
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
+      <ImageOff
+        color="var(--color-gray-500)"
+        size={24}
         className={styles.fallbackIcon}
-      >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="15" y1="9" x2="9" y2="15" />
-        <line x1="9" y1="9" x2="15" y2="15" />
-      </svg>
+      />
     </div>
   );
 

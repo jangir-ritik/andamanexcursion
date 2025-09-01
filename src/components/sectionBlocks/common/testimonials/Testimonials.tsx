@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 
 import styles from "./Testimonials.module.css";
 import googleIcon from "@public/icons/socials/google.svg";
@@ -7,6 +6,7 @@ import { SectionTitle, DecorativeCurlyArrow } from "@/components/atoms";
 import type { TestimonialsProps } from "./Testimonials.types";
 import { Column, Container, Section } from "@/components/layout";
 import { TestimonialCard } from "@/components/molecules/Cards";
+import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 
 export const Testimonials = ({ content }: TestimonialsProps) => {
   if (!content) return null;
@@ -37,12 +37,11 @@ export const Testimonials = ({ content }: TestimonialsProps) => {
             />
             <div className={styles.googleInfo}>
               <div className={styles.googleIcon}>
-                <Image
+                <IconContainer
                   src={googleIcon}
-                  aria-label="Google"
+                  size={20}
                   alt="Google"
-                  width={20}
-                  height={20}
+                  aria-label="Google"
                 />
               </div>
               <p className={styles.subtitle}>{subtitle}</p>

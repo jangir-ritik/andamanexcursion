@@ -9,6 +9,7 @@ import {
 import styles from "./Story.module.css";
 import { StoryProps } from "./Story.types";
 import type { Media } from "@payload-types";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 
 // Utility function to extract URL from Media object
 const getMediaUrl = (media: string | Media | undefined): string => {
@@ -58,18 +59,17 @@ export const Story = ({ content }: StoryProps) => {
       const videoPoster = videoSettings.poster || poster;
 
       return (
-        <VideoContainer
+        <MediaContainer
           src={media}
           alt={alt}
           className={styles.media}
-          aspectRatio="21/9"
-          controls={videoSettings.controls !== false} // Default to true
+          aspectRatio="banner" // or add "21/9" support to MediaContainer
+          controls={videoSettings.controls !== false}
           autoplay={videoSettings.autoplay || false}
-          muted={videoSettings.muted !== false} // Default to true for autoplay compatibility
+          muted={videoSettings.muted !== false}
           loop={videoSettings.loop || false}
-          poster={videoPoster}
+          poster={videoPoster} // MediaContainer handles Media objects
           playsInline={true}
-          preload="metadata"
         />
       );
     }

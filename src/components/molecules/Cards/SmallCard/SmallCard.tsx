@@ -10,6 +10,7 @@ import star from "@public/icons/misc/star.svg";
 import heart from "@public/icons/misc/heart.svg";
 import { cn } from "@/utils/cn";
 import { Media } from "@payload-types";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 
 export const SmallCard = ({
   image,
@@ -30,15 +31,13 @@ export const SmallCard = ({
           style={{ backgroundImage: `url(${image.url})` }}
           aria-label={imageAlt || title}
         /> */}
-        <ImageContainer
+        <MediaContainer
           src={image}
           alt={imageAlt || title}
           className={styles.cardImage}
           aspectRatio="auto"
           objectFit="cover"
           priority={priority}
-          preferredSize={image.sizes?.smallCard as keyof Media["sizes"]}
-          decorative={false}
         />
         <div className={styles.imageOverlay} />
         <div

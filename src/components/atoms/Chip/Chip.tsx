@@ -1,6 +1,6 @@
 "use client";
 import React, { ReactNode } from "react";
-import Image from "next/image";
+import { IconContainer } from "../IconContainer/IconContainer";
 import styles from "./Chip.module.css";
 
 export interface ChipProps {
@@ -22,7 +22,7 @@ export const Chip = ({
         {iconComponent ? (
           iconComponent
         ) : icon ? (
-          <Image src={icon} alt="" width={20} height={20} />
+          <IconContainer src={icon} alt="" size={20} />
         ) : null}
       </div>
       <span className={styles.chipText}>{text}</span>

@@ -62,12 +62,6 @@ export const FerryCard = memo<FerryCardProps>(
       setSelectedClassIndex(index);
     }, []);
 
-    // This is a hidden component just to satisfy the component checker
-    // that looks for alt text in files that import Image
-    if (false) {
-      return <Image src="" alt="Ferry" width={0} height={0} />;
-    }
-
     return (
       <article
         className={cn(styles.ferryCard, className)}

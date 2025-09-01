@@ -1,12 +1,12 @@
-// src/components/atoms/MediaContainer/MediaContainer.tsx
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./MediaContainer.module.css";
 import { Media } from "@payload-types";
-import { useImageSrc } from "@/hooks/useImageSrc";
+import { useImageSrc, useOptimalImageSize } from "@/hooks/useImageSrc";
 import { cn } from "@/utils/cn";
+import { ImageOff } from "lucide-react";
 
 export interface MediaContainerProps {
   src: string | Media | undefined | null;
@@ -23,17 +23,16 @@ export interface MediaContainerProps {
   priority?: boolean;
   fullWidth?: boolean;
   decorative?: boolean;
-  preferredSize?: keyof Media["sizes"];
-  // New props for fixed dimensions (ideal for icons)
+  // Remove preferredSize - let the component decide intelligently
   width?: number;
   height?: number;
-  fixedSize?: boolean; // When true, uses width/height instead of aspect ratios
+  fixedSize?: boolean;
   // Video specific props
   autoplay?: boolean;
   muted?: boolean;
   loop?: boolean;
   controls?: boolean;
-  poster?: string;
+  poster?: string | Media;
   playsInline?: boolean;
 }
 
@@ -46,7 +45,6 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
   priority = false,
   fullWidth = false,
   decorative = false,
-  preferredSize,
   width,
   height,
   fixedSize = false,
@@ -61,16 +59,59 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoError, setIsVideoError] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  // Use the existing hook to process src
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error("Image load failed:", {
+      processedSrc,
+      originalSrc: src,
+      alt,
+      selectedSize,
+    });
+    setImageError(true);
+  };
+
+  // Smart size selection based on component props
+  const getPreferredSize = (): string => {
+    // If fixed size is specified, choose based on width
+    if (fixedSize && width) {
+      if (width <= 400) return "small";
+      if (width <= 768) return "medium";
+      return "large";
+    }
+
+    // Choose based on aspect ratio and fullWidth
+    if (fullWidth) {
+      if (aspectRatio === "banner") return "large";
+      return "medium";
+    }
+
+    // Default size selection
+    switch (aspectRatio) {
+      case "square":
+      case "portrait":
+        return "small";
+      case "landscape":
+      case "banner":
+        return "medium";
+      default:
+        return "medium";
+    }
+  };
+
+  // Use the hook with smart size selection
   const {
     src: processedSrc,
     isValid,
     isMediaObject,
+    selectedSize,
     mediaMetadata,
   } = useImageSrc(src, {
-    preferredSize,
-    debug: false,
+    preferredSize: getPreferredSize(),
+    containerWidth: width,
+    highDPI:
+      typeof window !== "undefined" ? window.devicePixelRatio > 1 : false,
+    debug: process.env.NODE_ENV === "development",
   });
 
   // Determine if this is a video
@@ -79,7 +120,6 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       const media = src as Media;
       setIsVideo(media.mimeType?.startsWith("video/") ?? false);
     } else if (typeof processedSrc === "string") {
-      // Check file extension for video formats
       const videoExtensions = /\.(mp4|webm|ogg|avi|mov|wmv)$/i;
       setIsVideo(videoExtensions.test(processedSrc));
     }
@@ -100,6 +140,10 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     }
   }, [isVideo, autoplay]);
 
+  useEffect(() => {
+    setImageError(false);
+  }, [src, processedSrc]);
+
   // Generate CSS classes
   const containerClasses = cn(
     styles.mediaContainer,
@@ -117,28 +161,49 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     setIsVideoError(true);
   };
 
-  // Get poster image if available from Media object
-  const getPosterSrc = () => {
-    if (poster) return poster;
+  // Get poster image with the same optimization logic
+  const getPosterSrc = (): string | undefined => {
+    // If poster prop is provided, process it
+    if (poster) {
+      if (typeof poster === "string") {
+        return poster;
+      }
+      // If it's a Media object, get the optimized URL
+      if (typeof poster === "object" && poster.url) {
+        return poster.sizes?.small?.url || poster.url;
+      }
+    }
 
+    // Fallback to video's poster from videoSettings
     if (isMediaObject && src && typeof src === "object") {
       const media = src as Media;
       if (media.videoSettings?.poster) {
         const posterMedia = media.videoSettings.poster as Media;
-        return posterMedia.url || "";
+        return posterMedia.sizes?.small?.url || posterMedia.url || "";
       }
     }
+
     return undefined;
   };
 
-  // If not valid or error occurred with video, show placeholder or fallback
-  if (!isValid || (isVideo && isVideoError)) {
+  // Debug logging in development
+  if (process.env.NODE_ENV === "development" && selectedSize) {
+    console.log(`MediaContainer: Using ${selectedSize} size for`, alt);
+  }
+
+  // If not valid or error occurred with video, show placeholder
+  if (!isValid || (isVideo && isVideoError) || imageError) {
     return (
       <div
         className={containerClasses}
         style={fixedSize ? { width, height } : undefined}
       >
         <div className={styles.placeholder}>
+          <ImageOff
+            color="var(--color-gray-500)"
+            size={24}
+            className={styles.placeholderIcon}
+          />
           <span className={styles.placeholderText}>
             {alt || "Media not available"}
           </span>
@@ -183,7 +248,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     );
   }
 
-  // Render image (default case)
+  // Render image using pre-optimized Payload sizes
   return (
     <div
       className={containerClasses}
@@ -197,9 +262,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
           height={height}
           priority={priority}
           className={styles.media}
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
+          onError={handleImageError}
           aria-hidden={decorative}
         />
       ) : (
@@ -210,9 +273,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
           priority={priority}
           className={styles.media}
           sizes={fullWidth ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
+          onError={handleImageError}
           aria-hidden={decorative}
         />
       )}

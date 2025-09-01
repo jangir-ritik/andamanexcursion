@@ -5,6 +5,7 @@ import quoteIcon from "@public/icons/misc/quote.svg";
 import { Media } from "@payload-types";
 import { cn } from "@/utils/cn";
 import { ImageContainer } from "@/components/atoms";
+import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 
 // Updated interface to handle both Payload Media and Google Reviews avatar structure
 interface TestimonialCardInternalProps {
@@ -41,7 +42,7 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
       <div className={styles.cardContent}>
         <div className={styles.testimonialText}>
           <div className={styles.quoteIconWrapper} aria-hidden="true">
-            <Image src={quoteIcon} alt="" width={29.5} height={25} />
+            <IconContainer src={quoteIcon} alt="" size={29.5} />
           </div>
           <p className={styles.text}>{text}</p>
         </div>
@@ -52,11 +53,10 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
               // Handle Google Reviews avatar format
               <div className={styles.avatar}>
                 {avatar.url && (
-                  <Image
-                    src={avatar.url}
+                  <IconContainer
+                    src={avatar.url as string}
                     alt={avatar.alt}
-                    width={48}
-                    height={48}
+                    size={48}
                     className={styles.avatarImage}
                   />
                 )}
