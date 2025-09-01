@@ -22,6 +22,11 @@ export const DateSelect = ({
   errorMessage,
   required = false,
 }: DateSelectPropsWithError) => {
+  // Create unique IDs for accessibility
+  const labelId = React.useId();
+  const inputId = React.useId();
+  const errorId = React.useId();
+
   // Ensure selected is a valid Date object
   const selectedDate =
     selected instanceof Date ? selected : new Date(selected || new Date());
@@ -50,18 +55,17 @@ export const DateSelect = ({
   return (
     <div className={styles.fieldContainer}>
       <div
-        aria-label="Date Select"
         className={cn(
           styles.selectWrapper,
           className,
           hasError && styles.error
         )}
       >
-        <span className={styles.selectLabel}>
+        <label htmlFor={inputId} className={styles.selectLabel} id={labelId}>
           {label}
           {required && <span className={styles.required}>*</span>}
-        </span>
-        <div aria-label="Date Picker" className={styles.datePickerInner}>
+        </label>
+        <div className={styles.datePickerInner}>
           <button
             type="button"
             aria-label="Previous Day"
@@ -76,6 +80,10 @@ export const DateSelect = ({
             dateFormat="EEE, dd MMM yyyy"
             minDate={new Date()}
             className={styles.datePicker}
+            id={inputId}
+            aria-labelledby={labelId}
+            aria-describedby={hasError && errorMessage ? errorId : undefined}
+            aria-invalid={hasError ? "true" : "false"}
             onKeyDown={(e) => {
               // Prevent Enter key from submitting the form
               if (e.key === "Enter") {
@@ -94,7 +102,7 @@ export const DateSelect = ({
         </div>
         {/* Inline error message inside the border */}
         {hasError && errorMessage && (
-          <p className={styles.errorMessage} role="alert">
+          <p className={styles.errorMessage} role="alert" id={errorId}>
             {errorMessage}
           </p>
         )}

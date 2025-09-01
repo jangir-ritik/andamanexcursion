@@ -28,6 +28,9 @@ export const LocationSelect = ({
   const displayText =
     selectedLocation?.label || placeholder || "Select location";
 
+  // Create unique ID for the label
+  const labelId = React.useId();
+
   return (
     <div className={styles.fieldContainer}>
       <Select.Root value={value} onValueChange={onChange}>
@@ -37,8 +40,12 @@ export const LocationSelect = ({
             className,
             hasError && styles.error
           )}
+          aria-labelledby={labelId}
+          aria-describedby={
+            hasError && errorMessage ? `${labelId}-error` : undefined
+          }
         >
-          <span className={styles.selectLabel}>
+          <span className={styles.selectLabel} id={labelId}>
             {label}
             <span className={styles.required}>*</span>
           </span>
@@ -50,10 +57,13 @@ export const LocationSelect = ({
             size={20}
             className={cn(styles.selectIcon, styles.textPrimary)}
           />
-
           {/* Inline error message inside the border */}
           {hasError && errorMessage && (
-            <p className={styles.errorMessage} role="alert">
+            <p
+              className={styles.errorMessage}
+              role="alert"
+              id={`${labelId}-error`}
+            >
               {errorMessage}
             </p>
           )}
