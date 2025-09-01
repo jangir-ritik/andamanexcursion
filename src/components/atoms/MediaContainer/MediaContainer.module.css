@@ -12,6 +12,10 @@
   width: 100%;
 }
 
+.video {
+  border-radius: var(--radius-xl);
+}
+
 .fixedSize {
   flex-shrink: 0;
 }

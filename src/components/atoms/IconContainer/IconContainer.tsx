@@ -28,15 +28,6 @@ export const IconContainer = ({
   // Check if the source is an SVG
   const isSvg = typeof src === "string" && src.toLowerCase().includes(".svg");
 
-  console.log("IconContainer Debug:", {
-    src,
-    isValidSrc,
-    isSvg,
-    iconError,
-    iconLoading,
-    willShowFallback: !isValidSrc || iconError,
-  });
-
   const handleIconError = useCallback(() => {
     setIconError(true);
     setIconLoading(false);

@@ -11,7 +11,9 @@ export const LargeCard = ({
   ctaText,
   ctaHref,
 }: LargeCardProps) => {
-  if (!subtitle || !title || !image || !imageAlt) return null;
+  // Only require the essential fields - subtitle is optional
+  if (!title || !image || !imageAlt) return null;
+
   return (
     <div
       className={styles.cardContainer}
@@ -25,6 +27,7 @@ export const LargeCard = ({
           fullWidth
           className={styles.imageContainer}
         />
+        <div className={styles.imageOverlay} />
         <div className={styles.contentContainer}>
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           <h2 className={styles.cardTitle}>{title}</h2>

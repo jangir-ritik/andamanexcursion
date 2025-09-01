@@ -14,6 +14,8 @@ export default async function Activities({ params }: PageProps) {
 
   const page = await pageService.getBySlug(slug);
 
+  console.log(page, "page");
+
   if (!page || !page.pageContent?.content) {
     notFound();
   }

@@ -68,11 +68,6 @@ export const useImageSrc = (
   } = options;
 
   return useMemo(() => {
-    if (debug) {
-      console.log("useImageSrc input:", input);
-      console.log("useImageSrc options:", options);
-    }
-
     // Type guard for Media objects
     const isMediaObject = (src: any): src is Media => {
       return src && typeof src === "object" && "url" in src;
@@ -104,8 +99,8 @@ export const useImageSrc = (
           };
         }
         const mediaPath = `/media/${input}`;
-        if (debug)
-          console.log("Converting MongoDB ID to direct path:", mediaPath);
+        // if (debug)
+          // console.log("Converting MongoDB ID to direct path:", mediaPath);
         return {
           src: mediaPath,
           isValid: true,
@@ -115,7 +110,7 @@ export const useImageSrc = (
       }
 
       const processedSrc = processApiPath(input, baseUrl);
-      if (debug) console.log("Processed string URL:", processedSrc);
+      // if (debug) console.log("Processed string URL:", processedSrc);
       return {
         src: processedSrc,
         isValid: true,
@@ -162,9 +157,9 @@ export const useImageSrc = (
               url = sizedVersion.url || sizedVersion.filename || url;
             }
 
-            if (debug) {
-              console.log(`Selected size: ${targetSize}`, sizedVersion);
-            }
+            // if (debug) {
+            //   console.log(`Selected size: ${targetSize}`, sizedVersion);
+            // }
           } else {
             // Fallback to next available size
             const availableSizes = Object.keys(sizes);
@@ -179,12 +174,12 @@ export const useImageSrc = (
                     ? fallbackVersion
                     : fallbackVersion.url || fallbackVersion.filename || url;
 
-                if (debug) {
-                  console.log(
-                    `Fallback to size: ${fallbackSize}`,
-                    fallbackVersion
-                  );
-                }
+                // if (debug) {
+                //   console.log(
+                //     `Fallback to size: ${fallbackSize}`,
+                //     fallbackVersion
+                //   );
+                // }
               }
             }
           }
@@ -192,10 +187,10 @@ export const useImageSrc = (
       }
 
       const processedSrc = processApiPath(url || "", baseUrl);
-      if (debug) {
-        console.log("Final processed URL:", processedSrc);
-        console.log("Selected size:", selectedSize);
-      }
+      // if (debug) {
+      //   console.log("Final processed URL:", processedSrc);
+      //   console.log("Selected size:", selectedSize);
+      // }
 
       return {
         src: processedSrc,

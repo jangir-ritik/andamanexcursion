@@ -7,6 +7,7 @@ import { Media } from "@payload-types";
 import { useImageSrc } from "@/hooks/useImageSrc";
 import { cn } from "@/utils/cn";
 import { ImageOff } from "lucide-react";
+import clsx from "clsx";
 
 export interface MediaContainerProps {
   src: string | Media | undefined | null;
@@ -222,7 +223,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       >
         <video
           ref={videoRef}
-          className={styles.media}
+          className={clsx(styles.media, styles.video)}
           autoPlay={autoplay && (videoSettings?.autoplay ?? true)}
           muted={muted && (videoSettings?.muted ?? true)}
           loop={loop && (videoSettings?.loop ?? true)}
