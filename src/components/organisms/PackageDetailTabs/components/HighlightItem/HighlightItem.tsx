@@ -1,7 +1,8 @@
 import React from "react";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
-import checkboxIcon from "@public/icons/misc/checkbox.svg";
 import { HighlightItemProps } from "./HighlightItem.types";
+
+const checkboxIcon = "/icons/misc/checkbox.svg";
 
 import styles from "./HighlightItem.module.css";
 

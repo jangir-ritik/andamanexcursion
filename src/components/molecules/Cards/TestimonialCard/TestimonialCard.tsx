@@ -6,7 +6,6 @@ import { Media } from "@payload-types";
 import { cn } from "@/utils/cn";
 import { ImageContainer } from "@/components/atoms";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
-import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 const quoteIcon = "/icons/misc/quote.svg";
 // Updated interface to handle both Payload Media and Google Reviews avatar structure
 interface TestimonialCardInternalProps {

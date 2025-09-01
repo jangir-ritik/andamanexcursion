@@ -156,15 +156,6 @@ const Packages: CollectionConfig = {
               relationTo: "media",
               required: true,
             },
-            {
-              name: "alt",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "caption",
-              type: "text",
-            },
           ],
         },
       ],
@@ -333,61 +324,6 @@ const Packages: CollectionConfig = {
       ],
     },
   ],
-  // hooks: {
-  //   beforeChange: [
-  //     async ({ data, req, operation }) => {
-  //       // Additional processing if needed
-  //       // The individual field hooks handle most auto-generation now
-
-  //       // You can add relationship-based SEO improvements here
-  //       if (
-  //         data.seo?.metaTitle &&
-  //         data.coreInfo?.locations &&
-  //         data.coreInfo?.period
-  //       ) {
-  //         try {
-  //           // Fetch related data for better SEO
-  //           const locationIds = Array.isArray(data.coreInfo.locations)
-  //             ? data.coreInfo.locations
-  //             : [data.coreInfo.locations];
-
-  //           const locations = await Promise.all(
-  //             locationIds.map((id: string) =>
-  //               req.payload.findByID({
-  //                 collection: "locations",
-  //                 id: id,
-  //               })
-  //             )
-  //           );
-
-  //           const period = await req.payload.findByID({
-  //             collection: "package-periods",
-  //             id: data.coreInfo.period,
-  //           });
-
-  //           // Enhance meta title with locations and period info
-  //           if (
-  //             locations.length > 0 &&
-  //             period?.title &&
-  //             data.seo.metaTitle === `${data.title} - Travel Package`
-  //           ) {
-  //             const locationNames = locations
-  //               .map((loc) => loc.name)
-  //               .join(" & ");
-  //             data.seo.metaTitle = `${data.title} - ${period.title} ${locationNames} Package`;
-  //           }
-  //         } catch (error) {
-  //           // Silently fail if relationships can't be fetched
-  //           console.log(
-  //             "Could not fetch relationship data for SEO enhancement"
-  //           );
-  //         }
-  //       }
-
-  //       return data;
-  //     },
-  //   ],
-  // },
 };
 
 export default Packages;

@@ -40,7 +40,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "We had an amazing experience with this team! They were highly professional and arranged everything seamlessly. They planned the itinerary exactly as per our requirements, ensuring a smooth and enjoyable trip. The hotels and cabs they arranged were excellent, adding to our comfort. Their coordination was top-notch, with everything planned in advance, and they were always available whenever we needed assistance. Our stay in Andaman was truly unforgettable, and we were able to make the most of it without any hassle. A special thanks to Jackie for making it all possible! Highly recommended!.",
       author: "Mohit Kumar",
       avatar: {
-        url: "images/profile_pictures/mohit_kumar.png",
+        url: "/images/profile_pictures/mohit_kumar.png",
         alt: "Mohit Kumar's profile picture",
       },
       rotation: 6,
@@ -50,7 +50,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "Our tour package is arranged by Andaman Excursion and his planning and coordination is too good. Every time the cab was on time and his response also very nice. They treated us a family. Anytime any queries we called means he respond and solve those things too fast. We stayed in GKB Home Stay. The rooms are neat and clean and there also a sea view rooms .Food also too good in GKB Home Stay.",
       author: "Gunalathi Rajkannan",
       avatar: {
-        url: "images/profile_pictures/gunalathi_rajkannan.png",
+        url: "/images/profile_pictures/gunalathi_rajkannan.png",
         alt: "Gunalathi Rajkannan's profile picture",
       },
       rotation: -3,
@@ -60,7 +60,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "It was a wonderfully memorable family vacation midst of the beautiful islands. The itinerary planner had taken care of minutest details and the execution was flawless too. The team was there for it all to help & resolve any issues which may have come up in Port Blair, Havelock & Neil. The selection of stays too was kept very personal and comfort was the prime factor whilst deciding on them. The schedule was power packed but it kept room for rest & recuperation too. Mr Ganesh, our tour chief coordinator, needs a special mention for his excellent managerial skills. Thanks & All the best for many such Happy Memories…",
       author: "Kapil Verma",
       avatar: {
-        url: "images/profile_pictures/kapil_verma.png",
+        url: "/images/profile_pictures/kapil_verma.png",
         alt: "Kapil Verma's profile picture",
       },
       rotation: 3,
@@ -70,7 +70,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "I had an amazing experience with Andaman Excursion Pvt Ltd during my 5-day package in Andaman. Everything was well-organized — beautiful resorts for stay to good food and smooth transport. The prompt pickup,the delicious fresh sea food cooked to perfection,the picturesque beaches and resorts etc does make this trip unforgettable.Special thanks to Mr. Ganesh for personally ensuring everything went perfectly and showing this hidden gem.",
       author: "P. B. Akhil",
       avatar: {
-        url: "images/profile_pictures/pb_akhil.png",
+        url: "/images/profile_pictures/pb_akhil.png",
         alt: "P. B. Akhil's profile picture",
       },
       rotation: -4,
@@ -80,7 +80,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "At the first point we were not sure how the trip is gonna turn around but at the end of our trip we felt like this is the trip that we all needed to refresh our minds and we also realised that we have spent some quality time together as a group of people . Well thanks for making this happen Andaman Excursion Pvt ltd , and those who are planning to Andhaman please do book Andhaman Excursion and do get your best Experience, our trip was affordable and enjoyable by the end of our trip and food they provided for us on all the day were good and considered our choices for the food .",
       author: "Pranav Arjun",
       avatar: {
-        url: "images/profile_pictures/pranav_arjun.png",
+        url: "/images/profile_pictures/pranav_arjun.png",
         alt: "Pranav Arjun's profile picture",
       },
       rotation: 3,
@@ -90,7 +90,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "We had 5 night's stay in Andaman which was completely a stunning experience to visit different places through Ferry and boat. It's completely a different experience exploring all Islands. Food was fabulous and stay was affordable at different Islands and was very good at nominal prices.",
       author: "Vimala R",
       avatar: {
-        url: "images/profile_pictures/vimala_r.png",
+        url: "/images/profile_pictures/vimala_r.png",
         alt: "Vimala R's profile picture",
       },
       rotation: -6,
@@ -100,7 +100,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "This place and our trip was really worth it. Natural beauty all around with awesome vibes. The memories of this trip will always remain in our soul. I will highly recommend Andamans based on my experience. Special thanks to Andaman Excursion Pvt Ltd and Jakey bhai for make it happen so smoothly",
       author: "Ravi Kaushik",
       avatar: {
-        url: "images/profile_pictures/ravi_kaushik.png", // MISSING: ravi_kaushik.png
+        url: "/images/profile_pictures/ravi_kaushik.png", // MISSING: ravi_kaushik.png
         alt: "Ravi Kaushik's profile picture",
       },
       rotation: 5,
@@ -110,7 +110,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "It was a wonderful and memorable trip for me and my family. From pick up till drop to Airport everything was on time. All the team members were very helpful and soft spoken. All the given accommodation was amazing and especially the food was very delicious. I would like to thanks all the team members for making this trip unforgettable for us.",
       author: "Sanjay Thapa",
       avatar: {
-        url: "images/profile_pictures/sanjay_thapa.png",
+        url: "/images/profile_pictures/sanjay_thapa.png",
         alt: "Sanjay Thapa's profile picture",
       },
       rotation: 2,
@@ -120,7 +120,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "Two weeks back I visited Andaman with my friends.It was a wonderful experience and a trustworthy travel operator.The arrangements they provided were very satisfactory.really appreciate the timely food provided.It was fun and we enjoyed a lot.",
       author: "Nandhini BhavaniShankar",
       avatar: {
-        url: "images/profile_pictures/nandhini_bhavaniShankar.png",
+        url: "/images/profile_pictures/nandhini_bhavaniShankar.png",
         alt: "Nandhini BhavaniShankar's profile picture",
       },
       rotation: -3,
@@ -130,7 +130,7 @@ const GOOGLE_REVIEWS_DATA = {
       text: "The itinerary was perfectly balanced with adventure and relaxation, covering highlights like Havelock Island, Neil Island (especially the beautiful Coral Beach), Baratang, and scuba diving at Havelock. Our guides were friendly, knowledgeable, and always eager to help. A special thanks to our trip coordinator, Jackie Bhaiya and Ganesh Bhaiya who ensured everything ran smoothly and made us feel well taken care of throughout the journey.",
       author: "Aman Agarwal",
       avatar: {
-        url: "images/profile_pictures/aman_agrawal.png",
+        url: "/images/profile_pictures/aman_agrawal.png",
         alt: "Aman Agarwal's profile picture",
       },
       rotation: 4,

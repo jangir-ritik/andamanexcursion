@@ -986,8 +986,6 @@ export interface Package {
   media: {
     images: {
       image: string | Media;
-      alt: string;
-      caption?: string | null;
       id?: string | null;
     }[];
   };
@@ -2799,8 +2797,6 @@ export interface PackagesSelect<T extends boolean = true> {
           | T
           | {
               image?: T;
-              alt?: T;
-              caption?: T;
               id?: T;
             };
       };
