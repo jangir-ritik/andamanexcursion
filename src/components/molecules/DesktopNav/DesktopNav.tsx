@@ -8,7 +8,7 @@ import {
   NavigationMenuContent,
 } from "@radix-ui/react-navigation-menu";
 import { ChevronDown, MoveRight } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import type { DesktopNavProps } from "./DesktopNav.types";
 import styles from "./DesktopNav.module.css";
@@ -17,6 +17,7 @@ import { CustomLink } from "@/components/atoms";
 export const DesktopNav = React.memo(
   ({ items, className }: DesktopNavProps) => {
     const pathname = usePathname();
+    const router = useRouter();
 
     return (
       <NavigationMenu className={clsx(styles.navigationMenu, className)}>
@@ -41,32 +42,32 @@ export const DesktopNav = React.memo(
               ) : (
                 <div className={styles.navigationMenuItemWithDropdown}>
                   {item.isClickable ? (
-                    // For clickable parent items with dropdowns
+                    // For clickable parent items with dropdowns - use button with click handler
                     <NavigationMenuTrigger
-                      className={styles.navigationMenuTriggerClickable}
-                      asChild
+                      className={clsx(
+                        styles.navigationMenuTrigger,
+                        styles.navigationMenuTriggerClickable
+                      )}
+                      onClick={(e) => {
+                        // Navigate to the parent item's href when clicked
+                        if (item.href) {
+                          router.push(item.href);
+                        }
+                      }}
                     >
-                      <div className={styles.clickableParentContainer}>
-                        <CustomLink
-                          href={item.href}
-                          className={clsx(
-                            styles.navigationMenuLink,
-                            styles.parentLink,
-                            pathname === item.href && styles.active
-                          )}
-                          onClick={(e) => {
-                            // Allow the link to work normally
-                            e.stopPropagation();
-                          }}
-                        >
-                          {item.label}
-                        </CustomLink>
-                        <ChevronDown
-                          size={16}
-                          className={styles.navigationMenuTriggerIcon}
-                          aria-hidden="true"
-                        />
-                      </div>
+                      <span
+                        className={clsx(
+                          styles.triggerLabel,
+                          pathname === item.href && styles.active
+                        )}
+                      >
+                        {item.label}
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        className={styles.navigationMenuTriggerIcon}
+                        aria-hidden="true"
+                      />
                     </NavigationMenuTrigger>
                   ) : (
                     // For non-clickable parent items

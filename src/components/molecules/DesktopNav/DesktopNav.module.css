@@ -83,7 +83,7 @@
 
 .navigationMenuTrigger {
   font-family: inherit;
-  font-size: inherit;
+  font-size: var(--font-size-body-small);
   font-weight: 600;
   color: inherit;
   background-color: transparent;
@@ -126,6 +126,52 @@
 }
 
 .navigationMenuTrigger[data-state="open"] .navigationMenuTriggerIcon {
+  transform: rotate(180deg);
+}
+
+/* Updated styles for clickable triggers */
+.navigationMenuTriggerClickable {
+  font-family: inherit;
+  font-size: var(--font-size-body-small);
+  font-weight: 600;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  width: 100%;
+}
+
+.navigationMenuTriggerClickable:hover {
+  color: var(--color-primary);
+}
+
+.navigationMenuTriggerClickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.navigationMenuTriggerClickable[data-state="open"] {
+  color: var(--color-primary);
+}
+
+.navigationMenuItem:has(.navigationMenuTriggerClickable[data-state="open"]) {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.navigationMenuTriggerClickable .navigationMenuTriggerIcon {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.navigationMenuTriggerClickable[data-state="open"] .navigationMenuTriggerIcon {
   transform: rotate(180deg);
 }
 
@@ -183,83 +229,6 @@
   background-color: var(--color-bg-secondary);
   border-radius: var(--radius-sm);
   color: var(--color-primary);
-}
-
-.clickableParentContainer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  width: 100%;
-}
-
-.parentLink {
-  padding-right: 0;
-}
-
-.clickableParentContainer .navigationMenuTrigger {
-  padding: 0;
-  margin-left: -6px;
-}
-
-.navigationMenuTriggerClickable {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 600;
-  color: inherit;
-  background-color: transparent;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  padding: 0;
-  width: 100%;
-}
-
-.navigationMenuTriggerClickable:hover {
-  color: var(--color-primary);
-}
-
-.navigationMenuTriggerClickable:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-.navigationMenuTriggerClickable[data-state="open"] {
-  color: var(--color-primary);
-}
-
-/* Update the hover state for items with clickable triggers */
-.navigationMenuItem:has(.navigationMenuTriggerClickable[data-state="open"]) {
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-sm);
-}
-
-/* Ensure the clickable parent container spans full width for hover area */
-.navigationMenuTriggerClickable .clickableParentContainer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  width: 100%;
-  padding: 0;
-}
-
-/* Update the parent link to prevent it from taking up all space */
-.navigationMenuTriggerClickable .parentLink {
-  flex: 1;
-  /* padding-right: var(--space-2); */
-}
-
-/* Style the chevron icon in clickable trigger */
-.navigationMenuTriggerClickable .navigationMenuTriggerIcon {
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.navigationMenuTriggerClickable[data-state="open"] .navigationMenuTriggerIcon {
-  transform: rotate(180deg);
 }
 
 /* FIXED: Nested Destinations Styles - Dynamic width and height */
