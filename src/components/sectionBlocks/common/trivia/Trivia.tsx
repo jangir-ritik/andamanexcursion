@@ -171,8 +171,8 @@ export const Trivia = ({
                 height={6}
                 style={{
                   width: "100%",
-                  height: "0.375rem", // Use rem instead of fixed pixels
-                  objectFit: "cover",
+                  height: "clamp(0.1875rem, 1.5vw, 0.375rem)", // Responsive height: smaller on mobile
+                  objectFit: "cover", // Changed from "cover" to prevent clipping
                   objectPosition: "center",
                 }}
                 aria-hidden="true"

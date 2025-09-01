@@ -77,6 +77,21 @@
   -webkit-backface-visibility: hidden;
   /* Smooth underline transitions */
   transition: transform 0.2s ease;
+  /* Better SVG rendering */
+  overflow: visible; /* Allow SVG to render properly */
+}
+
+/* Add specific styling for the SVG images */
+.underlineWrapper img {
+  /* Responsive height that's more subtle on mobile */
+  height: clamp(0.1875rem, 1.5vw, 0.375rem) !important;
+  /* Prevent clipping by using contain instead of cover */
+  object-fit: contain !important;
+  /* Ensure SVG maintains aspect ratio */
+  object-position: center !important;
+  /* Better mobile rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 /* Tablet styles */
@@ -116,6 +131,16 @@
     /* Remove scaling - let responsive offset handle spacing */
     transform: translateZ(0); /* GPU acceleration only */
   }
+
+  /* More subtle underlines on mobile */
+  .underlineWrapper img {
+    height: clamp(
+      0.125rem,
+      1vw,
+      0.25rem
+    ) !important; /* Even smaller on mobile */
+    opacity: 0.8; /* Slightly transparent for less attention */
+  }
 }
 
 /* Small mobile styles */
@@ -140,6 +165,12 @@
     /* Remove scaling that was causing cramped appearance */
     transform: translateZ(0);
   }
+
+  /* Even more subtle underlines on small mobile */
+  .underlineWrapper img {
+    height: 0.125rem !important; /* Fixed small height */
+    opacity: 0.7; /* More transparent */
+  }
 }
 
 /* Very small screens (< 360px) */
@@ -157,6 +188,12 @@
   .underlineWrapper {
     /* Remove aggressive scaling */
     transform: translateZ(0);
+  }
+
+  /* Minimal underlines on very small screens */
+  .underlineWrapper img {
+    height: 0.0625rem !important; /* Very thin line */
+    opacity: 0.9; /* Quite transparent */
   }
 }
 
@@ -177,5 +214,10 @@
     image-rendering: crisp-edges;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  .underlineWrapper img {
+    /* Better rendering on retina displays */
+    image-rendering: -webkit-optimize-contrast;
   }
 }

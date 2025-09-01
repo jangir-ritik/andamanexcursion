@@ -1,4 +1,4 @@
-// Updated SectionTitle component with responsive offset
+// Updated SectionTitle component with responsive offset and mobile SVG fixes
 "use client";
 import React, { useState, useRef } from "react";
 import styles from "./SectionTitle.module.css";
@@ -25,11 +25,12 @@ export const SectionTitle = ({
 
     const vw = window.innerWidth;
 
-    // Use rem-based calculations for consistent scaling
-    if (vw <= 480) return 2; // 0.375rem equivalent (incorrect, I updated the values, so recalculation needed)
-    if (vw <= 768) return 3; // 0.5rem equivalent
-    if (vw <= 1024) return 10; // 0.625rem equivalent
-    return 12; // 0.75rem equivalent for desktop
+    // Updated responsive offset values to match mobile needs
+    if (vw <= 360) return 1; // Very small screens - minimal offset
+    if (vw <= 480) return 2; // Small mobile
+    if (vw <= 768) return 4; // Mobile
+    if (vw <= 1024) return 8; // Tablet
+    return 10; // Desktop
   };
 
   // Use the utility hook for underline positioning with responsive offset
@@ -97,6 +98,7 @@ export const SectionTitle = ({
           {renderTextWithSpecialWord()}
         </h2>
       )}
+
       {specialWord &&
         underlinePositions.map((position, index) => (
           <div
@@ -115,8 +117,8 @@ export const SectionTitle = ({
               height={5}
               style={{
                 width: "100%",
-                height: "0.375rem", // Use rem instead of fixed pixels
-                objectFit: "cover",
+                height: "clamp(0.1875rem, 1.5vw, 0.375rem)", // Responsive height: smaller on mobile
+                objectFit: "contain", // Changed from "cover" to prevent clipping
                 objectPosition: "center",
               }}
               aria-hidden="true"
