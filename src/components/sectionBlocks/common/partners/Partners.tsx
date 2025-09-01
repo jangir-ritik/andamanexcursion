@@ -3,6 +3,7 @@ import { Column, Section } from "@/components/layout";
 import { ImageContainer, SectionTitle } from "@/components/atoms";
 import { PartnerIteration, PartnersProps } from "./Partners.types";
 import styles from "./Partners.module.css";
+import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 
 export const Partners = ({ content }: PartnersProps) => {
   const { title, specialWord, partners } = content;
@@ -25,11 +26,10 @@ export const Partners = ({ content }: PartnersProps) => {
         <div className={styles.partnersGrid}>
           {partners.map((partner: PartnerIteration, index) => (
             <div key={index} className={styles.partnerLogo}>
-              <ImageContainer
-                src={partner.partner}
+              <IconContainer
+                src={partner.partner.url as string}
                 alt={`${partner.alt[index]} - Partner logo`}
-                aspectRatio="square"
-                fullWidth
+                size={150}
               />
             </div>
           ))}

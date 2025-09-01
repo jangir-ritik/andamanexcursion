@@ -4,13 +4,15 @@ import type { SmallCardProps } from "./SmallCard.types";
 import { MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import styles from "./SmallCard.module.css";
-import { ImageContainer } from "@/components/atoms";
 import { Chip } from "@/components/atoms";
-import star from "@public/icons/misc/star.svg";
-import heart from "@public/icons/misc/heart.svg";
+// import star from "@public/icons/misc/star.svg";
+// import heart from "@public/icons/misc/heart.svg";
 import { cn } from "@/utils/cn";
 import { Media } from "@payload-types";
 import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
+
+const star = "/icons/misc/star.svg";
+const heart = "/icons/misc/heart.svg";
 
 export const SmallCard = ({
   image,

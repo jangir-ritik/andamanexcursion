@@ -25,9 +25,13 @@ export const IconContainer = ({
   const isValidSrc =
     src && (typeof src === "string" ? src.trim() !== "" : true);
 
+  // Check if the source is an SVG
+  const isSvg = typeof src === "string" && src.toLowerCase().includes(".svg");
+
   console.log("IconContainer Debug:", {
     src,
     isValidSrc,
+    isSvg,
     iconError,
     iconLoading,
     willShowFallback: !isValidSrc || iconError,
@@ -47,6 +51,7 @@ export const IconContainer = ({
     styles.container,
     iconLoading && styles.loading,
     iconError && styles.error,
+    isSvg && styles.svg, // Add SVG-specific styling class
     className,
   ]
     .filter(Boolean)
@@ -61,7 +66,10 @@ export const IconContainer = ({
       role="img"
       aria-label={alt || "Icon unavailable"}
     >
-      <ImageOff size={24} className={styles.fallbackIcon} />
+      <ImageOff
+        size={Math.min(24, size * 0.8)}
+        className={styles.fallbackIcon}
+      />
     </div>
   );
 
@@ -100,6 +108,11 @@ export const IconContainer = ({
             priority={priority}
             onError={handleIconError}
             onLoad={handleIconLoad}
+            // SVG-specific optimizations
+            {...(isSvg && {
+              unoptimized: false, // Next.js can optimize SVGs
+              quality: 100, // Preserve SVG quality
+            })}
           />
           {iconLoading && renderLoading()}
         </>

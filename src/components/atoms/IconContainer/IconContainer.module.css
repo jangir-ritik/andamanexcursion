@@ -12,6 +12,12 @@
   object-fit: contain;
 }
 
+.svg .icon {
+  /* Ensure SVGs maintain crisp edges */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
 .loading {
   opacity: 0.6;
 }
