@@ -72,7 +72,7 @@ export const DateSelect = ({
             className={styles.dateNavButton}
             onClick={handlePreviousDay}
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft color="var(--color-primary)" size={20} />
           </button>
           <DatePicker
             selected={selectedDate}
@@ -97,7 +97,7 @@ export const DateSelect = ({
             className={styles.dateNavButton}
             onClick={handleNextDay}
           >
-            <ChevronRight size={20} />
+            <ChevronRight color="var(--color-primary)" size={20} />
           </button>
         </div>
         {/* Inline error message inside the border */}

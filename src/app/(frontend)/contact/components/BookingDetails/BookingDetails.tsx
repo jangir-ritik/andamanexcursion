@@ -104,7 +104,11 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                       )?.label || "Select package"}
                     </Select.Value>
                     <Select.Icon>
-                      <ChevronDown size={20} className={styles.selectIcon} />
+                      <ChevronDown
+                        size={20}
+                        color="var(--color-primary)"
+                        className={styles.selectIcon}
+                      />
                     </Select.Icon>
                   </Select.Trigger>
                   <Select.Portal>
@@ -162,7 +166,11 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                       )?.label || "Select duration"}
                     </Select.Value>
                     <Select.Icon>
-                      <ChevronDown size={20} className={styles.selectIcon} />
+                      <ChevronDown
+                        size={20}
+                        color="var(--color-primary)"
+                        className={styles.selectIcon}
+                      />
                     </Select.Icon>
                   </Select.Trigger>
                   <Select.Portal>

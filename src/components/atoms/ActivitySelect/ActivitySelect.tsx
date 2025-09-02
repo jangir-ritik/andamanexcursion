@@ -52,6 +52,7 @@ export const ActivitySelect = ({
           />
           <ChevronDown
             size={20}
+            color="var(--color-primary)"
             className={cn(styles.selectIcon, styles.textPrimary)}
           />
           {/* Inline error message inside the border */}

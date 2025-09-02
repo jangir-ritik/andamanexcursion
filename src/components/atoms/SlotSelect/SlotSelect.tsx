@@ -80,7 +80,7 @@ const SlotSelect = memo(
               onClick={handlePrevious}
               disabled={isDisabled || currentIndex <= 0}
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft color="var(--color-primary)" size={20} />
             </button>
             <span className={styles.selectValue}>{displayText}</span>
             <button
@@ -90,7 +90,7 @@ const SlotSelect = memo(
               onClick={handleNext}
               disabled={isDisabled || currentIndex >= options.length - 1}
             >
-              <ChevronRight size={20} />
+              <ChevronRight color="var(--color-primary)" size={20} />
             </button>
           </div>
 
