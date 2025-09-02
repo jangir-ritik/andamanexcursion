@@ -41,14 +41,14 @@ export const LOCATION_MAPPINGS: Record<string, LocationMapping> = {
     greenOceanId: 3,
     aliases: ["Neil", "Shaheed Dweep", "Neil Island", "NL", "neil"],
   },
-  baratang: {
-    formValue: "baratang",
-    displayName: "Baratang Island",
-    sealinkName: "Baratang",
-    makruzzId: "4",
-    greenOceanId: 4, // Note: Green Ocean might not support Baratang
-    aliases: ["Baratang", "Baratang Island", "BT", "baratang"],
-  },
+  // baratang: {
+  //   formValue: "baratang",
+  //   displayName: "Baratang Island",
+  //   sealinkName: "Baratang",
+  //   makruzzId: "4",
+  //   greenOceanId: 4, // Note: Green Ocean might not support Baratang
+  //   aliases: ["Baratang", "Baratang Island", "BT", "baratang"],
+  // },
 };
 
 export class LocationMappingService {
@@ -107,7 +107,7 @@ export class LocationMappingService {
       "port-blair": "PB",
       havelock: "HL",
       neil: "NL",
-      baratang: "BT",
+      // baratang: "BT",
     };
     return codeMap[formValue] || "??";
   }
@@ -128,12 +128,13 @@ export class LocationMappingService {
     }
 
     // Special cases for operators that don't support certain routes
-    if (
-      operator === "greenocean" &&
-      (from === "baratang" || to === "baratang")
-    ) {
-      return false; // Green Ocean doesn't go to Baratang
-    }
+    // Update : removed baratang from all operators
+    // if (
+    //   operator === "greenocean" &&
+    //   (from === "baratang" || to === "baratang")
+    // ) {
+    //   return false; // Green Ocean doesn't go to Baratang
+    // }
 
     return true;
   }

@@ -46,13 +46,13 @@ const DESTINATIONS: Location[] = [
     value: "ross",
     label: "Ross Island",
   },
-  {
-    id: "baratang",
-    name: "Baratang Island",
-    slug: "baratang",
-    value: "baratang",
-    label: "Baratang Island",
-  },
+  // {
+  //   id: "baratang",
+  //   name: "Baratang Island",
+  //   slug: "baratang",
+  //   value: "baratang",
+  //   label: "Baratang Island",
+  // },
   {
     id: "rangat",
     name: "Rangat",

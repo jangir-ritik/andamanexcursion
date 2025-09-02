@@ -98,11 +98,11 @@ const PackageCategories: CollectionConfig = {
               relationTo: "media",
               required: true,
             },
-            {
-              name: "alt",
-              type: "text",
-              required: true,
-            },
+            // {
+            //   name: "alt",
+            //   type: "text",
+            //   required: true,
+            // },
           ],
         },
       ],

@@ -187,10 +187,10 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     return undefined;
   };
 
-  // Debug logging in development
-  if (process.env.NODE_ENV === "development" && selectedSize) {
-    console.log(`MediaContainer: Using ${selectedSize} size for`, alt);
-  }
+  // // Debug logging in development
+  // if (process.env.NODE_ENV === "development" && selectedSize) {
+  //   console.log(`MediaContainer: Using ${selectedSize} size for`, alt);
+  // }
 
   // If not valid or error occurred with video, show placeholder
   if (!isValid || (isVideo && isVideoError) || imageError) {

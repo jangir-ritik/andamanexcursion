@@ -1,12 +1,15 @@
 "use client";
-import React, { useCallback, memo, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { memo, useEffect } from "react";
+import * as Select from "@radix-ui/react-select";
+import { ChevronDown } from "lucide-react";
 import styles from "./SlotSelect.module.css";
 import type { SlotSelectProps } from "./SlotSelect.types";
+import { cn } from "@/utils/cn";
 
 // Add error message prop to the interface
 interface SlotSelectPropsWithError extends SlotSelectProps {
   errorMessage?: string;
+  label?: string;
 }
 
 const SlotSelect = memo(
@@ -20,91 +23,103 @@ const SlotSelect = memo(
     disabled = false,
     isLoading = false,
     errorMessage,
+    label = "Slot",
   }: SlotSelectPropsWithError) => {
-    // Select first slot if value is empty and options exist
+    const isDisabled = disabled || isLoading;
+
+    // Select first slot if value is empty and options exist (only if not disabled)
     useEffect(() => {
-      if (!value && options.length > 0) {
+      if (!value && options.length > 0 && !isDisabled) {
         const firstSlot = options[0];
         onChange(firstSlot.value || firstSlot.slug || firstSlot.id);
       }
-    }, [value, options, onChange]);
+    }, [value, options, onChange, isDisabled]);
 
-    // Find the current slot index by value, slug, or id
-    const currentIndex = options.findIndex(
-      (slot) => slot.value === value || slot.slug === value || slot.id === value
-    );
-
-    // Handle navigation between slots - memoized
-    const handlePrevious = useCallback(() => {
-      if (currentIndex > 0) {
-        const prevSlot = options[currentIndex - 1];
-        onChange(prevSlot.value || prevSlot.slug || prevSlot.id);
-      }
-    }, [currentIndex, options, onChange]);
-
-    const handleNext = useCallback(() => {
-      if (currentIndex < options.length - 1) {
-        const nextSlot = options[currentIndex + 1];
-        onChange(nextSlot.value || nextSlot.slug || nextSlot.id);
-      }
-    }, [currentIndex, options, onChange]);
-
-    const currentSlot = options.find(
+    // Find the selected slot
+    const selectedSlot = options.find(
       (slot) => slot.value === value || slot.slug === value || slot.id === value
     );
 
     const displayText = isLoading
       ? "Loading time slots..."
-      : currentSlot
-      ? currentSlot.label || currentSlot.time
+      : selectedSlot
+      ? selectedSlot.label || selectedSlot.time
       : placeholder || "Select a time slot";
 
-    const isDisabled = disabled || isLoading;
+    // Create unique ID for the label
+    const labelId = React.useId();
 
     return (
       <div className={styles.fieldContainer}>
-        <div
-          className={`${styles.selectWrapper} ${className || ""} ${
-            hasError ? styles.error : ""
-          } ${isDisabled ? styles.disabled : ""}`}
+        <Select.Root
+          value={value}
+          onValueChange={onChange}
+          disabled={isDisabled}
         >
-          <span className={styles.selectLabel}>
-            Slot
-            <span className={styles.required}>*</span>
-          </span>
-          <div className={styles.slotPickerInner}>
-            <button
-              type="button"
-              aria-label="Previous Slot"
-              className={styles.slotNavButton}
-              onClick={handlePrevious}
-              disabled={isDisabled || currentIndex <= 0}
+          <Select.Trigger
+            className={cn(
+              styles.selectWrapper,
+              className,
+              hasError && styles.error,
+              isDisabled && styles.disabled
+            )}
+            aria-labelledby={labelId}
+            aria-describedby={
+              hasError && errorMessage ? `${labelId}-error` : undefined
+            }
+            disabled={isDisabled}
+          >
+            <span className={styles.selectLabel} id={labelId}>
+              {label}
+              <span className={styles.required}>*</span>
+            </span>
+            <Select.Value
+              placeholder={displayText}
+              className={styles.selectValue}
+            />
+            <ChevronDown
+              size={20}
+              color="var(--color-primary)"
+              className={cn(styles.selectIcon, styles.textPrimary)}
+            />
+            {/* Inline error message inside the border */}
+            {hasError && errorMessage && (
+              <p
+                className={styles.errorMessage}
+                role="alert"
+                id={`${labelId}-error`}
+              >
+                {errorMessage}
+              </p>
+            )}
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Content
+              className={styles.selectContent}
+              position="popper"
+              sideOffset={8}
+              avoidCollisions={true}
+              collisionPadding={16}
             >
-              <ChevronLeft color="var(--color-primary)" size={20} />
-            </button>
-            <span className={styles.selectValue}>{displayText}</span>
-            <button
-              type="button"
-              aria-label="Next Slot"
-              className={styles.slotNavButton}
-              onClick={handleNext}
-              disabled={isDisabled || currentIndex >= options.length - 1}
-            >
-              <ChevronRight color="var(--color-primary)" size={20} />
-            </button>
-          </div>
-
-          {/* Inline error message */}
-          {hasError && errorMessage && (
-            <p className={styles.errorMessage} role="alert">
-              {errorMessage}
-            </p>
-          )}
-        </div>
+              <Select.Viewport>
+                {options.map((slot) => (
+                  <Select.Item
+                    key={slot.id || slot.slug || slot.value}
+                    value={slot.value || slot.slug || slot.id}
+                    className={styles.selectItem}
+                  >
+                    <Select.ItemText>{slot.label || slot.time}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.Viewport>
+            </Select.Content>
+          </Select.Portal>
+        </Select.Root>
       </div>
     );
   }
 );
 
 SlotSelect.displayName = "SlotSelect";
+
 export { SlotSelect };

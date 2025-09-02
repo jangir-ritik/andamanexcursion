@@ -705,7 +705,7 @@ export class SealinkService {
       "Port Blair": "PB",
       "Swaraj Dweep": "HL",
       "Shaheed Dweep": "NL",
-      Baratang: "BT",
+      // Baratang: "BT",
     };
     return codeMap[locationName] || "??";
   }

@@ -127,7 +127,7 @@ export const DesktopNav = React.memo(
                       <div
                         className={clsx(
                           styles.navigationMenuDropdown,
-                          item.children.length > 6 &&
+                          item.children.length >= 6 &&
                             styles.navigationMenuDropdownGrid
                         )}
                       >

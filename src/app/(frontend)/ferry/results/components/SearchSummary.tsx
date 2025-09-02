@@ -29,7 +29,7 @@ export function SearchSummary({
       "port-blair": "Port Blair",
       havelock: "Havelock Island",
       neil: "Neil Island",
-      baratang: "Baratang Island",
+      // baratang: "Baratang Island",
     };
     return locationMap[location] || location;
   };

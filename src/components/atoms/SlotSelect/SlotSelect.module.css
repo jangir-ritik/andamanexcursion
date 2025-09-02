@@ -5,6 +5,8 @@
   width: 100%;
 }
 
+/* Loading container to match field dimensions - REMOVED */
+
 .selectWrapper {
   box-sizing: border-box;
   display: flex;
@@ -14,7 +16,7 @@
   padding: var(--space-3);
   gap: var(--space-1);
   min-width: var(--size-form-field-min-width);
-  min-height: var(--size-form-field-height);
+  min-height: var(--size-form-field-min-height);
   height: auto; /* Allow height to expand for error messages */
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
@@ -29,7 +31,11 @@
   border-color: var(--color-primary);
 }
 
-.selectWrapper:focus-within {
+.selectWrapper:hover .selectIcon {
+  color: var(--color-primary);
+}
+
+.selectWrapper:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-focus-blue);
 }
@@ -41,9 +47,19 @@
 }
 
 .error:hover,
+.error:focus,
 .error:focus-within {
   border-color: var(--color-alert-error) !important;
   box-shadow: 0 0 0 2px var(--color-error-focus) !important;
+}
+
+.selectWrapper > span:last-of-type {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  font-family: var(--font-family-primary);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  margin-right: 1.5em;
 }
 
 .selectLabel {
@@ -71,76 +87,101 @@
 }
 
 .selectValue {
+  color: var(--color-text-primary);
   font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: var(--font-size-base);
-  line-height: 0.6;
+  line-height: 25px;
+}
+
+/* Chevron icon styling - positioned at the value line level */
+.selectIcon {
+  position: absolute;
+  right: var(--space-3);
+  top: 38px; /* Align with the value text line */
+  pointer-events: none;
+  transition: transform var(--duration-base) var(--easing-standard),
+    color var(--duration-base) var(--easing-standard);
   color: var(--color-text-primary);
-  padding: 0 var(--space-2);
-  white-space: nowrap;
-  text-align: center;
-  flex: 1;
 }
 
-.slotPickerInner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: var(--space-2);
-  flex: 1; /* Take remaining space */
-  margin-top: auto; /* Push to bottom of available space */
-}
-
-.slotNavButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
+/* Text primary color for default state */
+.textPrimary {
   color: var(--color-text-primary);
-  padding: 0;
-  margin: 0;
-  width: var(--space-5);
-  height: var(--space-5);
-  border-radius: var(--radius-xs);
-  transition: all var(--duration-fast) var(--easing-standard);
 }
 
-.slotNavButton:hover:not(:disabled) {
+/* Primary color for selected state */
+.primary {
   color: var(--color-primary);
-  background: var(--color-bg-secondary);
 }
 
-.slotNavButton:disabled {
-  color: var(--color-text-disabled);
-  cursor: not-allowed;
+/* Rotate icon when select is open */
+.selectWrapper[data-state="open"] .selectIcon {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* Dropdown styling */
+.selectContent {
+  overflow: hidden;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  min-width: var(--min-width, 180px);
+  animation: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20000;
+  max-height: 200px;
+  border: 1px solid var(--color-border-secondary);
+}
+
+.selectItem {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  line-height: var(--space-5);
+  color: var(--color-text-primary);
+  padding: var(--space-4) var(--space-6);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  position: relative;
+}
+
+.selectItem[data-highlighted] {
+  background: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.selectItem[data-state="checked"] {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 /* Disabled state styles */
 .selectWrapper.disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-bg-disabled, #f5f5f5);
+}
+
+.selectWrapper.disabled .selectLabel {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
 }
 
 .selectWrapper.disabled .selectValue {
   color: var(--color-text-disabled);
 }
 
-.selectWrapper.disabled .slotNavButton {
-  cursor: not-allowed;
+.selectWrapper.disabled .selectIcon {
   color: var(--color-text-disabled);
 }
 
-/* Ensure consistent minimum heights across all form fields */
-.selectWrapper,
-.fieldContainer > .selectWrapper {
-  min-height: var(
-    --size-form-field-min-height
-  ); /* Fixed minimum height for consistency */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+.selectWrapper.disabled:hover {
+  border-color: var(--color-border);
+}
+
+.selectWrapper.disabled:hover .selectIcon {
+  color: var(--color-text-disabled);
 }
 
 /* Error message styling matching Input component */
@@ -156,6 +197,17 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
@@ -176,6 +228,10 @@
     padding: var(--space-2);
   }
 
+  .selectContent {
+    max-height: 150px;
+  }
+
   .selectLabel {
     font-size: var(--font-size-xs);
     line-height: var(--space-4);
@@ -183,7 +239,7 @@
 
   .selectValue {
     font-size: var(--font-size-sm);
-    line-height: 0.6;
+    line-height: var(--space-5);
   }
 
   .errorMessage {
@@ -191,14 +247,12 @@
     line-height: var(--line-height-error-mobile);
   }
 
+  .selectIcon {
+    right: var(--space-2);
+  }
+
   .selectWrapper,
   .fieldContainer > .selectWrapper {
     min-height: var(--size-form-field-min-height-mobile);
-  }
-}
-
-@media (max-width: 480px) {
-  .selectValue {
-    font-size: var(--font-size-sm);
   }
 }

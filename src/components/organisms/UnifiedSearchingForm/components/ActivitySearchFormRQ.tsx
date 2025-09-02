@@ -479,7 +479,12 @@ export function ActivitySearchFormRQ({
         </div>
 
         {/* Time Slot */}
-        <div className={cn(styles.formField, styles.timeSlotField)}>
+        <div
+          className={cn(
+            styles.formField
+            // , styles.timeSlotField
+          )}
+        >
           <Controller
             control={control}
             name="selectedSlot"

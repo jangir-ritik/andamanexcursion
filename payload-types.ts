@@ -870,7 +870,6 @@ export interface PackageCategory {
     cardImages?:
       | {
           image: string | Media;
-          alt: string;
           id?: string | null;
         }[]
       | null;
@@ -2885,7 +2884,6 @@ export interface PackageCategoriesSelect<T extends boolean = true> {
           | T
           | {
               image?: T;
-              alt?: T;
               id?: T;
             };
       };

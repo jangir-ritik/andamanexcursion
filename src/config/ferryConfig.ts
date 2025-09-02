@@ -158,14 +158,14 @@ export const FERRY_API_CONFIG = {
       makruzzId: "3",
       greenOceanId: 3,
     },
-    baratang: {
-      id: 4,
-      name: "Baratang",
-      code: "BAR",
-      sealinkName: "Baratang",
-      makruzzId: "4",
-      greenOceanId: null, // Green Ocean doesn't serve Baratang
-    },
+    // baratang: {
+    //   id: 4,
+    //   name: "Baratang",
+    //   code: "BAR",
+    //   sealinkName: "Baratang",
+    //   makruzzId: "4",
+    //   greenOceanId: null, // Green Ocean doesn't serve Baratang
+    // },
   },
 
   // Supported routes by operator
@@ -177,8 +177,8 @@ export const FERRY_API_CONFIG = {
       ["neil", "port-blair"],
       ["havelock", "neil"],
       ["neil", "havelock"],
-      ["port-blair", "baratang"],
-      ["baratang", "port-blair"],
+      // ["port-blair", "baratang"],
+      // ["baratang", "port-blair"],
     ],
     makruzz: [
       ["port-blair", "havelock"],
@@ -187,8 +187,8 @@ export const FERRY_API_CONFIG = {
       ["neil", "port-blair"],
       ["havelock", "neil"],
       ["neil", "havelock"],
-      ["port-blair", "baratang"],
-      ["baratang", "port-blair"],
+      // ["port-blair", "baratang"],
+      // ["baratang", "port-blair"],
     ],
     greenocean: [
       ["port-blair", "havelock"],

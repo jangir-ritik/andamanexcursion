@@ -20,7 +20,7 @@ export const DateSelect = ({
   hasError,
   label = "Date",
   errorMessage,
-  required = false,
+  required = true,
 }: DateSelectPropsWithError) => {
   // Create unique IDs for accessibility
   const labelId = React.useId();

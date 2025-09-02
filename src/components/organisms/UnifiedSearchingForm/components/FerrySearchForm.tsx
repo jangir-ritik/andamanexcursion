@@ -360,6 +360,7 @@ export function FerrySearchForm({
                 options={FERRY_TIME_SLOTS}
                 placeholder="Preferred Time"
                 hasError={!!errors.selectedSlot}
+                label="Timings"
               />
             )}
           />
