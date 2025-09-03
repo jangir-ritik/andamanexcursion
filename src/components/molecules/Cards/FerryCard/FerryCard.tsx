@@ -13,8 +13,6 @@ import {
   FerryClassCard,
 } from "./components";
 
-import Image from "next/image"; // Added for the checker
-
 export const FerryCard = memo<FerryCardProps>(
   ({
     ferryName,

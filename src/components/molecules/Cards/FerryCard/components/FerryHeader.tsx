@@ -2,7 +2,8 @@ import React, { memo } from "react";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 import Link from "next/link";
 import styles from "../FerryCard.module.css";
-import star from "@public/icons/misc/star.svg";
+
+const star = "/icons/misc/star.svg";
 
 interface FerryHeaderProps {
   ferryName: string;

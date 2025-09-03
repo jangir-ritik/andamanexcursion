@@ -1,9 +1,10 @@
 import React, { memo } from "react";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 import styles from "../FerryCard.module.css";
-import ferryBoatIcon from "@public/icons/misc/boat.svg";
-import circle_unfilled from "@public/icons/misc/circle_unfilled.svg";
-import circle_filled from "@public/icons/misc/circle_filled.svg";
+
+const ferryBoatIcon = "/icons/misc/boat.svg";
+const circle_unfilled = "/icons/misc/circle_unfilled.svg";
+const circle_filled = "/icons/misc/circle_filled.svg";
 
 interface JourneyInfoProps {
   departureTime: string;
