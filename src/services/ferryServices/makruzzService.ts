@@ -71,9 +71,8 @@ interface MakruzzConfirmResponse {
 export class MakruzzService {
   private static readonly BASE_URL =
     process.env.MAKRUZZ_API_URL || "https://staging.makruzz.com/booking_api/";
-  private static readonly USERNAME =
-    process.env.MAKRUZZ_USERNAME || "ae@makruzz.com";
-  private static readonly PASSWORD = process.env.MAKRUZZ_PASSWORD || "andexc";
+  private static readonly USERNAME = process.env.MAKRUZZ_USERNAME;
+  private static readonly PASSWORD = process.env.MAKRUZZ_PASSWORD;
   private static authToken: string | null = null;
   private static tokenExpiry: Date | null = null;
 

@@ -1,5 +1,3 @@
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
 import {
   FerryBookingSession,
   FerryClass,
@@ -8,41 +6,36 @@ import {
   Seat,
   UnifiedFerryResult,
 } from "@/types/FerryBookingSession.types";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 
 export interface FerryStore {
-  // Search & Results
+  // CLIENT-ONLY STATE (server state moved to React Query)
   searchParams: FerrySearchParams;
-  searchResults: UnifiedFerryResult[];
-  isLoading: boolean;
-  error: string | null;
-
-  // Selection State
   selectedFerry: UnifiedFerryResult | null;
   selectedClass: FerryClass | null;
   selectedSeats: Seat[];
-
-  // Booking Session
   bookingSession: FerryBookingSession | null;
 
-  // Actions
+  // CLIENT-ONLY ACTIONS
   setSearchParams: (params: FerrySearchParams) => void;
-  searchFerries: () => Promise<void>;
   selectFerry: (ferry: UnifiedFerryResult) => void;
   selectClass: (ferryClass: FerryClass) => void;
   selectSeats: (seats: Seat[]) => void;
-  createBookingSession: () => void;
-  proceedToCheckout: () => void;
-
-  // Seat management
-  blockSeats: (seats: Seat[]) => Promise<void>; // For Green Ocean
-  releaseSeats: () => Promise<void>;
-
+  createBookingSession: () => void; // Pure client logic - creates local session
   updateBookingSession: (session: FerryBookingSession) => void;
   clearBookingSession: () => void;
   updatePassengerDetails: (passenger: PassengerDetail) => void;
-  clearError: () => void;
-
   reset: () => void;
+
+  // Utility actions for better UX
+  clearSelection: () => void;
+  clearSeats: () => void;
+
+  // REMOVED - Now handled by React Query:
+  // - searchResults, isLoading, error
+  // - searchFerries(), blockSeats(), releaseSeats()
+  // - proceedToCheckout(), clearError()
 }
 
 const initialState = {
@@ -54,9 +47,6 @@ const initialState = {
     children: 0,
     infants: 0,
   },
-  searchResults: [],
-  isLoading: false,
-  error: null,
   selectedFerry: null,
   selectedClass: null,
   selectedSeats: [],
@@ -70,74 +60,17 @@ export const useFerryStore = create<FerryStore>()(
     setSearchParams: (params: FerrySearchParams) => {
       set((state) => {
         state.searchParams = params;
-        state.error = null;
+        // Clear selections when search params change
+        state.selectedFerry = null;
+        state.selectedClass = null;
+        state.selectedSeats = [];
       });
-    },
-
-    searchFerries: async () => {
-      const { searchParams } = get();
-
-      set((state) => {
-        state.isLoading = true;
-        state.error = null;
-      });
-
-      try {
-        const response = await fetch("/api/ferry/search", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(searchParams),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-
-        set((state) => {
-          // Handle the new API response format
-          if (responseData.success && responseData.data) {
-            state.searchResults = responseData.data.results || [];
-            state.isLoading = false;
-
-            // Check for operator errors in the meta data
-            if (
-              responseData.data.meta?.operatorErrors &&
-              responseData.data.meta.operatorErrors.length > 0
-            ) {
-              state.error = `Some ferry operators failed: ${responseData.data.meta.operatorErrors
-                .map((e: { operator: string; error: string }) => e.operator)
-                .join(", ")}`;
-            }
-          } else {
-            // Fallback for old format or error responses
-            state.searchResults = responseData.results || [];
-            state.isLoading = false;
-
-            if (responseData.errors && responseData.errors.length > 0) {
-              state.error = `Some ferry operators failed: ${responseData.errors
-                .map((e: { operator: string; error: string }) => e.operator)
-                .join(", ")}`;
-            }
-          }
-        });
-      } catch (error) {
-        console.error("Ferry search failed:", error);
-        set((state) => {
-          state.isLoading = false;
-          state.error =
-            error instanceof Error ? error.message : "Failed to search ferries";
-          state.searchResults = [];
-        });
-      }
     },
 
     selectFerry: (ferry: UnifiedFerryResult) => {
       set((state) => {
         state.selectedFerry = ferry;
+        // Reset class and seats when ferry changes
         state.selectedClass = null;
         state.selectedSeats = [];
       });
@@ -146,6 +79,7 @@ export const useFerryStore = create<FerryStore>()(
     selectClass: (ferryClass: FerryClass) => {
       set((state) => {
         state.selectedClass = ferryClass;
+        // Reset seats when class changes
         state.selectedSeats = [];
       });
     },
@@ -160,7 +94,12 @@ export const useFerryStore = create<FerryStore>()(
       const { selectedFerry, selectedClass, selectedSeats, searchParams } =
         get();
 
-      if (!selectedFerry || !selectedClass) return;
+      if (!selectedFerry || !selectedClass) {
+        console.warn(
+          "Cannot create booking session: ferry or class not selected"
+        );
+        return;
+      }
 
       const session: FerryBookingSession = {
         sessionId: `ferry_${Date.now()}_${Math.random()
@@ -209,40 +148,6 @@ export const useFerryStore = create<FerryStore>()(
       });
     },
 
-    proceedToCheckout: () => {
-      // This will be handled by navigation in the component
-    },
-
-    blockSeats: async (seats: Seat[]) => {
-      // Implementation for Green Ocean seat blocking
-      set((state) => {
-        state.isLoading = true;
-      });
-
-      try {
-        // TODO: Implement Green Ocean seat blocking API call
-        console.log("Blocking seats:", seats);
-
-        set((state) => {
-          state.selectedSeats = seats;
-          state.isLoading = false;
-        });
-      } catch (error) {
-        console.error("Failed to block seats:", error);
-        set((state) => {
-          state.isLoading = false;
-          state.error = "Failed to reserve seats";
-        });
-      }
-    },
-
-    releaseSeats: async () => {
-      // Implementation for releasing blocked seats
-      set((state) => {
-        state.selectedSeats = [];
-      });
-    },
-
     updateBookingSession: (session: FerryBookingSession) => {
       set((state) => {
         state.bookingSession = session;
@@ -252,6 +157,7 @@ export const useFerryStore = create<FerryStore>()(
     clearBookingSession: () => {
       set((state) => {
         state.bookingSession = null;
+        // Optionally clear selections as well
         state.selectedFerry = null;
         state.selectedClass = null;
         state.selectedSeats = [];
@@ -274,9 +180,23 @@ export const useFerryStore = create<FerryStore>()(
       });
     },
 
-    clearError: () => {
+    // Utility actions for better UX
+    clearSelection: () => {
       set((state) => {
-        state.error = null;
+        state.selectedFerry = null;
+        state.selectedClass = null;
+        state.selectedSeats = [];
+        state.bookingSession = null;
+      });
+    },
+
+    clearSeats: () => {
+      set((state) => {
+        state.selectedSeats = [];
+        // Update booking session if it exists
+        if (state.bookingSession) {
+          state.bookingSession.seatReservation = undefined;
+        }
       });
     },
 
@@ -288,7 +208,7 @@ export const useFerryStore = create<FerryStore>()(
   }))
 );
 
-// Global access for CheckoutAdapter
+// Global access for CheckoutAdapter - Preserve existing integration
 if (typeof window !== "undefined") {
   (window as any).__FERRY_STORE__ = {
     get bookingSession() {
@@ -297,9 +217,69 @@ if (typeof window !== "undefined") {
     get searchParams() {
       return useFerryStore.getState().searchParams;
     },
+    get selectedFerry() {
+      return useFerryStore.getState().selectedFerry;
+    },
+    get selectedClass() {
+      return useFerryStore.getState().selectedClass;
+    },
+    get selectedSeats() {
+      return useFerryStore.getState().selectedSeats;
+    },
     getState: () => useFerryStore.getState(),
     resetBookingSession: () => {
       useFerryStore.setState({ bookingSession: null });
     },
+    // Additional helpers for checkout integration
+    clearSelection: () => {
+      useFerryStore.getState().clearSelection();
+    },
+    updateBookingSession: (session: FerryBookingSession) => {
+      useFerryStore.getState().updateBookingSession(session);
+    },
   };
 }
+
+// Export selectors for cleaner component usage
+export const ferrySelectors = {
+  searchParams: (state: FerryStore) => state.searchParams,
+  selectedFerry: (state: FerryStore) => state.selectedFerry,
+  selectedClass: (state: FerryStore) => state.selectedClass,
+  selectedSeats: (state: FerryStore) => state.selectedSeats,
+  bookingSession: (state: FerryStore) => state.bookingSession,
+
+  // Computed selectors
+  hasSelection: (state: FerryStore) =>
+    !!(state.selectedFerry && state.selectedClass),
+  totalPassengers: (state: FerryStore) =>
+    state.searchParams.adults +
+    state.searchParams.children +
+    state.searchParams.infants,
+  requiresSeatSelection: (state: FerryStore) =>
+    state.selectedFerry?.features.supportsSeatSelection || false,
+  isBookingReady: (state: FerryStore) =>
+    !!(
+      state.selectedFerry &&
+      state.selectedClass &&
+      (state.selectedSeats.length > 0 ||
+        !state.selectedFerry.features.supportsSeatSelection)
+    ),
+};
+
+// Typed hooks for specific selectors
+export const useSearchParams = () => useFerryStore(ferrySelectors.searchParams);
+export const useSelectedFerry = () =>
+  useFerryStore(ferrySelectors.selectedFerry);
+export const useSelectedClass = () =>
+  useFerryStore(ferrySelectors.selectedClass);
+export const useSelectedSeats = () =>
+  useFerryStore(ferrySelectors.selectedSeats);
+export const useBookingSession = () =>
+  useFerryStore(ferrySelectors.bookingSession);
+export const useHasSelection = () => useFerryStore(ferrySelectors.hasSelection);
+export const useTotalPassengers = () =>
+  useFerryStore(ferrySelectors.totalPassengers);
+export const useRequiresSeatSelection = () =>
+  useFerryStore(ferrySelectors.requiresSeatSelection);
+export const useIsBookingReady = () =>
+  useFerryStore(ferrySelectors.isBookingReady);

@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
@@ -10,6 +10,7 @@ import { TimeFilters } from "./components/TimeFilters";
 import { UnifiedFerryResult } from "@/types/FerryBookingSession.types";
 import styles from "./page.module.css";
 import { UnifiedSearchingForm } from "@/components/organisms";
+import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 
 interface SmartFilteredResults {
   preferredTime: UnifiedFerryResult[];
@@ -18,29 +19,24 @@ interface SmartFilteredResults {
 
 const FerryResultsContent = () => {
   const searchParams = useSearchParams();
-  const [filteredResults, setFilteredResults] = useState<UnifiedFerryResult[]>(
-    []
-  );
-  const [smartFilteredResults, setSmartFilteredResults] =
-    useState<SmartFilteredResults>({
-      preferredTime: [],
-      otherTimes: [],
-    });
   const [timeFilter, setTimeFilter] = useState<string | null>(null);
   const [userPreferredTime, setUserPreferredTime] = useState<string | null>(
     null
   );
 
-  const {
-    searchResults,
-    isLoading,
-    error,
-    setSearchParams,
-    searchFerries,
-    clearError,
-  } = useFerryStore();
+  // Get Zustand state and actions (client state only)
+  const { setSearchParams } = useFerryStore();
 
-  // Extract search parameters from URL
+  // Get React Query state and actions (server state)
+  const {
+    ferries: searchResults,
+    searchErrors,
+    isSearching: isLoading,
+    searchError: error,
+    refetchSearch,
+  } = useFerryFlow();
+
+  // Extract search parameters from URL and trigger search
   useEffect(() => {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
@@ -48,30 +44,28 @@ const FerryResultsContent = () => {
     const adults = parseInt(searchParams.get("adults") || "2");
     const children = parseInt(searchParams.get("children") || "0");
     const infants = parseInt(searchParams.get("infants") || "0");
-    const preferredTime = searchParams.get("preferredTime");
+    const preferredTime = searchParams.get("time");
 
     if (from && to && date) {
-      const params = {
+      // Update Zustand store with URL parameters
+      setSearchParams({
         from,
         to,
         date,
         adults,
         children,
         infants,
-      };
+      });
 
-      setSearchParams(params);
+      // Set user's preferred time for smart filtering
       setUserPreferredTime(preferredTime);
-      searchFerries();
     }
-  }, [searchParams, setSearchParams, searchFerries]);
+  }, [searchParams, setSearchParams]);
 
-  // Smart time filtering based on user's preferred time
-  useEffect(() => {
+  // Memoize smart filtered results to prevent infinite loops
+  const smartFilteredResults = useMemo((): SmartFilteredResults => {
     if (!searchResults || searchResults.length === 0) {
-      setSmartFilteredResults({ preferredTime: [], otherTimes: [] });
-      setFilteredResults([]);
-      return;
+      return { preferredTime: [], otherTimes: [] };
     }
 
     // If user has a preferred time, create smart sections
@@ -79,43 +73,42 @@ const FerryResultsContent = () => {
       const preferredHour = parseInt(userPreferredTime.split(":")[0]);
       const timeWindow = 2; // 2-hour window around preferred time
 
-      const preferred = searchResults.filter((ferry) => {
+      const preferred = searchResults.filter((ferry: UnifiedFerryResult) => {
         const departureHour = parseInt(
           ferry.schedule.departureTime.split(":")[0]
         );
         return Math.abs(departureHour - preferredHour) <= timeWindow;
       });
 
-      const others = searchResults.filter((ferry) => {
+      const others = searchResults.filter((ferry: UnifiedFerryResult) => {
         const departureHour = parseInt(
           ferry.schedule.departureTime.split(":")[0]
         );
         return Math.abs(departureHour - preferredHour) > timeWindow;
       });
 
-      setSmartFilteredResults({
-        preferredTime: preferred.sort((a, b) =>
+      return {
+        preferredTime: preferred.sort((a: UnifiedFerryResult, b: UnifiedFerryResult) =>
           a.schedule.departureTime.localeCompare(b.schedule.departureTime)
         ),
-        otherTimes: others.sort((a, b) =>
+        otherTimes: others.sort((a: UnifiedFerryResult, b: UnifiedFerryResult) =>
           a.schedule.departureTime.localeCompare(b.schedule.departureTime)
         ),
-      });
-
-      // Set filteredResults to all for backwards compatibility
-      setFilteredResults(searchResults);
+      };
     } else {
       // No preferred time, show all results normally
-      setSmartFilteredResults({ preferredTime: [], otherTimes: searchResults });
-      setFilteredResults(searchResults);
+      return { preferredTime: [], otherTimes: searchResults || [] };
     }
   }, [searchResults, userPreferredTime]);
 
-  // Filter results based on time filter
-  useEffect(() => {
-    if (!timeFilter || !searchResults) {
-      // Don't override smart filtering when no time filter is active
-      return;
+  // Memoize filtered results based on time filter
+  const filteredResults = useMemo(() => {
+    if (!searchResults || searchResults.length === 0) {
+      return [];
+    }
+
+    if (!timeFilter) {
+      return searchResults;
     }
 
     const [startHour, endHour] = timeFilter.split("-").map((time) => {
@@ -123,7 +116,7 @@ const FerryResultsContent = () => {
       return hour;
     });
 
-    const filtered = searchResults.filter((ferry) => {
+    return searchResults.filter((ferry: UnifiedFerryResult) => {
       const departureHour = parseInt(
         ferry.schedule.departureTime.split(":")[0]
       );
@@ -135,11 +128,30 @@ const FerryResultsContent = () => {
         return departureHour >= startHour || departureHour < endHour;
       }
     });
-
-    setFilteredResults(filtered);
-    // Reset smart filtering when manual time filter is applied
-    setSmartFilteredResults({ preferredTime: [], otherTimes: filtered });
   }, [searchResults, timeFilter]);
+
+  // Error handling improvements
+  const handleRetry = () => {
+    refetchSearch();
+  };
+
+  const handleClearError = () => {
+    // React Query doesn't need manual error clearing
+    // But you can reset the query if needed
+    refetchSearch();
+  };
+
+  // Combine server errors with operator-specific errors
+  const combinedError =
+    error ||
+    (searchErrors.length > 0
+      ? {
+          message: `Some ferry operators failed: ${searchErrors
+            .map((e: { operator: string; error: string }) => e.operator)
+            .join(", ")}`,
+          operatorErrors: searchErrors,
+        }
+      : null);
 
   const hasPreferredTimeResults = smartFilteredResults.preferredTime.length > 0;
   const hasOtherTimeResults = smartFilteredResults.otherTimes.length > 0;
@@ -171,6 +183,26 @@ const FerryResultsContent = () => {
         />
       </div>
 
+      {/* Operator Error Display */}
+      {searchErrors.length > 0 && !isLoading && (
+        <div className={styles.operatorErrors}>
+          <div className={styles.errorTitle}>
+            ⚠️ Some ferry operators are experiencing issues:
+          </div>
+          {searchErrors.map((error: { operator: string; error: string }, index: number) => (
+            <div key={index} className={styles.operatorError}>
+              <strong>{error.operator}:</strong> {error.error}
+            </div>
+          ))}
+          {searchResults.length > 0 && (
+            <div className={styles.errorNote}>
+              Don't worry - we're still showing available ferries from other
+              operators.
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Time Filters */}
       {searchResults && searchResults.length > 0 && (
         <div className={styles.filtersSection}>
@@ -195,8 +227,8 @@ const FerryResultsContent = () => {
                 loading={false}
                 results={smartFilteredResults.preferredTime}
                 error={null}
-                onRetry={searchFerries}
-                onClearError={clearError}
+                onRetry={handleRetry}
+                onClearError={handleClearError}
               />
             </div>
           )}
@@ -212,8 +244,8 @@ const FerryResultsContent = () => {
                 loading={false}
                 results={smartFilteredResults.otherTimes}
                 error={null}
-                onRetry={searchFerries}
-                onClearError={clearError}
+                onRetry={handleRetry}
+                onClearError={handleClearError}
               />
             </div>
           )}
@@ -225,10 +257,21 @@ const FerryResultsContent = () => {
         <FerryResults
           loading={isLoading}
           results={filteredResults}
-          error={error}
-          onRetry={searchFerries}
-          onClearError={clearError}
+          error={combinedError}
+          onRetry={handleRetry}
+          onClearError={handleClearError}
         />
+      )}
+
+      {/* Empty state with retry option */}
+      {!isLoading && searchResults.length === 0 && !error && (
+        <div className={styles.emptyState}>
+          <h3>No ferries found</h3>
+          <p>Try adjusting your search criteria or check back later.</p>
+          <button onClick={handleRetry} className={styles.retryButton}>
+            🔄 Search Again
+          </button>
+        </div>
       )}
     </div>
   );

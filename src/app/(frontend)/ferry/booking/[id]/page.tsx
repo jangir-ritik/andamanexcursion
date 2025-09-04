@@ -4,6 +4,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Section, Column } from "@/components/layout";
 import { SectionTitle, Button } from "@/components/atoms";
 import { useFerryStore } from "@/store/FerryStore";
+import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 import { SeatLayoutComponent } from "@/components/molecules/SeatLayout/SeatLayout";
 import {
   UnifiedFerryResult,
@@ -27,6 +28,7 @@ export default function FerryBookingDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  // Client state from Zustand
   const {
     selectedFerry,
     selectedClass,
@@ -35,9 +37,13 @@ export default function FerryBookingDetailPage() {
     selectClass,
     selectSeats,
     createBookingSession,
-    searchResults,
-    isLoading,
   } = useFerryStore();
+
+  // Server state from React Query
+  const {
+    ferries: searchResults,
+    isSearching: isLoading,
+  } = useFerryFlow();
 
   const [ferry, setFerry] = useState<UnifiedFerryResult | null>(null);
   const [currentClassId, setCurrentClassId] = useState<string | null>(null);
@@ -71,8 +77,8 @@ export default function FerryBookingDetailPage() {
 
     // Find ferry from search results or selected ferry
     let currentFerry = selectedFerry;
-    if (!currentFerry && searchResults.length > 0) {
-      currentFerry = searchResults.find((f) => f.id === ferryId) || null;
+    if (!currentFerry && searchResults && searchResults.length > 0) {
+      currentFerry = searchResults.find((f: UnifiedFerryResult) => f.id === ferryId) || null;
     }
 
     if (currentFerry) {
@@ -113,7 +119,7 @@ export default function FerryBookingDetailPage() {
     }
   }, [selectedSeatIds, selectSeats, seatLayout]);
 
-  const handleClassSelection = async (classData: any) => {
+  const handleClassSelection = async (classData: { id: string; name: string; price: number; availableSeats: number; amenities: string[] }) => {
     selectClass(classData);
     setCurrentClassId(classData.id);
     // Clear previous seat selection when changing class
@@ -155,7 +161,7 @@ export default function FerryBookingDetailPage() {
             data.data.seatLayout.seats.length
           } total seats, available: ${
             data.data.seatLayout.seats.filter(
-              (s: any) => s.status === "available"
+              (s: Seat) => s.status === "available"
             ).length
           }`
         );
