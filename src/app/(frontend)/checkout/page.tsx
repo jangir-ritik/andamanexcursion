@@ -92,13 +92,11 @@ function CheckoutContent() {
   if (isLoading || !bookingData) {
     return (
       <Container noPadding>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold mb-2">
-              Initializing Checkout
-            </h2>
-            <p className="text-gray-600">
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
+            <div className={styles.spinner}></div>
+            <h2 className={styles.loadingTitle}>Initializing Checkout</h2>
+            <p className={styles.loadingDescription}>
               Setting up your {bookingType} booking...
             </p>
           </div>
@@ -111,22 +109,22 @@ function CheckoutContent() {
   if (error) {
     return (
       <Container>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center max-w-md">
-            <div className="text-red-600 mb-6">
-              <h2 className="text-2xl font-semibold mb-2">Checkout Error</h2>
-              <p className="text-gray-700">{error}</p>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <div className={styles.errorMessage}>
+              <h2 className={styles.errorTitle}>Checkout Error</h2>
+              <p className={styles.errorDescription}>{error}</p>
             </div>
-            <div className="space-x-4">
+            <div className={styles.errorActions}>
               <button
                 onClick={() => router.back()}
-                className="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                className={styles.backButton}
               >
                 Go Back
               </button>
               <button
                 onClick={() => router.push("/")}
-                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className={styles.homeButton}
               >
                 Home
               </button>
@@ -152,7 +150,11 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div>Loading checkout...</div>}>
+    <Suspense
+      fallback={
+        <div className={styles.suspenseFallback}>Loading checkout...</div>
+      }
+    >
       <CheckoutContent />
     </Suspense>
   );
