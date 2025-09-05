@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./LoadingCard.module.css";
 
 function LoadingCard({
   className,
@@ -8,8 +9,9 @@ function LoadingCard({
   text?: string;
 }) {
   return (
-    <div className={className}>
+    <div className={`${styles.container} ${className || ""}`}>
       <svg
+        className={styles.spinner}
         width="265"
         height="264"
         viewBox="0 0 265 264"
@@ -82,7 +84,7 @@ function LoadingCard({
         </defs>
       </svg>
 
-      <p>{text}</p>
+      <p className={styles.text}>{text}</p>
     </div>
   );
 }
