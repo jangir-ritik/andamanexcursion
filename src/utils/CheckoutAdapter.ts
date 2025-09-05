@@ -4,11 +4,6 @@
 // Implements the "Source of Truth" pattern to eliminate complex state management
 
 // Type imports for proper typing
-// import type {
-//   Activity,
-//   ActivitySearchParams,
-//   CartItem,
-// } from "@/store/ActivityStore";
 import {
   ActivitySearchParams,
   CartItem,
@@ -420,34 +415,6 @@ export class CheckoutAdapter {
     };
   }
 }
-
-/**
- * Hook to access checkout data with error handling
- */
-export const useCheckoutAdapter = (searchParams: URLSearchParams) => {
-  try {
-    const bookingType = CheckoutAdapter.detectBookingType(searchParams);
-    const bookingData = CheckoutAdapter.getUnifiedBookingData(bookingType);
-    const requirements = CheckoutAdapter.getPassengerRequirements(bookingData);
-
-    return {
-      bookingType,
-      bookingData,
-      requirements,
-      isLoading: false,
-      error: null,
-    };
-  } catch (error) {
-    console.error("CheckoutAdapter error:", error);
-    return {
-      bookingType: "activity" as BookingType,
-      bookingData: null,
-      requirements: null,
-      isLoading: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-  }
-};
 
 /**
  * React Query version of the checkout adapter hook
