@@ -128,6 +128,13 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
         },
         handler: async (response: any) => {
           try {
+            console.log("Payment verification payload:", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              bookingData: paymentData,
+              sessionId: (bookingData as any).sessionId,
+            });
             // Step 4: Verify payment
             const verifyResponse = await fetch("/api/payments/verify", {
               method: "POST",

@@ -280,17 +280,29 @@ export async function POST(request: NextRequest) {
                       bookingData.items[0].title ||
                       "Unknown Ferry",
                     route: {
+                      // ✅ FIX: Better route data extraction with fallbacks
                       from:
+                        bookingData.items[0].ferry?.route?.from?.name ||
                         bookingData.items[0].ferry?.route?.from ||
                         bookingData.items[0].ferry?.fromLocation ||
+                        bookingData.items[0].fromLocation ||
+                        bookingData.searchParams?.from ||
                         "Unknown",
                       to:
+                        bookingData.items[0].ferry?.route?.to?.name ||
                         bookingData.items[0].ferry?.route?.to ||
                         bookingData.items[0].ferry?.toLocation ||
+                        bookingData.items[0].toLocation ||
+                        bookingData.searchParams?.to ||
                         "Unknown",
                       fromCode:
-                        bookingData.items[0].ferry?.route?.fromCode || "",
-                      toCode: bookingData.items[0].ferry?.route?.toCode || "",
+                        bookingData.items[0].ferry?.route?.from?.code ||
+                        bookingData.items[0].ferry?.route?.fromCode ||
+                        "",
+                      toCode:
+                        bookingData.items[0].ferry?.route?.to?.code ||
+                        bookingData.items[0].ferry?.route?.toCode ||
+                        "",
                     },
                     schedule: {
                       departureTime:
@@ -312,13 +324,19 @@ export async function POST(request: NextRequest) {
                       classId:
                         bookingData.items[0].ferry?.selectedClass?.classId ||
                         bookingData.items[0].ferry?.selectedClass?.id ||
+                        bookingData.items[0].selectedClass?.classId ||
+                        bookingData.items[0].selectedClass?.id ||
                         "unknown",
                       className:
                         bookingData.items[0].ferry?.selectedClass?.className ||
                         bookingData.items[0].ferry?.selectedClass?.name ||
+                        bookingData.items[0].selectedClass?.className ||
+                        bookingData.items[0].selectedClass?.name ||
                         "Unknown Class",
                       price:
-                        bookingData.items[0].ferry?.selectedClass?.price || 0,
+                        bookingData.items[0].ferry?.selectedClass?.price ||
+                        bookingData.items[0].selectedClass?.price ||
+                        0,
                     },
                     passengers: {
                       adults: bookingData.items[0].passengers?.adults || 0,
@@ -336,7 +354,17 @@ export async function POST(request: NextRequest) {
                           seatId: seat.id || seat.seatId || "",
                           passengerName: "", // Will be filled from passenger details
                         })
-                      ) || [],
+                      ) ||
+                      bookingData.items[0].selectedSeats?.map((seat: any) => ({
+                        seatNumber:
+                          seat.number ||
+                          seat.seatNumber ||
+                          seat ||
+                          "Auto-assigned",
+                        seatId: seat.id || seat.seatId || "",
+                        passengerName: "", // Will be filled from passenger details
+                      })) ||
+                      [],
                     providerBooking: {
                       pnr: "", // Will be updated after provider booking
                       operatorBookingId: "",

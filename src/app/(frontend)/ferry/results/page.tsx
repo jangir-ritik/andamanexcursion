@@ -34,6 +34,10 @@ const FerryResultsContent = () => {
     isSearching: isLoading,
     searchError: error,
     refetchSearch,
+    // Add these new fields from the enhanced hook
+    isPartialFailure,
+    availableOperators,
+    failedOperators,
   } = useFerryFlow();
 
   // Extract search parameters from URL and trigger search
@@ -88,11 +92,13 @@ const FerryResultsContent = () => {
       });
 
       return {
-        preferredTime: preferred.sort((a: UnifiedFerryResult, b: UnifiedFerryResult) =>
-          a.schedule.departureTime.localeCompare(b.schedule.departureTime)
+        preferredTime: preferred.sort(
+          (a: UnifiedFerryResult, b: UnifiedFerryResult) =>
+            a.schedule.departureTime.localeCompare(b.schedule.departureTime)
         ),
-        otherTimes: others.sort((a: UnifiedFerryResult, b: UnifiedFerryResult) =>
-          a.schedule.departureTime.localeCompare(b.schedule.departureTime)
+        otherTimes: others.sort(
+          (a: UnifiedFerryResult, b: UnifiedFerryResult) =>
+            a.schedule.departureTime.localeCompare(b.schedule.departureTime)
         ),
       };
     } else {
@@ -136,22 +142,41 @@ const FerryResultsContent = () => {
   };
 
   const handleClearError = () => {
-    // React Query doesn't need manual error clearing
-    // But you can reset the query if needed
     refetchSearch();
   };
 
-  // Combine server errors with operator-specific errors
-  const combinedError =
-    error ||
-    (searchErrors.length > 0
-      ? {
-          message: `Some ferry operators failed: ${searchErrors
-            .map((e: { operator: string; error: string }) => e.operator)
-            .join(", ")}`,
-          operatorErrors: searchErrors,
-        }
-      : null);
+  // Enhanced error object creation for the FerryResults component
+  const enhancedError = useMemo(() => {
+    if (error) {
+      // If there's a React Query error, format it properly
+      return {
+        message: error.message || "Ferry search failed",
+        operatorErrors: searchErrors,
+        isPartialFailure: isPartialFailure || false,
+      };
+    }
+
+    if (searchErrors.length > 0 && searchResults.length === 0) {
+      // All operators failed
+      return {
+        message:
+          "All ferry operators are temporarily unavailable. Please try again later.",
+        operatorErrors: searchErrors,
+        isPartialFailure: false,
+      };
+    }
+
+    if (isPartialFailure && searchResults.length > 0) {
+      // Partial failure - use the isPartialFailure flag properly
+      return {
+        message: `Some ferry operators are temporarily unavailable, but we found ${searchResults.length} options from available services.`,
+        operatorErrors: searchErrors,
+        isPartialFailure: true,
+      };
+    }
+
+    return null;
+  }, [error, searchErrors, searchResults.length, isPartialFailure]);
 
   const hasPreferredTimeResults = smartFilteredResults.preferredTime.length > 0;
   const hasOtherTimeResults = smartFilteredResults.otherTimes.length > 0;
@@ -183,27 +208,55 @@ const FerryResultsContent = () => {
         />
       </div>
 
-      {/* Operator Error Display */}
-      {searchErrors.length > 0 && !isLoading && (
-        <div className={styles.operatorErrors}>
-          <div className={styles.errorTitle}>
-            ⚠️ Some ferry operators are experiencing issues:
+      {/* Enhanced Service Status Display - Shows when there are operator issues */}
+      {(searchErrors.length > 0 || isPartialFailure) && !isLoading && (
+        <div
+          className={`${styles.serviceStatusDisplay} ${
+            isPartialFailure ? styles.partialFailure : styles.criticalFailure
+          }`}
+        >
+          <div className={styles.serviceStatusHeader}>
+            <span className={styles.serviceStatusIcon}>
+              {isPartialFailure ? "⚠️" : "❌"}
+            </span>
+            <h3 className={styles.serviceStatusTitle}>
+              {isPartialFailure
+                ? `Service Notice: ${searchErrors.length} of 3 operators temporarily unavailable`
+                : "Service Alert: All ferry operators are experiencing issues"}
+            </h3>
           </div>
-          {searchErrors.map((error: { operator: string; error: string }, index: number) => (
-            <div key={index} className={styles.operatorError}>
-              <strong>{error.operator}:</strong> {error.error}
-            </div>
-          ))}
-          {searchResults.length > 0 && (
-            <div className={styles.errorNote}>
-              Don't worry - we're still showing available ferries from other
-              operators.
+
+          <div className={styles.serviceStatusDetails}>
+            {searchErrors.map(
+              (error: { operator: string; error: string }, index: number) => (
+                <div key={index} className={styles.serviceStatusItem}>
+                  <strong>{error.operator}:</strong> {error.error}
+                </div>
+              )
+            )}
+          </div>
+
+          {searchResults.length > 0 && isPartialFailure && (
+            <div className={styles.serviceStatusNote}>
+              <span className={styles.statusSuccess}>✓</span>
+              Don't worry - we're still showing {searchResults.length} available
+              ferries from working operators.
             </div>
           )}
+
+          <div className={styles.serviceStatusActions}>
+            <button
+              onClick={handleRetry}
+              className={styles.retryAllButton}
+              disabled={isLoading}
+            >
+              {isLoading ? "Retrying..." : "Retry All Services"}
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Time Filters */}
+      {/* Time Filters - Only show if we have results */}
       {searchResults && searchResults.length > 0 && (
         <div className={styles.filtersSection}>
           <TimeFilters timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
@@ -221,12 +274,12 @@ const FerryResultsContent = () => {
           {hasPreferredTimeResults && (
             <div className={styles.smartSection}>
               <h3 className={styles.smartSectionTitle}>
-                🎯 Perfect match for your preferred time ({userPreferredTime})
+                Perfect match for your preferred time ({userPreferredTime})
               </h3>
               <FerryResults
                 loading={false}
                 results={smartFilteredResults.preferredTime}
-                error={null}
+                error={enhancedError}
                 onRetry={handleRetry}
                 onClearError={handleClearError}
               />
@@ -237,13 +290,13 @@ const FerryResultsContent = () => {
             <div className={styles.smartSection}>
               <h3 className={styles.smartSectionTitle}>
                 {hasPreferredTimeResults
-                  ? "⏰ Other available ferries for the same day"
+                  ? "Other available ferries for the same day"
                   : "Available ferries for your selected date"}
               </h3>
               <FerryResults
                 loading={false}
                 results={smartFilteredResults.otherTimes}
-                error={null}
+                error={enhancedError}
                 onRetry={handleRetry}
                 onClearError={handleClearError}
               />
@@ -257,19 +310,19 @@ const FerryResultsContent = () => {
         <FerryResults
           loading={isLoading}
           results={filteredResults}
-          error={combinedError}
+          error={enhancedError}
           onRetry={handleRetry}
           onClearError={handleClearError}
         />
       )}
 
-      {/* Empty state with retry option */}
-      {!isLoading && searchResults.length === 0 && !error && (
+      {/* Empty state with retry option - only when not loading and no error */}
+      {!isLoading && searchResults.length === 0 && !enhancedError && (
         <div className={styles.emptyState}>
           <h3>No ferries found</h3>
           <p>Try adjusting your search criteria or check back later.</p>
           <button onClick={handleRetry} className={styles.retryButton}>
-            🔄 Search Again
+            Search Again
           </button>
         </div>
       )}

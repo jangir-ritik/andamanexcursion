@@ -12,6 +12,7 @@ import type {
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import { Location } from "@payload-types";
+import { useCheckoutSession } from "@/store/SimpleCheckoutStore";
 
 interface ConfirmationStepProps {
   bookingData: UnifiedBookingData;
@@ -24,6 +25,8 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 }) => {
   const { bookingConfirmation, formData, resetAfterBooking } =
     useSimpleCheckoutStore();
+
+  const { resetForNewBooking } = useCheckoutSession();
 
   // Get all booking details from the new unified data structure
   const getAllBookingDetails = () => {
@@ -369,7 +372,8 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           variant="secondary"
           size="large"
           onClick={() => {
-            resetAfterBooking();
+            resetForNewBooking();
+            // resetAfterBooking();
             // Navigate back to home or booking page
             const firstItemType = bookingData?.items?.[0]?.type;
             window.location.href =

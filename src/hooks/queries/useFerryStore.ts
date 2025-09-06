@@ -3,7 +3,7 @@ import { useFerrySearch } from "./ferryQueryHooks/useFerrySearch";
 import { useSeatLayout } from "./ferryQueryHooks/useSeatLayout";
 import { useFerryBooking, useFerryHealth } from "./ferryQueryHooks";
 
-// Main orchestration hook that combines all ferry operations
+// Enhanced orchestration hook with fault tolerance support
 export const useFerryFlow = () => {
   const {
     searchParams,
@@ -13,7 +13,7 @@ export const useFerryFlow = () => {
     bookingSession,
   } = useFerryStore();
 
-  // Search Query
+  // Enhanced search Query with fault tolerance
   const searchQuery = useFerrySearch(searchParams);
 
   // Seat Layout query (only if ferry and class selected)
@@ -26,8 +26,6 @@ export const useFerryFlow = () => {
   );
 
   // Mutations
-  // const seatBlockingMutation = useSeatBlocking();
-  // const seatReleaseMutation = useSeatRelease();
   const bookingMutation = useFerryBooking();
 
   // Health status
@@ -54,53 +52,38 @@ export const useFerryFlow = () => {
   );
 
   // Helper functions
-  // const blockSeats = (seatNumbers: string[]) => {
-  //   if (
-  //     selectedFerry?.operator === "greenocean" &&
-  //     selectedFerry &&
-  //     selectedClass
-  //   ) {
-  //     return seatBlockingMutation.mutate({
-  //       routeId: selectedFerry.operatorData.routeId,
-  //       ferryId: selectedFerry.id,
-  //       classId: selectedClass.id,
-  //       seatNumbers,
-  //       travelDate: searchParams.date,
-  //     });
-  //   }
-  // };
-
-  // const releaseSeats = (blockingId: string) => {
-  //   if (selectedFerry && selectedClass) {
-  //     return seatReleaseMutation.mutate({
-  //       blockingId,
-  //       ferryId: selectedFerry.id,
-  //       classId: selectedClass.id,
-  //     });
-  //   }
-  // };
-
   const createBooking = () => {
     if (bookingSession) {
       return bookingMutation.mutate(bookingSession);
     }
   };
 
+  const getServiceStatus = () => {
+    const searchData = searchQuery.data;
+    if (!searchData) return null;
+
+    return {
+      availableOperators: searchData.availableOperators || [],
+      failedOperators: searchData.failedOperators || [],
+      isPartialFailure: searchData.isPartialFailure || false,
+      operatorErrors: searchData.errors || [],
+    };
+  };
+
   return {
-    // Search state
+    // Search state - Enhanced with fault tolerance
     ferries: searchQuery.data?.results || [],
     searchErrors: searchQuery.data?.errors || [],
     isSearching: searchQuery.isFetching,
     searchError: searchQuery.error,
+    isPartialFailure: searchQuery.data?.isPartialFailure || false,
+    availableOperators: searchQuery.data?.availableOperators || [],
+    failedOperators: searchQuery.data?.failedOperators || [],
 
     // Seat layout state
     seatLayout: seatLayoutQuery.data,
     isLoadingSeats: seatLayoutQuery.isFetching,
     seatError: seatLayoutQuery.error,
-
-    // Seat blocking state
-    // isBlockingSeats: seatBlockingMutation.isPending,
-    // blockingError: seatBlockingMutation.error,
 
     // Booking state
     isBooking: bookingMutation.isPending,
@@ -116,11 +99,12 @@ export const useFerryFlow = () => {
     canSelectSeats,
     isReadyToBook,
 
+    // Service status helper
+    serviceStatus: getServiceStatus(),
+
     // Actions
     refetchSearch: searchQuery.refetch,
     refetchSeats: seatLayoutQuery.refetch,
-    // blockSeats,
-    // releaseSeats,
     createBooking,
 
     // Raw queries for advanced usage
@@ -129,11 +113,24 @@ export const useFerryFlow = () => {
       seatLayout: seatLayoutQuery,
       health: healthQuery,
     },
-
     mutations: {
-      // seatBlocking: seatBlockingMutation,
-      // seatRelease: seatReleaseMutation,
       booking: bookingMutation,
     },
+
+    // Enhanced error information
+    hasAnyErrors: !!(
+      searchQuery.error ||
+      (searchQuery.data?.errors?.length && searchQuery.data.errors.length > 0)
+    ),
+    hasCriticalError: !!(
+      searchQuery.error &&
+      (!searchQuery.data?.results?.length ||
+        searchQuery.data.results.length === 0)
+    ),
+    hasPartialFailure: !!(
+      searchQuery.data?.isPartialFailure &&
+      searchQuery.data.results?.length &&
+      searchQuery.data.results.length > 0
+    ),
   };
 };

@@ -2,10 +2,11 @@
 
 import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCheckoutAdapterRQ } from "@/utils/CheckoutAdapter";
+import { useCheckoutAdapter } from "@/utils/CheckoutAdapter";
 import {
   useSimpleCheckoutStore,
   createDefaultFormData,
+  useCheckoutSession,
 } from "@/store/SimpleCheckoutStore";
 import { SimpleCheckoutFlow } from "./components/SimpleCheckoutFlow";
 import { Container } from "@/components/layout";
@@ -17,7 +18,13 @@ function CheckoutContent() {
 
   // Use the new React Query adapter pattern - eliminates complex state management
   const { bookingType, bookingData, requirements, isLoading, error } =
-    useCheckoutAdapterRQ(searchParams);
+    useCheckoutAdapter(searchParams);
+
+  const { ensureValidSession } = useCheckoutSession();
+
+  useEffect(() => {
+    ensureValidSession();
+  }, []);
 
   // Use simplified store - only form state and navigation
   const { formData, updateFormData, setError, reset } =

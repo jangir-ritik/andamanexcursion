@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useLayoutEffect, useEffect } from "react";
 import { useSimpleCheckoutStore } from "@/store/SimpleCheckoutStore";
 import { StepIndicator } from "@/app/(frontend)/plan-your-trip/components/StepIndicator";
@@ -40,8 +39,18 @@ export const SimpleCheckoutFlow: React.FC<SimpleCheckoutFlowProps> = ({
   bookingData,
   requirements,
 }) => {
-  const { currentStep, setCurrentStep, bookingConfirmation, formData } =
-    useSimpleCheckoutStore();
+  const {
+    currentStep,
+    setCurrentStep,
+    bookingConfirmation,
+    formData,
+    cleanupOrphanedSessions,
+  } = useSimpleCheckoutStore();
+
+  // Clean up orphaned sessions on mount
+  useEffect(() => {
+    cleanupOrphanedSessions();
+  }, [cleanupOrphanedSessions]);
 
   // Auto-scroll to top when step changes
   useLayoutEffect(() => {

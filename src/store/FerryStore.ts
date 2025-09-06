@@ -22,7 +22,7 @@ export interface FerryStore {
   selectFerry: (ferry: UnifiedFerryResult) => void;
   selectClass: (ferryClass: FerryClass) => void;
   selectSeats: (seats: Seat[]) => void;
-  createBookingSession: () => void; // Pure client logic - creates local session
+  createBookingSession: () => void;
   updateBookingSession: (session: FerryBookingSession) => void;
   clearBookingSession: () => void;
   updatePassengerDetails: (passenger: PassengerDetail) => void;
@@ -31,11 +31,6 @@ export interface FerryStore {
   // Utility actions for better UX
   clearSelection: () => void;
   clearSeats: () => void;
-
-  // REMOVED - Now handled by React Query:
-  // - searchResults, isLoading, error
-  // - searchFerries(), blockSeats(), releaseSeats()
-  // - proceedToCheckout(), clearError()
 }
 
 const initialState = {
@@ -208,37 +203,11 @@ export const useFerryStore = create<FerryStore>()(
   }))
 );
 
-// Global access for CheckoutAdapter - Preserve existing integration
-if (typeof window !== "undefined") {
-  (window as any).__FERRY_STORE__ = {
-    get bookingSession() {
-      return useFerryStore.getState().bookingSession;
-    },
-    get searchParams() {
-      return useFerryStore.getState().searchParams;
-    },
-    get selectedFerry() {
-      return useFerryStore.getState().selectedFerry;
-    },
-    get selectedClass() {
-      return useFerryStore.getState().selectedClass;
-    },
-    get selectedSeats() {
-      return useFerryStore.getState().selectedSeats;
-    },
-    getState: () => useFerryStore.getState(),
-    resetBookingSession: () => {
-      useFerryStore.setState({ bookingSession: null });
-    },
-    // Additional helpers for checkout integration
-    clearSelection: () => {
-      useFerryStore.getState().clearSelection();
-    },
-    updateBookingSession: (session: FerryBookingSession) => {
-      useFerryStore.getState().updateBookingSession(session);
-    },
-  };
-}
+// REMOVED: Global window access - this was the source of the problem
+// The old implementation had:
+// if (typeof window !== "undefined") {
+//   (window as any).__FERRY_STORE__ = { ... }
+// }
 
 // Export selectors for cleaner component usage
 export const ferrySelectors = {

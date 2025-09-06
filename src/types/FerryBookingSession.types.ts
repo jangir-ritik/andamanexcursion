@@ -9,7 +9,7 @@ export interface FerryBookingSession {
     infants: number;
   };
   selectedFerry?: {
-    operator: "sealink" | "makruzz" | "greenocean";
+    operator: "sealink" | "makruzz" | "greenocean"; // Removed "unknown"
     ferryId: string;
     ferryName: string;
     routeData: any;
@@ -19,7 +19,7 @@ export interface FerryBookingSession {
       departureTime: string;
       arrivalTime: string;
       duration: string;
-      date: string;
+      date: string; // Made required
     };
     duration: string;
   };
@@ -68,7 +68,7 @@ export interface UnifiedFerryResult {
     departureTime: string; // "HH:MM"
     arrivalTime: string;
     duration: string; // "1h 30m"
-    date: string; // "YYYY-MM-DD"
+    date: string; // "YYYY-MM-DD" - Made required
   };
   classes: FerryClass[];
   availability: {
@@ -97,10 +97,11 @@ export interface UnifiedFerryResult {
     authToken?: string;
   };
   isActive: boolean;
-  // Additional properties added during checkout processing
-  fromLocation?: string;
-  toLocation?: string;
-  selectedClass?: FerryClass;
+  // Additional properties that can be added during processing
+  duration?: string; // For backward compatibility
+  fromLocation?: string; // For backward compatibility
+  toLocation?: string; // For backward compatibility
+  selectedClass?: FerryClass; // Changed from null to undefined
   selectedSeats?: string[];
 }
 

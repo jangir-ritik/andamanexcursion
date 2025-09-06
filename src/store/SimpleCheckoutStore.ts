@@ -2,10 +2,9 @@
 
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-// Simplified CheckoutStore - Only handles form state and navigation
-// Business logic is handled by CheckoutAdapter
-
+// Types
 export interface MemberDetails {
   id: string;
   fullName: string;
@@ -16,7 +15,7 @@ export interface MemberDetails {
   whatsappNumber?: string;
   email?: string;
   isPrimary: boolean;
-  selectedBookings: number[]; // Which bookings this member is assigned to
+  selectedBookings: number[];
 }
 
 export interface CheckoutFormData {
@@ -32,23 +31,25 @@ export interface BookingConfirmation {
   paymentStatus: "paid" | "pending" | "failed";
 }
 
-// Simplified state - only form management
-interface SimpleCheckoutState {
-  // Navigation
-  currentStep: number; // 1=Details, 2=Review, 3=Payment
-
-  // Form state (persisted)
+export interface CheckoutSession {
+  id: string;
   formData: CheckoutFormData | null;
-
-  // UI state
-  isLoading: boolean;
-  error: string | null;
-
-  // Confirmation
-  bookingConfirmation: BookingConfirmation | null;
+  currentStep: number;
+  createdAt: string;
+  expiresAt: string;
 }
 
-// Simple actions - no complex business logic
+// State interface
+interface SimpleCheckoutState {
+  currentStep: number;
+  formData: CheckoutFormData | null;
+  isLoading: boolean;
+  error: string | null;
+  bookingConfirmation: BookingConfirmation | null;
+  sessionId: string | null;
+}
+
+// Actions interface
 interface SimpleCheckoutActions {
   // Navigation
   setCurrentStep: (step: number) => void;
@@ -66,6 +67,12 @@ interface SimpleCheckoutActions {
   // Confirmation
   setBookingConfirmation: (confirmation: BookingConfirmation) => void;
 
+  // Session management
+  initializeSession: () => void;
+  clearSession: () => void;
+  isSessionExpired: () => boolean;
+  cleanupOrphanedSessions: () => void; // Added this missing method
+
   // Utility
   reset: () => void;
   resetAfterBooking: () => void;
@@ -80,10 +87,40 @@ const initialState: SimpleCheckoutState = {
   isLoading: false,
   error: null,
   bookingConfirmation: null,
+  sessionId: null,
+};
+
+// Utility functions
+const generateSessionId = (): string => {
+  return `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
+const isSessionExpired = (expiresAt: string): boolean => {
+  try {
+    return new Date(expiresAt) < new Date();
+  } catch (error) {
+    console.error("Error checking session expiry:", error);
+    return true;
+  }
+};
+
+const createSession = (
+  formData: CheckoutFormData | null,
+  currentStep: number
+): CheckoutSession => {
+  const now = new Date();
+  const expiryTime = new Date(now.getTime() + 30 * 60 * 1000); // 30 minutes
+
+  return {
+    id: generateSessionId(),
+    formData,
+    currentStep,
+    createdAt: now.toISOString(),
+    expiresAt: expiryTime.toISOString(),
+  };
 };
 
 // Generate unique member ID
-// TODO: use nanoid to generate member id
 const generateMemberId = (): string => {
   return `member-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
@@ -115,108 +152,352 @@ export const createDefaultFormData = (
   };
 };
 
-// Simple Zustand store - no complex business logic
-export const useSimpleCheckoutStore = create<SimpleCheckoutStore>()(
-  immer((set, get) => ({
-    ...initialState,
+// Helper function to safely parse JSON
+const safeJsonParse = (jsonString: string): any => {
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error("JSON parse error:", error);
+    return null;
+  }
+};
 
-    // === NAVIGATION ===
-    setCurrentStep: (step: number) => {
-      set((state) => {
-        state.currentStep = step;
-      });
-    },
+// Helper function to safely access sessionStorage
+const safeSessionStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      return sessionStorage.getItem(key);
+    } catch (error) {
+      console.error("SessionStorage getItem error:", error);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (error) {
+      console.error("SessionStorage setItem error:", error);
+    }
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.removeItem(key);
+    } catch (error) {
+      console.error("SessionStorage removeItem error:", error);
+    }
+  },
+};
 
-    nextStep: () => {
-      set((state) => {
-        if (state.currentStep < 3) {
-          state.currentStep += 1;
-        }
-      });
-    },
+// Helper function to safely update session
+const updateSession = (
+  sessionId: string | null,
+  formData: CheckoutFormData | null,
+  currentStep: number
+) => {
+  if (typeof window === "undefined" || !sessionId) return;
 
-    prevStep: () => {
-      set((state) => {
-        if (state.currentStep > 1) {
-          state.currentStep -= 1;
-        }
-      });
-    },
+  try {
+    const session = createSession(formData, currentStep);
+    const sessionKey = `checkout-session-${sessionId}`;
+    safeSessionStorage.setItem(sessionKey, JSON.stringify(session));
+  } catch (error) {
+    console.error("Error updating session:", error);
+  }
+};
 
-    // === FORM MANAGEMENT ===
-    updateFormData: (formData: CheckoutFormData) => {
-      set((state) => {
-        state.formData = formData;
-      });
-    },
+// Simple storage wrapper that handles errors gracefully
+const createSafeStorage = () => {
+  if (typeof window === "undefined") {
+    return createJSONStorage(() => ({
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    }));
+  }
 
-    getFormData: () => {
-      return get().formData;
-    },
+  const baseStorage = createJSONStorage(() => sessionStorage);
 
-    // === UI STATE ===
-    setLoading: (loading: boolean) => {
-      set((state) => {
-        state.isLoading = loading;
-      });
-    },
+  // Ensure baseStorage is defined
+  if (!baseStorage) {
+    return createJSONStorage(() => ({
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    }));
+  }
 
-    setError: (error: string | null) => {
-      set((state) => {
-        state.error = error;
-      });
-    },
+  return {
+    getItem: async (name: string) => {
+      try {
+        const result = await baseStorage.getItem(name);
 
-    // === CONFIRMATION ===
-    setBookingConfirmation: (confirmation: BookingConfirmation) => {
-      set((state) => {
-        state.bookingConfirmation = confirmation;
-        state.currentStep = 3; // Move to confirmation step
-      });
-    },
+        // Additional session validation - handle both sync and async results
+        if (result && typeof result === "object" && "state" in result) {
+          const stateObj = result as { state?: { sessionId?: string } };
 
-    // === UTILITY ===
-    reset: () => {
-      set(initialState);
-    },
+          if (stateObj.state?.sessionId) {
+            const sessionKey = `checkout-session-${stateObj.state.sessionId}`;
+            const sessionData = safeSessionStorage.getItem(sessionKey);
 
-    resetAfterBooking: () => {
-      set(initialState);
-
-      // Also clear the underlying booking data stores
-      if (typeof window !== "undefined") {
-        // Reset ferry store
-        if ((window as any).__FERRY_STORE__) {
-          const ferryStore = (window as any).__FERRY_STORE__;
-          if (ferryStore.getState) {
-            const state = ferryStore.getState();
-            if (state.resetBookingSession) {
-              state.resetBookingSession();
+            if (sessionData) {
+              const session = safeJsonParse(sessionData);
+              if (session?.expiresAt && isSessionExpired(session.expiresAt)) {
+                console.log("Session expired, clearing storage");
+                safeSessionStorage.removeItem(sessionKey);
+                await baseStorage.removeItem(name);
+                return null;
+              }
             }
           }
         }
 
-        // Reset activity store
-        if ((window as any).__ACTIVITY_STORE__) {
-          const activityStore = (window as any).__ACTIVITY_STORE__;
-          if (activityStore.getState) {
-            const state = activityStore.getState();
-            if (state.clearCart) {
-              state.clearCart();
-            }
-          }
-        }
-
-        // Force URL change to clear any cached checkout state
-        setTimeout(() => {
-          const currentUrl = window.location.pathname;
-          if (currentUrl.includes("/checkout")) {
-            window.history.replaceState({}, "", currentUrl.split("?")[0]);
-          }
-        }, 100);
+        return result;
+      } catch (error) {
+        console.error("Error reading from storage:", error);
+        return null;
       }
     },
-  }))
+    setItem: baseStorage.setItem,
+    removeItem: baseStorage.removeItem,
+  };
+};
+
+// Zustand store
+export const useSimpleCheckoutStore = create<SimpleCheckoutStore>()(
+  persist(
+    immer((set, get) => ({
+      ...initialState,
+
+      // === NAVIGATION ===
+      setCurrentStep: (step: number) => {
+        set((state) => {
+          state.currentStep = step;
+          updateSession(state.sessionId, state.formData, step);
+        });
+      },
+
+      nextStep: () => {
+        set((state) => {
+          if (state.currentStep < 3) {
+            state.currentStep += 1;
+            updateSession(state.sessionId, state.formData, state.currentStep);
+          }
+        });
+      },
+
+      prevStep: () => {
+        set((state) => {
+          if (state.currentStep > 1) {
+            state.currentStep -= 1;
+            updateSession(state.sessionId, state.formData, state.currentStep);
+          }
+        });
+      },
+
+      // === FORM MANAGEMENT ===
+      updateFormData: (formData: CheckoutFormData) => {
+        set((state) => {
+          state.formData = formData;
+          updateSession(state.sessionId, formData, state.currentStep);
+        });
+      },
+
+      getFormData: () => {
+        return get().formData;
+      },
+
+      // === UI STATE ===
+      setLoading: (loading: boolean) => {
+        set((state) => {
+          state.isLoading = loading;
+        });
+      },
+
+      setError: (error: string | null) => {
+        set((state) => {
+          state.error = error;
+        });
+      },
+
+      // === CONFIRMATION ===
+      setBookingConfirmation: (confirmation: BookingConfirmation) => {
+        set((state) => {
+          state.bookingConfirmation = confirmation;
+          state.currentStep = 3;
+          updateSession(state.sessionId, state.formData, 3);
+        });
+      },
+
+      // === SESSION MANAGEMENT ===
+      initializeSession: () => {
+        if (typeof window === "undefined") return;
+
+        // Don't create empty sessions unnecessarily
+        const currentState = get();
+        if (currentState.sessionId && !currentState.isSessionExpired()) {
+          console.log("Session already exists and is valid");
+          return;
+        }
+
+        const sessionId = generateSessionId();
+        set((state) => {
+          state.sessionId = sessionId;
+        });
+
+        console.log(`New session initialized: ${sessionId}`);
+        // Note: Don't save the session yet - wait for actual data
+      },
+
+      clearSession: () => {
+        if (typeof window === "undefined") return;
+
+        const { sessionId } = get();
+        if (sessionId) {
+          safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
+        }
+
+        set((state) => {
+          state.sessionId = null;
+          state.formData = null;
+          state.currentStep = 1;
+          state.bookingConfirmation = null;
+          state.error = null;
+          state.isLoading = false;
+        });
+      },
+
+      isSessionExpired: () => {
+        if (typeof window === "undefined") return true;
+
+        const { sessionId } = get();
+        if (!sessionId) return true;
+
+        try {
+          const sessionData = safeSessionStorage.getItem(
+            `checkout-session-${sessionId}`
+          );
+          if (!sessionData) return true;
+
+          const session = safeJsonParse(sessionData);
+          if (!session || !session.expiresAt) return true;
+
+          return isSessionExpired(session.expiresAt);
+        } catch (error) {
+          console.error("Error checking session expiry:", error);
+          return true;
+        }
+      },
+
+      // FIXED: Added the missing cleanupOrphanedSessions method
+      cleanupOrphanedSessions: () => {
+        if (typeof window === "undefined") return;
+
+        try {
+          const allKeys = Object.keys(sessionStorage);
+          const sessionKeys = allKeys.filter((key) =>
+            key.startsWith("checkout-session-")
+          );
+
+          let cleanedCount = 0;
+          sessionKeys.forEach((key) => {
+            try {
+              const sessionData = sessionStorage.getItem(key);
+              if (sessionData) {
+                const session = safeJsonParse(sessionData);
+                if (session?.expiresAt && isSessionExpired(session.expiresAt)) {
+                  sessionStorage.removeItem(key);
+                  cleanedCount++;
+                }
+              }
+            } catch (error) {
+              console.error(`Error cleaning up session ${key}:`, error);
+              // Remove corrupted session data
+              sessionStorage.removeItem(key);
+              cleanedCount++;
+            }
+          });
+
+          if (cleanedCount > 0) {
+            console.log(`Cleaned up ${cleanedCount} orphaned sessions`);
+          }
+        } catch (error) {
+          console.error("Error during session cleanup:", error);
+        }
+      },
+
+      // === UTILITY ===
+      reset: () => {
+        const { sessionId } = get();
+        if (sessionId) {
+          safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
+        }
+        set(() => ({ ...initialState }));
+      },
+
+      resetAfterBooking: () => {
+        const { sessionId } = get();
+        if (sessionId) {
+          safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
+        }
+        set(() => ({
+          ...initialState,
+          sessionId: generateSessionId(),
+        }));
+      },
+    })),
+    {
+      name: "simple-checkout-store",
+      storage: createSafeStorage(),
+      partialize: (state) => ({
+        currentStep: state.currentStep,
+        formData: state.formData,
+        sessionId: state.sessionId,
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (typeof window === "undefined" || !state?.sessionId) return;
+
+        try {
+          const sessionData = safeSessionStorage.getItem(
+            `checkout-session-${state.sessionId}`
+          );
+          if (sessionData) {
+            const session = safeJsonParse(sessionData);
+            if (
+              session &&
+              session.expiresAt &&
+              !isSessionExpired(session.expiresAt)
+            ) {
+              state.formData = session.formData;
+              state.currentStep = session.currentStep;
+              console.log("Session restored successfully");
+            } else {
+              console.log("Clearing expired/invalid session");
+              safeSessionStorage.removeItem(
+                `checkout-session-${state.sessionId}`
+              );
+              state.sessionId = null;
+              state.formData = null;
+              state.currentStep = 1;
+            }
+          } else {
+            console.log("Session data not found, resetting state");
+            state.sessionId = null;
+            state.formData = null;
+            state.currentStep = 1;
+          }
+        } catch (error) {
+          console.error("Error rehydrating session:", error);
+          state.sessionId = null;
+          state.formData = null;
+          state.currentStep = 1;
+        }
+      },
+      version: 1,
+    }
+  )
 );
 
 // Selectors for performance
@@ -230,3 +511,48 @@ export const useCheckoutError = () =>
   useSimpleCheckoutStore((state) => state.error);
 export const useBookingConfirmation = () =>
   useSimpleCheckoutStore((state) => state.bookingConfirmation);
+export const useSessionId = () =>
+  useSimpleCheckoutStore((state) => state.sessionId);
+export const useIsSessionExpired = () =>
+  useSimpleCheckoutStore((state) => state.isSessionExpired());
+
+// Session management hooks
+export const useCheckoutSession = () => {
+  const store = useSimpleCheckoutStore();
+
+  return {
+    sessionId: store.sessionId,
+    initializeSession: store.initializeSession,
+    clearSession: store.clearSession,
+    isSessionExpired: store.isSessionExpired,
+    cleanupOrphanedSessions: store.cleanupOrphanedSessions,
+    reset: store.reset,
+    resetAfterBooking: store.resetAfterBooking,
+
+    ensureValidSession: () => {
+      if (!store.sessionId || store.isSessionExpired()) {
+        store.initializeSession();
+      }
+    },
+
+    // Clean up sessions when component unmounts or user navigates away
+    cleanup: () => {
+      store.cleanupOrphanedSessions();
+    },
+
+    // ADDED: Complete reset for new bookings with cross-store cleanup
+    resetForNewBooking: () => {
+      // 1. Reset checkout store
+      store.resetAfterBooking();
+
+      // 2. Clear URL parameters to prevent CheckoutAdapter from trying to read old data
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.search = ""; // Clear all search params
+        window.history.replaceState({}, "", url.pathname);
+      }
+
+      console.log("Complete reset for new booking completed");
+    },
+  };
+};

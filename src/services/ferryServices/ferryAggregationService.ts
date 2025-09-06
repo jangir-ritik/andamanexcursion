@@ -18,7 +18,6 @@ export class FerryAggregationService {
     params: FerrySearchParams
   ): Promise<OperatorResult> {
     try {
-      // Check if credentials are available
       if (!process.env.SEALINK_USERNAME || !process.env.SEALINK_TOKEN) {
         return {
           operator: "sealink",
@@ -26,37 +25,47 @@ export class FerryAggregationService {
         };
       }
 
-      const results = await SealinkService.searchTrips(params);
+      // ✅ Add individual timeout wrapper
+      const searchPromise = SealinkService.searchTrips(params);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Sealink search timeout after 12 seconds")),
+          12000
+        )
+      );
+
+      const results = await Promise.race([searchPromise, timeoutPromise]);
       return { operator: "sealink", results };
     } catch (error) {
       console.error("Error searching Sealink:", error);
 
-      // Handle specific error types
+      // ✅ IMPROVED: Better error categorization
+      let errorMessage = "Unknown error";
+
       if (error instanceof Error) {
-        if (error.message.includes("JSON")) {
-          return {
-            operator: "sealink",
-            error:
-              "Sealink API returned invalid response (possibly down or maintenance)",
-          };
-        }
         if (error.message.includes("timeout")) {
-          return {
-            operator: "sealink",
-            error: "Sealink API timeout - service may be slow",
-          };
-        }
-        if (error.message.includes("401") || error.message.includes("403")) {
-          return {
-            operator: "sealink",
-            error: "Sealink authentication failed - check credentials",
-          };
+          errorMessage = "Service timeout - please try again";
+        } else if (error.message.includes("JSON")) {
+          errorMessage = "Service temporarily unavailable";
+        } else if (
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
+          errorMessage = "Authentication error";
+        } else if (
+          error.message.includes("500") ||
+          error.message.includes("502") ||
+          error.message.includes("503")
+        ) {
+          errorMessage = "Service temporarily down";
+        } else {
+          errorMessage = error.message;
         }
       }
 
       return {
         operator: "sealink",
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: errorMessage,
       };
     }
   }
@@ -65,7 +74,6 @@ export class FerryAggregationService {
     params: FerrySearchParams
   ): Promise<OperatorResult> {
     try {
-      // Check if credentials are available
       if (!process.env.MAKRUZZ_USERNAME || !process.env.MAKRUZZ_PASSWORD) {
         return {
           operator: "makruzz",
@@ -73,37 +81,46 @@ export class FerryAggregationService {
         };
       }
 
-      const results = await MakruzzService.searchTrips(params);
+      // ✅ Add individual timeout wrapper
+      const searchPromise = MakruzzService.searchTrips(params);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Makruzz search timeout after 12 seconds")),
+          12000
+        )
+      );
+
+      const results = await Promise.race([searchPromise, timeoutPromise]);
       return { operator: "makruzz", results };
     } catch (error) {
       console.error("Error searching Makruzz:", error);
 
-      // Handle specific error types
+      let errorMessage = "Unknown error";
+
       if (error instanceof Error) {
-        if (error.message.includes("JSON")) {
-          return {
-            operator: "makruzz",
-            error:
-              "Makruzz API returned invalid response (possibly down or maintenance)",
-          };
-        }
         if (error.message.includes("timeout")) {
-          return {
-            operator: "makruzz",
-            error: "Makruzz API timeout - service may be slow",
-          };
-        }
-        if (error.message.includes("401") || error.message.includes("403")) {
-          return {
-            operator: "makruzz",
-            error: "Makruzz authentication failed - check credentials",
-          };
+          errorMessage = "Service timeout - please try again";
+        } else if (error.message.includes("JSON")) {
+          errorMessage = "Service temporarily unavailable";
+        } else if (
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
+          errorMessage = "Authentication error";
+        } else if (
+          error.message.includes("500") ||
+          error.message.includes("502") ||
+          error.message.includes("503")
+        ) {
+          errorMessage = "Service temporarily down";
+        } else {
+          errorMessage = error.message;
         }
       }
 
       return {
         operator: "makruzz",
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: errorMessage,
       };
     }
   }
@@ -112,7 +129,6 @@ export class FerryAggregationService {
     params: FerrySearchParams
   ): Promise<OperatorResult> {
     try {
-      // Check if credentials are available
       if (
         !process.env.GREEN_OCEAN_PUBLIC_KEY ||
         !process.env.GREEN_OCEAN_PRIVATE_KEY
@@ -123,13 +139,51 @@ export class FerryAggregationService {
         };
       }
 
-      const results = await GreenOceanService.searchTrips(params);
+      // ✅ Add individual timeout wrapper with shorter timeout for Green Ocean
+      // (since it's been problematic)
+      const searchPromise = GreenOceanService.searchTrips(params);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () =>
+            reject(new Error("Green Ocean search timeout after 10 seconds")),
+          10000
+        )
+      );
+
+      const results = await Promise.race([searchPromise, timeoutPromise]);
       return { operator: "greenocean", results };
     } catch (error) {
       console.error("Error searching Green Ocean:", error);
+
+      let errorMessage = "Unknown error";
+
+      if (error instanceof Error) {
+        if (
+          error.message.includes("timeout") ||
+          error.message.includes("522")
+        ) {
+          errorMessage = "Service currently down - we're working to restore it";
+        } else if (error.message.includes("JSON")) {
+          errorMessage = "Service temporarily unavailable";
+        } else if (
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
+          errorMessage = "Authentication error";
+        } else if (
+          error.message.includes("500") ||
+          error.message.includes("502") ||
+          error.message.includes("503")
+        ) {
+          errorMessage = "Service temporarily down";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       return {
         operator: "greenocean",
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: errorMessage,
       };
     }
   }
@@ -146,61 +200,47 @@ export class FerryAggregationService {
       `   Passengers: ${params.adults} adults, ${params.children} children, ${params.infants} infants`
     );
 
-    // Execute all searches in parallel with timeout
+    // ✅ FIXED: Use Promise.allSettled instead of Promise.all + Promise.race
+    // This ensures that even if one operator fails, others can still succeed
     const searchPromises = [
       this.searchSealink(params),
       this.searchMakruzz(params),
       this.searchGreenOcean(params),
     ];
 
-    // Add overall timeout to prevent hanging
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Overall search timeout")), 15000)
-    );
+    // Set individual timeouts per operator (no overall timeout)
+    const operatorResults = await Promise.allSettled(searchPromises);
 
-    const [sealinkResult, makruzzResult, greenOceanResult] = await Promise.race(
-      [Promise.all(searchPromises), timeoutPromise]
-    );
-
-    console.log(`📊 Operator Results Summary:`);
-    console.log(
-      `   Sealink: ${
-        sealinkResult.results
-          ? `✅ ${sealinkResult.results.length} results`
-          : `❌ ${sealinkResult.error}`
-      }`
-    );
-    console.log(
-      `   Makruzz: ${
-        makruzzResult.results
-          ? `✅ ${makruzzResult.results.length} results`
-          : `❌ ${makruzzResult.error}`
-      }`
-    );
-    console.log(
-      `   Green Ocean: ${
-        greenOceanResult.results
-          ? `✅ ${greenOceanResult.results.length} results`
-          : `❌ ${greenOceanResult.error}`
-      }`
-    );
-
+    // Process settled results
     const results: UnifiedFerryResult[] = [];
     const errors: { operator: string; error: string }[] = [];
 
-    // Process results
-    [sealinkResult, makruzzResult, greenOceanResult].forEach(
-      (operatorResult) => {
+    operatorResults.forEach((result, index) => {
+      const operatorNames = ["sealink", "makruzz", "greenocean"][index];
+
+      if (result.status === "fulfilled") {
+        const operatorResult = result.value;
         if (operatorResult.results) {
           results.push(...operatorResult.results);
+          console.log(
+            `✅ ${operatorResult.operator}: ${operatorResult.results.length} results`
+          );
         } else if (operatorResult.error) {
           errors.push({
             operator: operatorResult.operator,
             error: operatorResult.error,
           });
+          console.log(`❌ ${operatorResult.operator}: ${operatorResult.error}`);
         }
+      } else {
+        // Promise was rejected (shouldn't happen with our error handling, but just in case)
+        errors.push({
+          operator: operatorNames,
+          error: `Promise rejected: ${result.reason}`,
+        });
+        console.log(`💥 ${operatorNames}: Promise rejected - ${result.reason}`);
       }
-    );
+    });
 
     // Sort results by departure time
     results.sort((a, b) =>
@@ -211,13 +251,15 @@ export class FerryAggregationService {
     console.log(
       `🎯 Final Results: ${results.length} ferries found, ${errors.length} operator errors (${searchTime}ms)`
     );
+
     if (errors.length > 0) {
-      console.log(`❌ Operator Errors:`);
+      console.log(`⚠️  Operator Errors (non-fatal):`);
       errors.forEach((error) => {
         console.log(`   ${error.operator}: ${error.error}`);
       });
     }
 
+    // ✅ CRITICAL: Always return results, even if some operators failed
     return {
       results,
       errors,
