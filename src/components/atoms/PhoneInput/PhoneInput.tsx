@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Controller, FieldValues } from "react-hook-form";
 import * as Label from "@radix-ui/react-label";
 import * as Select from "@radix-ui/react-select";
@@ -21,14 +21,16 @@ const COUNTRY_CODES = [
   { code: "+39", country: "Italy", flag: "🇮🇹" },
 ] as const;
 
-// Add error message prop to the interface
-interface PhoneInputPropsWithError<T extends FieldValues = FieldValues>
+// ✅ ENHANCED: Add callback props for country code changes
+interface EnhancedPhoneInputProps<T extends FieldValues = FieldValues>
   extends PhoneInputProps<T> {
   errorMessage?: string;
+  onCountryChange?: (countryCode: string, countryName: string) => void;
+  defaultCountryCode?: string;
 }
 
 export const PhoneInput = <T extends FieldValues = FieldValues>(
-  props: PhoneInputPropsWithError<T>
+  props: EnhancedPhoneInputProps<T>
 ) => {
   const {
     name,
@@ -40,8 +42,36 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
     className = "",
     hasError = false,
     errorMessage,
+    onCountryChange, // ✅ NEW: Callback for country changes
+    defaultCountryCode = "+91", // ✅ NEW: Default country code
   } = props;
-  const [selectedCountryCode, setSelectedCountryCode] = useState("+91");
+
+  const [selectedCountryCode, setSelectedCountryCode] =
+    useState(defaultCountryCode);
+
+  // ✅ NEW: Notify parent when country code changes
+  const handleCountryChange = (newCountryCode: string) => {
+    setSelectedCountryCode(newCountryCode);
+
+    // Find the country name for the selected code
+    const selectedCountry = COUNTRY_CODES.find(
+      (c) => c.code === newCountryCode
+    );
+
+    if (onCountryChange && selectedCountry) {
+      onCountryChange(newCountryCode, selectedCountry.country);
+    }
+  };
+
+  // ✅ NEW: Notify parent on initial mount
+  useEffect(() => {
+    const selectedCountry = COUNTRY_CODES.find(
+      (c) => c.code === selectedCountryCode
+    );
+    if (onCountryChange && selectedCountry) {
+      onCountryChange(selectedCountryCode, selectedCountry.country);
+    }
+  }, []);
 
   return (
     <Controller
@@ -73,7 +103,7 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
             <div className={styles.inputContainer}>
               <Select.Root
                 value={selectedCountryCode}
-                onValueChange={setSelectedCountryCode}
+                onValueChange={handleCountryChange} // ✅ UPDATED: Use new handler
                 disabled={disabled}
               >
                 <Select.Trigger className={styles.countryCodeTrigger}>

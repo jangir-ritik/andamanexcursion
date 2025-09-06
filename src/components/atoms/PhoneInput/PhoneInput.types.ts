@@ -9,4 +9,9 @@ export interface PhoneInputProps<T extends FieldValues = FieldValues> {
   disabled?: boolean;
   className?: string;
   hasError?: boolean;
+  errorMessage?: string;
+
+  // NEW: Enhanced props for country code handling
+  onCountryChange?: (countryCode: string, countryName: string) => void;
+  defaultCountryCode?: string;
 }

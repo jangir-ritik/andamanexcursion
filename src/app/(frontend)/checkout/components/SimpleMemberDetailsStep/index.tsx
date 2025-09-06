@@ -45,6 +45,8 @@ const memberSchema = z.object({
     .max(12, "Passport number must not exceed 12 characters")
     .transform((val) => val.toUpperCase()),
   whatsappNumber: z.string().optional(),
+  phoneCountryCode: z.string().optional(), // NEW: Store country code (+91, +1, etc.)
+  phoneCountry: z.string().optional(), // NEW: Store country name (India, USA, etc.)
   email: z.string().email("Please enter a valid email").optional(),
   selectedBookings: z
     .array(z.number())
@@ -82,6 +84,8 @@ export const SimpleMemberDetailsStep: React.FC<
           nationality: member.nationality || "Indian",
           passportNumber: member.passportNumber || "",
           whatsappNumber: member.whatsappNumber || "",
+          phoneCountryCode: member.phoneCountryCode || "+91", // NEW
+          phoneCountry: member.phoneCountry || "India", // NEW
           email: member.email || "",
           selectedBookings: member.selectedBookings || [0],
         })),
@@ -99,8 +103,10 @@ export const SimpleMemberDetailsStep: React.FC<
         nationality: "Indian",
         passportNumber: "",
         whatsappNumber: i === 0 ? "" : undefined,
+        phoneCountryCode: i === 0 ? "+91" : undefined, // NEW
+        phoneCountry: i === 0 ? "India" : undefined, // NEW
         email: i === 0 ? "" : undefined,
-        selectedBookings: [0], // Assign to first booking by default
+        selectedBookings: [0],
       })
     );
 
@@ -141,6 +147,8 @@ export const SimpleMemberDetailsStep: React.FC<
           nationality: member.nationality,
           passportNumber: member.passportNumber,
           whatsappNumber: member.whatsappNumber,
+          phoneCountryCode: member.phoneCountryCode, // NEW
+          phoneCountry: member.phoneCountry, // NEW
           email: member.email,
           isPrimary: index === 0,
           selectedBookings: member.selectedBookings,
@@ -150,6 +158,16 @@ export const SimpleMemberDetailsStep: React.FC<
 
       // Update store
       updateFormData(checkoutFormData);
+      console.log("Enhanced checkout form data with country codes:", {
+        members: checkoutFormData.members.map((m) => ({
+          name: m.fullName,
+          phone: m.whatsappNumber,
+          phoneCountryCode: m.phoneCountryCode,
+          phoneCountry: m.phoneCountry,
+          nationality: m.nationality,
+        })),
+        termsAccepted: checkoutFormData.termsAccepted,
+      });
 
       // Proceed to next step
       nextStep();
@@ -168,6 +186,8 @@ export const SimpleMemberDetailsStep: React.FC<
       gender: "Male",
       nationality: "Indian",
       passportNumber: "",
+      phoneCountryCode: "+91", // NEW: Default country code
+      phoneCountry: "India", // NEW: Default country name
       selectedBookings: [0],
     });
   };
@@ -316,6 +336,27 @@ export const SimpleMemberDetailsStep: React.FC<
                         label="WhatsApp Number *"
                         placeholder="Enter WhatsApp number"
                         hasError={!!memberErrors?.whatsappNumber}
+                        defaultCountryCode={
+                          watchedMembers[index]?.phoneCountryCode || "+91"
+                        }
+                        onCountryChange={(countryCode, countryName) => {
+                          // Update the form values when country changes
+                          form.setValue(
+                            `members.${index}.phoneCountryCode`,
+                            countryCode
+                          );
+                          form.setValue(
+                            `members.${index}.phoneCountry`,
+                            countryName
+                          );
+                          console.log(
+                            `Country changed for passenger ${index + 1}:`,
+                            {
+                              code: countryCode,
+                              name: countryName,
+                            }
+                          );
+                        }}
                       />
 
                       <Input

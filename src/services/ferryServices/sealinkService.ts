@@ -634,11 +634,160 @@ export class SealinkService {
     classId: string,
     travelDate: string
   ): Promise<SeatLayout> {
-    const cachedTripData = this.tripDataCache.get(ferryId);
+    console.log(
+      `🪑 SealinkService: Getting seat layout for ferry ${ferryId}, class ${classId}`
+    );
+
+    // ✅ FIX: Extract original trip ID if it has "sealink-" prefix
+    const originalTripId = ferryId.startsWith("sealink-")
+      ? ferryId.replace("sealink-", "")
+      : ferryId;
+
+    console.log(
+      `🔍 SealinkService: Looking for trip data with ID: ${originalTripId}`
+    );
+    console.log(
+      `📦 SealinkService: Available cached trip IDs:`,
+      Array.from(this.tripDataCache.keys())
+    );
+
+    let cachedTripData = this.tripDataCache.get(originalTripId);
+
     if (cachedTripData) {
+      console.log(
+        `✅ SealinkService: Found cached trip data for ${originalTripId}`
+      );
       return this.extractSeatLayoutFromTripData(cachedTripData, classId);
     }
-    throw new Error(`Trip data not found for ${ferryId}`);
+
+    // ✅ ENHANCEMENT: If not in cache, try to re-fetch trip data using stored search params
+    console.log(
+      `⚠️ SealinkService: Trip data not found in cache for ${originalTripId}`
+    );
+    
+    // Try to reconstruct search parameters from the ferry ID and travel date
+    const searchResult = await this.refetchTripDataForSeatLayout(originalTripId, travelDate);
+    
+    if (searchResult) {
+      console.log(`✅ SealinkService: Successfully re-fetched trip data for ${originalTripId}`);
+      return this.extractSeatLayoutFromTripData(searchResult, classId);
+    }
+
+    throw new Error(
+      `Trip data not found for ferry ID: ${ferryId} (original: ${originalTripId}). ` +
+        `Unable to re-fetch trip data. This may happen if the trip is no longer available ` +
+        `or if the search parameters cannot be reconstructed.`
+    );
+  }
+
+  /**
+   * ✅ NEW: Re-fetch trip data when cache is empty for seat layout requests
+   * This method attempts to reconstruct search parameters and fetch fresh trip data
+   */
+  private static async refetchTripDataForSeatLayout(
+    tripId: string,
+    travelDate: string
+  ): Promise<SealinkTripData | null> {
+    try {
+      console.log(`🔄 SealinkService: Attempting to re-fetch trip data for ${tripId} on ${travelDate}`);
+      
+      const { username, token } = this.validateCredentials();
+      
+      // Format date for Sealink API
+      const formattedDate = this.formatDateForSealink(travelDate);
+      
+      // Since we don't have the original search params, we'll try common routes
+      // This is a fallback approach - ideally we'd store search params with the ferry ID
+      const commonRoutes = [
+        { from: "Port Blair", to: "Swaraj Dweep" },
+        { from: "Port Blair", to: "Shaheed Dweep" },
+        { from: "Swaraj Dweep", to: "Port Blair" },
+        { from: "Shaheed Dweep", to: "Port Blair" },
+        { from: "Swaraj Dweep", to: "Shaheed Dweep" },
+        { from: "Shaheed Dweep", to: "Swaraj Dweep" },
+      ];
+
+      console.log(`🎯 SealinkService: Searching for trip ${tripId} across ${commonRoutes.length} possible routes on ${formattedDate}`);
+
+      // Try each route to find the trip
+      for (const route of commonRoutes) {
+        try {
+          console.log(`🔍 SealinkService: Trying route ${route.from} → ${route.to}`);
+          
+          const apiCall = async (): Promise<SealinkApiResponse> => {
+            const response = await FerryApiService.fetchWithTimeout(
+              `${this.BASE_URL}getTripData`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "User-Agent": "AndamanExcursion/1.0",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({
+                  date: formattedDate,
+                  from: route.from,
+                  to: route.to,
+                  userName: username,
+                  token: token,
+                }),
+              },
+              12000 // Increased timeout for refetch operations
+            );
+
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+          };
+
+          const result = await FerryApiService.callWithRetry(
+            apiCall,
+            "Sealink-Refetch",
+            false
+          );
+
+          if (result.err) {
+            console.log(`⚠️ SealinkService: API error for route ${route.from} → ${route.to}: ${result.err}`);
+            continue; // Try next route
+          }
+
+          if (result.data && Array.isArray(result.data)) {
+            console.log(`📊 SealinkService: Found ${result.data.length} trips for route ${route.from} → ${route.to}`);
+            console.log(`🔍 SealinkService: Available trip IDs:`, result.data.map(t => t.id));
+            
+            // Look for our specific trip ID in the results
+            const targetTrip = result.data.find((trip) => trip.id === tripId);
+            
+            if (targetTrip) {
+              console.log(`✅ SealinkService: Found trip ${tripId} in route ${route.from} → ${route.to}`);
+              
+              // Cache all trips from this search
+              result.data.forEach((trip) => {
+                this.tripDataCache.set(trip.id, trip);
+                console.log(`💾 SealinkService: Cached trip ${trip.id}`);
+              });
+              
+              return targetTrip;
+            } else {
+              console.log(`❌ SealinkService: Trip ${tripId} not found in this route's results`);
+            }
+          } else {
+            console.log(`📭 SealinkService: No trip data returned for route ${route.from} → ${route.to}`);
+          }
+        } catch (error) {
+          console.log(`⚠️ SealinkService: Error searching route ${route.from} → ${route.to}:`, error);
+          continue; // Try next route
+        }
+      }
+
+      console.log(`❌ SealinkService: Trip ${tripId} not found in any common routes`);
+      return null;
+    } catch (error) {
+      console.error(`❌ SealinkService: Error re-fetching trip data:`, error);
+      return null;
+    }
   }
 
   private static extractSeatLayoutFromTripData(

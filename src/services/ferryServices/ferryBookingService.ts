@@ -26,6 +26,8 @@ export interface FerryBookingRequest {
     nationality: string;
     passportNumber: string;
     whatsappNumber: string;
+    phoneCountryCode?: string; // "+91"
+    phoneCountry?: string; // "India"
     email: string;
   }>;
   paymentReference: string;

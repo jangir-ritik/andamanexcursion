@@ -79,6 +79,8 @@ export interface PaymentData {
     primaryName: string;
     email: string;
     whatsapp: string;
+    phoneCountryCode: string;
+    phoneCountry: string;
   };
 }
 
@@ -162,6 +164,8 @@ export class CheckoutAdapter {
         primaryName: formData.members?.[0]?.fullName || "",
         email: formData.members?.[0]?.email || "",
         whatsapp: formData.members?.[0]?.whatsappNumber || "",
+        phoneCountryCode: formData.members?.[0]?.phoneCountryCode || "",
+        phoneCountry: formData.members?.[0]?.phoneCountry || "",
       },
     };
   }

@@ -13,6 +13,8 @@ export interface MemberDetails {
   nationality: string;
   passportNumber: string;
   whatsappNumber?: string;
+  phoneCountryCode?: string; // NEW
+  phoneCountry?: string; // NEW
   email?: string;
   isPrimary: boolean;
   selectedBookings: number[];
@@ -140,6 +142,8 @@ export const createDefaultFormData = (
       nationality: "Indian",
       passportNumber: "",
       whatsappNumber: i === 0 ? "" : undefined, // Only primary gets contact fields
+      phoneCountryCode: i === 0 ? "+91" : undefined, // NEW
+      phoneCountry: i === 0 ? "India" : undefined, // NEW
       email: i === 0 ? "" : undefined,
       isPrimary: i === 0,
       selectedBookings: [0], // Assign to first booking by default
