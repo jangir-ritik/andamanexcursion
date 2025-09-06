@@ -52,6 +52,7 @@ export interface UnifiedBookingItem {
 
   // Ferry-specific
   ferry?: UnifiedFerryResult;
+  ferryId?: string; // CRITICAL: Add ferryId for payment verification
   selectedClass?: FerryClass;
   selectedSeats?: string[];
 
@@ -277,6 +278,8 @@ export class CheckoutAdapter {
       },
       price: bookingSession.totalAmount,
       date: bookingSession.searchParams.date,
+      // CRITICAL: Add ferryId at item level for payment verification
+      ferryId: selectedFerry?.id, // This will be "sealink-68afe5056bbf62f3db17a8c8"
       ferry: selectedFerry
         ? {
             // Core UnifiedFerryResult properties

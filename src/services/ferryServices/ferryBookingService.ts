@@ -96,74 +96,100 @@ export class FerryBookingService {
     request: FerryBookingRequest
   ): Promise<FerryBookingResponse> {
     try {
-      console.log("📋 Sealink: Creating real booking via API...");
+      console.log("Sealink: Creating real booking via API...");
 
-      // ✅ FIXED: Better trip ID extraction
-      let tripId: number;
-      let vesselID: number = 1; // Default to Sealink
+      // Extract original trip ID correctly
+      const originalTripId = request.ferryId.startsWith("sealink-")
+        ? request.ferryId.replace("sealink-", "")
+        : request.ferryId;
 
-      if (request.ferryId.includes("-")) {
-        // Extract from unified ferry ID (format: sealink-{originalId})
-        const ferryIdPart = request.ferryId.replace("sealink-", "");
+      console.log(`Looking for cached trip data with ID: ${originalTripId}`);
 
-        // Handle different ID formats
-        if (ferryIdPart.includes("dea")) {
-          // Complex ID like "687dea940155512815c28295"
-          // Extract the leading numbers as trip ID
-          const tripMatch = ferryIdPart.match(/^(\d+)/);
-          tripId = tripMatch ? parseInt(tripMatch[1]) : 687;
-        } else {
-          tripId = parseInt(ferryIdPart) || 687;
+      // Get trip data from SealinkService cache
+      let cachedTripData = SealinkService.getCachedTripData(originalTripId);
+
+      if (!cachedTripData) {
+        console.warn(
+          `Trip data not found in cache for ${originalTripId}. Available cached IDs:`,
+          SealinkService.getCachedTripIds()
+        );
+        
+        // Try to refetch trip data using the travel date from booking request
+        console.log(`Attempting to refetch trip data for ${originalTripId}...`);
+        
+        try {
+          // Use getSeatLayout which has the refetch logic built-in
+          // This will populate the cache if the trip is found
+          await SealinkService.getSeatLayout(
+            request.ferryId, // Use full ferry ID with prefix
+            request.classId || "premium", // Use provided class or default
+            request.date // Travel date
+          );
+          
+          // Try to get cached data again after refetch
+          cachedTripData = SealinkService.getCachedTripData(originalTripId);
+          
+          if (cachedTripData) {
+            console.log(`✅ Successfully refetched trip data for ${originalTripId}`);
+          }
+        } catch (refetchError) {
+          console.warn(`Failed to refetch trip data:`, refetchError);
         }
-      } else {
-        tripId = parseInt(request.ferryId) || 687;
+        
+        // If still no cached data after refetch attempt
+        if (!cachedTripData) {
+          throw new Error(
+            `Trip data not found for ferry ID: ${originalTripId}. ` +
+            `Refetch attempt failed. Available cached IDs: ${SealinkService.getCachedTripIds().join(", ")}. ` +
+            `This may happen if the trip is no longer available or the search parameters cannot be reconstructed.`
+          );
+        }
       }
 
-      console.log(`🔍 Extracted trip details:`, {
+      // Use the correct values from cached trip data
+      const tripId = cachedTripData.tripId;
+      const vesselID = cachedTripData.vesselID;
+      const bookingId = cachedTripData.id;
+
+      console.log(`Using trip data from cache:`, {
         originalFerryId: request.ferryId,
-        extractedTripId: tripId,
+        bookingId: bookingId,
+        tripId: tripId,
         vesselID: vesselID,
       });
 
-      // ✅ FIXED: Better location mapping
+      // Better location mapping
       const fromLocation = this.getSealinkLocationName(request.fromLocation);
       const toLocation = this.getSealinkLocationName(request.toLocation);
 
-      // ✅ FIXED: Improved passenger mapping with correct format for new Sealink API
+      // Improved passenger mapping
       const passengerDetails = request.passengerDetails.map(
         (passenger, index) => ({
           name: passenger.fullName,
-          age: passenger.age.toString(), // ✅ FIXED: Age as string as required by Sealink
+          age: passenger.age.toString(),
           gender: passenger.gender === "Male" ? "M" : "F",
           nationality: passenger.nationality,
-          photoId: passenger.passportNumber || "A1234567", // ✅ FIXED: Use default if missing
-          expiry: "", // Not required for Indians
-          seat: request.selectedSeats?.[index] || "", // Empty string for auto-assignment
+          photoId: passenger.passportNumber || "A1234567",
+          expiry: "",
+          seat: request.selectedSeats?.[index] || "",
           tier: this.getSealinkTier(request.classId),
         })
       );
 
-      console.log("👥 Passenger details prepared:", {
-        count: passengerDetails.length,
-        tiers: passengerDetails.map((p) => p.tier),
-        seats: passengerDetails.map((p) => p.seat),
-        nationalities: passengerDetails.map((p) => p.nationality),
-      });
-
-      // ✅ FIXED: Create booking data matching new SealinkService format
+      // Create booking data with correct IDs
       const bookingData = {
-        id: request.ferryId,
-        tripId: tripId,
-        vesselID: vesselID,
+        id: bookingId, // Use the original booking ID from getTripData
+        tripId: tripId, // Use the actual trip ID from getTripData
+        vesselID: vesselID, // Use the actual vessel ID from getTripData
         from: fromLocation,
         to: toLocation,
         bookingTS: Math.floor(Date.now() / 1000),
         paxDetail: {
           email: request.passengerDetails[0]?.email || "",
           phone: request.passengerDetails[0]?.whatsappNumber || "",
-          gstin: "", // Optional for individual bookings
+          gstin: "",
           pax: passengerDetails,
-          infantPax: [], // Handle infants if needed
+          infantPax: [],
         },
         userData: {
           apiUser: {
@@ -172,50 +198,30 @@ export class FerryBookingService {
             token:
               process.env.SEALINK_TOKEN ||
               "U2FsdGVkX18+ji7DedFzFnkTxo/aFlcWsvmp03XU5bgJ5XE9r1/DCIKHCabpP24hxlAB0F2kFnOYvu9FZaJiNA==",
-            walletBalance: 10000, // Should be fetched from profile
+            walletBalance: 10000,
           },
         },
         paymentData: {
-          gstin: "", // Optional GSTIN for invoicing
+          gstin: "",
         },
       };
 
-      console.log("📋 Final booking data prepared:", {
+      console.log("Final booking data prepared:", {
         id: bookingData.id,
         tripId: bookingData.tripId,
         vesselID: bookingData.vesselID,
         from: bookingData.from,
         to: bookingData.to,
         passengersCount: bookingData.paxDetail.pax.length,
-        email: bookingData.paxDetail.email,
-        phone: bookingData.paxDetail.phone,
       });
 
-      // ✅ FIXED: Call booking API with better error handling
-      let bookingResult;
-      try {
-        bookingResult = await SealinkService.bookSeats(bookingData);
-      } catch (sealinkError) {
-        console.error("🚨 Sealink booking API error:", sealinkError);
+      // Call booking API
+      const bookingResult = await SealinkService.bookSeats(bookingData);
 
-        // Return more specific error information
-        const errorMessage =
-          sealinkError instanceof Error
-            ? sealinkError.message
-            : "Sealink booking failed";
-
-        return {
-          success: false,
-          error: errorMessage,
-        };
-      }
-
-      // ✅ FIXED: Better success validation
       if (bookingResult && bookingResult.seatStatus && bookingResult.pnr) {
-        console.log("✅ Sealink booking confirmed:", {
+        console.log("Sealink booking confirmed:", {
           pnr: bookingResult.pnr,
           seatStatus: bookingResult.seatStatus,
-          index: bookingResult.index,
         });
 
         return {
@@ -242,10 +248,9 @@ export class FerryBookingService {
         };
       } else {
         console.error(
-          "❌ Sealink booking failed - invalid response:",
+          "Sealink booking failed - invalid response:",
           bookingResult
         );
-
         return {
           success: false,
           error: `Sealink booking failed: ${
@@ -254,7 +259,7 @@ export class FerryBookingService {
         };
       }
     } catch (error) {
-      console.error("🚨 Sealink booking error:", error);
+      console.error("Sealink booking error:", error);
       return {
         success: false,
         error:

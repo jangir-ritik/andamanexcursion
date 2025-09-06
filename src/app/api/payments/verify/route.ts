@@ -430,9 +430,20 @@ export async function POST(request: NextRequest) {
       if (bookingData.bookingType === "ferry" && bookingData.items?.[0]) {
         try {
           const ferryItem = bookingData.items[0];
+          
+          // CRITICAL FIX: Use the correct ferry ID, not the session ID
+          const actualFerryId = ferryItem.ferryId || ferryItem.ferry?.ferryId;
+          if (!actualFerryId) {
+            throw new Error(
+              `Ferry ID not found in booking data. Session ID: ${ferryItem.id}. ` +
+              `Expected ferryItem.ferryId or ferryItem.ferry.ferryId to contain the actual ferry ID (e.g., sealink-68afe5056bbf62f3db17a8c8). ` +
+              `Available properties: ${Object.keys(ferryItem).join(', ')}`
+            );
+          }
+          
           const bookingRequest = {
             operator: ferryItem.ferry?.operator || "unknown",
-            ferryId: ferryItem.ferry?.ferryId || ferryItem.id,
+            ferryId: actualFerryId, // Use actual ferry ID, never fall back to session ID
             fromLocation: ferryItem.ferry?.fromLocation || "",
             toLocation: ferryItem.ferry?.toLocation || "",
             date: ferryItem.date,
@@ -462,7 +473,7 @@ export async function POST(request: NextRequest) {
           });
 
           // Set a timeout for the entire ferry booking process
-          const FERRY_BOOKING_TIMEOUT = 45000; // 45 seconds total timeout
+          const FERRY_BOOKING_TIMEOUT = 75000; // 75 seconds total timeout
 
           const ferryBookingPromise = FerryBookingService.bookFerry(
             bookingRequest as any
@@ -482,7 +493,9 @@ export async function POST(request: NextRequest) {
           } catch (timeoutError: any) {
             if (timeoutError.message.includes("timeout")) {
               console.warn(
-                "⏱️ Ferry booking process timed out after 45 seconds"
+                `⏱️ Ferry booking process timed out after ${
+                  FERRY_BOOKING_TIMEOUT / 1000
+                } seconds`
               );
               providerBookingResult = {
                 success: false,
