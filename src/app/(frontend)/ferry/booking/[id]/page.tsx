@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { Section, Column } from "@/components/layout";
-import { SectionTitle, Button } from "@/components/atoms";
+import { Button } from "@/components/atoms";
 import { useFerryStore } from "@/store/FerryStore";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 import { SeatLayoutComponent } from "@/components/molecules/SeatLayout/SeatLayout";
@@ -40,10 +39,7 @@ export default function FerryBookingDetailPage() {
   } = useFerryStore();
 
   // Server state from React Query
-  const {
-    ferries: searchResults,
-    isSearching: isLoading,
-  } = useFerryFlow();
+  const { ferries: searchResults, isSearching: isLoading } = useFerryFlow();
 
   const [ferry, setFerry] = useState<UnifiedFerryResult | null>(null);
   const [currentClassId, setCurrentClassId] = useState<string | null>(null);
@@ -51,20 +47,21 @@ export default function FerryBookingDetailPage() {
   const [loadingSeatLayout, setLoadingSeatLayout] = useState(false);
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
   const [seatPreference, setSeatPreference] = useState<"manual" | "auto">(
-    "auto"
-  ); // For operators supporting both
+    "manual" // Default to manual for all ferries now
+  );
 
   // Set correct seat preference based on ferry capabilities
   useEffect(() => {
     if (ferry) {
-      // Green Ocean only supports manual selection
+      // Green Ocean and Sealink only support manual selection
       if (
         ferry.operator === "greenocean" ||
+        ferry.operator === "sealink" ||
         !ferry.features.supportsAutoAssignment
       ) {
         setSeatPreference("manual");
       }
-      // Sealink and others default to auto
+      // Only other operators (like Makruzz) can default to auto
       else if (ferry.features.supportsAutoAssignment) {
         setSeatPreference("auto");
       }
@@ -78,7 +75,8 @@ export default function FerryBookingDetailPage() {
     // Find ferry from search results or selected ferry
     let currentFerry = selectedFerry;
     if (!currentFerry && searchResults && searchResults.length > 0) {
-      currentFerry = searchResults.find((f: UnifiedFerryResult) => f.id === ferryId) || null;
+      currentFerry =
+        searchResults.find((f: UnifiedFerryResult) => f.id === ferryId) || null;
     }
 
     if (currentFerry) {
@@ -91,10 +89,10 @@ export default function FerryBookingDetailPage() {
           selectClass(targetClass);
           setCurrentClassId(classId);
 
-          // Load seat layout only if operator requires manual selection (Green Ocean)
-          // For Sealink, only load when user specifically chooses manual
+          // Load seat layout for Green Ocean and Sealink (both require manual selection)
           if (
-            currentFerry.operator === "greenocean" &&
+            (currentFerry.operator === "greenocean" ||
+              currentFerry.operator === "sealink") &&
             currentFerry.features.supportsSeatSelection
           ) {
             loadSeatLayout(classId);
@@ -119,16 +117,21 @@ export default function FerryBookingDetailPage() {
     }
   }, [selectedSeatIds, selectSeats, seatLayout]);
 
-  const handleClassSelection = async (classData: { id: string; name: string; price: number; availableSeats: number; amenities: string[] }) => {
+  const handleClassSelection = async (classData: {
+    id: string;
+    name: string;
+    price: number;
+    availableSeats: number;
+    amenities: string[];
+  }) => {
     selectClass(classData);
     setCurrentClassId(classData.id);
     // Clear previous seat selection when changing class
     setSelectedSeatIds([]);
 
-    // Load seat layout only for Green Ocean (always required)
-    // For Sealink, only load when manual preference is selected
+    // Load seat layout for Green Ocean and Sealink (both always require manual selection)
     if (
-      ferry?.operator === "greenocean" &&
+      (ferry?.operator === "greenocean" || ferry?.operator === "sealink") &&
       ferry.features.supportsSeatSelection
     ) {
       await loadSeatLayout(classData.id);
@@ -201,9 +204,10 @@ export default function FerryBookingDetailPage() {
     const totalPassengers =
       ferrySearchParams.adults + ferrySearchParams.children;
 
-    // For Green Ocean (manual selection required)
+    // For Green Ocean and Sealink (manual selection required)
     if (
       ferry?.operator === "greenocean" ||
+      ferry?.operator === "sealink" ||
       (ferry?.features.supportsSeatSelection &&
         !ferry?.features.supportsAutoAssignment)
     ) {
@@ -219,10 +223,11 @@ export default function FerryBookingDetailPage() {
       }
     }
 
-    // For Sealink (manual selection chosen)
+    // For other operators with manual selection chosen
     if (
       ferry?.features.supportsSeatSelection &&
       ferry?.features.supportsAutoAssignment &&
+      ferry?.operator !== "sealink" && // Exclude Sealink from this condition
       seatPreference === "manual"
     ) {
       if (selectedSeatIds.length === 0) {
@@ -237,12 +242,12 @@ export default function FerryBookingDetailPage() {
       }
     }
 
-    // For auto-assignment (Makruzz always, Sealink when auto preference)
+    // For auto-assignment (only for non-Sealink operators like Makruzz)
     // No seat validation needed - seats will be auto-assigned
 
     // Update selected seats in store based on preference
     if (
-      seatPreference === "manual" &&
+      (seatPreference === "manual" || ferry?.operator === "sealink") &&
       selectedSeatIds.length > 0 &&
       seatLayout
     ) {
@@ -253,7 +258,7 @@ export default function FerryBookingDetailPage() {
 
       selectSeats(selectedSeatObjects);
     } else {
-      // Clear seats for auto-assignment
+      // Clear seats for auto-assignment (only for non-Sealink operators)
       selectSeats([]);
     }
 
@@ -441,9 +446,10 @@ export default function FerryBookingDetailPage() {
                   Select your <span className={styles.highlight}>seats</span>
                 </h2>
 
-                {/* Seat Preference Options (only for operators supporting both manual AND auto) */}
+                {/* Seat Preference Options (only for operators supporting both manual AND auto, excluding Sealink) */}
                 {ferry.features.supportsAutoAssignment &&
-                  ferry.features.supportsSeatSelection && (
+                  ferry.features.supportsSeatSelection &&
+                  ferry.operator !== "sealink" && (
                     <div className={styles.seatPreferenceContainer}>
                       <h4>Seat Selection Preference</h4>
                       <div className={styles.seatPreferenceOptions}>
@@ -488,7 +494,8 @@ export default function FerryBookingDetailPage() {
 
                   {seatLayout &&
                     !loadingSeatLayout &&
-                    seatPreference === "manual" && (
+                    (seatPreference === "manual" ||
+                      ferry.operator === "sealink") && (
                       <div className={styles.seatLayoutWrapper}>
                         <SeatLayoutComponent
                           seatLayout={seatLayout}
@@ -536,6 +543,7 @@ export default function FerryBookingDetailPage() {
 
                   {seatPreference === "auto" &&
                     ferry.features.supportsAutoAssignment &&
+                    ferry.operator !== "sealink" &&
                     selectedClass && (
                       <div className={styles.autoAssignMessage}>
                         <AlertCircle size={20} />
@@ -552,10 +560,11 @@ export default function FerryBookingDetailPage() {
               </section>
             )}
 
-            {/* Auto-Assignment Only Message - Show for operators that only support auto-assignment */}
+            {/* Auto-Assignment Only Message - Show for operators that only support auto-assignment (excluding Sealink) */}
             {selectedClass &&
               !ferry.features.supportsSeatSelection &&
-              ferry.features.supportsAutoAssignment && (
+              ferry.features.supportsAutoAssignment &&
+              ferry.operator !== "sealink" && (
                 <section className={styles.section}>
                   <h2 className={styles.sectionTitle}>
                     Seat <span className={styles.highlight}>Assignment</span>
@@ -640,6 +649,8 @@ export default function FerryBookingDetailPage() {
                           <span>
                             {selectedSeatIds.length > 0
                               ? `Seat ${selectedSeatIds.join(", ")}`
+                              : ferry.operator === "sealink"
+                              ? "Manual selection required"
                               : "Auto-assigned"}
                           </span>
                         </div>
