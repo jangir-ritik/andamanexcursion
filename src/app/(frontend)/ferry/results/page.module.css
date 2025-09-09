@@ -5,7 +5,6 @@
   min-height: 100vh;
   background-color: var(--color-bg-primary);
   font-family: var(--font-family-primary);
-  padding-top: var(--space-14);
 }
 
 /* Single column container */
@@ -41,13 +40,6 @@
 }
 
 /* Filters section */
-.filtersSection {
-  background: var(--color-white);
-  border-radius: var(--radius-card);
-  border: 1px solid var(--color-border);
-  padding: var(--space-6);
-}
-
 .filterSummary {
   margin-top: var(--space-4);
   font-family: var(--font-family-primary);
@@ -227,38 +219,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-20) var(--space-8);
-  text-align: center;
   gap: var(--space-6);
-  background: var(--color-white);
-  border-radius: var(--radius-card);
-  border: 1px solid var(--color-border-secondary);
-  box-shadow: var(--shadow-card);
+  padding: var(--space-8);
+  min-height: 200px;
+  width: 100%;
+  background-color: var(--color-white);
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 2px dashed var(--color-gray-200);
 }
 
-.noResultsIcon {
-  font-size: 4rem;
-  color: var(--color-text-secondary);
-  opacity: 0.7;
-}
-
-.noResultsContainer h2 {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-  line-height: 1.3;
-}
-
+.loadingContainer p,
 .noResultsContainer p {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
-  font-weight: 400;
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-6);
   color: var(--color-text-secondary);
-  margin: 0;
-  line-height: 1.6;
-  max-width: 600px;
 }
 
 .noResultsActions {
@@ -403,25 +378,13 @@
 
 .ferryResultsPage {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
 }
 
 .pageContainer {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-/* Modify Search Section */
-.modifySearchSection {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  gap: 16px;
 }
 
 .bookingForm {
@@ -429,13 +392,6 @@
 }
 
 /* Search Summary */
-.searchSummaryWrapper {
-  background: white;
-  border-radius: 8px;
-  padding: 16px 20px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
-}
 
 /* Service Status Display */
 .serviceStatusDisplay {
@@ -566,13 +522,6 @@
 }
 
 /* Filters Section */
-.filtersSection {
-  background: white;
-  border-radius: 8px;
-  padding: 16px 20px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
-}
 
 .filterSummary {
   margin-top: 12px;
@@ -686,11 +635,6 @@
   .pageContainer {
     padding: 16px 12px;
     gap: 16px;
-  }
-
-  .modifySearchSection {
-    padding: 16px;
-    border-radius: 8px;
   }
 
   .serviceStatusDisplay {

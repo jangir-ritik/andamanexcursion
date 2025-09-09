@@ -1,3 +1,4 @@
+// Updated FerryCard.types.ts
 export interface FerryCardProps {
   ferryName: string;
   rating: number;
@@ -8,24 +9,29 @@ export interface FerryCardProps {
   price: number;
   totalPrice: number;
   seatsLeft: number;
-  ferryClasses: FerryClassOption[];
-  operator: "sealink" | "makruzz" | "greenocean"; // Add operator prop
-  ferryImages?: string[];
-  onChooseSeats?: (classType: string) => void;
+  operator: string;
+
+  // Updated: Changed from onChooseSeats to onBookNow
+  onBookNow?: () => void;
+
+  // Removed: ferryClasses is no longer needed
+  // ferryClasses: FerryClass[];
+
   className?: string;
-  ferryIndex?: number;
-  detailsUrl?: string;
+  ferryIndex: number;
+  detailsUrl: string;
 }
 
-export interface FerryClassOption {
+// Keep these interfaces if they're still used elsewhere
+export interface FerryClass {
   type: string;
   price: number;
   totalPrice: number;
   seatsLeft: number;
-  amenities: { icon: React.ReactNode; label: string }[];
+  amenities: Amenity[];
 }
 
-export interface FerryAmenity {
-  icon: string;
+export interface Amenity {
+  icon: React.ReactElement;
   label: string;
 }

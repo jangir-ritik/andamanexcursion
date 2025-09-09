@@ -26,6 +26,7 @@ const FilterChip = memo<{
     onClick={onClick}
   >
     <Chip
+      size="small"
       className={styles.timeFilterChip}
       iconComponent={<Clock size={16} />}
       text={text}

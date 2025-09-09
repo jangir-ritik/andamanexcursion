@@ -2,7 +2,7 @@ import React, { memo, useCallback } from "react";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 import styles from "../FerryCard.module.css";
-import type { FerryClassOption } from "../FerryCard.types";
+import type { FerryClass } from "../FerryCard.types";
 import { Button } from "@/components/atoms";
 import { LucideProps } from "lucide-react";
 
@@ -17,7 +17,7 @@ interface AmenityItemProps {
 }
 
 interface FerryClassCardProps {
-  ferryClass: FerryClassOption;
+  ferryClass: FerryClass;
   isActive: boolean;
   onChooseSeats: (classType: string) => void;
   onSelect: () => void;

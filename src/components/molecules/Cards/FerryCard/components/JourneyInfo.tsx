@@ -45,7 +45,12 @@ export const JourneyInfo = memo<JourneyInfoProps>(
             />
           </div>
           <div className={styles.ferryIcon}>
-            <IconContainer src={ferryBoatIcon} alt="" aria-hidden="true" />
+            <IconContainer
+              size={50}
+              src={ferryBoatIcon}
+              alt=""
+              aria-hidden="true"
+            />
           </div>
           <div className={styles.circleEnd}>
             <IconContainer

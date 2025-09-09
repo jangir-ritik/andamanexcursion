@@ -1,17 +1,10 @@
 "use client";
-
-// All images in this component have appropriate alt text in child components
-import React, { useState, memo, useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { cn } from "@/utils/cn";
 import styles from "./FerryCard.module.css";
 import type { FerryCardProps } from "./FerryCard.types";
-import {
-  FerryHeader,
-  SeatsInfo,
-  JourneyInfo,
-  PriceInfo,
-  FerryClassCard,
-} from "./components";
+import { FerryHeader, SeatsInfo, JourneyInfo, PriceInfo } from "./components";
+import { Button } from "@/components/atoms";
 
 export const FerryCard = memo<FerryCardProps>(
   ({
@@ -24,60 +17,23 @@ export const FerryCard = memo<FerryCardProps>(
     price,
     totalPrice,
     seatsLeft,
-    ferryClasses,
-    onChooseSeats,
+    onBookNow, // Changed from onChooseSeats
     className,
     ferryIndex,
     detailsUrl,
-    operator, // Add operator prop
+    operator,
   }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [selectedClassIndex, setSelectedClassIndex] = useState(0);
-
-    // Use useCallback for event handlers to prevent unnecessary re-renders
-    const toggleExpanded = useCallback(() => {
-      setIsExpanded((prev) => !prev);
-    }, []);
-
-    const handleKeyDown = useCallback(
-      (event: React.KeyboardEvent) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          toggleExpanded();
-        }
-      },
-      [toggleExpanded]
-    );
-
-    const handleChooseSeats = useCallback(
-      (classType: string) => {
-        onChooseSeats?.(classType);
-      },
-      [onChooseSeats]
-    );
-
-    const handleClassSelection = useCallback((index: number) => {
-      setSelectedClassIndex(index);
-    }, []);
+    const handleBookNow = useCallback(() => {
+      onBookNow?.();
+    }, [onBookNow]);
 
     return (
       <article
         className={cn(styles.ferryCard, className)}
         role="article"
-        aria-expanded={isExpanded}
         aria-label={`Ferry option ${ferryName}`}
       >
-        {/* Clickable main content area */}
-        <div
-          className={styles.clickableArea}
-          onClick={toggleExpanded}
-          onKeyDown={handleKeyDown}
-          role="button"
-          tabIndex={0}
-          aria-label={`${
-            isExpanded ? "Collapse" : "Expand"
-          } ferry ${ferryName}`}
-        >
+        <div className={styles.cardContent}>
           {/* Header row with ferry info and seats */}
           <div className={styles.headerRow}>
             <FerryHeader
@@ -89,7 +45,7 @@ export const FerryCard = memo<FerryCardProps>(
             <SeatsInfo seatsLeft={seatsLeft} />
           </div>
 
-          {/* Journey row with times and price */}
+          {/* Journey row with times, price, and book button */}
           <div className={styles.journeyRow}>
             <JourneyInfo
               departureTime={departureTime}
@@ -97,31 +53,24 @@ export const FerryCard = memo<FerryCardProps>(
               arrivalTime={arrivalTime}
               arrivalLocation={arrivalLocation}
             />
-            <PriceInfo
-              price={price}
-              totalPrice={totalPrice}
-              isExpanded={isExpanded}
-            />
-          </div>
-        </div>
 
-        {/* Ferry classes - only shown when expanded, gallery removed */}
-        {isExpanded && (
-          <div className={styles.classesContainer}>
-            <div className={styles.classesWrapper}>
-              {ferryClasses.map((ferryClass, index) => (
-                <FerryClassCard
-                  key={`${ferryClass.type}-${index}`}
-                  ferryClass={ferryClass}
-                  isActive={index === selectedClassIndex}
-                  onChooseSeats={handleChooseSeats}
-                  onSelect={() => handleClassSelection(index)}
-                  showChooseButton={index === selectedClassIndex}
-                />
-              ))}
+            <div className={styles.priceAndBookContainer}>
+              <PriceInfo
+                price={price}
+                totalPrice={totalPrice}
+                isExpanded={false} // Always collapsed now
+              />
+              <Button
+                variant="primary"
+                showArrow
+                size="small"
+                onClick={handleBookNow}
+              >
+                Book
+              </Button>
             </div>
           </div>
-        )}
+        </div>
       </article>
     );
   }

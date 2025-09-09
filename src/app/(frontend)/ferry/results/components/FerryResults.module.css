@@ -2,9 +2,7 @@
 
 .ferryResultsContainer {
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
 }
 
 /* Loading States */
@@ -240,16 +238,16 @@
 }
 
 .operatorErrorText {
-  color: #7c2d12;
+  color: var(--color-alert-error);
 }
 
 .operatorSuccessText {
-  color: #065f46;
+  color: var(--color-alert-success);
 }
 
 .warningActions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-4);
 }
 
 /* No Results State */
@@ -258,29 +256,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: var(--space-20) var(--space-8);
   text-align: center;
-}
-
-.noResultsIcon {
-  font-size: 64px;
-  margin-bottom: 24px;
-  opacity: 0.7;
-}
-
-.noResultsContainer h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 16px;
+  gap: var(--space-6);
+  border-radius: var(--radius-card);
+  border: 2px dashed var(--color-border);
 }
 
 .noResultsContainer > p {
-  font-size: 16px;
-  color: #6b7280;
-  margin-bottom: 24px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   max-width: 500px;
-  line-height: 1.5;
 }
 
 .suggestions {
@@ -291,9 +277,9 @@
 }
 
 .suggestions h3 {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 12px;
 }
 
@@ -305,15 +291,15 @@
 
 .suggestions li {
   padding: 8px 0;
-  color: #6b7280;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
   position: relative;
   padding-left: 20px;
 }
 
 .suggestions li::before {
   content: "•";
-  color: #3b82f6;
+  color: var(--color-primary);
   font-weight: bold;
   position: absolute;
   left: 0;
@@ -333,11 +319,11 @@
 }
 
 .resultsFooter {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 24px;
-  border: 1px solid #e5e7eb;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  margin-top: var(--space-6);
+  border: 1px solid var(--color-border-secondary);
 }
 
 .resultsInfo {
@@ -348,27 +334,26 @@
 }
 
 .infoIcon {
-  color: #3b82f6;
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
 .resultsInfo p {
-  font-size: 14px;
-  color: #374151;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   margin: 0;
   font-weight: 500;
 }
 
 .resultsNote {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   margin: 8px 0 0 0;
-  line-height: 1.4;
 }
 
 .serviceNote {
-  font-size: 13px;
-  color: #f59e0b;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   margin: 4px 0 0 0;
   font-style: italic;
 }

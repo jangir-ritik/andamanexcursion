@@ -1,3 +1,4 @@
+// ===== 2. Simplified FerrySearchForm Component =====
 "use client";
 import React, { useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -14,7 +15,6 @@ import {
   SlotSelect,
   LocationSelect,
   PassengerCounter,
-  FerryStatusIndicator,
 } from "@/components/atoms";
 import { LocationMappingService } from "@/services/ferryServices/locationMappingService";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
@@ -78,93 +78,6 @@ const FERRY_TIME_SLOTS = [
   },
 ];
 
-// const FERRY_TIME_SLOTS = [
-//   {
-//     value: "06:00",
-//     label: "06:00 AM",
-//     id: "06:00",
-//     time: "06:00",
-//     slug: "06:00",
-//   },
-//   {
-//     value: "07:00",
-//     label: "07:00 AM",
-//     id: "07:00",
-//     time: "07:00",
-//     slug: "07:00",
-//   },
-//   {
-//     value: "08:00",
-//     label: "08:00 AM",
-//     id: "08:00",
-//     time: "08:00",
-//     slug: "08:00",
-//   },
-//   {
-//     value: "09:00",
-//     label: "09:00 AM",
-//     id: "09:00",
-//     time: "09:00",
-//     slug: "09:00",
-//   },
-//   {
-//     value: "10:00",
-//     label: "10:00 AM",
-//     id: "10:00",
-//     time: "10:00",
-//     slug: "10:00",
-//   },
-//   {
-//     value: "11:00",
-//     label: "11:00 AM",
-//     id: "11:00",
-//     time: "11:00",
-//     slug: "11:00",
-//   },
-//   {
-//     value: "12:00",
-//     label: "12:00 PM",
-//     id: "12:00",
-//     time: "12:00",
-//     slug: "12:00",
-//   },
-//   {
-//     value: "13:00",
-//     label: "01:00 PM",
-//     id: "13:00",
-//     time: "13:00",
-//     slug: "13:00",
-//   },
-//   {
-//     value: "14:00",
-//     label: "02:00 PM",
-//     id: "14:00",
-//     time: "14:00",
-//     slug: "14:00",
-//   },
-//   {
-//     value: "15:00",
-//     label: "03:00 PM",
-//     id: "15:00",
-//     time: "15:00",
-//     slug: "15:00",
-//   },
-//   {
-//     value: "16:00",
-//     label: "04:00 PM",
-//     id: "16:00",
-//     time: "16:00",
-//     slug: "16:00",
-//   },
-//   {
-//     value: "17:00",
-//     label: "05:00 PM",
-//     id: "17:00",
-//     time: "17:00",
-//     slug: "17:00",
-//   },
-// ];
-
 export function FerrySearchForm({
   className,
   variant = "default",
@@ -177,7 +90,7 @@ export function FerrySearchForm({
     searchError,
     searchErrors,
     operatorHealth,
-    isSearchEnabled,
+    refetchSearch,
   } = useFerryFlow();
 
   const defaultValues = useMemo(
@@ -228,6 +141,28 @@ export function FerrySearchForm({
     return FERRY_LOCATIONS.filter((location) => location.value !== toLocation);
   }, [toLocation]);
 
+  // Simplified system availability check
+  const isSystemAvailable = useMemo(() => {
+    if (!operatorHealth) return true; // Assume available if no health data
+
+    const allOffline = Object.values(operatorHealth as OperatorHealth).every(
+      (status) => status.status === "offline" || status.status === "error"
+    );
+
+    return !allOffline;
+  }, [operatorHealth]);
+
+  // Form validation
+  const isFormValid = useMemo(() => {
+    return (
+      !!fromLocation &&
+      !!toLocation &&
+      !!selectedDate &&
+      passengers?.adults > 0 &&
+      fromLocation !== toLocation
+    );
+  }, [fromLocation, toLocation, selectedDate, passengers]);
+
   const onSubmit = useCallback(
     async (data: FerrySearchFormData) => {
       if (data.fromLocation === data.toLocation) {
@@ -238,7 +173,7 @@ export function FerrySearchForm({
         return;
       }
 
-      // Ensure proper date formatting in local timezone
+      // Format date properly
       const localDate = new Date(data.selectedDate);
       const year = localDate.getFullYear();
       const month = String(localDate.getMonth() + 1).padStart(2, "0");
@@ -254,10 +189,10 @@ export function FerrySearchForm({
         infants: data.passengers.infants,
       };
 
-      // Update Zustand store
+      // Update store
       setSearchParams(searchParams);
 
-      // Navigate to results page
+      // Navigate to results
       const urlParams = new URLSearchParams({
         from: searchParams.from,
         to: searchParams.to,
@@ -295,47 +230,7 @@ export function FerrySearchForm({
   );
 
   const isLoading = isSubmitting || isSearching;
-
-  const displayError = useMemo(() => {
-    if (searchError) {
-      return searchError.message || "Search failed. Please try again.";
-    }
-
-    if (searchErrors.length > 0) {
-      const failedOperators = searchErrors
-        .map((e: { operator: string; error: string }) => e.operator)
-        .join(", ");
-      return `Some ferry operators are unavailable (${failedOperators}). Results may be limited.`;
-    }
-
-    return null;
-  }, [searchError, searchErrors]);
-
-  // Only disable if ALL operators are offline/error
-  const isSearchDisabled = useMemo(() => {
-    if (!operatorHealth) return false;
-
-    const allOffline = Object.values(operatorHealth as OperatorHealth).every(
-      (status) => status.status === "offline" || status.status === "error"
-    );
-
-    console.log("Health check - operatorHealth:", operatorHealth);
-    console.log("Health check - allOffline:", allOffline);
-    console.log("Health check - isSearchDisabled:", allOffline);
-
-    return allOffline;
-  }, [operatorHealth]);
-
-  // Form validation using already watched fields
-  const isFormValid = useMemo(() => {
-    return (
-      !!fromLocation &&
-      !!toLocation &&
-      !!selectedDate &&
-      passengers?.adults > 0 &&
-      fromLocation !== toLocation
-    );
-  }, [fromLocation, toLocation, selectedDate, passengers]);
+  const isSearchDisabled = !isSystemAvailable || !isFormValid || isLoading;
 
   return (
     <form
@@ -352,13 +247,12 @@ export function FerrySearchForm({
               <LocationSelect
                 label="From"
                 value={field.value || ""}
-                onChange={(value) => {
-                  field.onChange(value);
-                }}
+                onChange={field.onChange}
                 options={availableDepartures}
                 placeholder="Departure Port"
                 hasError={!!errors.fromLocation}
                 errorMessage={errors.fromLocation?.message}
+                // disabled={isLoading}
               />
             )}
           />
@@ -372,13 +266,12 @@ export function FerrySearchForm({
               <LocationSelect
                 label="To"
                 value={field.value || ""}
-                onChange={(value) => {
-                  field.onChange(value);
-                }}
+                onChange={field.onChange}
                 options={availableDestinations}
                 placeholder="Destination Port"
                 hasError={!!errors.toLocation}
                 errorMessage={errors.toLocation?.message}
+                // disabled={isLoading}
               />
             )}
           />
@@ -391,10 +284,9 @@ export function FerrySearchForm({
             render={({ field }) => (
               <DateSelect
                 selected={field.value}
-                onChange={(date) => field.onChange(date)}
+                onChange={field.onChange}
                 hasError={!!errors.selectedDate}
                 // disabled={isLoading}
-                // minDate={new Date()}
               />
             )}
           />
@@ -449,82 +341,19 @@ export function FerrySearchForm({
             className={styles.searchButton}
             showArrow
             type="submit"
-            disabled={isLoading || isSearchDisabled || !isFormValid}
+            disabled={isSearchDisabled}
             // title={
-            //   isSearchDisabled
-            //     ? "All ferry operators are currently unavailable"
+            //   !isSystemAvailable
+            //     ? "Ferry search is temporarily unavailable"
             //     : !isFormValid
-            //     ? "Please fill in all required fields"
-            //     : undefined
+            //       ? "Please fill in all required fields"
+            //       : undefined
             // }
           >
             {isLoading ? "Searching..." : buttonText}
           </Button>
         </div>
       </div>
-
-      {displayError && (
-        <div className={styles.errorContainer}>
-          <div className={styles.errorMessage}>{displayError}</div>
-          {/* 
-          {operatorHealth && (
-            <div className={styles.apiStatusContainer}>
-              <span className={styles.apiStatusLabel}>Operator Status:</span>
-              <div className={styles.operatorStatusGrid}>
-                {Object.entries(operatorHealth as OperatorHealth).map(
-                  ([operator, status]) => (
-                    <div
-                      key={operator}
-                      className={cn(
-                        styles.operatorStatus,
-                        status.status === "online"
-                          ? styles.healthy
-                          : styles.unhealthy
-                      )}
-                    >
-                      <span className={styles.operatorName}>
-                        {operator.charAt(0).toUpperCase() + operator.slice(1)}
-                      </span>
-                      <span
-                        className={cn(
-                          styles.statusIndicator,
-                          status.status === "online"
-                            ? styles.online
-                            : styles.offline
-                        )}
-                      >
-                        {status.status === "online" ? "●" : "●"}
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-          )} */}
-        </div>
-      )}
-
-      {searchErrors.length > 0 && searchErrors.length < 3 && (
-        <div className={styles.warningContainer}>
-          <div className={styles.warningMessage}>
-            ⚠️ Limited results: {searchErrors.length} operator(s) temporarily
-            unavailable
-          </div>
-        </div>
-      )}
-
-      {/* {process.env.NODE_ENV === "development" &&
-        !displayError &&
-        operatorHealth && (
-          <div className={styles.devStatusContainer}>
-            <span className={styles.devStatusLabel}>Dev - API Status:</span>
-            <FerryStatusIndicator
-              variant="compact"
-              showLabels={true}
-              className={styles.devStatusIndicator}
-            />
-          </div>
-        )} */}
     </form>
   );
 }

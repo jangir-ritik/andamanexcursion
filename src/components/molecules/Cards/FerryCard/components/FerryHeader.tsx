@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
-import Link from "next/link";
 import styles from "../FerryCard.module.css";
+import { Star } from "lucide-react";
 
 const star = "/icons/misc/star.svg";
 
@@ -9,7 +9,7 @@ interface FerryHeaderProps {
   ferryName: string;
   rating: number;
   detailsUrl?: string;
-  operator: "sealink" | "makruzz" | "greenocean";
+  operator: string;
 }
 
 // Operator icon mapping - using existing files
@@ -41,7 +41,7 @@ export const FerryHeader = memo<FerryHeaderProps>(
         </div>
         <div className={styles.ferryDetails}>
           <h3 className={styles.ferryName}>
-            {detailsUrl ? (
+            {/* {detailsUrl ? (
               <Link
                 href={detailsUrl}
                 className={styles.ferryNameLink}
@@ -50,21 +50,23 @@ export const FerryHeader = memo<FerryHeaderProps>(
               >
                 {ferryName}
               </Link>
-            ) : (
-              ferryName
-            )}
+            ) : ( */}
+            {ferryName}
+            {/* )} */}
           </h3>
-          <div className={styles.ratingContainer}>
-            <div className={styles.starIcon}>
-              <IconContainer src={star} alt="star" size={16} />
-            </div>
+          {/* <div className={styles.ratingContainer}>
+            <Star
+              color="var(--color-secondary"
+              fill="var(--color-secondary)"
+              size={14}
+            />
             <span
               className={styles.ratingText}
               aria-label={`${rating} out of 5 stars`}
             >
               {rating} stars
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
     );
