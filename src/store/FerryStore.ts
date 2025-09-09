@@ -127,7 +127,7 @@ export const useFerryStore = create<FerryStore>()(
         seatReservation:
           selectedSeats.length > 0
             ? {
-                seats: selectedSeats.map((seat) => seat.number),
+                seats: selectedSeats,
                 expiryTime: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
               }
             : undefined,

@@ -330,6 +330,12 @@ export class GreenOceanService {
             availableSeats: route.seat_available,
             amenities: this.getAmenitiesForClass(route.class_name),
             seatLayout,
+            pricing: {
+              basePrice: classPrice,
+              taxes: 0,
+              fees: route.port_fee_status ? route.port_fee : 0,
+              total: classPrice,
+            },
           });
 
           totalAvailableSeats += route.seat_available;

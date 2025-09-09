@@ -291,6 +291,12 @@ export class MakruzzService {
           availableSeats: schedule.seat,
           amenities: ["AC", "Comfortable Seating"],
           // No seat layout for Makruzz (auto-assignment)
+          pricing: {
+            basePrice: totalPrice,
+            taxes: cgstAmount + ugstAmount,
+            fees: psfAmount,
+            total: totalPrice,
+          },
         },
       ];
 

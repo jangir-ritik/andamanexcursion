@@ -317,6 +317,12 @@ export class SealinkService {
         availableSeats: pAvailable,
         amenities: ["Air Conditioning", "Comfortable Seating"],
         seatLayout: this.createSeatLayout(pClassSeats, "P"),
+        pricing: {
+          basePrice: trip.fares.pBaseFare,
+          taxes: 0,
+          fees: 0,
+          total: trip.fares.pBaseFare,
+        },
       });
     }
 
@@ -328,6 +334,12 @@ export class SealinkService {
         availableSeats: bAvailable,
         amenities: ["Premium Seating", "Air Conditioning", "Priority Boarding"],
         seatLayout: this.createSeatLayout(bClassSeats, "B"),
+        pricing: {
+          basePrice: trip.fares.bBaseFare,
+          taxes: 0,
+          fees: 0,
+          total: trip.fares.bBaseFare,
+        },
       });
     }
 

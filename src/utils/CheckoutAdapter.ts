@@ -339,7 +339,7 @@ export class CheckoutAdapter {
             // Additional properties for backward compatibility
             duration: selectedFerry.schedule?.duration || "2h 30m",
             selectedClass: selectedClass || undefined,
-            selectedSeats: bookingSession.seatReservation?.seats || [],
+            selectedSeats: bookingSession.seatReservation?.seats?.map(seat => seat.id) || [],
             fromLocation: CheckoutAdapter.formatLocationName(
               bookingSession.searchParams.from
             ),
@@ -349,7 +349,7 @@ export class CheckoutAdapter {
           }
         : undefined,
       selectedClass: selectedClass || undefined, // Change null to undefined
-      selectedSeats: bookingSession.seatReservation?.seats || [],
+      selectedSeats: bookingSession.seatReservation?.seats?.map(seat => seat.id) || [],
     };
 
     return {
