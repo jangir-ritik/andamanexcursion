@@ -9,7 +9,7 @@ export interface FerryBookingSession {
     infants: number;
   };
   selectedFerry?: {
-    operator: "sealink" | "makruzz" | "greenocean"; // Removed "unknown"
+    operator: "sealink" | "makruzz" | "greenocean";
     ferryId: string;
     ferryName: string;
     routeData: any;
@@ -19,7 +19,7 @@ export interface FerryBookingSession {
       departureTime: string;
       arrivalTime: string;
       duration: string;
-      date: string; // Made required
+      date: string;
     };
     duration: string;
   };
@@ -29,7 +29,7 @@ export interface FerryBookingSession {
     price: number;
   };
   seatReservation?: {
-    seats: string[];
+    seats: Seat[]; // Changed from string[] to Seat[] to store complete seat objects
     reservationId?: string; // for green ocean
     expiryTime: Date;
   };
@@ -54,21 +54,21 @@ export interface Location {
 }
 
 export interface UnifiedFerryResult {
-  id: string; // Unique identifier across all operators
+  id: string;
   operator: "sealink" | "makruzz" | "greenocean";
-  operatorFerryId: string; // Original ferry ID from operator
+  operatorFerryId: string;
   ferryName: string;
   route: {
     from: Location;
     to: Location;
-    fromCode: string; // Port codes
+    fromCode: string;
     toCode: string;
   };
   schedule: {
-    departureTime: string; // "HH:MM"
+    departureTime: string;
     arrivalTime: string;
-    duration: string; // "1h 30m"
-    date: string; // "YYYY-MM-DD" - Made required
+    duration: string;
+    date: string;
   };
   classes: FerryClass[];
   availability: {
@@ -91,28 +91,34 @@ export interface UnifiedFerryResult {
     mealIncluded?: boolean;
   };
   operatorData: {
-    // Store original API response for booking
     originalResponse: any;
     bookingEndpoint: string;
     authToken?: string;
   };
   isActive: boolean;
-  // Additional properties that can be added during processing
-  duration?: string; // For backward compatibility
-  fromLocation?: string; // For backward compatibility
-  toLocation?: string; // For backward compatibility
-  selectedClass?: FerryClass; // Changed from null to undefined
+  // Backward compatibility properties
+  duration?: string;
+  fromLocation?: string;
+  toLocation?: string;
+  selectedClass?: FerryClass;
   selectedSeats?: string[];
 }
 
 export interface FerryClass {
   id: string;
-  name: string; // "Economy", "Premium", "Luxury", "Royal"
-  className?: string; // Alternative property name used in some contexts
-  price: number;
+  name: string;
+  className?: string; // Alternative property for backward compatibility
+  pricing: {
+    // Added structured pricing object
+    basePrice: number;
+    taxes?: number;
+    fees?: number;
+    total: number;
+  };
+  price: number; // Keep for backward compatibility
   availableSeats: number;
   amenities: string[];
-  seatLayout?: SeatLayout; // Only if supports seat selection
+  seatLayout?: SeatLayout;
 }
 
 export interface SeatLayout {
@@ -125,23 +131,65 @@ export interface SeatLayout {
     aislePositions: number[];
     emergency_exits: number[];
   };
+  // Add operator-specific data for conversion
+  operatorData?: {
+    sealink?: {
+      id: string;
+      tripId: number;
+      from: string;
+      to: string;
+      dTime: { hour: number; minute: number };
+      aTime: { hour: number; minute: number };
+      vesselID: number;
+      fares: {
+        pBaseFare: number;
+        bBaseFare: number;
+        pBaseFarePBHLNL: number;
+        bBaseFarePBHLNL: number;
+        pIslanderFarePBHLNL: number;
+        bIslanderFarePBHLNL: number;
+        infantFare: number;
+      };
+      bClass: { [seatNumber: string]: SeaLinkSeatDetails };
+      pClass: { [seatNumber: string]: SeaLinkSeatDetails };
+    };
+    greenocean?: {
+      layout: {
+        seat_no: string;
+        seat_numbering: string;
+        status: string;
+      }[];
+      booked_seat: string[];
+      class_type: number;
+    };
+  };
+}
+
+export interface SeaLinkSeatDetails {
+  tier: "B" | "P";
+  number: string;
+  isBooked: 0 | 1;
+  isBlocked: 0 | 1;
 }
 
 export interface Seat {
   id: string;
-  number: string; // "1A", "2B", etc.
-  seat_numbering: string; // From Green Ocean API
+  number: string;
+  seat_numbering?: string; // For Green Ocean compatibility
   status:
     | "available"
     | "booked"
     | "blocked"
     | "selected"
     | "temporarily_blocked";
-  type: "window" | "aisle" | "middle";
-  position: { row: number; column: number };
+  type?: "window" | "aisle" | "middle";
+  position?: { row: number; column: number };
   price?: number;
   isAccessible?: boolean;
   isPremium?: boolean;
+  // Additional properties for operator-specific data
+  tier?: "B" | "P"; // For SeaLink business/premium classification
+  displayNumber?: string; // For display purposes
 }
 
 export interface FerrySearchParams {
@@ -151,4 +199,18 @@ export interface FerrySearchParams {
   adults: number;
   children: number;
   infants: number;
+}
+
+// Additional utility types for component props
+export interface SeatSelectionData {
+  selectedSeats: Seat[];
+  totalPrice: number;
+  seatIds: string[];
+}
+
+export interface FerryOperatorCapabilities {
+  supportsSeatSelection: boolean;
+  supportsAutoAssignment: boolean;
+  requiresManualSelection: boolean;
+  showsSeatPreference: boolean;
 }

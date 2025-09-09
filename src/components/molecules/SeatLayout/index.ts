@@ -1,1 +1,0 @@
-export { SeatLayoutComponent } from "./SeatLayout";

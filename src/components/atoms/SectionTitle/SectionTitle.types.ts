@@ -4,4 +4,5 @@ export interface SectionTitleProps {
   specialWord?: string;
   id?: string;
   headingLevel?: "h1" | "h2"; // New prop for heading level
+  titleTextClasses?: string; // New prop for title text classes
 }

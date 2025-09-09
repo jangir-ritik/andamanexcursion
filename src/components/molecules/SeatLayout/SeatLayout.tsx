@@ -2,55 +2,104 @@ import React, { useState, useEffect, Fragment } from "react";
 import {
   Armchair,
   CheckCircle,
-  X,
-  Eye,
   Users,
   Ship,
-  MapPin,
   Clock,
   AlertCircle,
   RefreshCw,
   Zap,
   Star,
+  LockKeyhole,
 } from "lucide-react";
 import styles from "./SeatLayout.module.css";
 
-// Types based on Green Ocean API and your existing structure
-interface Seat {
-  id: string;
+// Sealink API Types
+interface SeaLinkTimeSlot {
+  hour: number;
+  minute: number;
+}
+
+interface SeaLinkFareStructure {
+  pBaseFare: number;
+  bBaseFare: number;
+  pBaseFarePBHLNL: number;
+  bBaseFarePBHLNL: number;
+  pIslanderFarePBHLNL: number;
+  bIslanderFarePBHLNL: number;
+  infantFare: number;
+}
+
+interface SeaLinkSeatDetails {
+  tier: string; // "B" | "P"
   number: string;
-  seat_numbering: string; // From Green Ocean API
+  isBooked: number; // 0 | 1 (boolean as integer)
+  isBlocked: number; // 0 | 1 (boolean as integer)
+}
+
+interface SeaLinkTripData {
+  id: string;
+  tripId: number;
+  from: string;
+  to: string;
+  dTime: SeaLinkTimeSlot;
+  aTime: SeaLinkTimeSlot;
+  vesselID: number;
+  fares: SeaLinkFareStructure;
+  bClass: { [seatNumber: string]: SeaLinkSeatDetails };
+  pClass: { [seatNumber: string]: SeaLinkSeatDetails };
+}
+
+interface SeaLinkTripResponse {
+  err: null;
+  data: SeaLinkTripData[];
+}
+
+// Green Ocean API Types
+interface GreenOceanSeatItem {
+  seat_no: string;
+  seat_numbering: string;
+  status: string; // "booked" | "available"
+}
+
+interface GreenOceanSeatLayoutResponse {
+  status: string;
+  message: string;
+  data: {
+    layout: GreenOceanSeatItem[];
+    booked_seat: string[];
+    class_type: number;
+  };
+  errorlist: any[];
+}
+
+// Unified Internal Types
+interface UnifiedSeat {
+  id: string;
+  seatNumber: string;
+  displayNumber: string;
   status:
     | "available"
     | "booked"
     | "blocked"
     | "selected"
     | "temporarily_blocked";
-  type: "window" | "aisle" | "middle";
-  position: { row: number; column: number };
+  tier?: string; // For SeaLink: "B" | "P"
   price?: number;
   isAccessible?: boolean;
   isPremium?: boolean;
 }
 
-interface LayoutConfig {
-  rows: number;
-  seatsPerRow: number;
-  aislePositions: number[];
-  emergency_exits: number[];
-}
-
-interface SeatLayout {
-  seats: Seat[];
-  layout_config?: LayoutConfig; // Make optional to handle both cases
-}
-
 interface EnhancedSeatLayoutProps {
-  seatLayout: SeatLayout;
-  layout_config?: LayoutConfig; // Also make this optional and allow override
+  // API Data - one of these should be provided
+  seaLinkData?: SeaLinkTripData;
+  greenOceanData?: GreenOceanSeatLayoutResponse["data"];
+
+  // Seat selection
   selectedSeats: string[];
   onSeatSelect: (seatId: string) => void;
   maxSeats: number;
+
+  // Optional configurations
   className?: string;
   ferryInfo?: {
     name: string;
@@ -61,11 +110,22 @@ interface EnhancedSeatLayoutProps {
   onRefreshLayout?: () => void;
   isLoading?: boolean;
   blockExpiry?: Date;
+
+  // Pricing configuration
+  fareConfig?: {
+    pBaseFare?: number;
+    bBaseFare?: number;
+    showPricing?: boolean;
+  };
+
+  // Accessibility and premium seat configurations
+  accessibleSeats?: string[]; // List of seat numbers that are accessible
+  premiumSeats?: string[]; // List of seat numbers that are premium
 }
 
 export function SeatLayoutComponent({
-  seatLayout,
-  layout_config,
+  seaLinkData,
+  greenOceanData,
   selectedSeats,
   onSeatSelect,
   maxSeats,
@@ -74,32 +134,106 @@ export function SeatLayoutComponent({
   onRefreshLayout,
   isLoading = false,
   blockExpiry,
+  fareConfig,
+  accessibleSeats = [],
+  premiumSeats = [],
 }: EnhancedSeatLayoutProps) {
   const [countdown, setCountdown] = useState<number>(0);
-  const [showPricing, setShowPricing] = useState(false);
-  const [viewMode, setViewMode] = useState<"deck" | "list">("deck");
+  const [showPricing, setShowPricing] = useState(
+    fareConfig?.showPricing || false
+  );
 
-  // Use layout_config from props, fallback to seatLayout.layout_config, or generate default
-  const effectiveLayoutConfig: LayoutConfig =
-    layout_config ||
-    seatLayout.layout_config ||
-    generateLayoutConfigFromSeats(seatLayout.seats);
+  // Convert API data to unified format
+  const unifiedSeats: UnifiedSeat[] = React.useMemo(() => {
+    if (seaLinkData) {
+      return convertSeaLinkToUnified(
+        seaLinkData,
+        accessibleSeats,
+        premiumSeats,
+        fareConfig
+      );
+    } else if (greenOceanData) {
+      return convertGreenOceanToUnified(
+        greenOceanData,
+        accessibleSeats,
+        premiumSeats
+      );
+    }
+    return [];
+  }, [seaLinkData, greenOceanData, accessibleSeats, premiumSeats, fareConfig]);
 
-  // Generate layout config from seats if not provided
-  function generateLayoutConfigFromSeats(seats: Seat[]): LayoutConfig {
-    const maxRow = Math.max(...seats.map((seat) => seat.position.row));
-    const maxColumn = Math.max(...seats.map((seat) => seat.position.column));
+  // Convert SeaLink data to unified format
+  function convertSeaLinkToUnified(
+    data: SeaLinkTripData,
+    accessibleSeats: string[],
+    premiumSeats: string[],
+    fareConfig?: {
+      pBaseFare?: number;
+      bBaseFare?: number;
+      showPricing?: boolean;
+    }
+  ): UnifiedSeat[] {
+    const seats: UnifiedSeat[] = [];
 
-    // Simple heuristic for aisle positions (assume middle of seat row)
-    const seatsPerRow = maxColumn + 1;
-    const aislePositions = seatsPerRow > 4 ? [Math.floor(seatsPerRow / 2)] : [];
+    // Process Business Class seats
+    Object.entries(data.bClass).forEach(([seatNumber, seatDetails]) => {
+      const status =
+        seatDetails.isBooked === 1
+          ? "booked"
+          : seatDetails.isBlocked === 1
+          ? "blocked"
+          : "available";
 
-    return {
-      rows: maxRow + 1,
-      seatsPerRow: seatsPerRow,
-      aislePositions: aislePositions,
-      emergency_exits: [], // Would need to be provided by API
-    };
+      seats.push({
+        id: `b_${seatNumber}`,
+        seatNumber: seatNumber,
+        displayNumber: seatDetails.number,
+        status,
+        tier: "B",
+        price: fareConfig?.bBaseFare,
+        isAccessible: accessibleSeats.includes(seatNumber),
+        isPremium: premiumSeats.includes(seatNumber),
+      });
+    });
+
+    // Process Premium Class seats
+    Object.entries(data.pClass).forEach(([seatNumber, seatDetails]) => {
+      const status =
+        seatDetails.isBooked === 1
+          ? "booked"
+          : seatDetails.isBlocked === 1
+          ? "blocked"
+          : "available";
+
+      seats.push({
+        id: `p_${seatNumber}`,
+        seatNumber: seatNumber,
+        displayNumber: seatDetails.number,
+        status,
+        tier: "P",
+        price: fareConfig?.pBaseFare,
+        isAccessible: accessibleSeats.includes(seatNumber),
+        isPremium: premiumSeats.includes(seatNumber),
+      });
+    });
+
+    return seats;
+  }
+
+  // Convert Green Ocean data to unified format
+  function convertGreenOceanToUnified(
+    data: GreenOceanSeatLayoutResponse["data"],
+    accessibleSeats: string[],
+    premiumSeats: string[]
+  ): UnifiedSeat[] {
+    return data.layout.map((seat) => ({
+      id: seat.seat_no,
+      seatNumber: seat.seat_no,
+      displayNumber: seat.seat_numbering,
+      status: seat.status === "booked" ? "booked" : "available",
+      isAccessible: accessibleSeats.includes(seat.seat_no),
+      isPremium: premiumSeats.includes(seat.seat_no),
+    }));
   }
 
   // Countdown timer for seat blocking expiry
@@ -121,39 +255,37 @@ export function SeatLayoutComponent({
     return () => clearInterval(interval);
   }, [blockExpiry]);
 
-  const getSeatIcon = (seat: Seat) => {
-    if (seat.status === "booked") return X;
+  const getSeatIcon = (seat: UnifiedSeat) => {
+    if (seat.status === "booked") return LockKeyhole;
     if (selectedSeats.includes(seat.id)) return CheckCircle;
     if (seat.isPremium) return Star;
     if (seat.isAccessible) return Users;
-    if (seat.type === "window") return Eye;
-    if (seat.type === "aisle") return MapPin;
     return Armchair;
   };
 
-  const getSeatClassName = (seat: Seat) => {
+  const getSeatClassName = (seat: UnifiedSeat) => {
     const baseClass = styles.seat;
     const statusClass = styles[seat.status] || "";
-    const typeClass = styles[seat.type] || "";
     const selectedClass = selectedSeats.includes(seat.id)
       ? styles.selected
       : "";
     const premiumClass = seat.isPremium ? styles.premium : "";
     const accessibleClass = seat.isAccessible ? styles.accessible : "";
+    const tierClass = seat.tier ? styles[`tier${seat.tier}`] : "";
 
     return [
       baseClass,
       statusClass,
-      typeClass,
       selectedClass,
       premiumClass,
       accessibleClass,
+      tierClass,
     ]
       .filter(Boolean)
       .join(" ");
   };
 
-  const handleSeatClick = (seat: Seat) => {
+  const handleSeatClick = (seat: UnifiedSeat) => {
     if (seat.status === "booked" || seat.status === "blocked") return;
 
     if (selectedSeats.includes(seat.id)) {
@@ -163,21 +295,13 @@ export function SeatLayoutComponent({
     }
   };
 
-  // Group seats by row for deck view
-  const seatsByRow = seatLayout.seats.reduce((acc, seat) => {
-    const row = seat.position.row;
-    if (!acc[row]) acc[row] = [];
-    acc[row].push(seat);
-    return acc;
-  }, {} as Record<number, Seat[]>);
-
   const formatCountdown = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const selectedSeatsData = seatLayout.seats.filter((seat) =>
+  const selectedSeatsData = unifiedSeats.filter((seat) =>
     selectedSeats.includes(seat.id)
   );
   const totalPrice = selectedSeatsData.reduce(
@@ -185,87 +309,137 @@ export function SeatLayoutComponent({
     0
   );
 
+  // Group seats by tier for better organization
+  const seatsByTier = unifiedSeats.reduce((acc, seat) => {
+    const tier = seat.tier || "default";
+    if (!acc[tier]) acc[tier] = [];
+    acc[tier].push(seat);
+    return acc;
+  }, {} as Record<string, UnifiedSeat[]>);
+
+  if (unifiedSeats.length === 0) {
+    return (
+      <div className={`${styles.container} ${className || ""}`}>
+        <div className={styles.noDataMessage}>
+          <AlertCircle size={24} />
+          <p>No seat data available. Please provide seat layout data.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`${styles.container} ${className || ""}`}>
-      {/* Ferry Info Header */}
-      {ferryInfo && (
-        <div className={styles.header}>
-          <div className={styles.headerContent}>
-            <div className={styles.ferryInfo}>
-              <Ship size={24} />
-              <div className={styles.ferryDetails}>
-                <h3 className={styles.ferryName}>{ferryInfo.name}</h3>
-                <p className={styles.ferryRoute}>{ferryInfo.route}</p>
-              </div>
-            </div>
-            <div className={styles.scheduleInfo}>
-              <div className={styles.timeInfo}>
-                <Clock size={16} />
-                <span className={styles.departureTime}>
-                  {ferryInfo.departureTime}
+      {/* Header with Selection Summary */}
+      <div className={styles.headerWithSummary}>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>Seat Selection</h3>
+          <div className={styles.controls}>
+            {fareConfig && (
+              <button
+                onClick={() => setShowPricing(!showPricing)}
+                className={styles.controlButton}
+              >
+                <Zap size={16} />
+                <span>Pricing</span>
+              </button>
+            )}
+
+            {onRefreshLayout && (
+              <button
+                onClick={onRefreshLayout}
+                disabled={isLoading}
+                className={`${styles.controlButton} ${
+                  isLoading ? styles.loading : ""
+                }`}
+              >
+                <RefreshCw
+                  size={16}
+                  color={
+                    isLoading
+                      ? "var(--color-primary)"
+                      : "var(--color-text-secondary)"
+                  }
+                  className={isLoading ? styles.spinning : ""}
+                />
+                <span className={styles.refreshSpan}>
+                  Refresh
                 </span>
-              </div>
-              <p className={styles.duration}>{ferryInfo.estimatedDuration}</p>
-            </div>
+              </button>
+            )}
           </div>
+        </div>
+
+        {/* Selection Summary - moved to header */}
+        <div className={styles.selectionSummary}>
+          <div className={styles.summaryContent}>
+            <div className={styles.selectionCounter}>
+              <span className={styles.counterText}>
+                {selectedSeats.length}/{maxSeats} selected
+              </span>
+              <div className={styles.counterBadge}>{selectedSeats.length}</div>
+            </div>
+
+            {selectedSeats.length > 0 && (
+              <div className={styles.selectedSeatsContainer}>
+                <div className={styles.selectedSeatsList}>
+                  {selectedSeatsData.map((seat) => (
+                    <div key={seat.id} className={styles.selectedSeatTag}>
+                      <span className={styles.seatTagNumber}>
+                        {seat.displayNumber}
+                      </span>
+                      {seat.tier && (
+                        <span className={styles.seatTagTier}>
+                          (
+                          {seat.tier === "B"
+                            ? "Business"
+                            : seat.tier === "P"
+                            ? "Premium"
+                            : seat.tier}
+                          )
+                        </span>
+                      )}
+                      {seat.price && (
+                        <span className={styles.seatTagPrice}>
+                          ₹{seat.price}
+                        </span>
+                      )}
+                      <button
+                        onClick={() => onSeatSelect(seat.id)}
+                        className={styles.removeButton}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {totalPrice > 0 && (
+                  <div className={styles.totalPrice}>
+                    <span className={styles.totalLabel}>Total:</span>
+                    <span className={styles.totalAmount}>₹{totalPrice}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedSeats.length === 0 && (
+              <p className={styles.noSelectionText}>
+                Select up to {maxSeats} seat{maxSeats > 1 ? "s" : ""} to
+                continue
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Seat Block Timer */}
+      {countdown > 0 && (
+        <div className={styles.countdownTimer}>
+          <AlertCircle size={16} />
+          <span>Seats blocked for: {formatCountdown(countdown)}</span>
         </div>
       )}
-
-      {/* Control Bar */}
-      <div className={styles.controlBar}>
-        <div className={styles.controls}>
-          <div className={styles.viewToggle}>
-            <button
-              onClick={() => setViewMode("deck")}
-              className={`${styles.toggleButton} ${
-                viewMode === "deck" ? styles.active : ""
-              }`}
-            >
-              Deck View
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`${styles.toggleButton} ${
-                viewMode === "list" ? styles.active : ""
-              }`}
-            >
-              List View
-            </button>
-          </div>
-
-          <button
-            onClick={() => setShowPricing(!showPricing)}
-            className={styles.controlButton}
-          >
-            <Zap size={16} />
-            <span>Show Pricing</span>
-          </button>
-
-          {onRefreshLayout && (
-            <button
-              onClick={onRefreshLayout}
-              disabled={isLoading}
-              className={`${styles.controlButton} ${
-                isLoading ? styles.loading : ""
-              }`}
-            >
-              <RefreshCw
-                size={16}
-                className={isLoading ? styles.spinning : ""}
-              />
-              <span>Refresh</span>
-            </button>
-          )}
-        </div>
-
-        {/* Seat Block Timer */}
-        {countdown > 0 && (
-          <div className={styles.countdownTimer}>
-            <AlertCircle size={16} />
-            <span>Seats blocked for: {formatCountdown(countdown)}</span>
-          </div>
-        )}
-      </div>
 
       {/* Legend */}
       <div className={styles.legend}>
@@ -282,14 +456,32 @@ export function SeatLayoutComponent({
             <div className={`${styles.legendIcon} ${styles.booked}`}></div>
             <span>Booked</span>
           </div>
-          <div className={styles.legendItem}>
-            <div className={`${styles.legendIcon} ${styles.window}`}></div>
-            <span>Window</span>
-          </div>
-          <div className={styles.legendItem}>
-            <div className={`${styles.legendIcon} ${styles.aisle}`}></div>
-            <span>Aisle</span>
-          </div>
+          {accessibleSeats.length > 0 && (
+            <div className={styles.legendItem}>
+              <div
+                className={`${styles.legendIcon} ${styles.accessible}`}
+              ></div>
+              <span>Accessible</span>
+            </div>
+          )}
+          {premiumSeats.length > 0 && (
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendIcon} ${styles.premium}`}></div>
+              <span>Premium</span>
+            </div>
+          )}
+          {seaLinkData && (
+            <>
+              <div className={styles.legendItem}>
+                <div className={`${styles.legendIcon} ${styles.tierB}`}></div>
+                <span>Business Class</span>
+              </div>
+              <div className={styles.legendItem}>
+                <div className={`${styles.legendIcon} ${styles.tierP}`}></div>
+                <span>Premium Class</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -299,122 +491,24 @@ export function SeatLayoutComponent({
           isLoading ? styles.loadingState : ""
         }`}
       >
-        {viewMode === "deck" ? (
-          <div className={styles.deckView}>
-            {/* Ferry Bow */}
-            <div className={styles.ferryBow}>
-              <Ship size={20} />
-              <span>Ferry Front</span>
-            </div>
+        <div className={styles.gridView}>
+          {/* Seats organized by tier */}
+          {Object.entries(seatsByTier).map(([tier, seats]) => (
+            <div key={tier} className={styles.tierSection}>
+              {seaLinkData && tier !== "default" && (
+                <div className={styles.tierHeader}>
+                  <h4 className={styles.tierTitle}>
+                    {tier === "B"
+                      ? "Business Class"
+                      : tier === "P"
+                      ? "Premium Class"
+                      : tier}
+                  </h4>
+                </div>
+              )}
 
-            {/* Seat Grid */}
-            <div className={styles.seatGrid}>
-              {Object.keys(seatsByRow)
-                .sort((a, b) => parseInt(a) - parseInt(b))
-                .map((rowNum) => {
-                  const row = parseInt(rowNum);
-                  const seats = seatsByRow[row].sort(
-                    (a, b) => a.position.column - b.position.column
-                  );
-
-                  const isEmergencyRow =
-                    effectiveLayoutConfig.emergency_exits.includes(row);
-
-                  return (
-                    <div key={row} className={styles.seatRow}>
-                      {/* Row Number */}
-                      <div
-                        className={`${styles.rowNumber} ${
-                          isEmergencyRow ? styles.emergencyRow : ""
-                        }`}
-                      >
-                        {row}
-                      </div>
-
-                      {/* Seats */}
-                      <div className={styles.seatsInRow}>
-                        {seats.map((seat, index) => {
-                          const IconComponent = getSeatIcon(seat);
-                          const isAisle =
-                            effectiveLayoutConfig.aislePositions.includes(
-                              index
-                            );
-
-                          return (
-                            <Fragment key={seat.id}>
-                              <button
-                                className={getSeatClassName(seat)}
-                                onClick={() => handleSeatClick(seat)}
-                                disabled={
-                                  seat.status === "booked" ||
-                                  seat.status === "blocked"
-                                }
-                                title={`Seat ${seat.seat_numbering} - ${
-                                  seat.type
-                                } - ${seat.status}${
-                                  seat.price ? ` - ₹${seat.price}` : ""
-                                }`}
-                              >
-                                <div className={styles.seatIcon}>
-                                  <IconComponent size={14} />
-                                </div>
-                                <span className={styles.seatNumber}>
-                                  {seat.seat_numbering}
-                                </span>
-                                {showPricing && seat.price && (
-                                  <span className={styles.priceTag}>
-                                    ₹{seat.price}
-                                  </span>
-                                )}
-
-                                {/* Special indicators */}
-                                {seat.isPremium && (
-                                  <Star
-                                    size={8}
-                                    className={styles.premiumIndicator}
-                                  />
-                                )}
-                                {seat.isAccessible && (
-                                  <Users
-                                    size={8}
-                                    className={styles.accessibleIndicator}
-                                  />
-                                )}
-                              </button>
-
-                              {/* Aisle Gap */}
-                              {isAisle && index < seats.length - 1 && (
-                                <div className={styles.aisleGap}>
-                                  <div className={styles.aisleLine}>
-                                    <span className={styles.aisleLabel}>
-                                      AISLE
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </Fragment>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-
-            {/* Ferry Stern */}
-            <div className={styles.ferryStern}>
-              <span>Ferry Back</span>
-            </div>
-          </div>
-        ) : (
-          /* List View */
-          <div className={styles.listView}>
-            <div className={styles.listGrid}>
-              {seatLayout.seats
-                .sort((a, b) =>
-                  a.seat_numbering.localeCompare(b.seat_numbering)
-                )
-                .map((seat) => {
+              <div className={styles.seatGrid}>
+                {seats.map((seat) => {
                   const IconComponent = getSeatIcon(seat);
                   return (
                     <button
@@ -424,72 +518,37 @@ export function SeatLayoutComponent({
                       disabled={
                         seat.status === "booked" || seat.status === "blocked"
                       }
+                      title={`Seat ${seat.displayNumber} - ${seat.status}${
+                        seat.price ? ` - ₹${seat.price}` : ""
+                      }${seat.tier ? ` - ${seat.tier} Class` : ""}`}
                     >
                       <div className={styles.seatIcon}>
-                        <IconComponent size={16} />
+                        <IconComponent size={14} />
                       </div>
                       <span className={styles.seatNumber}>
-                        {seat.seat_numbering}
+                        {seat.displayNumber}
                       </span>
                       {showPricing && seat.price && (
-                        <span className={styles.listPriceTag}>
-                          ₹{seat.price}
-                        </span>
+                        <span className={styles.priceTag}>₹{seat.price}</span>
+                      )}
+
+                      {/* Special indicators */}
+                      {seat.isPremium && (
+                        <Star size={8} className={styles.premiumIndicator} />
+                      )}
+                      {seat.isAccessible && (
+                        <Users
+                          size={8}
+                          className={styles.accessibleIndicator}
+                        />
                       )}
                     </button>
                   );
                 })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Selection Summary */}
-      <div className={styles.selectionSummary}>
-        <div className={styles.summaryHeader}>
-          <h4 className={styles.summaryTitle}>Seat Selection</h4>
-          <div className={styles.selectionCounter}>
-            <span className={styles.counterText}>
-              {selectedSeats.length}/{maxSeats} selected
-            </span>
-            <div className={styles.counterBadge}>{selectedSeats.length}</div>
-          </div>
-        </div>
-
-        {selectedSeats.length > 0 ? (
-          <div className={styles.selectedSeatsContainer}>
-            <div className={styles.selectedSeatsList}>
-              {selectedSeatsData.map((seat) => (
-                <div key={seat.id} className={styles.selectedSeatTag}>
-                  <span className={styles.seatTagNumber}>
-                    {seat.seat_numbering}
-                  </span>
-                  <span className={styles.seatTagType}>({seat.type})</span>
-                  {seat.price && (
-                    <span className={styles.seatTagPrice}>₹{seat.price}</span>
-                  )}
-                  <button
-                    onClick={() => onSeatSelect(seat.id)}
-                    className={styles.removeButton}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {totalPrice > 0 && (
-              <div className={styles.totalPrice}>
-                <span className={styles.totalLabel}>Total:</span>
-                <span className={styles.totalAmount}>₹{totalPrice}</span>
               </div>
-            )}
-          </div>
-        ) : (
-          <p className={styles.noSelectionText}>
-            Select up to {maxSeats} seat{maxSeats > 1 ? "s" : ""} to continue
-          </p>
-        )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

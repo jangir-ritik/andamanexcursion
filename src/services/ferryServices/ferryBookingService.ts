@@ -113,10 +113,10 @@ export class FerryBookingService {
           `Trip data not found in cache for ${originalTripId}. Available cached IDs:`,
           SealinkService.getCachedTripIds()
         );
-        
+
         // Try to refetch trip data using the travel date from booking request
         console.log(`Attempting to refetch trip data for ${originalTripId}...`);
-        
+
         try {
           // Use getSeatLayout which has the refetch logic built-in
           // This will populate the cache if the trip is found
@@ -125,23 +125,27 @@ export class FerryBookingService {
             request.classId || "premium", // Use provided class or default
             request.date // Travel date
           );
-          
+
           // Try to get cached data again after refetch
           cachedTripData = SealinkService.getCachedTripData(originalTripId);
-          
+
           if (cachedTripData) {
-            console.log(`✅ Successfully refetched trip data for ${originalTripId}`);
+            console.log(
+              `✅ Successfully refetched trip data for ${originalTripId}`
+            );
           }
         } catch (refetchError) {
           console.warn(`Failed to refetch trip data:`, refetchError);
         }
-        
+
         // If still no cached data after refetch attempt
         if (!cachedTripData) {
           throw new Error(
             `Trip data not found for ferry ID: ${originalTripId}. ` +
-            `Refetch attempt failed. Available cached IDs: ${SealinkService.getCachedTripIds().join(", ")}. ` +
-            `This may happen if the trip is no longer available or the search parameters cannot be reconstructed.`
+              `Refetch attempt failed. Available cached IDs: ${SealinkService.getCachedTripIds().join(
+                ", "
+              )}. ` +
+              `This may happen if the trip is no longer available or the search parameters cannot be reconstructed.`
           );
         }
       }
@@ -195,9 +199,7 @@ export class FerryBookingService {
           apiUser: {
             userName: process.env.SEALINK_USERNAME || "agent",
             agency: process.env.SEALINK_AGENCY || "",
-            token:
-              process.env.SEALINK_TOKEN ||
-              "U2FsdGVkX18+ji7DedFzFnkTxo/aFlcWsvmp03XU5bgJ5XE9r1/DCIKHCabpP24hxlAB0F2kFnOYvu9FZaJiNA==",
+            token: process.env.SEALINK_TOKEN || "",
             walletBalance: 10000,
           },
         },

@@ -6,6 +6,7 @@ import type { SectionTitleProps } from "./SectionTitle.types";
 import underlineGraphic from "@public/graphics/underline.svg";
 import Image from "next/image";
 import { useSingleElementUnderline } from "@/utils/underlinePositioning";
+import clsx from "clsx";
 
 export const SectionTitle = ({
   text,
@@ -13,6 +14,7 @@ export const SectionTitle = ({
   specialWord,
   id,
   headingLevel = "h2",
+  titleTextClasses,
 }: SectionTitleProps) => {
   const titleClasses = [styles.sectionTitle, className || ""].join(" ").trim();
   const [isHovered, setIsHovered] = useState(false);
@@ -90,11 +92,19 @@ export const SectionTitle = ({
       onMouseLeave={handleMouseLeave}
     >
       {headingLevel === "h1" ? (
-        <h1 ref={titleRef} className={styles.title} id={id}>
+        <h1
+          ref={titleRef}
+          className={clsx(styles.title, titleTextClasses)}
+          id={id}
+        >
           {renderTextWithSpecialWord()}
         </h1>
       ) : (
-        <h2 ref={titleRef} className={styles.title} id={id}>
+        <h2
+          ref={titleRef}
+          className={clsx(styles.title, titleTextClasses)}
+          id={id}
+        >
           {renderTextWithSpecialWord()}
         </h2>
       )}
