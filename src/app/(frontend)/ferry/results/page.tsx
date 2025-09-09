@@ -17,6 +17,7 @@ import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import styles from "./page.module.css";
+import LoadingCard from "@/components/molecules/Cards/ComponentStateCards/LoadingCard";
 
 const FerryResultsContent = () => {
   const router = useRouter();
@@ -107,8 +108,7 @@ const FerryResultsContent = () => {
 
 const FerryResultsLoader = () => (
   <div className={styles.pageLoader}>
-    <Loader2 className={styles.loadingSpinner} size={40} />
-    <p>Loading ferry search results...</p>
+    <LoadingCard />
   </div>
 );
 

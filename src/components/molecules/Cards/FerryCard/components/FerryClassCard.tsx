@@ -1,3 +1,5 @@
+// TODO: remove this file - Replaced by ClassCard
+
 import React, { memo, useCallback } from "react";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/utils/cn";

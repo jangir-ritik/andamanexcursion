@@ -342,13 +342,6 @@ export function FerrySearchForm({
             showArrow
             type="submit"
             disabled={isSearchDisabled}
-            // title={
-            //   !isSystemAvailable
-            //     ? "Ferry search is temporarily unavailable"
-            //     : !isFormValid
-            //       ? "Please fill in all required fields"
-            //       : undefined
-            // }
           >
             {isLoading ? "Searching..." : buttonText}
           </Button>
