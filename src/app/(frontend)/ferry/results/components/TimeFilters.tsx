@@ -1,21 +1,25 @@
+// Updated TimeFilters component - connected to store
 import React, { memo, useCallback, useMemo } from "react";
 import { Clock } from "lucide-react";
 import { Chip } from "@/components/atoms";
+import { useFerryStore } from "@/store/FerryStore";
 import styles from "./TimeFilters.module.css";
 
-// Define time filters as a constant to prevent recreation on each render
 export const TIME_FILTERS = [
   { id: "morning", text: "Morning", value: "0600-1200" },
   { id: "afternoon", text: "Afternoon", value: "1200-1800" },
   { id: "evening", text: "Evening", value: "1800-2359" },
 ];
 
+// REMOVED: Props interface - now connects directly to store
 interface TimeFiltersProps {
-  timeFilter: string | null;
-  setTimeFilter: (filter: string | null) => void;
+  // Optional: Allow overriding store behavior
+  variant?: "store-connected" | "controlled";
+  // Only needed for controlled variant (backward compatibility)
+  timeFilter?: string | null;
+  setTimeFilter?: (filter: string | null) => void;
 }
 
-// Memoized chip component to prevent unnecessary re-renders
 const FilterChip = memo<{
   text: string;
   isSelected: boolean;
@@ -33,30 +37,41 @@ const FilterChip = memo<{
     />
   </div>
 ));
-
 FilterChip.displayName = "FilterChip";
 
 export const TimeFilters = memo<TimeFiltersProps>(
-  ({ timeFilter, setTimeFilter }) => {
-    // Create a stable callback for clearing the filter
+  ({
+    variant = "store-connected",
+    timeFilter: propTimeFilter,
+    setTimeFilter: propSetTimeFilter,
+  }) => {
+    // NEW: Connect to store for timing state
+    const storeTimeFilter = useFerryStore((state) => state.activeTimeFilter);
+    const setActiveTimeFilter = useFerryStore(
+      (state) => state.setActiveTimeFilter
+    );
+
+    // Choose source based on variant
+    const activeTimeFilter =
+      variant === "controlled" ? propTimeFilter : storeTimeFilter;
+    const setTimeFilter =
+      variant === "controlled" ? propSetTimeFilter : setActiveTimeFilter;
+
     const handleClearFilter = useCallback(() => {
-      setTimeFilter(null);
+      setTimeFilter?.(null);
     }, [setTimeFilter]);
 
-    // Create a factory function to generate stable callbacks for each filter
     const createFilterHandler = useCallback(
       (value: string) => () => {
-        setTimeFilter(value);
+        setTimeFilter?.(value);
       },
       [setTimeFilter]
     );
 
-    // Memoize the filter chips to prevent unnecessary re-renders
     const filterChips = useMemo(() => {
       return TIME_FILTERS.map((filter) => {
-        const isSelected = timeFilter === filter.value;
+        const isSelected = activeTimeFilter === filter.value;
         const onClick = createFilterHandler(filter.value);
-
         return (
           <FilterChip
             key={filter.id}
@@ -66,15 +81,27 @@ export const TimeFilters = memo<TimeFiltersProps>(
           />
         );
       });
-    }, [timeFilter, createFilterHandler]);
+    }, [activeTimeFilter, createFilterHandler]);
+
+    // NEW: Show current state info for debugging/UX
+    const preferredTime = useFerryStore((state) => state.preferredTime);
+    const showSyncIndicator =
+      preferredTime && preferredTime !== activeTimeFilter;
 
     return (
       <div className={styles.timeFilters}>
-        <span className={styles.filterLabel}>Filter by time:</span>
+        <div className={styles.filterHeader}>
+          <span className={styles.filterLabel}>Filter by time:</span>
+          {showSyncIndicator && (
+            <span className={styles.syncIndicator}>
+              (Based on your search preference)
+            </span>
+          )}
+        </div>
         <div className={styles.chipContainer}>
           <FilterChip
             text="All Times"
-            isSelected={!timeFilter}
+            isSelected={!activeTimeFilter}
             onClick={handleClearFilter}
           />
           {filterChips}
@@ -83,5 +110,4 @@ export const TimeFilters = memo<TimeFiltersProps>(
     );
   }
 );
-
 TimeFilters.displayName = "TimeFilters";

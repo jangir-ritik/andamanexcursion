@@ -18,6 +18,9 @@ export interface FerryStore {
   bookingSession: FerryBookingSession | null;
   preferredTime: string | null;
 
+  // NEW: Current active time filter (for results page)
+  activeTimeFilter: string | null;
+
   // CLIENT-ONLY ACTIONS
   setSearchParams: (params: FerrySearchParams) => void;
   selectFerry: (ferry: UnifiedFerryResult) => void;
@@ -27,8 +30,11 @@ export interface FerryStore {
   updateBookingSession: (session: FerryBookingSession) => void;
   clearBookingSession: () => void;
   updatePassengerDetails: (passenger: PassengerDetail) => void;
-  setPreferredTime: (time: string | null) => void;
   reset: () => void;
+
+  // Timing-specific actions
+  setPreferredTime: (time: string | null) => void;
+  setActiveTimeFilter: (filter: string | null) => void;
 
   // Utility actions for better UX
   clearSelection: () => void;
@@ -49,6 +55,7 @@ const initialState = {
   selectedSeats: [],
   bookingSession: null,
   preferredTime: null,
+  activeTimeFilter: null,
 };
 
 export const useFerryStore = create<FerryStore>()(
@@ -66,13 +73,30 @@ export const useFerryStore = create<FerryStore>()(
     },
 
     setPreferredTime: (time: string | null) => {
-      set((state) => {
+      set((state: FerryStore) => {
         state.preferredTime = time;
+
+        // IMPORTANT: Automatically sync with time filter when set from form
+        // This creates the connection between form timing and result filtering
+        state.activeTimeFilter = time;
+      });
+    },
+
+    // NEW: Set active time filter (from TimeFilters component)
+    setActiveTimeFilter: (filter: string | null) => {
+      set((state: FerryStore) => {
+        state.activeTimeFilter = filter;
+
+        // Optionally sync back to preferred time if changed via filters
+        // You might want this behavior or not, depending on UX preferences
+        if (filter !== state.preferredTime) {
+          state.preferredTime = filter;
+        }
       });
     },
 
     selectFerry: (ferry: UnifiedFerryResult) => {
-      set((state) => {
+      set((state: FerryStore) => {
         state.selectedFerry = ferry;
         // Reset class and seats when ferry changes
         state.selectedClass = null;
@@ -81,7 +105,7 @@ export const useFerryStore = create<FerryStore>()(
     },
 
     selectClass: (ferryClass: FerryClass) => {
-      set((state) => {
+      set((state: FerryStore) => {
         state.selectedClass = ferryClass;
         // Reset seats when class changes
         state.selectedSeats = [];
@@ -89,7 +113,7 @@ export const useFerryStore = create<FerryStore>()(
     },
 
     selectSeats: (seats: Seat[]) => {
-      set((state) => {
+      set((state: FerryStore) => {
         state.selectedSeats = seats;
       });
     },
@@ -226,6 +250,10 @@ export const ferrySelectors = {
   selectedSeats: (state: FerryStore) => state.selectedSeats,
   bookingSession: (state: FerryStore) => state.bookingSession,
 
+  // NEW: Timing selectors
+  preferredTime: (state: FerryStore) => state.preferredTime,
+  activeTimeFilter: (state: FerryStore) => state.activeTimeFilter,
+
   // Computed selectors
   hasSelection: (state: FerryStore) =>
     !!(state.selectedFerry && state.selectedClass),
@@ -261,3 +289,8 @@ export const useRequiresSeatSelection = () =>
   useFerryStore(ferrySelectors.requiresSeatSelection);
 export const useIsBookingReady = () =>
   useFerryStore(ferrySelectors.isBookingReady);
+// NEW: Timing-specific hooks
+export const usePreferredTime = () =>
+  useFerryStore(ferrySelectors.preferredTime);
+export const useActiveTimeFilter = () =>
+  useFerryStore(ferrySelectors.activeTimeFilter);

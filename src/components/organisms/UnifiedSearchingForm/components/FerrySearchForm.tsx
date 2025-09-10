@@ -25,7 +25,7 @@ const ferrySearchSchema = z.object({
   fromLocation: z.string().min(1, "Please select departure location"),
   toLocation: z.string().min(1, "Please select destination location"),
   selectedDate: z.date({ required_error: "Please select a date" }),
-  selectedSlot: z.string().optional(),
+  selectedSlot: z.string().optional(), // This is now UI-only
   passengers: z.object({
     adults: z
       .number()
@@ -48,6 +48,13 @@ interface FerrySearchFormProps {
 const FERRY_LOCATIONS = LocationMappingService.getFormLocations();
 
 const FERRY_TIME_SLOTS = [
+  {
+    value: "", // Empty string represents "no preference"
+    label: "All Times",
+    id: "all-times",
+    time: "",
+    slug: "all-times",
+  },
   {
     value: "06:00",
     label: "Morning",
@@ -78,7 +85,7 @@ export function FerrySearchForm({
   showManualSearch = true,
 }: FerrySearchFormProps) {
   const router = useRouter();
-  const { searchParams, setSearchParams } = useFerryStore();
+  const { searchParams, setSearchParams, setPreferredTime } = useFerryStore();
 
   const {
     isSearching,
@@ -164,6 +171,7 @@ export function FerrySearchForm({
         adults: passengers.adults,
         children: passengers.children,
         infants: passengers.infants,
+        // NOTE: No timing parameter sent to API
       };
 
       // Only update if params actually changed
@@ -174,11 +182,40 @@ export function FerrySearchForm({
       }
     }
   }, [
-    watchedFields,
+    watchedFields.fromLocation,
+    watchedFields.toLocation,
+    watchedFields.selectedDate,
+    watchedFields.passengers,
     shouldEnableReactiveSearch,
     searchParams,
     setSearchParams,
   ]);
+
+  // NEW: Handle timing separately - this affects filtering, not search
+  useEffect(() => {
+    const { selectedSlot } = watchedFields;
+
+    // Convert form timing to filter format
+    let timeFilter: string | null = null;
+    if (selectedSlot && selectedSlot !== "") {
+      // Map form timing to filter timing
+      switch (selectedSlot) {
+        case "06:00":
+          timeFilter = "0600-1200"; // Morning
+          break;
+        case "12:00":
+          timeFilter = "1200-1800"; // Afternoon
+          break;
+        case "18:00":
+          timeFilter = "1800-2359"; // Evening
+          break;
+        default:
+          timeFilter = null;
+      }
+    }
+    // Update preferred time in store (this will affect result filtering)
+    setPreferredTime(timeFilter);
+  }, [watchedFields.selectedSlot, setPreferredTime]);
 
   // Simplified system availability check
   const isSystemAvailable = useMemo(() => {
@@ -364,6 +401,7 @@ export function FerrySearchForm({
                   label="Preferred Timing"
                   optional={true}
                   disabled={isLoading && !enableReactiveSearch}
+                  // NOTE: This doesn't affect the search API call
                 />
               )}
             />

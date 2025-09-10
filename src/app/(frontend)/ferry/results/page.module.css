@@ -41,7 +41,8 @@
 
 /* Filters section */
 .filterSummary {
-  margin-top: var(--space-4);
+  margin-top: unset;
+  /* margin-top: var(--space-4); */
   font-family: var(--font-family-primary);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -528,9 +529,8 @@
 /* Filters Section */
 
 .filterSummary {
-  margin-top: 12px;
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 

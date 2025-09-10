@@ -5,7 +5,7 @@ import { Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { FerryResults } from "./components/FerryResults";
 import { SearchSummary } from "./components/SearchSummary";
-import { TimeFilters } from "./components/TimeFilters";
+// import { TimeFilters } from "./components/TimeFilters";
 import { ServiceStatusDisplay } from "./components/ServiceStatusDisplay";
 import { SmartResultsSection } from "./components/SmartResultsSection";
 import { UnifiedSearchingForm } from "@/components/organisms";
@@ -94,7 +94,7 @@ const FerryResultsContent = () => {
       />
 
       {/* Time Filters - only show if we have results */}
-      {searchResults && searchResults.length > 0 && (
+      {/* {searchResults && searchResults.length > 0 && (
         <div className={styles.filtersSection}>
           <TimeFilters timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
           {timeFilter && (
@@ -102,6 +102,12 @@ const FerryResultsContent = () => {
               Showing {filteredResults.length} of {searchResults.length} ferries
             </div>
           )}
+        </div>
+      )} */}
+
+      {searchResults && searchResults.length > 0 && timeFilter && (
+        <div className={styles.filterSummary}>
+          Showing {filteredResults.length} of {searchResults.length} ferries
         </div>
       )}
 

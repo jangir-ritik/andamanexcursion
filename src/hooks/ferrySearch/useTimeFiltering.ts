@@ -1,42 +1,64 @@
-import { useMemo, useState } from "react";
+// Enhanced useTimeFiltering hook - now store-aware
+import { useMemo } from "react";
 import { UnifiedFerryResult } from "@/types/FerryBookingSession.types";
+import { useFerryStore } from "@/store/FerryStore";
 
-export const useTimeFiltering = (
-  searchResults: UnifiedFerryResult[] | null
-) => {
-  const [timeFilter, setTimeFilter] = useState<string | null>(null);
+/**
+ * Enhanced time filtering hook that connects to store state
+ * and provides the same filtering logic for both form preferences and manual filters
+ */
+export const useTimeFiltering = (results: UnifiedFerryResult[]) => {
+  // Connect to store state
+  const activeTimeFilter = useFerryStore((state) => state.activeTimeFilter);
+  const setActiveTimeFilter = useFerryStore(
+    (state) => state.setActiveTimeFilter
+  );
 
+  // Filter results based on active time filter
   const filteredResults = useMemo(() => {
-    if (!searchResults || searchResults.length === 0) {
-      return [];
+    if (!activeTimeFilter || !results.length) {
+      return results;
     }
 
-    if (!timeFilter) {
-      return searchResults;
-    }
+    const [startTime, endTime] = activeTimeFilter.split("-");
+    const startHour = parseInt(startTime.substring(0, 2));
+    const startMinute = parseInt(startTime.substring(2, 4));
+    const endHour = parseInt(endTime.substring(0, 2));
+    const endMinute = parseInt(endTime.substring(2, 4));
 
-    const [startHour, endHour] = timeFilter.split("-").map((time) => {
-      const hour = parseInt(time.substring(0, 2));
-      return hour;
-    });
+    return results.filter((ferry) => {
+      // Parse departure time (format: "HH:MM")
+      const [depHour, depMinute] = ferry.schedule.departureTime
+        .split(":")
+        .map(Number);
 
-    return searchResults.filter((ferry: UnifiedFerryResult) => {
-      const departureHour = parseInt(
-        ferry.schedule.departureTime.split(":")[0]
-      );
+      const departureMinutes = depHour * 60 + depMinute;
+      const startMinutes = startHour * 60 + startMinute;
+      const endMinutes = endHour * 60 + endMinute;
 
-      if (startHour <= endHour) {
-        return departureHour >= startHour && departureHour < endHour;
-      } else {
-        // Handle overnight times (e.g., 18:00 - 05:59)
-        return departureHour >= startHour || departureHour < endHour;
+      // Handle time range that crosses midnight
+      if (endMinutes <= startMinutes) {
+        return (
+          departureMinutes >= startMinutes || departureMinutes <= endMinutes
+        );
       }
-    });
-  }, [searchResults, timeFilter]);
 
+      return departureMinutes >= startMinutes && departureMinutes <= endMinutes;
+    });
+  }, [results, activeTimeFilter]);
+
+  // Return consistent interface but connected to store
   return {
-    timeFilter,
-    setTimeFilter,
+    timeFilter: activeTimeFilter,
+    setTimeFilter: setActiveTimeFilter,
     filteredResults,
+
+    // Additional utilities
+    hasTimeFilter: !!activeTimeFilter,
+    filteredCount: filteredResults.length,
+    totalCount: results.length,
+    filterSummary: activeTimeFilter
+      ? `Showing ${filteredResults.length} of ${results.length} ferries`
+      : `Showing all ${results.length} ferries`,
   };
 };
