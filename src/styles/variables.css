@@ -265,6 +265,7 @@
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 350ms;
+  --duration-very-slow: 5000ms;
 
   /* === Easing Functions === */
   --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);

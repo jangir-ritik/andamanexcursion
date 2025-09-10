@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, memo } from "react";
 import Image from "next/image";
 import styles from "./MediaContainer.module.css";
 import { Media } from "@payload-types";
@@ -24,7 +24,6 @@ export interface MediaContainerProps {
   priority?: boolean;
   fullWidth?: boolean;
   decorative?: boolean;
-  // Remove preferredSize - let the component decide intelligently
   width?: number;
   height?: number;
   fixedSize?: boolean;
@@ -35,6 +34,10 @@ export interface MediaContainerProps {
   controls?: boolean;
   poster?: string | Media;
   playsInline?: boolean;
+  // Loading state customization
+  showSkeleton?: boolean;
+  skeletonColor?: string;
+  blurDataURL?: string; // For custom blur placeholder
 }
 
 const MediaContainer: React.FC<MediaContainerProps> = ({
@@ -56,11 +59,17 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
   controls = false,
   poster,
   playsInline = true,
+  // Loading props
+  showSkeleton = true,
+  skeletonColor,
+  blurDataURL,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoError, setIsVideoError] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(true);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     console.error("Image load failed:", {
@@ -70,24 +79,26 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       selectedSize,
     });
     setImageError(true);
+    setImageLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
   };
 
   // Smart size selection based on component props
   const getPreferredSize = (): string => {
-    // If fixed size is specified, choose based on width
     if (fixedSize && width) {
       if (width <= 400) return "small";
       if (width <= 768) return "medium";
       return "large";
     }
 
-    // Choose based on aspect ratio and fullWidth
     if (fullWidth) {
       if (aspectRatio === "banner") return "large";
       return "medium";
     }
 
-    // Default size selection
     switch (aspectRatio) {
       case "square":
       case "portrait":
@@ -126,6 +137,20 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     }
   }, [processedSrc, isMediaObject, src]);
 
+  // Handle video events
+  const handleVideoLoadStart = () => {
+    setVideoLoading(true);
+  };
+
+  const handleVideoCanPlay = () => {
+    setVideoLoading(false);
+  };
+
+  const handleVideoError = () => {
+    setIsVideoError(true);
+    setVideoLoading(false);
+  };
+
   // Handle video autoplay
   useEffect(() => {
     const video = videoRef.current;
@@ -141,8 +166,11 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     }
   }, [isVideo, autoplay]);
 
+  // Reset loading states when src changes
   useEffect(() => {
     setImageError(false);
+    setImageLoading(true);
+    setVideoLoading(true);
   }, [src, processedSrc]);
 
   // Generate CSS classes
@@ -153,29 +181,22 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       [styles.fixedSize]: fixedSize,
       [styles[`aspect-${aspectRatio}`]]: aspectRatio !== "auto" && !fixedSize,
       [styles[`fit-${objectFit}`]]: true,
+      [styles.loading]: (isVideo ? videoLoading : imageLoading) && isValid,
     },
     className
   );
 
-  // Handle video error fallback
-  const handleVideoError = () => {
-    setIsVideoError(true);
-  };
-
   // Get poster image with the same optimization logic
   const getPosterSrc = (): string | undefined => {
-    // If poster prop is provided, process it
     if (poster) {
       if (typeof poster === "string") {
         return poster;
       }
-      // If it's a Media object, get the optimized URL
       if (typeof poster === "object" && poster.url) {
         return poster.sizes?.small?.url || poster.url;
       }
     }
 
-    // Fallback to video's poster from videoSettings
     if (isMediaObject && src && typeof src === "object") {
       const media = src as Media;
       if (media.videoSettings?.poster) {
@@ -187,12 +208,31 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     return undefined;
   };
 
-  // // Debug logging in development
-  // if (process.env.NODE_ENV === "development" && selectedSize) {
-  //   console.log(`MediaContainer: Using ${selectedSize} size for`, alt);
-  // }
+  // Generate a simple blur data URL based on aspect ratio
+  const getBlurDataURL = (): string => {
+    if (blurDataURL) return blurDataURL;
 
-  // If not valid or error occurred with video, show placeholder
+    // Generate a simple gradient blur placeholder
+    const color = skeletonColor || "#f3f4f6";
+    const width = 40;
+    const height =
+      aspectRatio === "square" ? 40 : aspectRatio === "portrait" ? 53 : 23;
+
+    return `data:image/svg+xml;base64,${btoa(
+      `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+            <stop offset="50%" stop-color="${color}" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#gradient)"/>
+      </svg>`
+    )}`;
+  };
+
+  // If not valid or error occurred, show placeholder
   if (!isValid || (isVideo && isVideoError) || imageError) {
     return (
       <div
@@ -221,9 +261,21 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
         className={containerClasses}
         style={fixedSize ? { width, height } : undefined}
       >
+        {/* Loading skeleton for video */}
+        {videoLoading && showSkeleton && (
+          <div
+            className={styles.skeleton}
+            style={{ backgroundColor: skeletonColor }}
+          >
+            <div className={styles.skeletonShimmer} />
+          </div>
+        )}
+
         <video
           ref={videoRef}
-          className={clsx(styles.media, styles.video)}
+          className={clsx(styles.media, styles.video, {
+            [styles.mediaLoaded]: !videoLoading,
+          })}
           autoPlay={autoplay && (videoSettings?.autoplay ?? true)}
           muted={muted && (videoSettings?.muted ?? true)}
           loop={loop && (videoSettings?.loop ?? true)}
@@ -231,6 +283,8 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
           playsInline={playsInline}
           poster={getPosterSrc()}
           preload="metadata"
+          onLoadStart={handleVideoLoadStart}
+          onCanPlay={handleVideoCanPlay}
           onError={handleVideoError}
           aria-label={decorative ? undefined : alt}
           role={decorative ? "presentation" : undefined}
@@ -251,6 +305,16 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       className={containerClasses}
       style={fixedSize ? { width, height } : undefined}
     >
+      {/* Loading skeleton for image */}
+      {imageLoading && showSkeleton && (
+        <div
+          className={styles.skeleton}
+          style={{ backgroundColor: skeletonColor }}
+        >
+          <div className={styles.skeletonShimmer} />
+        </div>
+      )}
+
       {fixedSize && width && height ? (
         <Image
           src={processedSrc}
@@ -258,8 +322,13 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
           width={width}
           height={height}
           priority={priority}
-          className={styles.media}
+          className={clsx(styles.media, {
+            [styles.mediaLoaded]: !imageLoading,
+          })}
+          onLoad={handleImageLoad}
           onError={handleImageError}
+          placeholder="blur"
+          blurDataURL={getBlurDataURL()}
           aria-hidden={decorative}
         />
       ) : (
@@ -268,9 +337,14 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
           alt={decorative ? "" : alt}
           fill
           priority={priority}
-          className={styles.media}
+          className={clsx(styles.media, {
+            [styles.mediaLoaded]: !imageLoading,
+          })}
           sizes={fullWidth ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+          onLoad={handleImageLoad}
           onError={handleImageError}
+          placeholder="blur"
+          blurDataURL={getBlurDataURL()}
           aria-hidden={decorative}
         />
       )}
@@ -278,4 +352,4 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
   );
 };
 
-export default MediaContainer;
+export default memo(MediaContainer);
