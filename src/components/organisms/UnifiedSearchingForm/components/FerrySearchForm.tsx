@@ -1,6 +1,6 @@
-// components/organisms/FerrySearchForm.tsx
+// components/organisms/FerrySearchForm.tsx - REFACTORED
 "use client";
-import React, { useCallback, useMemo, useEffect } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import styles from "../UnifiedSearchingForm.module.css";
 import { cn } from "@/utils/cn";
 
+// Components
 import {
   Button,
   DateSelect,
@@ -16,16 +17,24 @@ import {
   LocationSelect,
   PassengerCounter,
 } from "@/components/atoms";
-import { LocationMappingService } from "@/services/ferryServices/locationMappingService";
-import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 import { FerrySearchErrorBoundary } from "@/components/ferry/ErrorBoundary/FerrySearchErrorBoundary";
 
-// Ferry search schema
+// Extracted hooks
+import { useReactiveSearch } from "@/hooks/ferry/useReactiveSearch";
+import { useTimingPreference } from "@/hooks/ferry/useTimingPreference";
+import { useFormValidation } from "@/hooks/ferry/useFormValidation";
+import { useLocationFiltering } from "@/hooks/ferry/useLocationFiltering";
+
+// Services and data
+import { LocationMappingService } from "@/services/ferryServices/locationMappingService";
+import { useFerryFlow } from "@/hooks/queries/useFerryStore";
+
+// Schema - simplified, no longer needs selectedSlot validation
 const ferrySearchSchema = z.object({
   fromLocation: z.string().min(1, "Please select departure location"),
   toLocation: z.string().min(1, "Please select destination location"),
   selectedDate: z.date({ required_error: "Please select a date" }),
-  selectedSlot: z.string().optional(), // This is now UI-only
+  selectedSlot: z.string().optional(),
   passengers: z.object({
     adults: z
       .number()
@@ -41,19 +50,20 @@ type FerrySearchFormData = z.infer<typeof ferrySearchSchema>;
 interface FerrySearchFormProps {
   className?: string;
   variant?: "default" | "compact" | "embedded";
-  enableReactiveSearch?: boolean; // NEW: Control reactive behavior
-  showManualSearch?: boolean; // NEW: Show search button even in reactive mode
+  enableReactiveSearch?: boolean;
+  showManualSearch?: boolean;
 }
 
+// Constants
 const FERRY_LOCATIONS = LocationMappingService.getFormLocations();
 
 const FERRY_TIME_SLOTS = [
   {
-    value: "", // Empty string represents "no preference"
-    label: "All Times",
-    id: "all-times",
+    value: "",
+    label: "Any Time",
+    id: "any-time",
     time: "",
-    slug: "all-times",
+    slug: "any-time",
   },
   {
     value: "06:00",
@@ -87,18 +97,7 @@ export function FerrySearchForm({
   const router = useRouter();
   const { searchParams, setSearchParams, setPreferredTime } = useFerryStore();
 
-  const {
-    isSearching,
-    searchError,
-    searchErrors,
-    operatorHealth,
-    refetchSearch,
-    hasSearchParamsChanged,
-  } = useFerryFlow({
-    enableReactiveSearch,
-    debounceMs: 1500, // 1.5 second debounce
-  });
-
+  // Form setup
   const defaultValues = useMemo(
     () => ({
       fromLocation: searchParams.from || "",
@@ -125,120 +124,48 @@ export function FerrySearchForm({
   } = useForm<FerrySearchFormData>({
     resolver: zodResolver(ferrySearchSchema),
     defaultValues,
-    mode: "onChange", // Changed from "onSubmit" to "onChange" for reactive updates
+    mode: "onChange",
   });
 
-  // Watch all fields for reactive updates
   const watchedFields = watch();
 
-  const availableDestinations = useMemo(() => {
-    return FERRY_LOCATIONS.filter(
-      (location) => location.value !== watchedFields.fromLocation
-    );
-  }, [watchedFields.fromLocation]);
+  // Ferry flow data
+  const { isSearching, operatorHealth, hasSearchParamsChanged } = useFerryFlow({
+    enableReactiveSearch,
+    debounceMs: 1500,
+  });
 
-  const availableDepartures = useMemo(() => {
-    return FERRY_LOCATIONS.filter(
-      (location) => location.value !== watchedFields.toLocation
-    );
-  }, [watchedFields.toLocation]);
-
-  // Use reactive search as configured
-  const shouldEnableReactiveSearch = enableReactiveSearch;
-
-  // Reactive search params update
-  useEffect(() => {
-    if (!shouldEnableReactiveSearch) return;
-
-    const { fromLocation, toLocation, selectedDate, passengers } =
-      watchedFields;
-
-    if (fromLocation && toLocation && selectedDate && passengers) {
-      // Basic validation before updating search params
-      if (fromLocation === toLocation) return;
-      if (passengers.adults < 1) return;
-
-      const localDate = new Date(selectedDate);
-      const year = localDate.getFullYear();
-      const month = String(localDate.getMonth() + 1).padStart(2, "0");
-      const day = String(localDate.getDate()).padStart(2, "0");
-      const formattedDate = `${year}-${month}-${day}`;
-
-      const newSearchParams = {
-        from: fromLocation,
-        to: toLocation,
-        date: formattedDate,
-        adults: passengers.adults,
-        children: passengers.children,
-        infants: passengers.infants,
-        // NOTE: No timing parameter sent to API
-      };
-
-      // Only update if params actually changed
-      const hasChanged =
-        JSON.stringify(newSearchParams) !== JSON.stringify(searchParams);
-      if (hasChanged) {
-        setSearchParams(newSearchParams);
-      }
-    }
-  }, [
-    watchedFields.fromLocation,
-    watchedFields.toLocation,
-    watchedFields.selectedDate,
-    watchedFields.passengers,
-    shouldEnableReactiveSearch,
+  // Extracted custom hooks - much cleaner!
+  useReactiveSearch({
+    watchedFields,
+    shouldEnableReactiveSearch: enableReactiveSearch,
     searchParams,
     setSearchParams,
-  ]);
+  });
 
-  // NEW: Handle timing separately - this affects filtering, not search
-  useEffect(() => {
-    const { selectedSlot } = watchedFields;
+  useTimingPreference({
+    selectedSlot: watchedFields.selectedSlot,
+    setPreferredTime,
+  });
 
-    // Convert form timing to filter format
-    let timeFilter: string | null = null;
-    if (selectedSlot && selectedSlot !== "") {
-      // Map form timing to filter timing
-      switch (selectedSlot) {
-        case "06:00":
-          timeFilter = "0600-1200"; // Morning
-          break;
-        case "12:00":
-          timeFilter = "1200-1800"; // Afternoon
-          break;
-        case "18:00":
-          timeFilter = "1800-2359"; // Evening
-          break;
-        default:
-          timeFilter = null;
-      }
-    }
-    // Update preferred time in store (this will affect result filtering)
-    setPreferredTime(timeFilter);
-  }, [watchedFields.selectedSlot, setPreferredTime]);
+  const isFormValid = useFormValidation(watchedFields);
 
-  // Simplified system availability check
+  const { availableDestinations, availableDepartures } = useLocationFiltering(
+    FERRY_LOCATIONS,
+    watchedFields.fromLocation,
+    watchedFields.toLocation
+  );
+
+  // System availability check
   const isSystemAvailable = useMemo(() => {
     if (!operatorHealth) return true;
-
     const allOffline = Object.values(operatorHealth).every(
       (status: any) => status.status === "offline" || status.status === "error"
     );
-
     return !allOffline;
   }, [operatorHealth]);
 
-  // Form validation
-  const isFormValid = useMemo(() => {
-    return (
-      !!watchedFields.fromLocation &&
-      !!watchedFields.toLocation &&
-      !!watchedFields.selectedDate &&
-      watchedFields.passengers?.adults > 0 &&
-      watchedFields.fromLocation !== watchedFields.toLocation
-    );
-  }, [watchedFields]);
-
+  // Form submission
   const onSubmit = useCallback(
     async (data: FerrySearchFormData) => {
       if (data.fromLocation === data.toLocation) {
@@ -249,7 +176,7 @@ export function FerrySearchForm({
         return;
       }
 
-      // Format date properly
+      // Format date
       const localDate = new Date(data.selectedDate);
       const year = localDate.getFullYear();
       const month = String(localDate.getMonth() + 1).padStart(2, "0");
@@ -265,10 +192,9 @@ export function FerrySearchForm({
         infants: data.passengers.infants,
       };
 
-      // Update store
       setSearchParams(searchParams);
 
-      // Navigate to results only if not already on results page
+      // Navigate only if not on results page
       if (!window.location.pathname.includes("/ferry/results")) {
         const urlParams = new URLSearchParams({
           from: searchParams.from,
@@ -285,9 +211,10 @@ export function FerrySearchForm({
     [setSearchParams, setError, router]
   );
 
+  // Button text logic
   const buttonText = useMemo(() => {
     if (enableReactiveSearch && !showManualSearch) {
-      return null; // Hide button in pure reactive mode
+      return null;
     }
 
     switch (variant) {
@@ -322,13 +249,7 @@ export function FerrySearchForm({
         className={cn(styles.formGrid, className)}
       >
         <div className={styles.formContent}>
-          {/* Reactive search indicator */}
-          {/* {enableReactiveSearch && hasSearchParamsChanged && (
-          <div className={styles.reactiveIndicator}>
-            Searching automatically as you type...
-          </div>
-        )} */}
-
+          {/* Departure Location */}
           <div className={styles.formField}>
             <Controller
               control={control}
@@ -342,12 +263,12 @@ export function FerrySearchForm({
                   placeholder="Departure Port"
                   hasError={!!errors.fromLocation}
                   errorMessage={errors.fromLocation?.message}
-                  // disabled={isLoading && !enableReactiveSearch}
                 />
               )}
             />
           </div>
 
+          {/* Destination Location */}
           <div className={styles.formField}>
             <Controller
               control={control}
@@ -361,12 +282,12 @@ export function FerrySearchForm({
                   placeholder="Destination Port"
                   hasError={!!errors.toLocation}
                   errorMessage={errors.toLocation?.message}
-                  // disabled={isLoading && !enableReactiveSearch}
                 />
               )}
             />
           </div>
 
+          {/* Date */}
           <div className={styles.formField}>
             <Controller
               control={control}
@@ -376,7 +297,6 @@ export function FerrySearchForm({
                   selected={field.value}
                   onChange={field.onChange}
                   hasError={!!errors.selectedDate}
-                  // disabled={isLoading && !enableReactiveSearch}
                 />
               )}
             />
@@ -387,6 +307,7 @@ export function FerrySearchForm({
             )}
           </div>
 
+          {/* Timing Preference */}
           <div className={styles.formField}>
             <Controller
               control={control}
@@ -396,17 +317,16 @@ export function FerrySearchForm({
                   value={field.value || ""}
                   onChange={field.onChange}
                   options={FERRY_TIME_SLOTS}
-                  placeholder="Preferred Time (Optional)"
-                  hasError={!!errors.selectedSlot}
+                  placeholder="Any Time"
                   label="Preferred Timing"
                   optional={true}
-                  disabled={isLoading && !enableReactiveSearch}
-                  // NOTE: This doesn't affect the search API call
+                  // helperText="Results will be filtered by your preference"
                 />
               )}
             />
           </div>
 
+          {/* Passengers */}
           <div className={styles.formField}>
             <Controller
               control={control}
@@ -416,7 +336,6 @@ export function FerrySearchForm({
                   value={field.value}
                   onChange={handlePassengerChange(field)}
                   hasError={!!errors.passengers}
-                  // disabled={isLoading && !enableReactiveSearch}
                 />
               )}
             />
@@ -427,6 +346,7 @@ export function FerrySearchForm({
             )}
           </div>
 
+          {/* Search Button */}
           {buttonText && (
             <div className={styles.buttonContainer}>
               <Button

@@ -1,17 +1,14 @@
-// pages/ferry/results/page.tsx
+// pages/ferry/results/page.tsx - SIMPLIFIED
 "use client";
 import React, { Suspense } from "react";
 import { Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { FerryResults } from "./components/FerryResults";
 import { SearchSummary } from "./components/SearchSummary";
-// import { TimeFilters } from "./components/TimeFilters";
 import { ServiceStatusDisplay } from "./components/ServiceStatusDisplay";
-import { SmartResultsSection } from "./components/SmartResultsSection";
 import { UnifiedSearchingForm } from "@/components/organisms";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 import { useSearchParamsSync } from "@/hooks/ferrySearch/useSearchParamsSync";
-import { useSmartFiltering } from "@/hooks/ferrySearch/useSmartFiltering";
 import { useTimeFiltering } from "@/hooks/ferrySearch/useTimeFiltering";
 import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
 import { useRouter } from "next/navigation";
@@ -21,10 +18,10 @@ import { useFerryStore } from "@/store";
 
 const FerryResultsContent = () => {
   const router = useRouter();
-  const { userPreferredTime } = useSearchParamsSync();
 
-  // remove searchParams from useSearchParamsSync and use stored search params from ferryStore for reactive updates
+  // Get search params from store instead of URL for reactive updates
   const storeSearchParams = useFerryStore((state) => state.searchParams);
+  const preferredTime = useFerryStore((state) => state.preferredTime);
 
   const {
     ferries: searchResults,
@@ -33,18 +30,15 @@ const FerryResultsContent = () => {
     searchError: error,
     refetchSearch,
     isPartialFailure,
-    hasSearchParamsChanged, // NEW: Track if search is updating
+    hasSearchParamsChanged,
   } = useFerryFlow({
-    enableReactiveSearch: true, // Enable reactive search on results page
+    enableReactiveSearch: true,
     debounceMs: 1500,
   });
 
-  const smartFilteredResults = useSmartFiltering(
-    searchResults,
-    userPreferredTime
-  );
-  const { timeFilter, setTimeFilter, filteredResults } =
-    useTimeFiltering(searchResults);
+  // Apply timing preference filtering (no manual filters needed)
+  const { filteredResults } = useTimeFiltering(searchResults || []);
+
   const { enhancedError, handleRetry } = useErrorHandling(
     error,
     searchErrors,
@@ -57,33 +51,54 @@ const FerryResultsContent = () => {
     router.push("/ferry");
   };
 
+  // Show preferred time info
+  const getTimingDisplay = () => {
+    if (!preferredTime) return "Any Time";
+
+    switch (preferredTime) {
+      case "0600-1200":
+        return "Morning";
+      case "1200-1800":
+        return "Afternoon";
+      case "1800-2359":
+        return "Evening";
+      default:
+        return "Any Time";
+    }
+  };
+
   return (
     <div className={styles.pageContainer}>
-      {/* Modify Search Section - Now reactive */}
+      {/* Modify Search Section */}
       <div className={styles.modifySearchSection}>
         <SectionTitle text="Modify Search" specialWord="Search" />
         <UnifiedSearchingForm
           variant="embedded"
           className={styles.bookingForm}
-          enableReactiveSearch={true} // Enable reactive search
+          enableReactiveSearch={true}
           showManualSearch={false}
         />
-        {/* Show updating indicator */}
         {hasSearchParamsChanged && (
           <div className={styles.searchingIndicator}>Updating results...</div>
         )}
       </div>
 
-      {/* Search Summary */}
+      {/* Search Summary with timing preference */}
       <div className={styles.searchSummaryWrapper}>
         <SearchSummary
           loading={isLoading}
           ferryCount={filteredResults.length}
           searchParams={storeSearchParams}
         />
+        {preferredTime && (
+          <div className={styles.filterSummary}>
+            Showing {getTimingDisplay()} departures • {filteredResults.length}{" "}
+            ferries found
+          </div>
+        )}
       </div>
 
-      {/* Centralized Service Status - handles all error states */}
+      {/* Service Status */}
       <ServiceStatusDisplay
         searchErrors={searchErrors}
         isPartialFailure={isPartialFailure || false}
@@ -93,35 +108,12 @@ const FerryResultsContent = () => {
         onNewSearch={handleNewSearch}
       />
 
-      {/* Time Filters - only show if we have results */}
-      {/* {searchResults && searchResults.length > 0 && (
-        <div className={styles.filtersSection}>
-          <TimeFilters timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
-          {timeFilter && (
-            <div className={styles.filterSummary}>
-              Showing {filteredResults.length} of {searchResults.length} ferries
-            </div>
-          )}
-        </div>
-      )} */}
-
-      {searchResults && searchResults.length > 0 && timeFilter && (
-        <div className={styles.filterSummary}>
-          Showing {filteredResults.length} of {searchResults.length} ferries
-        </div>
-      )}
-
-      {/* Smart Results Section - simplified, no error handling */}
-      <SmartResultsSection
-        userPreferredTime={userPreferredTime}
-        timeFilter={timeFilter}
-        smartFilteredResults={smartFilteredResults}
+      {/* Results - now shows filtered results based on form preference */}
+      <FerryResults
+        loading={isLoading}
+        results={filteredResults}
+        // showTimingInfo={!!preferredTime}
       />
-
-      {/* Regular results - simplified, no error handling */}
-      {(!userPreferredTime || timeFilter) && (
-        <FerryResults loading={isLoading} results={filteredResults} />
-      )}
     </div>
   );
 };
