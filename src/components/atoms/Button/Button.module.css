@@ -80,6 +80,10 @@
   background-color: var(--color-primary);
 }
 
+.button:active {
+  transform: translateY(1px);
+}
+
 /* Tablet Responsive Design */
 @media (max-width: 1024px) {
   .button {
