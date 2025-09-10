@@ -14,6 +14,7 @@ interface UnifiedSearchingFormProps {
   variant?: "default" | "compact" | "embedded";
   initialTab?: "ferry" | "local-boat" | "activities";
   hideTabs?: boolean;
+  enableReactiveSearch?: boolean;
 }
 
 interface TabConfig {
@@ -51,6 +52,7 @@ export function UnifiedSearchingForm({
   variant = "default",
   initialTab = "ferry",
   hideTabs = false,
+  enableReactiveSearch = false,
 }: UnifiedSearchingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
 
@@ -62,7 +64,12 @@ export function UnifiedSearchingForm({
           className || ""
         }`}
       >
-        {initialTab === "ferry" && <FerrySearchForm variant={variant} />}
+        {initialTab === "ferry" && (
+          <FerrySearchForm
+            enableReactiveSearch={enableReactiveSearch}
+            variant={variant}
+          />
+        )}
         {initialTab === "local-boat" && <BoatSearchForm variant={variant} />}
         {initialTab === "activities" && (
           <ActivitySearchFormRQ variant={variant} />
@@ -73,7 +80,9 @@ export function UnifiedSearchingForm({
 
   return (
     <div
-      className={`${styles.unifiedSearchingForm} ${styles[variant]} ${className || ""}`}
+      className={`${styles.unifiedSearchingForm} ${styles[variant]} ${
+        className || ""
+      }`}
     >
       <Tabs.Root
         className={styles.tabsRoot}
@@ -93,7 +102,10 @@ export function UnifiedSearchingForm({
         </Tabs.List>
 
         <Tabs.Content className={styles.tabsContent} value="ferry">
-          <FerrySearchForm variant={variant} />
+          <FerrySearchForm
+            enableReactiveSearch={enableReactiveSearch}
+            variant={variant}
+          />
         </Tabs.Content>
 
         <Tabs.Content className={styles.tabsContent} value="local-boat">

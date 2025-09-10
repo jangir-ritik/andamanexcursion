@@ -16,6 +16,7 @@ export interface FerryStore {
   selectedClass: FerryClass | null;
   selectedSeats: Seat[];
   bookingSession: FerryBookingSession | null;
+  preferredTime: string | null;
 
   // CLIENT-ONLY ACTIONS
   setSearchParams: (params: FerrySearchParams) => void;
@@ -26,6 +27,7 @@ export interface FerryStore {
   updateBookingSession: (session: FerryBookingSession) => void;
   clearBookingSession: () => void;
   updatePassengerDetails: (passenger: PassengerDetail) => void;
+  setPreferredTime: (time: string | null) => void;
   reset: () => void;
 
   // Utility actions for better UX
@@ -46,6 +48,7 @@ const initialState = {
   selectedClass: null,
   selectedSeats: [],
   bookingSession: null,
+  preferredTime: null,
 };
 
 export const useFerryStore = create<FerryStore>()(
@@ -59,6 +62,12 @@ export const useFerryStore = create<FerryStore>()(
         state.selectedFerry = null;
         state.selectedClass = null;
         state.selectedSeats = [];
+      });
+    },
+
+    setPreferredTime: (time: string | null) => {
+      set((state) => {
+        state.preferredTime = time;
       });
     },
 

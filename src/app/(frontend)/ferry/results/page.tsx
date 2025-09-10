@@ -1,4 +1,4 @@
-// ===== 3. Updated Main Page Component =====
+// pages/ferry/results/page.tsx
 "use client";
 import React, { Suspense } from "react";
 import { Section } from "@/components/layout";
@@ -15,13 +15,16 @@ import { useSmartFiltering } from "@/hooks/ferrySearch/useSmartFiltering";
 import { useTimeFiltering } from "@/hooks/ferrySearch/useTimeFiltering";
 import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import styles from "./page.module.css";
 import LoadingCard from "@/components/molecules/Cards/ComponentStateCards/LoadingCard";
+import { useFerryStore } from "@/store";
 
 const FerryResultsContent = () => {
   const router = useRouter();
-  const { userPreferredTime, searchParams } = useSearchParamsSync();
+  const { userPreferredTime } = useSearchParamsSync();
+
+  // remove searchParams from useSearchParamsSync and use stored search params from ferryStore for reactive updates
+  const storeSearchParams = useFerryStore((state) => state.searchParams);
 
   const {
     ferries: searchResults,
@@ -30,7 +33,11 @@ const FerryResultsContent = () => {
     searchError: error,
     refetchSearch,
     isPartialFailure,
-  } = useFerryFlow();
+    hasSearchParamsChanged, // NEW: Track if search is updating
+  } = useFerryFlow({
+    enableReactiveSearch: true, // Enable reactive search on results page
+    debounceMs: 1500,
+  });
 
   const smartFilteredResults = useSmartFiltering(
     searchResults,
@@ -52,13 +59,18 @@ const FerryResultsContent = () => {
 
   return (
     <div className={styles.pageContainer}>
-      {/* Modify Search Section */}
+      {/* Modify Search Section - Now reactive */}
       <div className={styles.modifySearchSection}>
         <SectionTitle text="Modify Search" specialWord="Search" />
         <UnifiedSearchingForm
           variant="embedded"
           className={styles.bookingForm}
+          enableReactiveSearch={true} // Enable reactive search
         />
+        {/* Show updating indicator */}
+        {hasSearchParamsChanged && (
+          <div className={styles.searchingIndicator}>Updating results...</div>
+        )}
       </div>
 
       {/* Search Summary */}
@@ -66,7 +78,7 @@ const FerryResultsContent = () => {
         <SearchSummary
           loading={isLoading}
           ferryCount={filteredResults.length}
-          searchParams={searchParams}
+          searchParams={storeSearchParams}
         />
       </div>
 
@@ -79,6 +91,7 @@ const FerryResultsContent = () => {
         onRetry={handleRetry}
         onNewSearch={handleNewSearch}
       />
+
       {/* Time Filters - only show if we have results */}
       {searchResults && searchResults.length > 0 && (
         <div className={styles.filtersSection}>

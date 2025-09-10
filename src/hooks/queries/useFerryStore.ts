@@ -1,10 +1,17 @@
+// hooks/queries/useFerryFlow.ts (UPDATED to work with your existing hooks)
 import { useFerryStore } from "@/store/FerryStore";
 import { useFerrySearch } from "./ferryQueryHooks/useFerrySearch";
 import { useSeatLayout } from "./ferryQueryHooks/useSeatLayout";
 import { useFerryBooking, useFerryHealth } from "./ferryQueryHooks";
+import { useDebouncedSearchParams } from "./ferryQueryHooks/useDebouncedSearchParams";
 
-// Enhanced orchestration hook with fault tolerance support
-export const useFerryFlow = () => {
+// Enhanced orchestration hook with reactive search support
+export const useFerryFlow = (options?: {
+  enableReactiveSearch?: boolean;
+  debounceMs?: number;
+}) => {
+  const { enableReactiveSearch = false, debounceMs = 1000 } = options || {};
+
   const {
     searchParams,
     selectedFerry,
@@ -13,10 +20,23 @@ export const useFerryFlow = () => {
     bookingSession,
   } = useFerryStore();
 
-  // Enhanced search Query with fault tolerance
-  const searchQuery = useFerrySearch(searchParams);
+  // Use debounced params for reactive search
+  const debouncedSearchParams = useDebouncedSearchParams(
+    searchParams,
+    debounceMs
+  );
 
-  // Seat Layout query (only if ferry and class selected)
+  // Use debounced params if reactive search is enabled, otherwise use regular params
+  const effectiveSearchParams = enableReactiveSearch
+    ? debouncedSearchParams
+    : searchParams;
+
+  // Your existing search query - just pass the effective params
+  const searchQuery = useFerrySearch(effectiveSearchParams, {
+    enabled: enableReactiveSearch ? true : undefined, // Let your existing logic handle enabling
+  });
+
+  // Rest of your existing logic remains the same
   const seatLayoutQuery = useSeatLayout(
     selectedFerry?.operator || "",
     selectedFerry?.id || null,
@@ -25,13 +45,10 @@ export const useFerryFlow = () => {
     searchParams.date || null
   );
 
-  // Mutations
   const bookingMutation = useFerryBooking();
-
-  // Health status
   const healthQuery = useFerryHealth();
 
-  // Derived state
+  // Derived state (keeping your existing logic)
   const isSearchEnabled = !!(
     searchParams.from &&
     searchParams.to &&
@@ -51,7 +68,12 @@ export const useFerryFlow = () => {
     (selectedSeats.length > 0 || !selectedFerry.features.supportsSeatSelection)
   );
 
-  // Helper functions
+  // Check if current search params differ from debounced ones
+  const hasSearchParamsChanged =
+    enableReactiveSearch &&
+    JSON.stringify(searchParams) !== JSON.stringify(debouncedSearchParams);
+
+  // Helper functions (keeping your existing logic)
   const createBooking = () => {
     if (bookingSession) {
       return bookingMutation.mutate(bookingSession);
@@ -61,7 +83,6 @@ export const useFerryFlow = () => {
   const getServiceStatus = () => {
     const searchData = searchQuery.data;
     if (!searchData) return null;
-
     return {
       availableOperators: searchData.availableOperators || [],
       failedOperators: searchData.failedOperators || [],
@@ -71,7 +92,7 @@ export const useFerryFlow = () => {
   };
 
   return {
-    // Search state - Enhanced with fault tolerance
+    // Search state - Enhanced with fault tolerance and reactive support
     ferries: searchQuery.data?.results || [],
     searchErrors: searchQuery.data?.errors || [],
     isSearching: searchQuery.isFetching,
@@ -80,34 +101,38 @@ export const useFerryFlow = () => {
     availableOperators: searchQuery.data?.availableOperators || [],
     failedOperators: searchQuery.data?.failedOperators || [],
 
-    // Seat layout state
+    // Reactive search specific state
+    hasSearchParamsChanged,
+    debouncedSearchParams,
+
+    // Seat layout state (your existing logic)
     seatLayout: seatLayoutQuery.data,
     isLoadingSeats: seatLayoutQuery.isFetching,
     seatError: seatLayoutQuery.error,
 
-    // Booking state
+    // Booking state (your existing logic)
     isBooking: bookingMutation.isPending,
     bookingError: bookingMutation.error,
     bookingSuccess: bookingMutation.data,
 
-    // Health state
+    // Health state (your existing logic)
     operatorHealth: healthQuery.data,
     isCheckingHealth: healthQuery.isFetching,
 
-    // Computed state
+    // Computed state (your existing logic)
     isSearchEnabled,
     canSelectSeats,
     isReadyToBook,
 
-    // Service status helper
+    // Service status helper (your existing logic)
     serviceStatus: getServiceStatus(),
 
-    // Actions
+    // Actions (your existing logic)
     refetchSearch: searchQuery.refetch,
     refetchSeats: seatLayoutQuery.refetch,
     createBooking,
 
-    // Raw queries for advanced usage
+    // Raw queries for advanced usage (your existing logic)
     queries: {
       search: searchQuery,
       seatLayout: seatLayoutQuery,
@@ -117,7 +142,7 @@ export const useFerryFlow = () => {
       booking: bookingMutation,
     },
 
-    // Enhanced error information
+    // Enhanced error information (your existing logic)
     hasAnyErrors: !!(
       searchQuery.error ||
       (searchQuery.data?.errors?.length && searchQuery.data.errors.length > 0)

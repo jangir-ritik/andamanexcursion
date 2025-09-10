@@ -1,6 +1,6 @@
-// ===== 2. Simplified FerrySearchForm Component =====
+// components/organisms/FerrySearchForm.tsx
 "use client";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,19 +37,11 @@ const ferrySearchSchema = z.object({
 
 type FerrySearchFormData = z.infer<typeof ferrySearchSchema>;
 
-interface OperatorStatus {
-  status: "online" | "offline" | "error";
-  lastChecked?: string;
-  responseTime?: number;
-}
-
-interface OperatorHealth {
-  [operator: string]: OperatorStatus;
-}
-
 interface FerrySearchFormProps {
   className?: string;
   variant?: "default" | "compact" | "embedded";
+  enableReactiveSearch?: boolean; // NEW: Control reactive behavior
+  showManualSearch?: boolean; // NEW: Show search button even in reactive mode
 }
 
 const FERRY_LOCATIONS = LocationMappingService.getFormLocations();
@@ -81,6 +73,8 @@ const FERRY_TIME_SLOTS = [
 export function FerrySearchForm({
   className,
   variant = "default",
+  enableReactiveSearch = false,
+  showManualSearch = true,
 }: FerrySearchFormProps) {
   const router = useRouter();
   const { searchParams, setSearchParams } = useFerryStore();
@@ -91,7 +85,11 @@ export function FerrySearchForm({
     searchErrors,
     operatorHealth,
     refetchSearch,
-  } = useFerryFlow();
+    hasSearchParamsChanged,
+  } = useFerryFlow({
+    enableReactiveSearch,
+    debounceMs: 1500, // 1.5 second debounce
+  });
 
   const defaultValues = useMemo(
     () => ({
@@ -119,34 +117,66 @@ export function FerrySearchForm({
   } = useForm<FerrySearchFormData>({
     resolver: zodResolver(ferrySearchSchema),
     defaultValues,
-    mode: "onSubmit",
+    mode: "onChange", // Changed from "onSubmit" to "onChange" for reactive updates
   });
 
-  // Watch specific fields to avoid excessive re-renders
-  const watchedFields = watch([
-    "fromLocation",
-    "toLocation",
-    "selectedDate",
-    "passengers",
-  ]);
-  const [fromLocation, toLocation, selectedDate, passengers] = watchedFields;
+  // Watch all fields for reactive updates
+  const watchedFields = watch();
 
   const availableDestinations = useMemo(() => {
     return FERRY_LOCATIONS.filter(
-      (location) => location.value !== fromLocation
+      (location) => location.value !== watchedFields.fromLocation
     );
-  }, [fromLocation]);
+  }, [watchedFields.fromLocation]);
 
   const availableDepartures = useMemo(() => {
-    return FERRY_LOCATIONS.filter((location) => location.value !== toLocation);
-  }, [toLocation]);
+    return FERRY_LOCATIONS.filter(
+      (location) => location.value !== watchedFields.toLocation
+    );
+  }, [watchedFields.toLocation]);
+
+  // Reactive search params update
+  useEffect(() => {
+    if (!enableReactiveSearch) return;
+
+    const { fromLocation, toLocation, selectedDate, passengers } =
+      watchedFields;
+
+    if (fromLocation && toLocation && selectedDate && passengers) {
+      // Basic validation before updating search params
+      if (fromLocation === toLocation) return;
+      if (passengers.adults < 1) return;
+
+      const localDate = new Date(selectedDate);
+      const year = localDate.getFullYear();
+      const month = String(localDate.getMonth() + 1).padStart(2, "0");
+      const day = String(localDate.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
+
+      const newSearchParams = {
+        from: fromLocation,
+        to: toLocation,
+        date: formattedDate,
+        adults: passengers.adults,
+        children: passengers.children,
+        infants: passengers.infants,
+      };
+
+      // Only update if params actually changed
+      const hasChanged =
+        JSON.stringify(newSearchParams) !== JSON.stringify(searchParams);
+      if (hasChanged) {
+        setSearchParams(newSearchParams);
+      }
+    }
+  }, [watchedFields, enableReactiveSearch, searchParams, setSearchParams]);
 
   // Simplified system availability check
   const isSystemAvailable = useMemo(() => {
-    if (!operatorHealth) return true; // Assume available if no health data
+    if (!operatorHealth) return true;
 
-    const allOffline = Object.values(operatorHealth as OperatorHealth).every(
-      (status) => status.status === "offline" || status.status === "error"
+    const allOffline = Object.values(operatorHealth).every(
+      (status: any) => status.status === "offline" || status.status === "error"
     );
 
     return !allOffline;
@@ -155,13 +185,13 @@ export function FerrySearchForm({
   // Form validation
   const isFormValid = useMemo(() => {
     return (
-      !!fromLocation &&
-      !!toLocation &&
-      !!selectedDate &&
-      passengers?.adults > 0 &&
-      fromLocation !== toLocation
+      !!watchedFields.fromLocation &&
+      !!watchedFields.toLocation &&
+      !!watchedFields.selectedDate &&
+      watchedFields.passengers?.adults > 0 &&
+      watchedFields.fromLocation !== watchedFields.toLocation
     );
-  }, [fromLocation, toLocation, selectedDate, passengers]);
+  }, [watchedFields]);
 
   const onSubmit = useCallback(
     async (data: FerrySearchFormData) => {
@@ -192,31 +222,37 @@ export function FerrySearchForm({
       // Update store
       setSearchParams(searchParams);
 
-      // Navigate to results
-      const urlParams = new URLSearchParams({
-        from: searchParams.from,
-        to: searchParams.to,
-        date: searchParams.date,
-        adults: searchParams.adults.toString(),
-        children: searchParams.children.toString(),
-        infants: searchParams.infants.toString(),
-      });
+      // Navigate to results only if not already on results page
+      if (!window.location.pathname.includes("/ferry/results")) {
+        const urlParams = new URLSearchParams({
+          from: searchParams.from,
+          to: searchParams.to,
+          date: searchParams.date,
+          adults: searchParams.adults.toString(),
+          children: searchParams.children.toString(),
+          infants: searchParams.infants.toString(),
+        });
 
-      router.push(`/ferry/results?${urlParams.toString()}`);
+        router.push(`/ferry/results?${urlParams.toString()}`);
+      }
     },
     [setSearchParams, setError, router]
   );
 
   const buttonText = useMemo(() => {
+    if (enableReactiveSearch && !showManualSearch) {
+      return null; // Hide button in pure reactive mode
+    }
+
     switch (variant) {
       case "compact":
         return "Search";
       case "embedded":
-        return "Find Ferries";
+        return enableReactiveSearch ? "Update Search" : "Find Ferries";
       default:
         return "Search Ferries";
     }
-  }, [variant]);
+  }, [variant, enableReactiveSearch, showManualSearch]);
 
   const handlePassengerChange = useCallback(
     (field: { value: any; onChange: (value: any) => void }) =>
@@ -239,6 +275,13 @@ export function FerrySearchForm({
       className={cn(styles.formGrid, className)}
     >
       <div className={styles.formContent}>
+        {/* Reactive search indicator */}
+        {/* {enableReactiveSearch && hasSearchParamsChanged && (
+          <div className={styles.reactiveIndicator}>
+            Searching automatically as you type...
+          </div>
+        )} */}
+
         <div className={styles.formField}>
           <Controller
             control={control}
@@ -252,7 +295,7 @@ export function FerrySearchForm({
                 placeholder="Departure Port"
                 hasError={!!errors.fromLocation}
                 errorMessage={errors.fromLocation?.message}
-                // disabled={isLoading}
+                // disabled={isLoading && !enableReactiveSearch}
               />
             )}
           />
@@ -271,7 +314,7 @@ export function FerrySearchForm({
                 placeholder="Destination Port"
                 hasError={!!errors.toLocation}
                 errorMessage={errors.toLocation?.message}
-                // disabled={isLoading}
+                // disabled={isLoading && !enableReactiveSearch}
               />
             )}
           />
@@ -286,7 +329,7 @@ export function FerrySearchForm({
                 selected={field.value}
                 onChange={field.onChange}
                 hasError={!!errors.selectedDate}
-                // disabled={isLoading}
+                // disabled={isLoading && !enableReactiveSearch}
               />
             )}
           />
@@ -309,7 +352,7 @@ export function FerrySearchForm({
                 placeholder="Preferred Time (Optional)"
                 hasError={!!errors.selectedSlot}
                 label="Preferred Timing"
-                disabled={isLoading}
+                disabled={isLoading && !enableReactiveSearch}
               />
             )}
           />
@@ -324,7 +367,7 @@ export function FerrySearchForm({
                 value={field.value}
                 onChange={handlePassengerChange(field)}
                 hasError={!!errors.passengers}
-                // disabled={isLoading}
+                // disabled={isLoading && !enableReactiveSearch}
               />
             )}
           />
@@ -335,17 +378,19 @@ export function FerrySearchForm({
           )}
         </div>
 
-        <div className={styles.buttonContainer}>
-          <Button
-            variant="primary"
-            className={styles.searchButton}
-            showArrow
-            type="submit"
-            disabled={isSearchDisabled}
-          >
-            {isLoading ? "Searching..." : buttonText}
-          </Button>
-        </div>
+        {buttonText && (
+          <div className={styles.buttonContainer}>
+            <Button
+              variant="primary"
+              className={styles.searchButton}
+              showArrow
+              type="submit"
+              disabled={isSearchDisabled}
+            >
+              {isLoading ? "Searching..." : buttonText}
+            </Button>
+          </div>
+        )}
       </div>
     </form>
   );
