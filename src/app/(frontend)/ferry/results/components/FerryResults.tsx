@@ -16,7 +16,7 @@ interface FerryResultsProps {
 }
 
 export function FerryResults({ loading, results }: FerryResultsProps) {
-  const { selectFerry } = useFerryStore();
+  const { selectFerry, searchParams } = useFerryStore();
   const router = useRouter();
 
   const transformToFerryCardProps = (
@@ -30,6 +30,18 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
       0
     );
 
+    // Calculate total price based on actual passenger counts from search params
+    const calculateTotalPrice = (basePrice: number) => {
+      const adults = searchParams.adults || 1;
+      const children = searchParams.children || 0;
+      const infants = searchParams.infants || 0;
+      
+      // Adults pay full price, children typically 50%, infants free
+      return (adults * basePrice) + (children * basePrice * 0.5);
+    };
+
+    const calculatedTotalPrice = calculateTotalPrice(minPrice);
+
     return {
       ferryName: ferry.ferryName,
       rating: 4.5,
@@ -38,7 +50,7 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
       arrivalTime: ferry.schedule.arrivalTime,
       arrivalLocation: ferry.route.to.name,
       price: minPrice,
-      totalPrice: ferry.pricing.total,
+      totalPrice: calculatedTotalPrice, // Use calculated price based on passenger counts
       seatsLeft:
         totalSeats > 0 ? totalSeats : ferry.availability.availableSeats,
       operator: ferry.operator,

@@ -15,6 +15,7 @@ interface UnifiedSearchingFormProps {
   initialTab?: "ferry" | "local-boat" | "activities";
   hideTabs?: boolean;
   enableReactiveSearch?: boolean;
+  showManualSearch?: boolean;
 }
 
 interface TabConfig {
@@ -53,6 +54,7 @@ export function UnifiedSearchingForm({
   initialTab = "ferry",
   hideTabs = false,
   enableReactiveSearch = false,
+  showManualSearch = true,
 }: UnifiedSearchingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
 
@@ -68,6 +70,7 @@ export function UnifiedSearchingForm({
           <FerrySearchForm
             enableReactiveSearch={enableReactiveSearch}
             variant={variant}
+            showManualSearch={showManualSearch}
           />
         )}
         {initialTab === "local-boat" && <BoatSearchForm variant={variant} />}
@@ -105,6 +108,7 @@ export function UnifiedSearchingForm({
           <FerrySearchForm
             enableReactiveSearch={enableReactiveSearch}
             variant={variant}
+            showManualSearch={showManualSearch}
           />
         </Tabs.Content>
 

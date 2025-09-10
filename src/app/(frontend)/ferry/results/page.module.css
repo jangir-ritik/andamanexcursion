@@ -442,6 +442,10 @@
   color: #dc2626;
 }
 
+.searchingIndicator {
+  color: var(--color-text-primary);
+}
+
 .serviceStatusDetails {
   margin: 12px 0;
   padding-left: 32px;

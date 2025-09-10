@@ -1,16 +1,21 @@
 // hooks/ferrySearch/useDebouncedSearchParams.ts
-import { useEffect, useState } from "react";
-import { FerrySearchParams } from "@/types/FerryBookingSession.types";
+import { useEffect, useState, useRef } from 'react';
+import { FerrySearchParams } from '@/types/FerryBookingSession.types';
 
 export const useDebouncedSearchParams = (
   searchParams: FerrySearchParams,
   delay: number = 1000
 ) => {
   const [debouncedParams, setDebouncedParams] = useState(searchParams);
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Only update if the params are actually valid for searching
+    // Clear previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       const isValid = !!(
         searchParams.from &&
         searchParams.to &&
@@ -24,8 +29,22 @@ export const useDebouncedSearchParams = (
       }
     }, delay);
 
-    return () => clearTimeout(timer);
+    // Cleanup on unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [searchParams, delay]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return debouncedParams;
 };

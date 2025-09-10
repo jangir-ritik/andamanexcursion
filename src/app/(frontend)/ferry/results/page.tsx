@@ -66,6 +66,7 @@ const FerryResultsContent = () => {
           variant="embedded"
           className={styles.bookingForm}
           enableReactiveSearch={true} // Enable reactive search
+          showManualSearch={false}
         />
         {/* Show updating indicator */}
         {hasSearchParamsChanged && (

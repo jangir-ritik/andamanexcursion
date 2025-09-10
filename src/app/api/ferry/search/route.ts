@@ -2,7 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 import { FerryAggregationService } from "@/services/ferryServices/ferryAggregationService";
 import { FerrySearchParams } from "@/types/FerryBookingSession.types";
 
+// Rate limiting configuration
+const rateLimiter = new Map();
+const WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 10; // 10 searches per minute per IP
+
 export async function POST(request: NextRequest) {
+  // Rate limiting check
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  const now = Date.now();
+  
+  // Clean old entries
+  for (const [key, data] of rateLimiter.entries()) {
+    if (now - data.firstRequest > WINDOW_MS) {
+      rateLimiter.delete(key);
+    }
+  }
+  
+  const userData = rateLimiter.get(ip) || { count: 0, firstRequest: now };
+  
+  if (userData.count >= MAX_REQUESTS) {
+    console.warn(`🚫 Rate limit exceeded for IP: ${ip}`);
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait before searching again.' },
+      { status: 429 }
+    );
+  }
+  
+  userData.count++;
+  rateLimiter.set(ip, userData);
+
   try {
     const body = await request.json();
 

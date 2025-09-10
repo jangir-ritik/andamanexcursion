@@ -18,6 +18,7 @@ import {
 } from "@/components/atoms";
 import { LocationMappingService } from "@/services/ferryServices/locationMappingService";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
+import { FerrySearchErrorBoundary } from "@/components/ferry/ErrorBoundary/FerrySearchErrorBoundary";
 
 // Ferry search schema
 const ferrySearchSchema = z.object({
@@ -135,9 +136,12 @@ export function FerrySearchForm({
     );
   }, [watchedFields.toLocation]);
 
+  // Use reactive search as configured
+  const shouldEnableReactiveSearch = enableReactiveSearch;
+
   // Reactive search params update
   useEffect(() => {
-    if (!enableReactiveSearch) return;
+    if (!shouldEnableReactiveSearch) return;
 
     const { fromLocation, toLocation, selectedDate, passengers } =
       watchedFields;
@@ -169,7 +173,12 @@ export function FerrySearchForm({
         setSearchParams(newSearchParams);
       }
     }
-  }, [watchedFields, enableReactiveSearch, searchParams, setSearchParams]);
+  }, [
+    watchedFields,
+    shouldEnableReactiveSearch,
+    searchParams,
+    setSearchParams,
+  ]);
 
   // Simplified system availability check
   const isSystemAvailable = useMemo(() => {
@@ -269,130 +278,132 @@ export function FerrySearchForm({
   const isSearchDisabled = !isSystemAvailable || !isFormValid || isLoading;
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      aria-label="Ferry Search Form"
-      className={cn(styles.formGrid, className)}
-    >
-      <div className={styles.formContent}>
-        {/* Reactive search indicator */}
-        {/* {enableReactiveSearch && hasSearchParamsChanged && (
+    <FerrySearchErrorBoundary>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        aria-label="Ferry Search Form"
+        className={cn(styles.formGrid, className)}
+      >
+        <div className={styles.formContent}>
+          {/* Reactive search indicator */}
+          {/* {enableReactiveSearch && hasSearchParamsChanged && (
           <div className={styles.reactiveIndicator}>
             Searching automatically as you type...
           </div>
         )} */}
 
-        <div className={styles.formField}>
-          <Controller
-            control={control}
-            name="fromLocation"
-            render={({ field }) => (
-              <LocationSelect
-                label="From"
-                value={field.value || ""}
-                onChange={field.onChange}
-                options={availableDepartures}
-                placeholder="Departure Port"
-                hasError={!!errors.fromLocation}
-                errorMessage={errors.fromLocation?.message}
-                // disabled={isLoading && !enableReactiveSearch}
-              />
-            )}
-          />
-        </div>
-
-        <div className={styles.formField}>
-          <Controller
-            control={control}
-            name="toLocation"
-            render={({ field }) => (
-              <LocationSelect
-                label="To"
-                value={field.value || ""}
-                onChange={field.onChange}
-                options={availableDestinations}
-                placeholder="Destination Port"
-                hasError={!!errors.toLocation}
-                errorMessage={errors.toLocation?.message}
-                // disabled={isLoading && !enableReactiveSearch}
-              />
-            )}
-          />
-        </div>
-
-        <div className={styles.formField}>
-          <Controller
-            control={control}
-            name="selectedDate"
-            render={({ field }) => (
-              <DateSelect
-                selected={field.value}
-                onChange={field.onChange}
-                hasError={!!errors.selectedDate}
-                // disabled={isLoading && !enableReactiveSearch}
-              />
-            )}
-          />
-          {errors.selectedDate && (
-            <div className={styles.errorMessage}>
-              {errors.selectedDate.message}
-            </div>
-          )}
-        </div>
-
-        <div className={styles.formField}>
-          <Controller
-            control={control}
-            name="selectedSlot"
-            render={({ field }) => (
-              <SlotSelect
-                value={field.value || ""}
-                onChange={field.onChange}
-                options={FERRY_TIME_SLOTS}
-                placeholder="Preferred Time (Optional)"
-                hasError={!!errors.selectedSlot}
-                label="Preferred Timing"
-                optional={true}
-                disabled={isLoading && !enableReactiveSearch}
-              />
-            )}
-          />
-        </div>
-
-        <div className={styles.formField}>
-          <Controller
-            control={control}
-            name="passengers"
-            render={({ field }) => (
-              <PassengerCounter
-                value={field.value}
-                onChange={handlePassengerChange(field)}
-                hasError={!!errors.passengers}
-                // disabled={isLoading && !enableReactiveSearch}
-              />
-            )}
-          />
-          {errors.passengers && (
-            <div className={styles.errorMessage}>
-              {errors.passengers.message}
-            </div>
-          )}
-        </div>
-
-        {buttonText && (
-          <div className={styles.buttonContainer}>
-            <Button
-              variant="primary"
-              className={styles.searchButton}
-              showArrow
-              type="submit"
-              disabled={isSearchDisabled}
-            >
-              {isLoading ? "Searching..." : buttonText}
-            </Button>
+          <div className={styles.formField}>
+            <Controller
+              control={control}
+              name="fromLocation"
+              render={({ field }) => (
+                <LocationSelect
+                  label="From"
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  options={availableDepartures}
+                  placeholder="Departure Port"
+                  hasError={!!errors.fromLocation}
+                  errorMessage={errors.fromLocation?.message}
+                  // disabled={isLoading && !enableReactiveSearch}
+                />
+              )}
+            />
           </div>
-        )}
-      </div>
-    </form>
+
+          <div className={styles.formField}>
+            <Controller
+              control={control}
+              name="toLocation"
+              render={({ field }) => (
+                <LocationSelect
+                  label="To"
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  options={availableDestinations}
+                  placeholder="Destination Port"
+                  hasError={!!errors.toLocation}
+                  errorMessage={errors.toLocation?.message}
+                  // disabled={isLoading && !enableReactiveSearch}
+                />
+              )}
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <Controller
+              control={control}
+              name="selectedDate"
+              render={({ field }) => (
+                <DateSelect
+                  selected={field.value}
+                  onChange={field.onChange}
+                  hasError={!!errors.selectedDate}
+                  // disabled={isLoading && !enableReactiveSearch}
+                />
+              )}
+            />
+            {errors.selectedDate && (
+              <div className={styles.errorMessage}>
+                {errors.selectedDate.message}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.formField}>
+            <Controller
+              control={control}
+              name="selectedSlot"
+              render={({ field }) => (
+                <SlotSelect
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  options={FERRY_TIME_SLOTS}
+                  placeholder="Preferred Time (Optional)"
+                  hasError={!!errors.selectedSlot}
+                  label="Preferred Timing"
+                  optional={true}
+                  disabled={isLoading && !enableReactiveSearch}
+                />
+              )}
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <Controller
+              control={control}
+              name="passengers"
+              render={({ field }) => (
+                <PassengerCounter
+                  value={field.value}
+                  onChange={handlePassengerChange(field)}
+                  hasError={!!errors.passengers}
+                  // disabled={isLoading && !enableReactiveSearch}
+                />
+              )}
+            />
+            {errors.passengers && (
+              <div className={styles.errorMessage}>
+                {errors.passengers.message}
+              </div>
+            )}
+          </div>
+
+          {buttonText && (
+            <div className={styles.buttonContainer}>
+              <Button
+                variant="primary"
+                className={styles.searchButton}
+                showArrow
+                type="submit"
+                disabled={isSearchDisabled}
+              >
+                {isLoading ? "Searching..." : buttonText}
+              </Button>
+            </div>
+          )}
+        </div>
+      </form>
+    </FerrySearchErrorBoundary>
   );
 }

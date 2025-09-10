@@ -53,7 +53,7 @@ export const useFerrySearch = (
 
   return useQuery({
     queryKey: ["ferry-search", searchParams],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => { // Add AbortSignal support
       if (!searchParams?.from || !searchParams?.to || !searchParams?.date) {
         throw new Error("Missing required search parameters");
       }
@@ -64,6 +64,7 @@ export const useFerrySearch = (
           "Content-Type": "application/json",
         },
         body: JSON.stringify(searchParams),
+        signal, // Pass abort signal to fetch
       });
 
       const data = await response.json();
@@ -85,6 +86,8 @@ export const useFerrySearch = (
           availableOperators: data.data.meta.availableOperators || [],
           failedOperators: data.data.meta.failedOperators || [],
         };
+      } else if (response.status === 429) {
+        throw new Error('Too many requests. Please wait before searching again.');
       } else if (response.status === 503) {
         throw new Error(`Service unavailable: ${data.message}`);
       } else {
@@ -93,18 +96,10 @@ export const useFerrySearch = (
     },
     enabled: shouldSearch,
     retry: (failureCount, error) => {
-      if (
-        error.message.includes("Missing required") ||
-        error.message.includes("Invalid date")
-      ) {
-        return false;
-      }
-      if (
-        error.message.includes("Service unavailable") ||
-        error.message.includes("timeout")
-      ) {
-        return failureCount < 2;
-      }
+      if (error.message.includes('Too many requests')) return false;
+      if (error.message.includes('Missing required')) return false;
+      if (error.message.includes('aborted')) return false; // Don't retry cancelled requests
+      if (error.message.includes('Service unavailable')) return failureCount < 2;
       return failureCount < 1;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
