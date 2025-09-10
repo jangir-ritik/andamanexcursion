@@ -1,8 +1,40 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import type { FeaturePackageCardProps } from "./FeaturePackageCard.types";
 import clsx from "clsx";
 import styles from "./FeaturePackageCard.module.css";
-import { ImageContainer, InlineLink } from "@/components/atoms";
+import { ImageContainer } from "@/components/atoms";
+
+// Extract location icon as a constant to avoid recreating on each render
+const LocationIcon = () => (
+  <svg
+    className={styles.locationIcon}
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+// Extract arrow icon as a constant
+const ActionArrow = () => (
+  <svg
+    className={styles.actionArrow}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+);
 
 export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
   title,
@@ -15,61 +47,76 @@ export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
   href,
   className,
 }) => {
-  // Helper function to format multiple locations
-  const formatLocations = (locations: any[]) => {
-    if (!locations || locations.length === 0) return "";
-    // Extract location names, handling both string IDs and populated objects
-    const locationNames = locations.map((location) => {
-      if (typeof location === "string") {
-        return location;
-      }
-      return location?.name || location?.title || "Unknown Location";
-    });
-    // Format multiple locations with & separator
-    if (locationNames.length === 1) {
-      return locationNames[0];
-    } else if (locationNames.length === 2) {
-      return `${locationNames[0]} & ${locationNames[1]}`;
-    } else if (locationNames.length > 2) {
-      // Show first two and indicate more
-      return `${locationNames[0]} & ${locationNames[1]}`;
-    }
-    return "";
-  };
+  // Optimized helper function to format all locations with & separator
+  const formattedLocations = useMemo(() => {
+    if (!locations?.length) return "";
 
-  const formattedLocations = formatLocations(locations);
+    // Extract location names efficiently
+    const locationNames = locations
+      .map((location) => {
+        if (typeof location === "string") return location;
+        return location?.name || "Unknown Location";
+      })
+      .filter(Boolean); // Remove any falsy values
 
-  // Calculate discount percentage if original price exists
-  const discountPercentage =
-    originalPrice && originalPrice > price
+    // Join all locations with " & "
+    return locationNames.join(" & ");
+  }, [locations]);
+
+  // Calculate discount percentage - memoized for performance
+  const discountPercentage = useMemo(() => {
+    return originalPrice && originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : null;
+  }, [originalPrice, price]);
+
+  // Memoize aria-label to avoid recalculation
+  const ariaLabel = useMemo(
+    () =>
+      `View ${title} package details - ${formattedLocations} - ${duration} - ₹${price} per person`,
+    [title, formattedLocations, duration, price]
+  );
+
+  // Optimize click handlers with useCallback
+  const handleClick = useCallback(() => {
+    window.location.href = href;
+  }, [href]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        window.location.href = href;
+      }
+    },
+    [href]
+  );
+
+  // Early return optimization - only render if required props exist
+  if (!title || !price || !href) {
+    return null;
+  }
 
   return (
     <article
       className={clsx(styles.card, className)}
-      role="link"
+      role="button"
       tabIndex={0}
-      onClick={() => (window.location.href = href)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          window.location.href = href;
-        }
-      }}
-      aria-label={`View ${title} package details - ${formattedLocations} - ${duration} - ₹${price} per person`}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      aria-label={ariaLabel}
     >
       <div className={styles.contentWrapper}>
         {/* Image Section */}
         <div className={styles.imageSection}>
           <ImageContainer
             src={image}
-            alt={`${title} package image`}
+            alt={`${title} package`}
             className={styles.imageWrapper}
           />
         </div>
 
-        {/* Content Section - Restructured */}
+        {/* Content Section */}
         <div className={styles.contentSection}>
           {/* Top Section: Title, Location & Duration Badge */}
           <div className={styles.topSection}>
@@ -79,35 +126,25 @@ export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
               {/* Location with Icon */}
               {formattedLocations && (
                 <div className={styles.locationGroup}>
-                  <svg
-                    className={styles.locationIcon}
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
+                  <LocationIcon />
                   <span className={styles.location}>{formattedLocations}</span>
                 </div>
               )}
             </div>
 
             {/* Duration Badge */}
-            <div
-              className={styles.durationBadge}
-              aria-label={`Duration: ${duration}`}
-            >
-              {duration}
-            </div>
+            {duration && (
+              <div
+                className={styles.durationBadge}
+                aria-label={`Duration: ${duration}`}
+              >
+                {duration}
+              </div>
+            )}
           </div>
 
           {/* Description */}
-          <p className={styles.description}>{description}</p>
+          {description && <p className={styles.description}>{description}</p>}
 
           {/* Bottom Section: Price & Action */}
           <div className={styles.bottomSection}>
@@ -120,7 +157,7 @@ export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
                     className={styles.originalPrice}
                     aria-label={`Original price: ₹${originalPrice}`}
                   >
-                    ₹{originalPrice}
+                    ₹{originalPrice.toLocaleString()}
                   </span>
                   {discountPercentage && (
                     <span
@@ -139,7 +176,7 @@ export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
                   className={styles.currentPrice}
                   aria-label={`Current price: ₹${price} per person`}
                 >
-                  ₹{price}
+                  ₹{price.toLocaleString()}
                 </span>
                 <span className={styles.perPerson} aria-hidden="true">
                   /person
@@ -150,17 +187,7 @@ export const FeaturePackageCard: React.FC<FeaturePackageCardProps> = ({
             {/* Visual Action Indicator */}
             <div className={styles.actionIndicator} aria-hidden="true">
               <span className={styles.actionText}>View Details</span>
-              <svg
-                className={styles.actionArrow}
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
+              <ActionArrow />
             </div>
           </div>
         </div>
