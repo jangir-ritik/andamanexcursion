@@ -352,6 +352,7 @@ export function FerrySearchForm({
                 placeholder="Preferred Time (Optional)"
                 hasError={!!errors.selectedSlot}
                 label="Preferred Timing"
+                optional={true}
                 disabled={isLoading && !enableReactiveSearch}
               />
             )}

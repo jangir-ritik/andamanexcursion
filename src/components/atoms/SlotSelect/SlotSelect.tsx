@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 interface SlotSelectPropsWithError extends SlotSelectProps {
   errorMessage?: string;
   label?: string;
+  optional?: boolean;
 }
 
 const SlotSelect = memo(
@@ -24,6 +25,7 @@ const SlotSelect = memo(
     isLoading = false,
     errorMessage,
     label = "Slot",
+    optional = false,
   }: SlotSelectPropsWithError) => {
     const isDisabled = disabled || isLoading;
 
@@ -71,7 +73,7 @@ const SlotSelect = memo(
           >
             <span className={styles.selectLabel} id={labelId}>
               {label}
-              <span className={styles.required}>*</span>
+              {!optional && <span className={styles.required}>*</span>}
             </span>
             <Select.Value
               placeholder={displayText}
