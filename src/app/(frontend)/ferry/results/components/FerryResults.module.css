@@ -380,10 +380,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .ferryResultsContainer {
-    padding: 0 12px;
-  }
-
   .errorActions,
   .noResultsActions {
     flex-direction: column;

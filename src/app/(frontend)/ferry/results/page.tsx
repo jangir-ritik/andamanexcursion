@@ -8,7 +8,7 @@ import { SearchSummary } from "./components/SearchSummary";
 import { ServiceStatusDisplay } from "./components/ServiceStatusDisplay";
 import { UnifiedSearchingForm } from "@/components/organisms";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
-import { useSearchParamsSync } from "@/hooks/ferrySearch/useSearchParamsSync";
+// import { useSearchParamsSync } from "@/hooks/ferrySearch/useSearchParamsSync";
 import { useTimeFiltering } from "@/hooks/ferrySearch/useTimeFiltering";
 import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
 import { useRouter } from "next/navigation";

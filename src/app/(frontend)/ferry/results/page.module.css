@@ -635,7 +635,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 16px 12px;
+    padding: 0;
     gap: 16px;
   }
 
@@ -680,7 +680,7 @@
 
 @media (max-width: 480px) {
   .pageContainer {
-    padding: 12px 8px;
+    padding: 0;
   }
 
   .serviceStatusNote {

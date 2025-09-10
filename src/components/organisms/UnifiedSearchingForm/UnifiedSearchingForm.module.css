@@ -148,11 +148,23 @@
   align-items: center;
 }
 
+.formContentWithoutButton {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  align-items: center;
+}
+
 /* Large screens: Single row layout (6 fields) */
 @media (min-width: 1200px) {
   .formContent {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
     grid-template-areas: "activity location date time passengers buttons";
+  }
+
+  .formContentWithoutButton {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "activity location date time passengers";
   }
 
   .formField:nth-child(1) {
@@ -186,6 +198,14 @@
     align-items: end;
   }
 
+  .formContentWithoutButton {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+      "activity location date"
+      "time passengers passengers";
+    align-items: end;
+  }
+
   .formField:nth-child(1) {
     grid-area: activity;
   }
@@ -215,6 +235,15 @@
       "date time"
       "passengers passengers"
       "buttons buttons";
+    align-items: end;
+  }
+
+  .formContentWithoutButton {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "activity location"
+      "date time"
+      "passengers passengers";
     align-items: end;
   }
 
@@ -291,6 +320,17 @@
       "time"
       "passengers"
       "buttons";
+    gap: var(--space-2);
+  }
+
+  .formContentWithoutButton {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "activity"
+      "location"
+      "date"
+      "time"
+      "passengers";
     gap: var(--space-2);
   }
 
@@ -412,7 +452,7 @@
 /* Small Mobile Responsive Design */
 @media (max-width: 480px) {
   .unifiedSearchingForm {
-    padding: var(--space-1);
+    padding: 0;
   }
 
   .tabsContent {
@@ -420,7 +460,7 @@
   }
 
   .embedded .formGrid {
-    padding: var(--space-1);
+    padding: var(--space-2);
   }
 
   .tabsTrigger {
@@ -434,6 +474,10 @@
   }
 
   .formContent {
+    gap: var(--space-2);
+  }
+
+  .formContentWithoutButton {
     gap: var(--space-2);
   }
 }

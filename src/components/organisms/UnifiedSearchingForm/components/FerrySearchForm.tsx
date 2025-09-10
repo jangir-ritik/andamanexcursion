@@ -248,7 +248,14 @@ export function FerrySearchForm({
         aria-label="Ferry Search Form"
         className={cn(styles.formGrid, className)}
       >
-        <div className={styles.formContent}>
+        <div
+          className={
+            // If showManualSearch is false, use formContentWithoutButton
+            !showManualSearch
+              ? styles.formContentWithoutButton
+              : styles.formContent
+          }
+        >
           {/* Departure Location */}
           <div className={styles.formField}>
             <Controller
