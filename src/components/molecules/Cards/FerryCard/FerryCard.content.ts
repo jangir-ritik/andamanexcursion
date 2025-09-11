@@ -3,7 +3,7 @@ export const ferryCardContent = {
   seatsLeft: "Seats Left",
   chooseSeats: "Choose Seats",
   perAdult: "/adult",
-  total: "/- total",
+  total: "/total",
   expandFerry: "ferry details for",
   collapseExpand: {
     expand: "Expand",

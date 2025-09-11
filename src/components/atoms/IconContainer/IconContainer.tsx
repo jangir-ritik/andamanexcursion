@@ -9,6 +9,7 @@ export const IconContainer = ({
   src,
   alt,
   size = 24,
+  responsive,
   className = "",
   decorative = false,
   priority = false,
@@ -35,30 +36,57 @@ export const IconContainer = ({
 
   const handleIconLoad = useCallback(() => {
     setIconLoading(false);
-    setIconError(false); // Ensure error is cleared on successful load
+    setIconError(false);
   }, []);
+
+  // Generate responsive CSS custom properties if responsive sizes are provided
+  const generateResponsiveStyles = (): React.CSSProperties => {
+    if (!responsive) return {};
+
+    const style: React.CSSProperties & Record<string, string> = {};
+
+    if (responsive.mobile) {
+      style["--icon-size-mobile"] = `${responsive.mobile}px`;
+    }
+    if (responsive.tablet) {
+      style["--icon-size-tablet"] = `${responsive.tablet}px`;
+    }
+    if (responsive.desktop) {
+      style["--icon-size-desktop"] = `${responsive.desktop}px`;
+    }
+
+    return style;
+  };
 
   const containerClasses = [
     styles.container,
     iconLoading && styles.loading,
     iconError && styles.error,
-    isSvg && styles.svg, // Add SVG-specific styling class
+    isSvg && styles.svg,
+    responsive && styles.responsive,
     className,
   ]
     .filter(Boolean)
     .join(" ")
     .trim();
 
+  // Determine container style
+  const containerStyle: React.CSSProperties = {
+    ...(size === "auto" ? {} : { width: size, height: size }),
+    ...(isSvg ? { padding: "1px" } : {}),
+    ...generateResponsiveStyles(),
+  };
+
   // Fallback content when icon fails or src is invalid
   const renderFallback = () => (
     <div
       className={styles.fallback}
-      style={{ width: size, height: size }}
+      style={containerStyle}
       role="img"
       aria-label={alt || "Icon unavailable"}
     >
       <ImageOff
-        size={Math.min(24, size * 0.8)}
+        size={typeof size === "number" ? Math.min(24, size * 0.8) : 24}
         className={styles.fallbackIcon}
       />
     </div>
@@ -66,10 +94,7 @@ export const IconContainer = ({
 
   // Render loading state
   const renderLoading = () => (
-    <div
-      className={styles.loadingOverlay}
-      style={{ width: size, height: size }}
-    >
+    <div className={styles.loadingOverlay} style={containerStyle}>
       <div className={styles.loadingSpinner} />
     </div>
   );
@@ -82,7 +107,7 @@ export const IconContainer = ({
   return (
     <div
       className={containerClasses}
-      style={{ width: size, height: size }}
+      style={containerStyle}
       role={decorative ? "presentation" : "img"}
       aria-label={decorative ? undefined : alt}
     >
@@ -93,16 +118,16 @@ export const IconContainer = ({
           <Image
             src={typeof src === "string" ? src : src?.url || ""}
             alt={alt || ""}
-            width={size}
-            height={size}
+            width={typeof size === "number" ? size : 24}
+            height={typeof size === "number" ? size : 24}
             className={styles.icon}
             priority={priority}
             onError={handleIconError}
             onLoad={handleIconLoad}
             // SVG-specific optimizations
             {...(isSvg && {
-              unoptimized: false, // Next.js can optimize SVGs
-              quality: 100, // Preserve SVG quality
+              unoptimized: false,
+              quality: 100,
             })}
           />
           {iconLoading && renderLoading()}

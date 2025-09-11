@@ -35,7 +35,7 @@ export const FerryHeader = memo<FerryHeaderProps>(
           <IconContainer
             src={getOperatorIcon(operator) as string}
             alt={`${operator} logo`}
-            size={48}
+            size="auto"
             className={styles.ferryLogo}
           />
         </div>

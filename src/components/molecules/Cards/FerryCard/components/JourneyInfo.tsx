@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
 import styles from "../FerryCard.module.css";
+import clsx from "clsx";
 
 const ferryBoatIcon = "/icons/misc/boat.svg";
 const circle_unfilled = "/icons/misc/circle_unfilled.svg";
@@ -17,7 +18,6 @@ export const JourneyInfo = memo<JourneyInfoProps>(
   ({ departureTime, departureLocation, arrivalTime, arrivalLocation }) => {
     // Format time for datetime attribute (ISO format)
     const formatTimeForDateTime = (timeStr: string): string => {
-      // This is a simple implementation - adjust based on your actual time format
       const today = new Date().toISOString().split("T")[0];
       return `${today}T${timeStr.replace(/\s?(AM|PM)/i, "")}:00`;
     };
@@ -33,22 +33,25 @@ export const JourneyInfo = memo<JourneyInfoProps>(
           </time>
           <span className={styles.locationText}>{departureLocation}</span>
         </div>
-
         <div className={styles.journeyLine} role="presentation">
           <div className={styles.dottedLine} />
           <div className={styles.circleStart}>
             <IconContainer
               src={circle_unfilled}
               alt=""
-              size={24}
+              size="auto"
+              // Remove fixed size - let CSS handle it
+              className={styles.circleIcon}
               aria-hidden="true"
             />
           </div>
           <div className={styles.ferryIcon}>
             <IconContainer
-              size={50}
               src={ferryBoatIcon}
               alt=""
+              size="auto"
+              // Remove fixed size - let CSS handle it
+              className={styles.ferryIconContainer}
               aria-hidden="true"
             />
           </div>
@@ -56,13 +59,13 @@ export const JourneyInfo = memo<JourneyInfoProps>(
             <IconContainer
               src={circle_filled}
               alt=""
-              size={24}
+              size="auto" // Add this
+              className={styles.circleIcon}
               aria-hidden="true"
             />
           </div>
         </div>
-
-        <div className={styles.departureInfo}>
+        <div className={clsx(styles.departureInfo, styles.arrivalInfo)}>
           <time
             className={styles.timeText}
             dateTime={formatTimeForDateTime(arrivalTime)}

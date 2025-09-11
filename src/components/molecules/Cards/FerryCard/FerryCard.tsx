@@ -65,6 +65,7 @@ export const FerryCard = memo<FerryCardProps>(
                 showArrow
                 size="small"
                 onClick={handleBookNow}
+                className={styles.bookButton}
               >
                 Book
               </Button>

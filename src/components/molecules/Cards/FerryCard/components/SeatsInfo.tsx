@@ -10,7 +10,11 @@ interface SeatsInfoProps {
 export const SeatsInfo = memo<SeatsInfoProps>(({ seatsLeft }) => {
   return (
     <div className={styles.seatsInfo} role="status" aria-live="polite">
-      <Info className={styles.infoIcon} size={20} />
+      <Info
+        className={styles.infoIcon}
+        color="var(--color-primary)"
+        size="auto"
+      />
       <span className={styles.seatsText}>
         {seatsLeft} {ferryCardContent.seatsLeft}
       </span>
