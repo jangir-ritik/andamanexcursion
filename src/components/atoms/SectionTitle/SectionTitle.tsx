@@ -15,6 +15,7 @@ export const SectionTitle = ({
   id,
   headingLevel = "h2",
   titleTextClasses,
+  specialWordStyles,
 }: SectionTitleProps) => {
   const titleClasses = [styles.sectionTitle, className || ""].join(" ").trim();
   const [isHovered, setIsHovered] = useState(false);
@@ -73,7 +74,7 @@ export const SectionTitle = ({
           <span
             key={`special-${index}`}
             ref={index === 0 ? specialWordRef : null}
-            className={styles.specialWord}
+            className={clsx(styles.specialWord, specialWordStyles)}
             data-hover={isHovered}
           >
             {specialWord}

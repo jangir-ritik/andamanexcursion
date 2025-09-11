@@ -1,9 +1,8 @@
-import { Section, Row, Column } from "@/components/layout";
+import { Section } from "@/components/layout";
 import { DescriptionText, SectionTitle } from "@/components/atoms";
 import { DecorativeCurlyArrow, ImageContainer } from "@/components/atoms";
 import { Button } from "@/components/atoms";
 import React from "react";
-
 import styles from "./ServiceTeaser.module.css";
 import { Media } from "@payload-types";
 
@@ -19,20 +18,13 @@ interface ServiceTeaserProps {
 export const ServiceTeaser = ({ content }: { content: ServiceTeaserProps }) => {
   return (
     <Section fullBleed className={styles.waveContainer}>
-      <Row
-        fullWidth
-        gap="var(--space-6)"
-        justifyContent="between"
-        alignItems="start"
-        className={styles.contentContainer}
-        responsive
-        responsiveGap="var(--space-4)"
-        responsiveAlignItems="start"
-      >
+      <div className={styles.contentContainer}>
         <SectionTitle
           className={styles.featureTitle}
           text={content.title}
           specialWord={content.specialWord}
+          titleTextClasses={styles.title}
+          specialWordStyles={styles.highlight}
         />
         <DecorativeCurlyArrow
           top="50%"
@@ -41,7 +33,7 @@ export const ServiceTeaser = ({ content }: { content: ServiceTeaserProps }) => {
           rotation={210}
           scale={1.5}
         />
-        <Column fullWidth className={styles.imageContainer}>
+        <div className={styles.imageContainer}>
           <ImageContainer
             src={content.image}
             alt={content.image.alt}
@@ -50,14 +42,8 @@ export const ServiceTeaser = ({ content }: { content: ServiceTeaserProps }) => {
             fullWidth
             className={styles.image}
           />
-        </Column>
-        <Column
-          gap={3}
-          alignItems="start"
-          responsive
-          responsiveGap="var(--space-4)"
-          responsiveAlignItems="start"
-        >
+        </div>
+        <div className={styles.content}>
           <DescriptionText
             text={content.description}
             className={styles.description}
@@ -65,8 +51,8 @@ export const ServiceTeaser = ({ content }: { content: ServiceTeaserProps }) => {
           <Button showArrow href={content.ctaHref}>
             {content.ctaText}
           </Button>
-        </Column>
-      </Row>
+        </div>
+      </div>
     </Section>
   );
 };
