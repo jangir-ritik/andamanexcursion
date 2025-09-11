@@ -6,7 +6,7 @@
 
 .sectionTitle {
   font-size: var(--font-size-heading-4) !important; /* 24px */
-  font-weight: 600;
+  font-weight: 600 !important;
   color: var(--color-text-primary);
 }
 
@@ -139,7 +139,7 @@
   }
 
   .classCardHeader {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: var(--space-2); /* 8px */
   }
 

@@ -76,6 +76,9 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .section {
+    margin-bottom: 0;
+  }
   .infoMessage {
     flex-direction: column;
     gap: var(--space-2);
