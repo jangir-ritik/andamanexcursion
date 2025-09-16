@@ -272,20 +272,22 @@ export const SimpleMemberDetailsStep: React.FC<
                     <Input
                       name={`members.${index}.fullName`}
                       control={control}
-                      label="Full Name *"
+                      label="Full Name"
                       placeholder="Enter full name"
                       hasError={!!memberErrors?.fullName}
+                      required
                     />
 
                     <Input
                       name={`members.${index}.age`}
                       control={control}
                       type="number"
-                      label="Age *"
+                      label="Age"
                       placeholder="Enter age"
                       min={1}
                       max={120}
                       hasError={!!memberErrors?.age}
+                      required
                     />
                   </div>
 
@@ -296,9 +298,10 @@ export const SimpleMemberDetailsStep: React.FC<
                       render={({ field }) => (
                         <Select
                           {...field}
-                          label="Gender *"
+                          label="Gender"
                           options={GENDER_OPTIONS}
                           hasError={!!memberErrors?.gender}
+                          required
                           // errorMessage={memberErrors?.gender?.message}
                         />
                       )}
@@ -310,9 +313,10 @@ export const SimpleMemberDetailsStep: React.FC<
                       render={({ field }) => (
                         <Select
                           {...field}
-                          label="Nationality *"
+                          label="Nationality"
                           options={COUNTRIES}
                           hasError={!!memberErrors?.nationality}
+                          required
                           // errorMessage={memberErrors?.nationality?.message}
                         />
                       )}
@@ -322,9 +326,10 @@ export const SimpleMemberDetailsStep: React.FC<
                   <Input
                     name={`members.${index}.passportNumber`}
                     control={control}
-                    label="Passport Number *"
+                    label="Passport Number"
                     placeholder="Enter passport number"
                     hasError={!!memberErrors?.passportNumber}
+                    required
                   />
 
                   {/* Contact fields for primary member */}
@@ -333,9 +338,10 @@ export const SimpleMemberDetailsStep: React.FC<
                       <PhoneInput
                         name={`members.${index}.whatsappNumber`}
                         control={control}
-                        label="WhatsApp Number *"
+                        label="WhatsApp Number"
                         placeholder="Enter WhatsApp number"
                         hasError={!!memberErrors?.whatsappNumber}
+                        required
                         defaultCountryCode={
                           watchedMembers[index]?.phoneCountryCode || "+91"
                         }
@@ -349,13 +355,13 @@ export const SimpleMemberDetailsStep: React.FC<
                             `members.${index}.phoneCountry`,
                             countryName
                           );
-                          console.log(
-                            `Country changed for passenger ${index + 1}:`,
-                            {
-                              code: countryCode,
-                              name: countryName,
-                            }
-                          );
+                          // console.log(
+                          //   `Country changed for passenger ${index + 1}:`,
+                          //   {
+                          //     code: countryCode,
+                          //     name: countryName,
+                          //   }
+                          // );
                         }}
                       />
 
@@ -363,9 +369,10 @@ export const SimpleMemberDetailsStep: React.FC<
                         name={`members.${index}.email`}
                         control={control}
                         type="email"
-                        label="Email Address *"
+                        label="Email Address"
                         placeholder="Enter email address"
                         hasError={!!memberErrors?.email}
+                        required
                       />
                     </>
                   )}
