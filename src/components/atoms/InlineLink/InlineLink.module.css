@@ -76,3 +76,20 @@
 .color-white .content::after {
   background-color: var(--color-white);
 }
+
+@media (max-width: 768px) {
+  .inlineLink {
+    font-size: var(--font-size-xs);
+  }
+
+  .content {
+    font-size: var(--font-size-xs);
+    text-decoration: underline; /* Add underline on mobile */
+    line-height: 1.5;
+  }
+
+  /* Hide the pseudo-element underline on mobile since we're using text-decoration */
+  .content::after {
+    display: none;
+  }
+}

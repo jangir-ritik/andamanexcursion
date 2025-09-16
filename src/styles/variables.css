@@ -127,6 +127,8 @@
   --font-family-display: "Quick Beach", cursive, sans-serif;
 
   /* === Font Sizes - T-shirt Sizing === */
+  --font-size-3xs: 0.625rem; /* 10px */
+  --font-size-2xs: 0.75rem; /* 12px */
   --font-size-xs: 0.875rem; /* 14px */
   --font-size-sm: 0.9375rem; /* 15px */
   --font-size-base: 1rem; /* 16px */

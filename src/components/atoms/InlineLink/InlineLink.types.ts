@@ -10,4 +10,5 @@ export interface InlineLinkProps {
   color?: "primary" | "secondary" | "white";
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   target?: "_blank" | "_self";
+  textStyles?: string;
 }

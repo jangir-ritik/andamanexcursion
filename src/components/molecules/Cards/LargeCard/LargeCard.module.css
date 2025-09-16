@@ -106,12 +106,16 @@
 } */
 
 @media (max-width: 768px) {
+  .subtitle {
+    font-size: var(--font-size-3xs);
+  }
   .cardContainer {
-    height: 350px;
+    height: fit-content;
   }
 
   .cardTitle {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-2xl);
+    max-width: 90%;
   }
 
   .cardDescription {
@@ -120,6 +124,11 @@
   }
 
   .contentContainer {
-    padding: var(--space-6) var(--space-4);
+    padding: var(--space-12) var(--space-6);
+    gap: var(--space-2);
+  }
+
+  .ctaText {
+    font-size: var(--font-size-xs);
   }
 }

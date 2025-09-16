@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import styles from "./InlineLink.module.css";
 import type { InlineLinkProps } from "./InlineLink.types";
+import clsx from "clsx";
 
 export const InlineLink: React.FC<InlineLinkProps> = ({
   href,
@@ -16,6 +17,7 @@ export const InlineLink: React.FC<InlineLinkProps> = ({
   color = "primary",
   onClick,
   target = "_self",
+  textStyles,
 }) => {
   const renderIcon = () => {
     if (icon === "none") return null;
@@ -28,7 +30,9 @@ export const InlineLink: React.FC<InlineLinkProps> = ({
     );
   };
 
-  const linkClasses = [styles.inlineLink, styles[`color-${color}`], className]
+  const linkClasses = [
+    clsx(styles.inlineLink, styles[`color-${color}`], className),
+  ]
     .filter(Boolean)
     .join(" ")
     .trim();
@@ -42,7 +46,7 @@ export const InlineLink: React.FC<InlineLinkProps> = ({
       target={target}
       rel={target === "_blank" ? "noopener noreferrer" : undefined}
     >
-      <span className={styles.content}>{children}</span>
+      <span className={clsx(styles.content, textStyles)}>{children}</span>
       {renderIcon()}
     </Link>
   );
