@@ -4,7 +4,14 @@ import {
   UnifiedFerryResult,
   FerryClass,
 } from "@/types/FerryBookingSession.types";
-import { ArrowLeft, AlertCircle, CheckCircle, Ship, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle,
+  Ship,
+  Clock,
+  MapPin,
+} from "lucide-react";
 import styles from "./FerrySummary.module.css";
 
 interface FerrySearchParams {
@@ -80,7 +87,7 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.ferryInfo}>
-              <Ship color="var(--color-text-primary)" size={20} />
+              {/* <Ship color="var(--color-text-primary)" size={20} /> */}
               <div className={styles.ferryDetails}>
                 <h3>{ferry.ferryName}</h3>
                 <p>{ferry.operator}</p>
@@ -95,10 +102,15 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
                 <span>-</span>
                 <span>{ferry.schedule.arrivalTime}</span>
               </div>
-              <p className={styles.duration}>
-                {ferry.route.from.name} → {ferry.route.to.name}
-              </p>
-              <p className={styles.travelDate}>{ferry.schedule.date}</p>
+              <div className={styles.locationInfo}>
+                <p className={styles.duration}>
+                  <MapPin size={14} /> {ferry.route.from.name} →{" "}
+                  {ferry.route.to.name}
+                </p>
+                <p className={styles.travelDate}>
+                  <Clock size={14} /> {ferry.schedule.date}
+                </p>
+              </div>
             </div>
           </div>
         </div>
