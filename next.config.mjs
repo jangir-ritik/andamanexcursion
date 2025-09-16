@@ -39,6 +39,21 @@ const nextConfig = withPayload({
     optimizePackageImports: ["lucide-react"],
   },
 
+  // Exclude large files from serverless functions
+  serverComponentsExternalPackages: ['sharp'],
+  
+  // Optimize bundle size
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Exclude media files from server bundles
+      config.externals = config.externals || [];
+      config.externals.push({
+        'public/media': 'commonjs public/media'
+      });
+    }
+    return config;
+  },
+
   env: {
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
   },
