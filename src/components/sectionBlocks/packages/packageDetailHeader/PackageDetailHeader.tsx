@@ -3,13 +3,11 @@ import { ImageContainer } from "@/components/atoms";
 import { Column, Row } from "@/components/layout";
 import styles from "./PackageDetailHeader.module.css";
 import type { PackageDetailHeaderProps } from "./PackageDetailHeader.types";
+import { MediaSlider } from "@/components/layout/MediaSlider/MediaSlider";
 
 export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
   packageData,
 }) => {
-  // Get first available image URL
-  const imageUrl = packageData.images?.[0]?.url || "/images/placeholder.png";
-
   // Get period display
   const periodValue =
     typeof packageData.coreInfo?.period === "object"
@@ -25,14 +23,33 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
     })
     .join(", ");
 
+  // Transform package images to MediaSlider format
+  const transformedMedia =
+    packageData.images?.map((image) => ({
+      src: image.url, // Extract URL string from the image object
+      alt: image.alt || `${packageData.title} package image`,
+      isVideo: false, // Assuming these are images from package data
+    })) || [];
+
   return (
     <>
       <Row fullWidth responsive responsiveGap="var(--space-4)">
-        <ImageContainer
-          src={imageUrl}
-          alt={packageData.title}
-          className={styles.imageContainer}
-        />
+        {/* Wrapper for MediaSlider with proper positioning */}
+        <div className={styles.mediaSliderWrapper}>
+          {transformedMedia.length > 0 ? (
+            <MediaSlider
+              media={transformedMedia}
+              altText={`${packageData.title} package gallery`}
+            />
+          ) : (
+            // Fallback to ImageContainer if no images
+            <ImageContainer
+              src="/images/placeholder.png"
+              alt={packageData.title}
+              className={styles.imageContainer}
+            />
+          )}
+        </div>
       </Row>
 
       <Row
@@ -43,7 +60,6 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
         responsiveGap="var(--space-4)"
       >
         <h1 className={styles.sectionTitle}>{packageData.title}</h1>
-
         <Column
           gap={1}
           alignItems="end"
@@ -55,7 +71,6 @@ export const PackageDetailHeader: React.FC<PackageDetailHeaderProps> = ({
           <p role="text" aria-label="Price" className={styles.price}>
             ₹{packageData.pricing?.price || 0}/adult
           </p>
-
           <Row
             gap={1}
             responsive

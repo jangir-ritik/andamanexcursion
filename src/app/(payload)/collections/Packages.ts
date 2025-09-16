@@ -23,20 +23,30 @@ const Packages: CollectionConfig = {
       required: true,
       unique: true,
       admin: {
+        readOnly: true,
         description:
-          "URL-friendly version of the title (auto-generated from title)",
+          "URL-friendly version of the title. This is automatically generated from the package title and cannot be edited directly. If you need to change it, update the title field above.",
+        // components: {
+        //   afterInput: [
+        //     {
+        //       path: "/path/to/SlugInfoComponent", // You'll need to create this component
+        //     },
+        //   ],
+        // },
       },
       hooks: {
         beforeValidate: [
           ({ value, data }) => {
-            // Auto-generate slug from title if slug is empty
-            if (!value && data?.title) {
-              return data.title
+            // Auto-generate slug from title if slug is empty or if title has changed
+            if (data?.title) {
+              const newSlug = data.title
                 .toLowerCase()
                 .replace(/[^a-z0-9 -]/g, "") // Remove special characters
                 .replace(/\s+/g, "-") // Replace spaces with hyphens
                 .replace(/-+/g, "-") // Replace multiple hyphens with single
                 .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+
+              return newSlug;
             }
             return value;
           },

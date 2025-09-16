@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, memo, useCallback } from "react";
 import {
   ChevronLeft,

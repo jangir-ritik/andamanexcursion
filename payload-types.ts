@@ -936,7 +936,7 @@ export interface Package {
   id: string;
   title: string;
   /**
-   * URL-friendly version of the title (auto-generated from title)
+   * URL-friendly version of the title. This is automatically generated from the package title and cannot be edited directly. If you need to change it, update the title field above.
    */
   slug: string;
   /**
