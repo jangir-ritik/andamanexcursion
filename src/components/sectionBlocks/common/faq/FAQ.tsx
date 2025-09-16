@@ -18,7 +18,7 @@ export const FAQ = ({ content }: FAQProps) => {
         <Column className={styles.titleColumn}>
           <SectionTitle text={title} specialWord={specialWord} id="faq-title" />
           <DecorativeCurlyArrow
-            top="25%"
+            top="120px"
             left="75%"
             scale={2}
             rotation={210}

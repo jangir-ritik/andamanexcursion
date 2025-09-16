@@ -15,7 +15,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
       aria-labelledby="hero-title"
     >
       <Column
-        gap="var(--space-8)"
+        gap="var(--space-4)"
         fullWidth
         responsive
         responsiveAlignItems="start"
@@ -26,7 +26,7 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
           <Row
             justifyContent="between"
             alignItems="center"
-            gap="var(--space-4)"
+            gap="0"
             fullWidth
             wrap
           >

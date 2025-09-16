@@ -29,6 +29,7 @@ export const PackageCarousel = ({ content }: PackageCarouselProps) => {
           responsive
           responsiveAlignItems="start"
           responsiveGap="var(--space-4)"
+          className={styles.packageCarouselRow}
         >
           <SectionTitle
             specialWord={title ? title.split(" ")[0] : "Package"}

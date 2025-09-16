@@ -187,7 +187,8 @@
   --space-40: calc(var(--space-unit) * 20); /* 160px */
 
   /* === Semantic Spacing === */
-  --space-section: calc(var(--space-unit) * 18.5); /* 148px */
+  /* --space-section: calc(var(--space-unit) * 18.5); 148px */
+  --space-section: calc(var(--space-unit) * 8); /* 24px */
   --space-container-inline: calc(var(--space-unit) * 15); /* 120px */
 
   /* ===== BORDER RADIUS TOKENS ===== */

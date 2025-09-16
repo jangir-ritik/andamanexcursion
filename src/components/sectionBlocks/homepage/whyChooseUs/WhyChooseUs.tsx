@@ -1,14 +1,13 @@
 "use client";
-
 import React from "react";
-import { Column, Row, Section } from "@/components/layout";
+import { Section } from "@/components/layout";
 import {
   DescriptionText,
   SectionTitle,
   Chip,
-  ImageContainer,
   InlineLink,
 } from "@/components/atoms";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 import styles from "./WhyChooseUs.module.css";
 import { WhyChooseUsProps } from "./WhyChooseUs.types";
 
@@ -30,20 +29,8 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
       id="why-choose-us"
       aria-labelledby="why-choose-us-title"
     >
-      <Column
-        gap="var(--space-10)"
-        className={styles.sectionContainer}
-        responsive
-        responsiveAlignItems="start"
-        responsiveGap="var(--space-4)"
-      >
-        <Row
-          fullWidth
-          alignItems="center"
-          justifyContent="between"
-          responsive
-          responsiveAlignItems="start"
-        >
+      <div className={styles.sectionContainer}>
+        <div className={styles.headerRow}>
           <SectionTitle
             className={styles.sectionTitle}
             text={title}
@@ -55,26 +42,10 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
             align="right"
             className={styles.headerDescription}
           />
-        </Row>
+        </div>
 
-        <Row
-          fullWidth
-          alignItems="center"
-          justifyContent="between"
-          gap="var(--space-20)"
-          className={styles.contentRow}
-          responsive
-          responsiveAlignItems="start"
-          responsiveGap="var(--space-4)"
-        >
-          <Column
-            alignItems="start"
-            gap="var(--space-8)"
-            className={styles.pointsColumn}
-            responsive
-            responsiveAlignItems="start"
-            responsiveGap="var(--space-4)"
-          >
+        <div className={styles.contentRow}>
+          <div className={styles.pointsColumn}>
             {points.map((item) => (
               <div key={item.id} className={styles.pointItem}>
                 <h3 className={styles.pointTitle} id={`point-title-${item.id}`}>
@@ -97,21 +68,18 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
             >
               {ctaText}
             </InlineLink>
-          </Column>
+          </div>
 
-          <Column
-            className={styles.imageContainer}
-            alignItems="end"
-            gap="var(--space-8)"
-            responsive
-            responsiveAlignItems="end"
-            responsiveGap="var(--space-4)"
-          >
-            <ImageContainer
+          <div className={styles.imageContainer}>
+            <MediaContainer
               src={image}
               alt={imageAlt}
               className={styles.featureImage}
+              objectFit="cover"
+              priority
             />
+
+            {/* Chips positioned relative to the image container */}
             <div className={styles.customerSatisfactionChip} aria-hidden="true">
               <Chip
                 icon="/icons/misc/smilie.svg"
@@ -135,9 +103,9 @@ export const WhyChooseUs = ({ content }: WhyChooseUsProps) => {
                 className={styles.chip}
               />
             </div>
-          </Column>
-        </Row>
-      </Column>
+          </div>
+        </div>
+      </div>
     </Section>
   );
 };

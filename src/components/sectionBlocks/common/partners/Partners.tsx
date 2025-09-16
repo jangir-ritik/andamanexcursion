@@ -1,6 +1,6 @@
 import React from "react";
-import { Column, Section } from "@/components/layout";
-import { ImageContainer, SectionTitle } from "@/components/atoms";
+import { Section } from "@/components/layout";
+import { SectionTitle } from "@/components/atoms";
 import { PartnerIteration, PartnersProps } from "./Partners.types";
 import styles from "./Partners.module.css";
 import { IconContainer } from "@/components/atoms/IconContainer/IconContainer";
@@ -10,31 +10,26 @@ export const Partners = ({ content }: PartnersProps) => {
 
   return (
     <Section id="partners" aria-labelledby="partners-title">
-      <Column
-        fullWidth
-        gap="var(--space-12)"
-        alignItems="center"
-        responsive
-        responsiveAlignItems="start"
-        responsiveGap="var(--space-4)"
-      >
+      <div className={styles.partnersContainer}>
         <SectionTitle
           text={title}
           specialWord={specialWord}
           id="partners-title"
         />
-        <div className={styles.partnersGrid}>
-          {partners.map((partner: PartnerIteration, index) => (
-            <div key={index} className={styles.partnerLogo}>
-              <IconContainer
-                src={partner.partner.url as string}
-                alt={`${partner.alt[index]} - Partner logo`}
-                size={150}
-              />
-            </div>
-          ))}
+        <div className={styles.partnersWrapper}>
+          <div className={styles.partnersGrid}>
+            {partners.map((partner: PartnerIteration, index) => (
+              <div key={index} className={styles.partnerLogo}>
+                <IconContainer
+                  src={partner.partner.url as string}
+                  alt={`${partner.alt[index]} - Partner logo`}
+                  size={150}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </Column>
+      </div>
     </Section>
   );
 };
