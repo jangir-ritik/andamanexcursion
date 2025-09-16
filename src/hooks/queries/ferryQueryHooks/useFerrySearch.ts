@@ -58,7 +58,7 @@ export const useFerrySearch = (
         throw new Error("Missing required search parameters");
       }
 
-      const response = await fetch("/api/ferry/search", {
+      const response = await fetch("/api/ferry?action=search", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -7,7 +7,7 @@ export const useFerryBooking = () => {
   return useMutation({
     mutationFn: async (bookingData: FerryBookingSession) => {
       // Call your booking API
-      const response = await fetch("/api/ferry/booking/create-session", {
+      const response = await fetch("/api/ferry?action=create-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),

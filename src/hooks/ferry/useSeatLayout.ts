@@ -22,7 +22,7 @@ export const useSeatLayout = (ferry: UnifiedFerryResult | null): UseSeatLayoutRe
     setError(null);
     
     try {
-      const response = await fetch("/api/ferry/seat-layout", {
+      const response = await fetch("/api/ferry?action=seat-layout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

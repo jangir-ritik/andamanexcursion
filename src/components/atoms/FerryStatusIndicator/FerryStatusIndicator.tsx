@@ -40,7 +40,7 @@ export function FerryStatusIndicator({
 
   const fetchHealthStatus = async () => {
     try {
-      const response = await fetch("/api/ferry/health");
+      const response = await fetch("/api/ferry?action=health");
       if (response.ok) {
         const data = await response.json();
         setHealthStatus(data);
