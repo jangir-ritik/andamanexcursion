@@ -4,8 +4,80 @@ import config from "@payload-config";
 import { ApiContactData, apiContactSchema } from "../../(frontend)/contact/components/ContactForm/ContactForm.types";
 import { ZodError } from "zod";
 import { nanoid } from "nanoid";
+import { contactFormOptionsService } from "@/services/contact-form-options.service";
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get("action");
+
+    switch (action) {
+      case "form-options":
+        return await handleFormOptions();
+      default:
+        return NextResponse.json(
+          { error: "Invalid action. Use: form-options" },
+          { status: 400 }
+        );
+    }
+  } catch (error) {
+    console.error("Contact API GET error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get("action");
+
+    switch (action) {
+      case "enquiry":
+        return await handleEnquiry(request);
+      default:
+        return NextResponse.json(
+          { error: "Invalid action. Use: enquiry" },
+          { status: 400 }
+        );
+    }
+  } catch (error) {
+    console.error("Contact API POST error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+async function handleFormOptions() {
+  try {
+    const options = await contactFormOptionsService.getAllOptions();
+
+    return NextResponse.json(options, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600", // Cache for 5 minutes
+      },
+    });
+  } catch (error) {
+    console.error("API Error fetching contact form options:", error);
+
+    return NextResponse.json(
+      {
+        packages: [],
+        periods: [],
+        categories: [],
+        isLoading: false,
+        error: "Failed to fetch contact form options",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function handleEnquiry(request: NextRequest) {
   try {
     // Parse and validate in one step - Zod handles all transformations
     const body = await request.json();

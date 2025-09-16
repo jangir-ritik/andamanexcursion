@@ -321,7 +321,7 @@ function ContactPageContent() {
           bookingChildren: typeof data.booking.children,
         });
 
-        const response = await fetch("/api/contact-enquiry", {
+        const response = await fetch("/api/contact?action=enquiry", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestPayload),

@@ -104,9 +104,9 @@ export const activityApi = {
         queryParams.append("limit", params.limit.toString());
       }
 
-      // Make the API request to our Next.js API route
+      // Make the API request to our consolidated Next.js API route
       const response = await fetch(
-        `${NEXT_API_BASE}/activities/search?${queryParams}`
+        `${NEXT_API_BASE}/activities?action=search&${queryParams}`
       );
 
       if (!response.ok) {
@@ -143,7 +143,7 @@ export const activityApi = {
   ): Promise<any[]> {
     try {
       const response = await fetch(
-        `${NEXT_API_BASE}/activities/available-times?category=${categorySlug}&location=${locationSlug}`
+        `${NEXT_API_BASE}/activities?action=available-times&category=${categorySlug}&location=${locationSlug}`
       );
       
       if (!response.ok) {

@@ -17,7 +17,7 @@ export function useContactFormOptions() {
     async function fetchOptions() {
       try {
         // Fetch from API route instead of direct service call for client-side
-        const response = await fetch("/api/contact-form-options");
+        const response = await fetch("/api/contact?action=form-options");
 
         if (!response.ok) {
           throw new Error("Failed to fetch contact form options");
