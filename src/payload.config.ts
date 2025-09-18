@@ -111,11 +111,13 @@ export default buildConfig({
     },
   },
   plugins: [
-    // UploadThing Storage Plugin - Updated for Vercel deployment
+    // UploadThing Storage Plugin - Fixed configuration
     uploadthingStorage({
       collections: {
         media: {
           prefix: "andaman-media",
+          // Don't use generateFileURL with clientUploads: true
+          // We'll handle URL construction in the frontend
         },
       },
       options: {

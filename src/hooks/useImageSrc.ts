@@ -43,7 +43,7 @@ const selectOptimalSize = (
   return "large";
 };
 
-// Check if URL is already a complete external URL (UploadThing, S3, etc.)
+// Check if URL is already a complete external URL (non-Payload)
 const isExternalUrl = (url: string): boolean => {
   try {
     const parsed = new URL(url);
@@ -53,9 +53,20 @@ const isExternalUrl = (url: string): boolean => {
   }
 };
 
-// Check if URL is an UploadThing URL specifically
-const isUploadThingUrl = (url: string): boolean => {
-  return url.includes("uploadthing.com") || url.includes("utfs.io");
+// Construct UploadThing URL using key
+const constructUploadThingUrl = (key: string): string => {
+  // Use your specific UploadThing App ID
+  return `https://zu0uz82q68.ufs.sh/f/${key}`;
+};
+
+// Construct Payload API URL for media files (fallback)
+const constructPayloadMediaUrl = (filename: string, size?: string): string => {
+  // For sized versions, Payload typically serves them with the size in the filename
+  // The actual URL construction depends on your Payload API routes
+  if (size && size !== "original") {
+    return `/api/media/file/${filename}`;
+  }
+  return `/api/media/file/${filename}`;
 };
 
 export const useImageSrc = (
@@ -73,7 +84,11 @@ export const useImageSrc = (
   return useMemo(() => {
     // Type guard for Media objects
     const isMediaObject = (src: any): src is Media => {
-      return src && typeof src === "object" && "url" in src;
+      return (
+        src &&
+        typeof src === "object" &&
+        ("url" in src || "filename" in src || "_key" in src)
+      );
     };
 
     // Check if input is valid
@@ -94,7 +109,7 @@ export const useImageSrc = (
 
     // Process string URLs
     if (typeof input === "string") {
-      // If it's already a complete external URL (UploadThing, S3, etc.), use it directly
+      // If it's already a complete external URL, use it directly
       if (isExternalUrl(input)) {
         if (debug) {
           console.log("Using external URL directly:", input);
@@ -107,8 +122,7 @@ export const useImageSrc = (
         };
       }
 
-      // Handle relative paths or other internal URLs
-      // For UploadThing with Payload, these should already be complete URLs
+      // Handle relative paths - ensure they start with /
       const finalUrl = input.startsWith("/") ? input : `/${input}`;
 
       if (debug) {
@@ -126,14 +140,17 @@ export const useImageSrc = (
     // Process Media objects with smart size selection
     if (isMediaObject(input)) {
       const mediaObj = input as Media;
-      let url = mediaObj.url;
+      let targetKey = (mediaObj as any)._key; // Main file key
       let selectedSize = "original";
 
       if (debug) {
         console.log("Processing Media object:", {
-          url: mediaObj.url,
+          filename: mediaObj.filename,
           mimeType: mediaObj.mimeType,
+          key: targetKey,
           sizes: mediaObj.sizes ? Object.keys(mediaObj.sizes) : [],
+          hasUrl: "url" in mediaObj,
+          url: mediaObj.url,
         });
       }
 
@@ -142,36 +159,37 @@ export const useImageSrc = (
         const sizes = mediaObj.sizes as Record<string, any>;
 
         // Use preferredSize if explicitly provided
-        let targetSize = preferredSize;
+        let preferredSizeName = preferredSize;
 
         // Otherwise, auto-select based on container width
-        if (!targetSize && containerWidth) {
-          targetSize = selectOptimalSize(
+        if (!preferredSizeName && containerWidth) {
+          preferredSizeName = selectOptimalSize(
             containerWidth,
             highDPI
           ) as keyof Media["sizes"];
         }
 
         // Fallback to medium if nothing specified
-        if (!targetSize) {
-          targetSize = "medium" as keyof Media["sizes"];
+        if (!preferredSizeName) {
+          preferredSizeName = "medium" as keyof Media["sizes"];
         }
 
-        // Try to get the sized version
-        if (targetSize && sizes[targetSize]) {
-          const sizedVersion = sizes[targetSize];
+        // Try to get the sized version key
+        if (preferredSizeName && sizes[preferredSizeName]) {
+          const sizedVersion = sizes[preferredSizeName];
 
           if (debug) {
-            console.log(`Found sized version for ${targetSize}:`, sizedVersion);
+            console.log(
+              `Found sized version for ${preferredSizeName}:`,
+              sizedVersion
+            );
           }
 
-          selectedSize = targetSize as string;
+          selectedSize = preferredSizeName as string;
 
-          if (typeof sizedVersion === "string") {
-            url = sizedVersion;
-          } else if (sizedVersion && typeof sizedVersion === "object") {
-            // Handle different possible structure formats
-            url = sizedVersion.url || sizedVersion.filename || url;
+          // Extract key from sized version
+          if (typeof sizedVersion === "object" && sizedVersion._key) {
+            targetKey = sizedVersion._key;
           }
         } else {
           // Fallback to next available size
@@ -180,12 +198,13 @@ export const useImageSrc = (
             const fallbackSize = availableSizes[0];
             const fallbackVersion = sizes[fallbackSize];
 
-            if (fallbackVersion) {
+            if (
+              fallbackVersion &&
+              typeof fallbackVersion === "object" &&
+              fallbackVersion._key
+            ) {
               selectedSize = fallbackSize;
-              url =
-                typeof fallbackVersion === "string"
-                  ? fallbackVersion
-                  : fallbackVersion.url || fallbackVersion.filename || url;
+              targetKey = fallbackVersion._key;
 
               if (debug) {
                 console.log(
@@ -198,21 +217,47 @@ export const useImageSrc = (
         }
       }
 
-      // Ensure the URL is complete
-      const finalUrl = url || fallbackUrl;
+      // Construct the final URL
+      let processedUrl: string;
 
-      // If it's not already a complete URL and doesn't look like an UploadThing URL,
-      // it might need the site URL prepended (for local development)
-      let processedUrl = finalUrl;
-      if (!isExternalUrl(finalUrl) && !finalUrl.startsWith("/")) {
-        // This shouldn't happen with UploadThing, but handle it just in case
-        processedUrl = `/${finalUrl}`;
+      // If the media object has a direct URL (some storage adapters provide this)
+      if (
+        mediaObj.url &&
+        isExternalUrl(mediaObj.url) &&
+        !mediaObj.url.includes("/f/undefined")
+      ) {
+        processedUrl = mediaObj.url;
+        if (debug) {
+          console.log("Using direct URL from media object:", processedUrl);
+        }
+      } else if (targetKey) {
+        // Use UploadThing CDN URL with the key
+        processedUrl = constructUploadThingUrl(targetKey);
+        if (debug) {
+          console.log("Constructed UploadThing URL:", processedUrl);
+        }
+      } else if (mediaObj.filename) {
+        // Fallback to Payload API route (shouldn't happen with UploadThing)
+        processedUrl = constructPayloadMediaUrl(
+          mediaObj.filename,
+          selectedSize
+        );
+        if (debug) {
+          console.log("Fallback to Payload API URL:", processedUrl);
+        }
+      } else {
+        // Last resort fallback
+        processedUrl = fallbackUrl;
+        if (debug) {
+          console.log("Using fallback URL:", processedUrl);
+        }
       }
 
       if (debug) {
         console.log("Final processed Media URL:", {
-          originalUrl: mediaObj.url,
+          originalFilename: mediaObj.filename,
           selectedSize,
+          targetKey,
           finalUrl: processedUrl,
         });
       }
@@ -280,7 +325,11 @@ export const useImageMetadata = (src: string | Media | null | undefined) => {
       return null;
     }
 
-    if (src && typeof src === "object" && "width" in src) {
+    if (
+      src &&
+      typeof src === "object" &&
+      ("width" in src || "filename" in src)
+    ) {
       return {
         width: src.width,
         height: src.height,

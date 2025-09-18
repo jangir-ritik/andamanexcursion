@@ -40,15 +40,15 @@ const nextConfig = withPayload({
   },
 
   // Exclude large files from serverless functions
-  serverComponentsExternalPackages: ['sharp'],
-  
+  serverComponentsExternalPackages: ["sharp"],
+
   // Optimize bundle size
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Exclude media files from server bundles
       config.externals = config.externals || [];
       config.externals.push({
-        'public/media': 'commonjs public/media'
+        "public/media": "commonjs public/media",
       });
     }
     return config;
