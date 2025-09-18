@@ -1,4 +1,4 @@
-// layout.tsx - Simplified with automatic loading bar
+// layout.tsx - with automatic loading bar
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import localFont from "next/font/local";
