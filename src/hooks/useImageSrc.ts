@@ -3,12 +3,11 @@ import { Media } from "@payload-types";
 
 interface UseImageSrcOptions {
   fallbackUrl?: string;
-  preferredSize?: string; // Changed from keyof Media["sizes"] to string for flexibility
+  preferredSize?: string;
   // Smart size selection based on container width
   containerWidth?: number;
   // Device pixel ratio consideration
   highDPI?: boolean;
-  baseUrl?: string;
   debug?: boolean;
 }
 
@@ -49,9 +48,9 @@ const isMongoObjectId = (str: string): boolean => {
   return /^[0-9a-f]{24}$/i.test(str);
 };
 
-// Check if file is a media file (image or video)
-const isMediaFile = (url: string): boolean => {
-  return /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|ogg|avi|mov|wmv)$/i.test(url);
+// Check if URL is already a complete UploadThing URL
+const isUploadThingUrl = (url: string): boolean => {
+  return url.includes("uploadthing.com") || url.includes("utfs.io");
 };
 
 export const useImageSrc = (
@@ -63,7 +62,6 @@ export const useImageSrc = (
     preferredSize,
     containerWidth,
     highDPI = false,
-    baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "",
     debug = false,
   } = options;
 
@@ -88,19 +86,21 @@ export const useImageSrc = (
 
     // Process string URLs
     if (typeof input === "string") {
-      // Handle MongoDB ObjectID directly
+      // If it's already an UploadThing URL, use it directly
+      if (isUploadThingUrl(input)) {
+        return {
+          src: input,
+          isValid: true,
+          isMediaObject: false,
+          originalSrc: input,
+        };
+      }
+
+      // Handle MongoDB ObjectID - these will now be UploadThing URLs in the database
       if (isMongoObjectId(input)) {
-        if (isMediaFile(input)) {
-          return {
-            src: `/media/${input}`,
-            isValid: true,
-            isMediaObject: false,
-            originalSrc: input,
-          };
-        }
-        const mediaPath = `/media/${input}`;
-        // if (debug)
-          // console.log("Converting MongoDB ID to direct path:", mediaPath);
+        // For backward compatibility, if we still have ObjectIDs,
+        // they should be resolved through Payload's media endpoint
+        const mediaPath = `/api/media/file/${input}`;
         return {
           src: mediaPath,
           isValid: true,
@@ -109,10 +109,9 @@ export const useImageSrc = (
         };
       }
 
-      const processedSrc = processApiPath(input, baseUrl);
-      // if (debug) console.log("Processed string URL:", processedSrc);
+      // Handle other string URLs (relative paths, etc.)
       return {
-        src: processedSrc,
+        src: input,
         isValid: true,
         isMediaObject: false,
         originalSrc: input,
@@ -157,9 +156,9 @@ export const useImageSrc = (
               url = sizedVersion.url || sizedVersion.filename || url;
             }
 
-            // if (debug) {
-            //   console.log(`Selected size: ${targetSize}`, sizedVersion);
-            // }
+            if (debug) {
+              console.log(`Selected size: ${targetSize}`, sizedVersion);
+            }
           } else {
             // Fallback to next available size
             const availableSizes = Object.keys(sizes);
@@ -174,26 +173,28 @@ export const useImageSrc = (
                     ? fallbackVersion
                     : fallbackVersion.url || fallbackVersion.filename || url;
 
-                // if (debug) {
-                //   console.log(
-                //     `Fallback to size: ${fallbackSize}`,
-                //     fallbackVersion
-                //   );
-                // }
+                if (debug) {
+                  console.log(
+                    `Fallback to size: ${fallbackSize}`,
+                    fallbackVersion
+                  );
+                }
               }
             }
           }
         }
       }
 
-      const processedSrc = processApiPath(url || "", baseUrl);
-      // if (debug) {
-      //   console.log("Final processed URL:", processedSrc);
-      //   console.log("Selected size:", selectedSize);
-      // }
+      // UploadThing URLs are already complete, no processing needed
+      const finalUrl = url || fallbackUrl;
+
+      if (debug) {
+        console.log("Final processed URL:", finalUrl);
+        console.log("Selected size:", selectedSize);
+      }
 
       return {
-        src: processedSrc,
+        src: finalUrl,
         isValid: true,
         isMediaObject: true,
         originalSrc: input,
@@ -214,45 +215,7 @@ export const useImageSrc = (
       isMediaObject: false,
       originalSrc: input,
     };
-  }, [
-    input,
-    fallbackUrl,
-    preferredSize,
-    containerWidth,
-    highDPI,
-    baseUrl,
-    debug,
-  ]);
-};
-
-// Helper function to process API paths
-const processApiPath = (url: string, baseUrl: string): string => {
-  // Handle media files - serve from static directory if they look like media files
-  if (typeof url === "string" && isMediaFile(url)) {
-    if (url.startsWith("/")) {
-      return url; // Already a path
-    } else {
-      return `/media/${url}`; // Add path prefix
-    }
-  }
-
-  // Handle MongoDB ObjectID directly - convert to direct media path
-  if (isMongoObjectId(url)) {
-    return `/media/${url}`;
-  }
-
-  // Convert API paths to direct media paths
-  if (url.startsWith("/api/media/file/")) {
-    const filename = url.replace("/api/media/file/", "");
-    return `/media/${filename}`;
-  }
-
-  // Handle relative URLs
-  if (url.startsWith("/") && baseUrl) {
-    return `${baseUrl}${url}`;
-  }
-
-  return url;
+  }, [input, fallbackUrl, preferredSize, containerWidth, highDPI, debug]);
 };
 
 // Hook to determine optimal image size based on viewport/container

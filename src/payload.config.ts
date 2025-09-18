@@ -3,6 +3,7 @@ import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { buildConfig } from "payload";
 import { seoPlugin } from "@payloadcms/plugin-seo";
+import { uploadthingStorage } from "@payloadcms/storage-uploadthing";
 import { fileURLToPath } from "node:url";
 import path from "path";
 
@@ -110,6 +111,19 @@ export default buildConfig({
     },
   },
   plugins: [
+    // UploadThing Storage Plugin
+    uploadthingStorage({
+      collections: {
+        media: {
+          prefix: "andaman-media", // Add a prefix for organization
+        },
+      },
+      options: {
+        token: process.env.UPLOADTHING_TOKEN || "",
+        acl: "public-read",
+        logLevel: "Debug",
+      },
+    }),
     seoPlugin({
       collections: [
         "pages", // ✅ Static pages
@@ -159,5 +173,16 @@ export default buildConfig({
         }
       },
     }),
-  ],
+  ], // Add endpoint configuration for media serving
+  // endpoints: [
+  //   {
+  //     path: "/api/media/file/:filename",
+  //     method: "get",
+  //     handler: async (req, res) => {
+  //       // This will be handled by UploadThing automatically
+  //       // But you can add custom logic here if needed
+  //       res.status(404).json({ error: "File not found" });
+  //     },
+  //   },
+  // ],
 });

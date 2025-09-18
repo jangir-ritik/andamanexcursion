@@ -1,4 +1,3 @@
-import path from "path";
 import { CollectionConfig } from "payload";
 
 const Media: CollectionConfig = {
@@ -10,7 +9,10 @@ const Media: CollectionConfig = {
     delete: ({ req: { user } }) => !!user,
   },
   upload: {
-    staticDir: path.resolve(process.cwd(), "public/media"),
+    // Remove staticDir - UploadThing handles storage
+    // staticDir: path.resolve(process.cwd(), "public/media"),
+
+    // UploadThing will handle image resizing automatically based on these configurations
     imageSizes: [
       {
         name: "thumbnail",
@@ -55,14 +57,20 @@ const Media: CollectionConfig = {
     ],
     adminThumbnail: "thumbnail",
     mimeTypes: ["image/*", "video/mp4", "video/webm", "video/ogg"],
-
-    // Simple, consistent optimization for originals
+    // UploadThing will handle format optimization
     formatOptions: {
       format: "webp",
       options: {
         quality: 85,
         effort: 6,
       },
+    },
+    // Add resizeOptions for better UploadThing compatibility
+    resizeOptions: {
+      width: 2000, // Max width
+      height: 2000, // Max height
+      fit: "inside", // Maintain aspect ratio
+      withoutEnlargement: true, // Don't upscale small images
     },
   },
   fields: [
@@ -75,7 +83,6 @@ const Media: CollectionConfig = {
       name: "caption",
       type: "text",
     },
-    // Remove the complex optimization settings - keep it simple
     {
       name: "videoSettings",
       type: "group",
@@ -118,18 +125,32 @@ const Media: CollectionConfig = {
     },
   ],
   hooks: {
-    // Keep it minimal - just auto-detect media type
     beforeChange: [
       ({ data, req }) => {
+        // Auto-detect media type
         if (req.file?.mimetype) {
           data.mediaType = req.file.mimetype.startsWith("image/")
             ? "image"
-            : "video";
+            : req.file.mimetype.startsWith("video/")
+            ? "video"
+            : "other";
         }
         return data;
       },
     ],
-    // Remove afterChange hook - let Payload handle everything
+    afterChange: [
+      ({ doc, req }) => {
+        // Log successful upload for debugging
+        if (req.file) {
+          console.log(`✅ Media uploaded successfully:`, {
+            id: doc.id,
+            filename: doc.filename,
+            url: doc.url,
+            sizes: doc.sizes,
+          });
+        }
+      },
+    ],
   },
 };
 
