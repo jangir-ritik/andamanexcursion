@@ -9,10 +9,7 @@ const Media: CollectionConfig = {
     delete: ({ req: { user } }) => !!user,
   },
   upload: {
-    // Remove staticDir - UploadThing handles storage
-    // staticDir: path.resolve(process.cwd(), "public/media"),
-
-    // UploadThing will handle image resizing automatically based on these configurations
+    // UploadThing handles storage and sizing automatically
     imageSizes: [
       {
         name: "thumbnail",
@@ -57,7 +54,6 @@ const Media: CollectionConfig = {
     ],
     adminThumbnail: "thumbnail",
     mimeTypes: ["image/*", "video/mp4", "video/webm", "video/ogg"],
-    // UploadThing will handle format optimization
     formatOptions: {
       format: "webp",
       options: {
@@ -65,12 +61,11 @@ const Media: CollectionConfig = {
         effort: 6,
       },
     },
-    // Add resizeOptions for better UploadThing compatibility
     resizeOptions: {
-      width: 2000, // Max width
-      height: 2000, // Max height
-      fit: "inside", // Maintain aspect ratio
-      withoutEnlargement: true, // Don't upscale small images
+      width: 2000,
+      height: 2000,
+      fit: "inside",
+      withoutEnlargement: true,
     },
   },
   fields: [
@@ -88,7 +83,6 @@ const Media: CollectionConfig = {
       type: "group",
       admin: {
         condition: (data) => {
-          // Auto-detect video files
           return data.mimeType?.startsWith("video/");
         },
       },
@@ -140,13 +134,22 @@ const Media: CollectionConfig = {
     ],
     afterChange: [
       ({ doc, req }) => {
-        // Log successful upload for debugging
+        // Enhanced logging for UploadThing debugging
         if (req.file) {
           console.log(`✅ Media uploaded successfully:`, {
             id: doc.id,
             filename: doc.filename,
             url: doc.url,
-            sizes: doc.sizes,
+            mimeType: doc.mimeType,
+            sizes: doc.sizes ? Object.keys(doc.sizes) : [],
+            filesize: doc.filesize,
+            // Log actual URLs for debugging
+            sizeUrls: doc.sizes
+              ? Object.entries(doc.sizes).reduce((acc, [key, size]) => {
+                  acc[key] = typeof size === "string" ? size : "no url";
+                  return acc;
+                }, {} as Record<string, string>)
+              : {},
           });
         }
       },

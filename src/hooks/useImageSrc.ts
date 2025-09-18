@@ -43,12 +43,17 @@ const selectOptimalSize = (
   return "large";
 };
 
-// Test for MongoDB ObjectID format
-const isMongoObjectId = (str: string): boolean => {
-  return /^[0-9a-f]{24}$/i.test(str);
+// Check if URL is already a complete external URL (UploadThing, S3, etc.)
+const isExternalUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 };
 
-// Check if URL is already a complete UploadThing URL
+// Check if URL is an UploadThing URL specifically
 const isUploadThingUrl = (url: string): boolean => {
   return url.includes("uploadthing.com") || url.includes("utfs.io");
 };
@@ -76,6 +81,9 @@ export const useImageSrc = (
       input && (typeof input === "string" ? input.trim() !== "" : true);
 
     if (!isValidInput) {
+      if (debug) {
+        console.log("Invalid input:", input);
+      }
       return {
         src: fallbackUrl,
         isValid: false,
@@ -86,8 +94,11 @@ export const useImageSrc = (
 
     // Process string URLs
     if (typeof input === "string") {
-      // If it's already an UploadThing URL, use it directly
-      if (isUploadThingUrl(input)) {
+      // If it's already a complete external URL (UploadThing, S3, etc.), use it directly
+      if (isExternalUrl(input)) {
+        if (debug) {
+          console.log("Using external URL directly:", input);
+        }
         return {
           src: input,
           isValid: true,
@@ -96,22 +107,16 @@ export const useImageSrc = (
         };
       }
 
-      // Handle MongoDB ObjectID - these will now be UploadThing URLs in the database
-      if (isMongoObjectId(input)) {
-        // For backward compatibility, if we still have ObjectIDs,
-        // they should be resolved through Payload's media endpoint
-        const mediaPath = `/api/media/file/${input}`;
-        return {
-          src: mediaPath,
-          isValid: true,
-          isMediaObject: false,
-          originalSrc: input,
-        };
+      // Handle relative paths or other internal URLs
+      // For UploadThing with Payload, these should already be complete URLs
+      const finalUrl = input.startsWith("/") ? input : `/${input}`;
+
+      if (debug) {
+        console.log("Processing relative URL:", finalUrl);
       }
 
-      // Handle other string URLs (relative paths, etc.)
       return {
-        src: input,
+        src: finalUrl,
         isValid: true,
         isMediaObject: false,
         originalSrc: input,
@@ -123,6 +128,14 @@ export const useImageSrc = (
       const mediaObj = input as Media;
       let url = mediaObj.url;
       let selectedSize = "original";
+
+      if (debug) {
+        console.log("Processing Media object:", {
+          url: mediaObj.url,
+          mimeType: mediaObj.mimeType,
+          sizes: mediaObj.sizes ? Object.keys(mediaObj.sizes) : [],
+        });
+      }
 
       // Smart size selection for images only
       if (mediaObj.mimeType?.startsWith("image/") && mediaObj.sizes) {
@@ -144,57 +157,68 @@ export const useImageSrc = (
           targetSize = "medium" as keyof Media["sizes"];
         }
 
-        // Only proceed if targetSize is defined
-        if (targetSize) {
+        // Try to get the sized version
+        if (targetSize && sizes[targetSize]) {
           const sizedVersion = sizes[targetSize];
 
-          if (sizedVersion) {
-            selectedSize = targetSize as string;
-            if (typeof sizedVersion === "string") {
-              url = sizedVersion;
-            } else if (sizedVersion && typeof sizedVersion === "object") {
-              url = sizedVersion.url || sizedVersion.filename || url;
-            }
+          if (debug) {
+            console.log(`Found sized version for ${targetSize}:`, sizedVersion);
+          }
 
-            if (debug) {
-              console.log(`Selected size: ${targetSize}`, sizedVersion);
-            }
-          } else {
-            // Fallback to next available size
-            const availableSizes = Object.keys(sizes);
-            if (availableSizes.length > 0) {
-              const fallbackSize = availableSizes[0];
-              const fallbackVersion = sizes[fallbackSize];
+          selectedSize = targetSize as string;
 
-              if (fallbackVersion) {
-                selectedSize = fallbackSize;
-                url =
-                  typeof fallbackVersion === "string"
-                    ? fallbackVersion
-                    : fallbackVersion.url || fallbackVersion.filename || url;
+          if (typeof sizedVersion === "string") {
+            url = sizedVersion;
+          } else if (sizedVersion && typeof sizedVersion === "object") {
+            // Handle different possible structure formats
+            url = sizedVersion.url || sizedVersion.filename || url;
+          }
+        } else {
+          // Fallback to next available size
+          const availableSizes = Object.keys(sizes);
+          if (availableSizes.length > 0) {
+            const fallbackSize = availableSizes[0];
+            const fallbackVersion = sizes[fallbackSize];
 
-                if (debug) {
-                  console.log(
-                    `Fallback to size: ${fallbackSize}`,
-                    fallbackVersion
-                  );
-                }
+            if (fallbackVersion) {
+              selectedSize = fallbackSize;
+              url =
+                typeof fallbackVersion === "string"
+                  ? fallbackVersion
+                  : fallbackVersion.url || fallbackVersion.filename || url;
+
+              if (debug) {
+                console.log(
+                  `Fallback to size: ${fallbackSize}`,
+                  fallbackVersion
+                );
               }
             }
           }
         }
       }
 
-      // UploadThing URLs are already complete, no processing needed
+      // Ensure the URL is complete
       const finalUrl = url || fallbackUrl;
 
+      // If it's not already a complete URL and doesn't look like an UploadThing URL,
+      // it might need the site URL prepended (for local development)
+      let processedUrl = finalUrl;
+      if (!isExternalUrl(finalUrl) && !finalUrl.startsWith("/")) {
+        // This shouldn't happen with UploadThing, but handle it just in case
+        processedUrl = `/${finalUrl}`;
+      }
+
       if (debug) {
-        console.log("Final processed URL:", finalUrl);
-        console.log("Selected size:", selectedSize);
+        console.log("Final processed Media URL:", {
+          originalUrl: mediaObj.url,
+          selectedSize,
+          finalUrl: processedUrl,
+        });
       }
 
       return {
-        src: finalUrl,
+        src: processedUrl,
         isValid: true,
         isMediaObject: true,
         originalSrc: input,
@@ -209,6 +233,10 @@ export const useImageSrc = (
     }
 
     // Fallback for unexpected types
+    if (debug) {
+      console.log("Unexpected input type:", typeof input, input);
+    }
+
     return {
       src: fallbackUrl,
       isValid: false,
@@ -226,12 +254,18 @@ export const useOptimalImageSize = (
   return useMemo(() => {
     // Use container width if provided
     if (containerWidth) {
-      return selectOptimalSize(containerWidth, window?.devicePixelRatio > 1);
+      return selectOptimalSize(
+        containerWidth,
+        typeof window !== "undefined" ? window?.devicePixelRatio > 1 : false
+      );
     }
 
     // Use viewport width as fallback
     if (viewport?.width) {
-      return selectOptimalSize(viewport.width, window?.devicePixelRatio > 1);
+      return selectOptimalSize(
+        viewport.width,
+        typeof window !== "undefined" ? window?.devicePixelRatio > 1 : false
+      );
     }
 
     // Default fallback

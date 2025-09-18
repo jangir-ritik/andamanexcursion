@@ -64,7 +64,7 @@ export default buildConfig({
     defaultFromName: "Andaman Excursion",
   }),
   sharp,
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   cors: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -72,7 +72,7 @@ export default buildConfig({
   ],
   logger: {
     options: {
-      level: "debug",
+      level: process.env.NODE_ENV === "development" ? "debug" : "info",
     },
   },
   admin: {
@@ -111,27 +111,29 @@ export default buildConfig({
     },
   },
   plugins: [
-    // UploadThing Storage Plugin
+    // UploadThing Storage Plugin - Updated for Vercel deployment
     uploadthingStorage({
       collections: {
         media: {
-          prefix: "andaman-media", // Add a prefix for organization
+          prefix: "andaman-media",
         },
       },
       options: {
         token: process.env.UPLOADTHING_TOKEN || "",
         acl: "public-read",
-        logLevel: "Debug",
+        logLevel: process.env.NODE_ENV === "development" ? "Debug" : "Error",
+        // // Important: Enable client uploads for Vercel deployment
+        // clientUploads: true,
       },
     }),
     seoPlugin({
       collections: [
-        "pages", // ✅ Static pages
-        "packages", // ✅ Package detail pages
-        "package-categories", // ✅ Category landing pages
-        "activities", // ✅ Activity detail pages
-        "activity-categories", // ✅ Activity category pages
-        "boat-routes", // ✅ Boat booking pages (if needed)
+        "pages",
+        "packages",
+        "package-categories",
+        "activities",
+        "activity-categories",
+        "boat-routes",
       ],
       uploadsCollection: "media",
       generateTitle: ({ doc, collectionSlug }) => {
@@ -173,16 +175,5 @@ export default buildConfig({
         }
       },
     }),
-  ], // Add endpoint configuration for media serving
-  // endpoints: [
-  //   {
-  //     path: "/api/media/file/:filename",
-  //     method: "get",
-  //     handler: async (req, res) => {
-  //       // This will be handled by UploadThing automatically
-  //       // But you can add custom logic here if needed
-  //       res.status(404).json({ error: "File not found" });
-  //     },
-  //   },
-  // ],
+  ],
 });
