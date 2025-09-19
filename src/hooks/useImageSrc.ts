@@ -51,13 +51,12 @@ const isExternalUrl = (url: string): boolean => {
   }
 };
 
-// Construct UploadThing URL using key - IMPROVED
+// CORRECTED: Construct UploadThing URL using key
 const constructUploadThingUrl = (key: string): string => {
-  // Remove any file extensions or extra characters from the key
-  const cleanKey = key.split(".")[0].split("-")[0];
+  // The key from UploadThing should be used directly without modification.
   const UPLOADTHING_APP_ID =
     process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID || "zu0uz82q68";
-  return `https://${UPLOADTHING_APP_ID}.ufs.sh/f/${cleanKey}`;
+  return `https://${UPLOADTHING_APP_ID}.ufs.sh/f/${key}`;
 };
 
 // Extract UploadThing key from URL - IMPROVED
@@ -291,56 +290,35 @@ export const useImageSrc = (
   }, [input, fallbackUrl, preferredSize, containerWidth, highDPI, debug]);
 };
 
-// IMPROVED: Helper function to get main image URL with better fallback logic
+// SIMPLIFIED: Helper function to get the main image URL
 function getMainImageUrl(mediaObj: Media, debug: boolean): string {
-  // Priority 1: Use stored UploadThing key if available
-  const storedKey = (mediaObj as any).uploadthingKey;
-  if (storedKey) {
-    const url = constructUploadThingUrl(storedKey);
-    if (debug) console.log("✅ Using stored UploadThing key:", url);
-    return url;
-  }
-
-  // Priority 2: Direct URL from media object (when disablePayloadAccessControl is true)
+  // Priority 1: Use the direct URL stored on the media object.
+  // This is the most reliable source, provided by the uploadthingStorage adapter.
   if (
     mediaObj.url &&
-    isExternalUrl(mediaObj.url) &&
+    typeof mediaObj.url === "string" &&
     !mediaObj.url.includes("undefined")
   ) {
-    if (debug)
-      console.log("✅ Using direct URL from media object:", mediaObj.url);
+    if (debug) console.log("✅ Using direct URL from media object:", mediaObj.url);
     return mediaObj.url;
   }
 
-  // Priority 3: Extract key from existing URL
-  if (mediaObj.url) {
-    const extractedKey = extractUploadThingKey(mediaObj.url);
-    if (extractedKey) {
-      const url = constructUploadThingUrl(extractedKey);
-      if (debug) console.log("✅ Reconstructed URL from extracted key:", url);
-      return url;
-    }
+  // Priority 2 (Fallback): Construct from the stored key if the URL is missing.
+  const storedKey = (mediaObj as any).uploadthingKey;
+  if (storedKey) {
+    const url = constructUploadThingUrl(storedKey);
+    if (debug) console.log("⚠️ Reconstructing URL from stored key:", url);
+    return url;
   }
-
-  // Priority 4: Try to construct from filename
+  
+  // Last resort: Fallback to a relative path if nothing else is available.
   if (mediaObj.filename) {
-    const keyFromFilename = extractUploadThingKey(mediaObj.filename);
-    if (keyFromFilename) {
-      const url = constructUploadThingUrl(keyFromFilename);
-      if (debug) console.log("✅ Constructed URL from filename key:", url);
-      return url;
-    }
-  }
-
-  // Priority 5: Fallback to Payload API route
-  if (mediaObj.filename) {
-    const fallbackUrl = `/api/media/file/${mediaObj.filename}`;
-    if (debug) console.log("⚠️ Fallback to Payload API URL:", fallbackUrl);
+    const fallbackUrl = `/media/${mediaObj.filename}`;
+    if (debug) console.log("❌ Falling back to relative media URL:", fallbackUrl);
     return fallbackUrl;
   }
 
-  // Last resort
-  if (debug) console.log("❌ No valid URL found");
+  if (debug) console.log("❌ No valid URL could be determined.");
   return "";
 }
 

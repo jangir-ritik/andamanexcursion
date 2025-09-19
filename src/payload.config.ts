@@ -114,13 +114,11 @@ export default buildConfig({
     uploadthingStorage({
       collections: {
         media: {
-          // Enable direct UploadThing URLs
           disablePayloadAccessControl: true,
         },
       },
       options: {
-        // Use the secret key for authentication
-        token: process.env.UPLOADTHING_SECRET_KEY || process.env.UPLOADTHING_SECRET || "",
+        token: process.env.UPLOADTHING_TOKEN || "",
         acl: "public-read",
         logLevel: process.env.NODE_ENV === "development" ? "Debug" : "Error",
       },
