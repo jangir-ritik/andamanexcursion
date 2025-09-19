@@ -115,7 +115,8 @@ export default buildConfig({
     uploadthingStorage({
       collections: {
         media: {
-          prefix: "andaman-media",
+          // prefix: "andaman-media",
+          disablePayloadAccessControl: true,
           // Don't use generateFileURL with clientUploads: true
           // We'll handle URL construction in the frontend
         },

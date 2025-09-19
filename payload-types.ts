@@ -186,7 +186,6 @@ export interface Media {
     poster?: (string | null) | Media;
   };
   _key?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2285,7 +2284,6 @@ export interface MediaSelect<T extends boolean = true> {
         poster?: T;
       };
   _key?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

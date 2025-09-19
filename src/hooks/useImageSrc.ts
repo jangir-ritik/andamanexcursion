@@ -4,9 +4,7 @@ import { Media } from "@payload-types";
 interface UseImageSrcOptions {
   fallbackUrl?: string;
   preferredSize?: string;
-  // Smart size selection based on container width
   containerWidth?: number;
-  // Device pixel ratio consideration
   highDPI?: boolean;
   debug?: boolean;
 }
@@ -53,20 +51,29 @@ const isExternalUrl = (url: string): boolean => {
   }
 };
 
-// Construct UploadThing URL using key
+// Construct UploadThing URL using key - Updated for better compatibility
 const constructUploadThingUrl = (key: string): string => {
-  // Use your specific UploadThing App ID
-  return `https://zu0uz82q68.ufs.sh/f/${key}`;
+  // Your UploadThing App ID
+  const UPLOADTHING_APP_ID =
+    process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID || "zu0uz82q68";
+  return `https://${UPLOADTHING_APP_ID}.ufs.sh/f/${key}`;
 };
 
-// Construct Payload API URL for media files (fallback)
-const constructPayloadMediaUrl = (filename: string, size?: string): string => {
-  // For sized versions, Payload typically serves them with the size in the filename
-  // The actual URL construction depends on your Payload API routes
-  if (size && size !== "original") {
-    return `/api/media/file/${filename}`;
+// Enhanced URL extraction for UploadThing
+const extractUploadThingKey = (url: string): string | null => {
+  try {
+    // Match UploadThing URL patterns
+    const utMatch = url.match(/\/f\/([^/?]+)/);
+    if (utMatch) return utMatch[1];
+
+    // Match other patterns that might contain the key
+    const keyMatch = url.match(/key=([^&]+)/);
+    if (keyMatch) return keyMatch[1];
+
+    return null;
+  } catch {
+    return null;
   }
-  return `/api/media/file/${filename}`;
 };
 
 export const useImageSrc = (
@@ -140,41 +147,36 @@ export const useImageSrc = (
     // Process Media objects with smart size selection
     if (isMediaObject(input)) {
       const mediaObj = input as Media;
-      let targetKey = (mediaObj as any)._key; // Main file key
       let selectedSize = "original";
+      let processedUrl: string;
 
       if (debug) {
         console.log("Processing Media object:", {
           filename: mediaObj.filename,
           mimeType: mediaObj.mimeType,
-          key: targetKey,
-          sizes: mediaObj.sizes ? Object.keys(mediaObj.sizes) : [],
-          hasUrl: "url" in mediaObj,
           url: mediaObj.url,
+          sizes: mediaObj.sizes ? Object.keys(mediaObj.sizes) : [],
+          hasDirectUrl: mediaObj.url && isExternalUrl(mediaObj.url),
         });
       }
 
-      // Smart size selection for images only
+      // For images, try to get the appropriate sized version
       if (mediaObj.mimeType?.startsWith("image/") && mediaObj.sizes) {
         const sizes = mediaObj.sizes as Record<string, any>;
 
-        // Use preferredSize if explicitly provided
+        // Determine preferred size
         let preferredSizeName = preferredSize;
-
-        // Otherwise, auto-select based on container width
         if (!preferredSizeName && containerWidth) {
           preferredSizeName = selectOptimalSize(
             containerWidth,
             highDPI
           ) as keyof Media["sizes"];
         }
-
-        // Fallback to medium if nothing specified
         if (!preferredSizeName) {
           preferredSizeName = "medium" as keyof Media["sizes"];
         }
 
-        // Try to get the sized version key
+        // Try to get the sized version
         if (preferredSizeName && sizes[preferredSizeName]) {
           const sizedVersion = sizes[preferredSizeName];
 
@@ -187,77 +189,51 @@ export const useImageSrc = (
 
           selectedSize = preferredSizeName as string;
 
-          // Extract key from sized version
-          if (typeof sizedVersion === "object" && sizedVersion._key) {
-            targetKey = sizedVersion._key;
+          // Check if sized version has a direct URL
+          if (
+            typeof sizedVersion === "object" &&
+            sizedVersion.url &&
+            isExternalUrl(sizedVersion.url)
+          ) {
+            processedUrl = sizedVersion.url;
+            if (debug) {
+              console.log("Using direct URL from sized version:", processedUrl);
+            }
+          } else if (
+            typeof sizedVersion === "string" &&
+            isExternalUrl(sizedVersion)
+          ) {
+            processedUrl = sizedVersion;
+            if (debug) {
+              console.log("Using sized version string URL:", processedUrl);
+            }
+          } else if (sizedVersion._key || sizedVersion.key) {
+            // Construct URL from key
+            const key = sizedVersion._key || sizedVersion.key;
+            processedUrl = constructUploadThingUrl(key);
+            if (debug) {
+              console.log(
+                "Constructed URL from sized version key:",
+                processedUrl
+              );
+            }
+          } else {
+            // Fallback to main image logic
+            processedUrl = getMainImageUrl(mediaObj, debug);
           }
         } else {
-          // Fallback to next available size
-          const availableSizes = Object.keys(sizes);
-          if (availableSizes.length > 0) {
-            const fallbackSize = availableSizes[0];
-            const fallbackVersion = sizes[fallbackSize];
-
-            if (
-              fallbackVersion &&
-              typeof fallbackVersion === "object" &&
-              fallbackVersion._key
-            ) {
-              selectedSize = fallbackSize;
-              targetKey = fallbackVersion._key;
-
-              if (debug) {
-                console.log(
-                  `Fallback to size: ${fallbackSize}`,
-                  fallbackVersion
-                );
-              }
-            }
-          }
-        }
-      }
-
-      // Construct the final URL
-      let processedUrl: string;
-
-      // If the media object has a direct URL (some storage adapters provide this)
-      if (
-        mediaObj.url &&
-        isExternalUrl(mediaObj.url) &&
-        !mediaObj.url.includes("/f/undefined")
-      ) {
-        processedUrl = mediaObj.url;
-        if (debug) {
-          console.log("Using direct URL from media object:", processedUrl);
-        }
-      } else if (targetKey) {
-        // Use UploadThing CDN URL with the key
-        processedUrl = constructUploadThingUrl(targetKey);
-        if (debug) {
-          console.log("Constructed UploadThing URL:", processedUrl);
-        }
-      } else if (mediaObj.filename) {
-        // Fallback to Payload API route (shouldn't happen with UploadThing)
-        processedUrl = constructPayloadMediaUrl(
-          mediaObj.filename,
-          selectedSize
-        );
-        if (debug) {
-          console.log("Fallback to Payload API URL:", processedUrl);
+          // No preferred size available, use main image
+          processedUrl = getMainImageUrl(mediaObj, debug);
         }
       } else {
-        // Last resort fallback
-        processedUrl = fallbackUrl;
-        if (debug) {
-          console.log("Using fallback URL:", processedUrl);
-        }
+        // For non-images or when sizes are not available
+        processedUrl = getMainImageUrl(mediaObj, debug);
       }
 
       if (debug) {
         console.log("Final processed Media URL:", {
           originalFilename: mediaObj.filename,
           selectedSize,
-          targetKey,
           finalUrl: processedUrl,
         });
       }
@@ -291,13 +267,64 @@ export const useImageSrc = (
   }, [input, fallbackUrl, preferredSize, containerWidth, highDPI, debug]);
 };
 
-// Hook to determine optimal image size based on viewport/container
+// Helper function to get main image URL
+function getMainImageUrl(mediaObj: Media, debug: boolean): string {
+  // Priority 1: Direct URL from media object (when disablePayloadAccessControl is true)
+  if (
+    mediaObj.url &&
+    isExternalUrl(mediaObj.url) &&
+    !mediaObj.url.includes("undefined")
+  ) {
+    if (debug) {
+      console.log("Using direct URL from media object:", mediaObj.url);
+    }
+    return mediaObj.url;
+  }
+
+  // Priority 2: Construct from _key if available
+  const mainKey = (mediaObj as any)._key || (mediaObj as any).key;
+  if (mainKey) {
+    const constructedUrl = constructUploadThingUrl(mainKey);
+    if (debug) {
+      console.log("Constructed URL from main key:", constructedUrl);
+    }
+    return constructedUrl;
+  }
+
+  // Priority 3: Extract key from existing URL if it's an UploadThing URL
+  if (mediaObj.url) {
+    const extractedKey = extractUploadThingKey(mediaObj.url);
+    if (extractedKey) {
+      const constructedUrl = constructUploadThingUrl(extractedKey);
+      if (debug) {
+        console.log("Reconstructed URL from extracted key:", constructedUrl);
+      }
+      return constructedUrl;
+    }
+  }
+
+  // Priority 4: Fallback to Payload API route
+  if (mediaObj.filename) {
+    const fallbackUrl = `/api/media/file/${mediaObj.filename}`;
+    if (debug) {
+      console.log("Fallback to Payload API URL:", fallbackUrl);
+    }
+    return fallbackUrl;
+  }
+
+  // Last resort
+  if (debug) {
+    console.log("No valid URL found, using empty string");
+  }
+  return "";
+}
+
+// Export other hooks unchanged
 export const useOptimalImageSize = (
   containerWidth?: number,
   viewport?: { width: number; height: number }
 ): keyof typeof SIZE_MAP => {
   return useMemo(() => {
-    // Use container width if provided
     if (containerWidth) {
       return selectOptimalSize(
         containerWidth,
@@ -305,7 +332,6 @@ export const useOptimalImageSize = (
       );
     }
 
-    // Use viewport width as fallback
     if (viewport?.width) {
       return selectOptimalSize(
         viewport.width,
@@ -313,12 +339,10 @@ export const useOptimalImageSize = (
       );
     }
 
-    // Default fallback
     return "medium";
   }, [containerWidth, viewport]);
 };
 
-// Additional hook for image metadata
 export const useImageMetadata = (src: string | Media | null | undefined) => {
   return useMemo(() => {
     if (!src || typeof src === "string") {
