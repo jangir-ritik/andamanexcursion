@@ -201,9 +201,9 @@ export const DynamicPackagesBlock: React.FC<DynamicPackagesBlockProps> = ({
             <SectionTitle text={title} specialWord={specialWord} />
             <DescriptionText text={description} />
             <DecorativeCurlyArrow
-              top="50%"
-              left="33%"
-              scale={1.5}
+              top="43%"
+              left="24%"
+              scale={1.2}
               rotation={30}
             />
           </Column>
