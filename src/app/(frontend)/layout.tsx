@@ -1,6 +1,6 @@
 // layout.tsx - with automatic loading bar
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Quicksand } from "next/font/google";
 import localFont from "next/font/local";
 import clsx from "clsx";
 import "./globals.css";
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
 };
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const quicksand = Quicksand({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -79,7 +79,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.className} ${quickBeach.variable}`}
+      className={`${quicksand.className} ${quickBeach.variable}`}
     >
       <head>
         {/* Preload critical fonts for Safari */}
@@ -91,7 +91,7 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className={clsx(plusJakartaSans.className, quickBeach.className)}>
+      <body className={clsx(quicksand.className, quickBeach.className)}>
         <TopLoadingBarProvider>
           <ReactQueryProvider>
             <Header navItems={navItems} />

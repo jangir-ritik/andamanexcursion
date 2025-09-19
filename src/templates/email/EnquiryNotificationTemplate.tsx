@@ -154,7 +154,7 @@ export const EnquiryNotificationTemplate: React.FC<
 const main = {
   backgroundColor: "#f5f9ff", // --color-gray-50
   fontFamily:
-    "Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif", // --font-family-primary
+    "Quicksand, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif", // --font-family-primary
 };
 
 const container = {

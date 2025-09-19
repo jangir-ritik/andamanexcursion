@@ -48,7 +48,7 @@
 
 .title {
   width: 100%;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 600;
   font-size: var(--font-size-lg);
@@ -59,7 +59,7 @@
 
 .description {
   width: 100%;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-sm);

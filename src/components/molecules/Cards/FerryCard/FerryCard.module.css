@@ -80,7 +80,7 @@
 }
 
 .ferryName {
-  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 600;
   font-size: var(--font-size-base);
@@ -118,7 +118,7 @@
 }
 
 .seatsText {
-  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 500;
   font-size: var(--font-size-xs);
@@ -166,7 +166,7 @@
 }
 
 .timeText {
-  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 600;
   font-size: var(--font-size-lg);
@@ -176,7 +176,7 @@
 }
 
 .locationText {
-  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-sm);
@@ -292,7 +292,7 @@
 }
 
 .pricePerAdult {
-  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 600;
   font-size: var(--font-size-base);
@@ -302,7 +302,7 @@
 }
 
 .totalPrice {
-  font-family: "Plus Jakarta Sans", var(--font-family-primary);
+  font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 400;
   font-size: var(--font-size-xs);
