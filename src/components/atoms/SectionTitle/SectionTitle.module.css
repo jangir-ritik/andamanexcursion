@@ -9,7 +9,7 @@
 .title {
   font-family: var(--font-family-primary);
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
   font-size: var(--font-size-4xl); /* 40px */
   line-height: 110%;
   color: var(--color-black);
