@@ -206,21 +206,19 @@ const Media: CollectionConfig = {
       },
     ],
     afterChange: [
-      async ({ doc, req }) => {
-        // Extract and store UploadThing key and URL after upload
-        if (doc.url && typeof doc.url === "string") {
+      async ({ doc, req, operation }) => {
+        // Only process on create operations (new uploads)
+        if (operation === 'create' && doc.url && typeof doc.url === "string") {
           // Store the full URL
           doc.uploadthingUrl = doc.url;
 
           // Extract and store the key from UploadThing URL
           const keyMatch = doc.url.match(/\/f\/([^/?#]+)/);
-          if (keyMatch) {
+          if (keyMatch && keyMatch[1] !== '.') {
             doc.uploadthingKey = keyMatch[1];
           }
-        }
 
-        // Enhanced logging for debugging
-        if (req.file) {
+          // Enhanced logging for debugging
           console.log(`✅ Media uploaded successfully:`, {
             id: doc.id,
             filename: doc.filename,
@@ -230,9 +228,19 @@ const Media: CollectionConfig = {
             uploadthingUrl: doc.uploadthingUrl,
             sizes: doc.sizes ? Object.keys(doc.sizes) : [],
             filesize: doc.filesize,
-            // Check thumbnail specifically
-            thumbnailInfo: doc.sizes?.thumbnail,
+            operation: operation,
+            // Check if URL has valid key
+            hasValidKey: keyMatch && keyMatch[1] !== '.',
           });
+
+          // Log warning if key is invalid
+          if (!keyMatch || keyMatch[1] === '.') {
+            console.warn(`⚠️ Invalid UploadThing key detected:`, {
+              url: doc.url,
+              extractedKey: keyMatch ? keyMatch[1] : 'no match',
+              filename: doc.filename,
+            });
+          }
         }
       },
     ],

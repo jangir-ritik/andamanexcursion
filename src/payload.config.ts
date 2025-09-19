@@ -110,19 +110,17 @@ export default buildConfig({
     },
   },
   plugins: [
-    // CORRECTED UploadThing Storage Plugin configuration
+    // UploadThing Storage Plugin configuration
     uploadthingStorage({
       collections: {
         media: {
-          // CRITICAL: Set this to true to get direct UploadThing URLs in doc.url
+          // Enable direct UploadThing URLs
           disablePayloadAccessControl: true,
-
-          // REMOVED: generateFileURL - this was causing conflicts
-          // Let UploadThing plugin handle URL generation automatically
         },
       },
       options: {
-        token: process.env.UPLOADTHING_TOKEN || "",
+        // Use the secret key for authentication
+        token: process.env.UPLOADTHING_SECRET_KEY || process.env.UPLOADTHING_SECRET || "",
         acl: "public-read",
         logLevel: process.env.NODE_ENV === "development" ? "Debug" : "Error",
       },
