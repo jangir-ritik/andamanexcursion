@@ -1,4 +1,5 @@
 import { CollectionConfig } from "payload";
+import { revalidationHooks } from "../../../utils/revalidation";
 
 const Packages: CollectionConfig = {
   slug: "packages",
@@ -334,6 +335,16 @@ const Packages: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    afterChange: [
+      // Trigger revalidation for package changes
+      revalidationHooks.packages,
+    ],
+    afterDelete: [
+      // Trigger revalidation when packages are deleted
+      revalidationHooks.packages,
+    ],
+  },
 };
 
 export default Packages;

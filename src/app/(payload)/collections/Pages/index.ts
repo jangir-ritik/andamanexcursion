@@ -1,5 +1,6 @@
 import { CollectionConfig } from "payload";
 import { contentBlocks } from "./blocks";
+import { revalidationHooks } from "../../../../utils/revalidation";
 
 export const pageTypeOptions = [
   { label: "Home", value: "home" },
@@ -436,11 +437,15 @@ const Pages: CollectionConfig = {
             mainCategorySlug: doc.destinationInfo?.mainCategorySlug,
             subcategorySlug: doc.destinationInfo?.subcategorySlug,
           });
-
-          // TODO: Clear navigation cache here if you have caching implemented
-          // await clearNavigationCache();
         }
+
+        // Trigger revalidation for page changes
+        await revalidationHooks.pages({ doc, operation, req });
       },
+    ],
+    afterDelete: [
+      // Trigger revalidation when pages are deleted
+      revalidationHooks.pages,
     ],
   },
 };

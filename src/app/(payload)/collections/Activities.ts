@@ -1,4 +1,5 @@
 import { CollectionConfig } from "payload";
+import { revalidationHooks } from "../../../utils/revalidation";
 
 const Activities: CollectionConfig = {
   slug: "activities",
@@ -233,6 +234,14 @@ const Activities: CollectionConfig = {
         }
         return data;
       },
+    ],
+    afterChange: [
+      // Trigger revalidation for activity changes
+      revalidationHooks.activities,
+    ],
+    afterDelete: [
+      // Trigger revalidation when activities are deleted
+      revalidationHooks.activities,
     ],
   },
 };

@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getImageUrl } from "@/utils/getImageUrl";
 
+// ISR Configuration - Revalidate every 60 seconds
+export const revalidate = 60;
+
 type PageProps = {
   params: Promise<{ slug?: string }>;
 };

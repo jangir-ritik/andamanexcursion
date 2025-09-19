@@ -1,4 +1,5 @@
 import { CollectionConfig } from "payload";
+import { revalidationHooks } from "../../../utils/revalidation";
 
 const Media: CollectionConfig = {
   slug: "media",
@@ -242,7 +243,14 @@ const Media: CollectionConfig = {
             });
           }
         }
+
+        // Trigger revalidation for media changes
+        await revalidationHooks.media({ doc, operation, req });
       },
+    ],
+    afterDelete: [
+      // Trigger revalidation when media is deleted
+      revalidationHooks.media,
     ],
   },
   admin: {
