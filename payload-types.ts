@@ -176,13 +176,39 @@ export interface User {
  */
 export interface Media {
   id: string;
+  /**
+   * Alternative text for accessibility
+   */
   alt: string;
+  /**
+   * Optional caption for the media
+   */
   caption?: string | null;
+  uploadthingKey?: string | null;
+  uploadthingUrl?: string | null;
+  /**
+   * Settings specific to video files
+   */
   videoSettings?: {
+    /**
+     * Auto-play video when loaded
+     */
     autoplay?: boolean | null;
+    /**
+     * Loop video continuously
+     */
     loop?: boolean | null;
+    /**
+     * Start video muted
+     */
     muted?: boolean | null;
+    /**
+     * Show video controls
+     */
     controls?: boolean | null;
+    /**
+     * Poster image for video
+     */
     poster?: (string | null) | Media;
   };
   _key?: string | null;
@@ -2274,6 +2300,8 @@ export interface UsersSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  uploadthingKey?: T;
+  uploadthingUrl?: T;
   videoSettings?:
     | T
     | {

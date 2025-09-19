@@ -57,7 +57,6 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || "",
   }),
-  // Add Resend email adapter
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || "",
     defaultFromAddress: process.env.FROM_EMAIL || "",
@@ -111,22 +110,21 @@ export default buildConfig({
     },
   },
   plugins: [
-    // UploadThing Storage Plugin - Fixed configuration
+    // CORRECTED UploadThing Storage Plugin configuration
     uploadthingStorage({
       collections: {
         media: {
-          // prefix: "andaman-media",
+          // CRITICAL: Set this to true to get direct UploadThing URLs in doc.url
           disablePayloadAccessControl: true,
-          // Don't use generateFileURL with clientUploads: true
-          // We'll handle URL construction in the frontend
+
+          // REMOVED: generateFileURL - this was causing conflicts
+          // Let UploadThing plugin handle URL generation automatically
         },
       },
       options: {
         token: process.env.UPLOADTHING_TOKEN || "",
         acl: "public-read",
         logLevel: process.env.NODE_ENV === "development" ? "Debug" : "Error",
-        // // Important: Enable client uploads for Vercel deployment
-        // clientUploads: true,
       },
     }),
     seoPlugin({

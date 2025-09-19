@@ -9,7 +9,36 @@ const Media: CollectionConfig = {
     delete: ({ req: { user } }) => !!user,
   },
   upload: {
-    // UploadThing handles storage and sizing automatically
+    // CORRECTED: Single adminThumbnail configuration - remove duplicates
+    adminThumbnail: ({ doc }): string | null => {
+      // Priority 1: Use the thumbnail size URL if available
+      // if (doc.sizes?.thumbnail?.url) {
+      //   return doc.sizes.thumbnail.url as string;
+      // }
+
+      // // Priority 2: Construct from thumbnail key
+      // if (doc.sizes?.thumbnail?._key) {
+      //   return `https://utfs.io/f/${doc.sizes.thumbnail._key}`;
+      // }
+
+      // Priority 3: Use main image URL (should be UploadThing URL)
+      if (
+        doc.url &&
+        typeof doc.url === "string" &&
+        doc.url.includes("utfs.io")
+      ) {
+        return doc.url;
+      }
+
+      // Priority 4: Construct from stored UploadThing key
+      if (doc.uploadthingKey && typeof doc.uploadthingKey === "string") {
+        return `https://utfs.io/f/${doc.uploadthingKey}`;
+      }
+
+      // Fallback
+      return (doc.url as string) || null;
+    },
+    // Image sizes for processing
     imageSizes: [
       {
         name: "thumbnail",
@@ -24,7 +53,7 @@ const Media: CollectionConfig = {
       {
         name: "small",
         width: 400,
-        height: undefined, // Maintain aspect ratio
+        height: undefined,
         position: "centre",
         formatOptions: {
           format: "webp",
@@ -52,8 +81,11 @@ const Media: CollectionConfig = {
         },
       },
     ],
-    adminThumbnail: "thumbnail",
+
+    // Accepted file types
     mimeTypes: ["image/*", "video/mp4", "video/webm", "video/ogg"],
+
+    // Default format options for original images
     formatOptions: {
       format: "webp",
       options: {
@@ -61,6 +93,8 @@ const Media: CollectionConfig = {
         effort: 6,
       },
     },
+
+    // Resize options for original images
     resizeOptions: {
       width: 2000,
       height: 2000,
@@ -73,10 +107,32 @@ const Media: CollectionConfig = {
       name: "alt",
       type: "text",
       required: true,
+      admin: {
+        description: "Alternative text for accessibility",
+      },
     },
     {
       name: "caption",
       type: "text",
+      admin: {
+        description: "Optional caption for the media",
+      },
+    },
+    // Store the UploadThing file key for direct access
+    {
+      name: "uploadthingKey",
+      type: "text",
+      admin: {
+        hidden: true,
+      },
+    },
+    // Store the UploadThing file URL for direct access
+    {
+      name: "uploadthingUrl",
+      type: "text",
+      admin: {
+        hidden: true,
+      },
     },
     {
       name: "videoSettings",
@@ -85,34 +141,50 @@ const Media: CollectionConfig = {
         condition: (data) => {
           return data.mimeType?.startsWith("video/");
         },
+        description: "Settings specific to video files",
       },
       fields: [
         {
           name: "autoplay",
           type: "checkbox",
           defaultValue: false,
+          admin: {
+            description: "Auto-play video when loaded",
+          },
         },
         {
           name: "loop",
           type: "checkbox",
           defaultValue: false,
+          admin: {
+            description: "Loop video continuously",
+          },
         },
         {
           name: "muted",
           type: "checkbox",
           defaultValue: true,
+          admin: {
+            description: "Start video muted",
+          },
         },
         {
           name: "controls",
           type: "checkbox",
           defaultValue: true,
+          admin: {
+            description: "Show video controls",
+          },
         },
         {
           name: "poster",
           type: "upload",
           relationTo: "media",
           admin: {
-            condition: (data) => data.mimeType?.startsWith("image/"),
+            condition: (data, siblingData) => {
+              return siblingData.mimeType?.startsWith("image/");
+            },
+            description: "Poster image for video",
           },
         },
       ],
@@ -129,31 +201,58 @@ const Media: CollectionConfig = {
             ? "video"
             : "other";
         }
+
         return data;
       },
     ],
     afterChange: [
-      ({ doc, req }) => {
-        // Enhanced logging for UploadThing debugging
+      async ({ doc, req }) => {
+        // Extract and store UploadThing key and URL after upload
+        if (doc.url && typeof doc.url === "string") {
+          // Store the full URL
+          doc.uploadthingUrl = doc.url;
+
+          // Extract and store the key from UploadThing URL
+          const keyMatch = doc.url.match(/\/f\/([^/?#]+)/);
+          if (keyMatch) {
+            doc.uploadthingKey = keyMatch[1];
+          }
+        }
+
+        // Enhanced logging for debugging
         if (req.file) {
           console.log(`✅ Media uploaded successfully:`, {
             id: doc.id,
             filename: doc.filename,
             url: doc.url,
             mimeType: doc.mimeType,
+            uploadthingKey: doc.uploadthingKey,
+            uploadthingUrl: doc.uploadthingUrl,
             sizes: doc.sizes ? Object.keys(doc.sizes) : [],
             filesize: doc.filesize,
-            // Log actual URLs for debugging
-            sizeUrls: doc.sizes
-              ? Object.entries(doc.sizes).reduce((acc, [key, size]) => {
-                  acc[key] = typeof size === "string" ? size : "no url";
-                  return acc;
-                }, {} as Record<string, string>)
-              : {},
+            // Check thumbnail specifically
+            thumbnailInfo: doc.sizes?.thumbnail,
           });
         }
       },
     ],
+  },
+  admin: {
+    useAsTitle: "alt",
+    defaultColumns: ["alt", "filename", "mimeType", "updatedAt"],
+    // Remove custom preview - let Payload handle it
+    preview: (doc): string | null => {
+      // Return the adminThumbnail result for consistency
+      // if (doc.sizes?.thumbnail?.url) {
+      //   return doc.sizes.thumbnail.url as string;
+      // }
+
+      // if (doc.sizes?.thumbnail?._key) {
+      //   return `https://utfs.io/f/${doc.sizes.thumbnail._key}`;
+      // }
+
+      return (doc.url as string) || null;
+    },
   },
 };
 
