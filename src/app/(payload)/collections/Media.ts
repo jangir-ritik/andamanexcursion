@@ -208,13 +208,13 @@ const Media: CollectionConfig = {
     afterChange: [
       async ({ doc, req, operation }) => {
         // Only process on create operations (new uploads)
-        if (operation === 'create' && doc.url && typeof doc.url === "string") {
+        if (operation === "create" && doc.url && typeof doc.url === "string") {
           // Store the full URL
           doc.uploadthingUrl = doc.url;
 
           // Extract and store the key from UploadThing URL
           const keyMatch = doc.url.match(/\/f\/([^/?#]+)/);
-          if (keyMatch && keyMatch[1] !== '.') {
+          if (keyMatch && keyMatch[1] !== ".") {
             doc.uploadthingKey = keyMatch[1];
           }
 
@@ -230,14 +230,14 @@ const Media: CollectionConfig = {
             filesize: doc.filesize,
             operation: operation,
             // Check if URL has valid key
-            hasValidKey: keyMatch && keyMatch[1] !== '.',
+            hasValidKey: keyMatch && keyMatch[1] !== ".",
           });
 
           // Log warning if key is invalid
-          if (!keyMatch || keyMatch[1] === '.') {
+          if (!keyMatch || keyMatch[1] === ".") {
             console.warn(`⚠️ Invalid UploadThing key detected:`, {
               url: doc.url,
-              extractedKey: keyMatch ? keyMatch[1] : 'no match',
+              extractedKey: keyMatch ? keyMatch[1] : "no match",
               filename: doc.filename,
             });
           }
@@ -246,8 +246,8 @@ const Media: CollectionConfig = {
     ],
   },
   admin: {
-    useAsTitle: "alt",
-    defaultColumns: ["alt", "filename", "mimeType", "updatedAt"],
+    useAsTitle: "filename",
+    defaultColumns: ["filename", "alt", "mimeType", "updatedAt"],
     // Remove custom preview - let Payload handle it
     preview: (doc): string | null => {
       // Return the adminThumbnail result for consistency
