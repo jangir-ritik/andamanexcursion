@@ -132,8 +132,6 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              bookingData: paymentData,
-              sessionId: (bookingData as any).sessionId,
             });
             // Step 4: Verify payment
             const verifyResponse = await fetch("/api/payments/verify", {
@@ -148,11 +146,21 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
               }),
             });
 
+            const responseText = await verifyResponse.text(); // ✅ Get text first
+            console.log("Raw verify response:", responseText); // ✅ Debug the raw response
+
             if (!verifyResponse.ok) {
-              throw new Error("Payment verification failed");
+              throw new Error(
+                `Payment verification failed: ${verifyResponse.status} - ${responseText}`
+              );
             }
 
-            const result = await verifyResponse.json();
+            let result;
+            try {
+              result = JSON.parse(responseText); // ✅ Parse manually with error handling
+            } catch (parseError) {
+              throw new Error(`Invalid JSON response: ${responseText}`);
+            }
 
             if (!result.success) {
               throw new Error(result.error || "Payment verification failed");

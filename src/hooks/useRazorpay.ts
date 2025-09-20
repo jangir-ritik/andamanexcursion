@@ -72,7 +72,7 @@ export const useRazorpay = (): UseRazorpayReturn => {
   }, []);
 
   const createOrder = useCallback(async (paymentData: PaymentData) => {
-    const response = await fetch("/api/payments?action=create-order", {
+    const response = await fetch("/api/payments/create-order", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export const useRazorpay = (): UseRazorpayReturn => {
 
   const verifyPayment = useCallback(
     async (paymentResponse: any, bookingData: any, sessionId?: string) => {
-      const response = await fetch("/api/payments?action=verify", {
+      const response = await fetch("/api/payments/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

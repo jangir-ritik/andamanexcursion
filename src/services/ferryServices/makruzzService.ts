@@ -252,20 +252,52 @@ export class MakruzzService {
     data: MakruzzScheduleData[],
     params: FerrySearchParams
   ): UnifiedFerryResult[] {
-    return data.map((schedule) => {
+    console.log("🚢 Starting Makruzz transformation with class consolidation");
+    console.log(`   Raw schedules: ${data.length}`);
+
+    // Group schedules by vessel and departure time
+    const groupedSchedules = new Map<string, MakruzzScheduleData[]>();
+
+    data.forEach((schedule) => {
+      // Create a unique key for vessel + departure time
+      const groupKey = `${schedule.id}-${schedule.departure_time}-${schedule.ship_title}`;
+
+      if (!groupedSchedules.has(groupKey)) {
+        groupedSchedules.set(groupKey, []);
+      }
+      groupedSchedules.get(groupKey)!.push(schedule);
+    });
+
+    console.log(
+      `   Grouped into ${groupedSchedules.size} unique vessels/times`
+    );
+
+    const results: UnifiedFerryResult[] = [];
+
+    // Process each group (vessel + departure time)
+    groupedSchedules.forEach((schedules, groupKey) => {
+      // Use the first schedule for common data
+      const primarySchedule = schedules[0];
+
       console.log(
-        "🚢 Raw Makruzz schedule data:",
-        JSON.stringify(schedule, null, 2)
+        `🚢 Processing group: ${primarySchedule.ship_title} at ${primarySchedule.departure_time}`
       );
+      console.log(`   Classes in group: ${schedules.length}`);
 
       // Create unified ferry ID
-      const ferryId = `makruzz-${schedule.id}-${schedule.ship_title
-        .toLowerCase()
-        .replace(/\s+/g, "")}-${params.date}`;
+      const ferryId = `makruzz-${
+        primarySchedule.id
+      }-${primarySchedule.ship_title.toLowerCase().replace(/\s+/g, "")}-${
+        params.date
+      }`;
 
-      // Calculate duration
-      const [depHour, depMin] = schedule.departure_time.split(":").map(Number);
-      const [arrHour, arrMin] = schedule.arrival_time.split(":").map(Number);
+      // Calculate duration (same for all classes in group)
+      const [depHour, depMin] = primarySchedule.departure_time
+        .split(":")
+        .map(Number);
+      const [arrHour, arrMin] = primarySchedule.arrival_time
+        .split(":")
+        .map(Number);
       const depMinutes = depHour * 60 + depMin;
       const arrMinutes = arrHour * 60 + arrMin;
       const durationMinutes = arrMinutes - depMinutes;
@@ -273,38 +305,53 @@ export class MakruzzService {
       const minutes = durationMinutes % 60;
       const duration = `${hours}h ${minutes}m`;
 
-      // Calculate total price including taxes
-      const baseFare = parseFloat(schedule.ship_class_price);
-      const cgstAmount = schedule.cgst_amount || 0;
-      const ugstAmount = schedule.ugst_amount || 0;
-      const psfAmount = schedule.psf || 0;
-      const totalPrice = baseFare + cgstAmount + ugstAmount + psfAmount;
+      // Consolidate all classes from the group
+      const classes: FerryClass[] = schedules.map((schedule) => {
+        const baseFare = parseFloat(schedule.ship_class_price);
+        const cgstAmount = schedule.cgst_amount || 0;
+        const ugstAmount = schedule.ugst_amount || 0;
+        const psfAmount = schedule.psf || 0;
+        const totalPrice = baseFare + cgstAmount + ugstAmount + psfAmount;
 
-      const classes: FerryClass[] = [
-        {
-          // id: `makruzz-${
-          //   schedule.id
-          // }-${schedule.ship_class_title.toLowerCase()}`,
+        console.log(
+          `   Class: ${schedule.ship_class_title} - ₹${totalPrice} (${schedule.seat} seats)`
+        );
+
+        return {
           id: schedule.ship_class_id.toString(),
           name: schedule.ship_class_title,
           price: totalPrice,
           availableSeats: schedule.seat,
-          amenities: ["AC", "Comfortable Seating"],
-          // No seat layout for Makruzz (auto-assignment)
+          amenities: this.getClassAmenities(schedule.ship_class_title),
           pricing: {
-            basePrice: totalPrice,
+            basePrice: baseFare,
             taxes: cgstAmount + ugstAmount,
             fees: psfAmount,
             total: totalPrice,
           },
-        },
-      ];
+        };
+      });
+
+      // Sort classes by price (ascending)
+      classes.sort((a, b) => a.price - b.price);
+
+      // Calculate aggregate availability and pricing
+      const totalSeats = parseInt(primarySchedule.total_seat);
+      const availableSeats = classes.reduce(
+        (sum, cls) => sum + cls.availableSeats,
+        0
+      );
+      const minPrice = Math.min(...classes.map((cls) => cls.price));
+      const maxPrice = Math.max(...classes.map((cls) => cls.price));
+
+      // Use the cheapest class for base pricing info
+      const cheapestClass = classes[0];
 
       const result: UnifiedFerryResult = {
         id: ferryId,
         operator: "makruzz",
-        operatorFerryId: schedule.id,
-        ferryName: schedule.ship_title,
+        operatorFerryId: primarySchedule.id,
+        ferryName: primarySchedule.ship_title,
         route: {
           from: {
             name: LocationMappingService.getDisplayName(params.from),
@@ -318,45 +365,87 @@ export class MakruzzService {
           toCode: LocationMappingService.getPortCode(params.to),
         },
         schedule: {
-          departureTime: schedule.departure_time.substring(0, 5), // HH:MM
-          arrivalTime: schedule.arrival_time.substring(0, 5), // HH:MM
+          departureTime: primarySchedule.departure_time.substring(0, 5), // HH:MM
+          arrivalTime: primarySchedule.arrival_time.substring(0, 5), // HH:MM
           duration,
           date: params.date,
         },
-        classes,
+        classes, // All classes consolidated here
         availability: {
-          totalSeats: parseInt(schedule.total_seat),
-          availableSeats: schedule.seat,
+          totalSeats,
+          availableSeats,
           lastUpdated: new Date().toISOString(),
         },
         pricing: {
-          baseFare,
-          taxes: cgstAmount + ugstAmount,
-          portFee: psfAmount,
-          total: totalPrice,
+          baseFare: cheapestClass.pricing.basePrice,
+          taxes: cheapestClass.pricing.taxes || 0,
+          portFee: cheapestClass.pricing.fees || 0,
+          total: minPrice, // Show starting from price
           currency: "INR",
         },
         features: {
-          supportsSeatSelection: false, // Makruzz uses auto-assignment
+          supportsSeatSelection: false,
           supportsAutoAssignment: true,
           hasAC: true,
           hasWiFi: false,
-          mealIncluded: false,
+          mealIncluded: classes.some((cls) => this.hasMealIncluded(cls.name)),
         },
         operatorData: {
-          originalResponse: schedule,
+          originalResponse: schedules, // Store all schedules for this group
           bookingEndpoint: `${this.BASE_URL}savePassengers`,
-          authToken: this.authToken || undefined, // ✅ FIX: Convert null to undefined
+          authToken: this.authToken || undefined,
         },
-        isActive: schedule.seat > 0,
+        isActive: availableSeats > 0,
       };
 
       console.log(
-        `✅ Makruzz unified result: ${result.ferryName} ${result.schedule.departureTime} → ${result.schedule.arrivalTime} (${result.pricing.total} INR, ${result.availability.availableSeats} seats)`
+        `✅ Consolidated Makruzz result: ${result.ferryName} ${result.schedule.departureTime} → ${result.schedule.arrivalTime}`
       );
+      console.log(
+        `   Classes: ${classes
+          .map((c) => `${c.name} (₹${c.price})`)
+          .join(", ")}`
+      );
+      console.log(`   Price range: ₹${minPrice} - ₹${maxPrice}`);
+      console.log(`   Total seats: ${availableSeats}/${totalSeats}`);
 
-      return result;
+      results.push(result);
     });
+
+    console.log(
+      `🎯 Makruzz consolidation complete: ${data.length} schedules → ${results.length} unified results`
+    );
+    return results;
+  }
+
+  /**
+   * Get amenities based on class name
+   */
+  private static getClassAmenities(className: string): string[] {
+    const baseAmenities = ["AC", "Comfortable Seating"];
+
+    switch (className.toLowerCase()) {
+      case "premium":
+        return [...baseAmenities, "Standard Service"];
+      case "deluxe":
+        return [...baseAmenities, "Premium Service", "Complimentary Snacks"];
+      case "royal":
+        return [
+          ...baseAmenities,
+          "Luxury Service",
+          "Fine Dining",
+          "Priority Boarding",
+        ];
+      default:
+        return baseAmenities;
+    }
+  }
+
+  /**
+   * Check if class includes meal
+   */
+  private static hasMealIncluded(className: string): boolean {
+    return ["deluxe", "royal"].includes(className.toLowerCase());
   }
 
   /**

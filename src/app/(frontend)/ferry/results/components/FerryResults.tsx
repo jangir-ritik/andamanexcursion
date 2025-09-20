@@ -24,7 +24,18 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
     index: number
   ): FerryCardProps => {
     const validClasses = ferry.classes.filter((cls) => cls.availableSeats > 0);
-    const minPrice = Math.min(...validClasses.map((cls) => cls.price));
+    if (validClasses.length === 0) {
+      console.warn(`Ferry ${ferry.ferryName} has no available classes`);
+    }
+
+    // Get price range for display
+    const prices = validClasses.map((cls) => cls.price);
+    const minPrice =
+      prices.length > 0 ? Math.min(...prices) : ferry.pricing.total;
+    const maxPrice =
+      prices.length > 0 ? Math.max(...prices) : ferry.pricing.total;
+
+    // Calculate total available seats across all classes
     const totalSeats = validClasses.reduce(
       (sum, cls) => sum + cls.availableSeats,
       0
@@ -35,12 +46,28 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
       const adults = searchParams.adults || 1;
       const children = searchParams.children || 0;
       const infants = searchParams.infants || 0;
-      
+
       // Adults pay full price, children typically 50%, infants free
-      return (adults * basePrice) + (children * basePrice * 0.5);
+      return adults * basePrice + children * basePrice * 0.5;
     };
 
     const calculatedTotalPrice = calculateTotalPrice(minPrice);
+
+    // Create display price text
+    const getPriceDisplay = () => {
+      if (minPrice === maxPrice) {
+        return `₹${minPrice}`;
+      }
+      return `₹${minPrice} - ₹${maxPrice}`;
+    };
+
+    // Get class summary for display
+    const getClassSummary = () => {
+      if (validClasses.length === 1) {
+        return validClasses[0].name;
+      }
+      return `${validClasses.length} classes available`;
+    };
 
     return {
       ferryName: ferry.ferryName,
@@ -49,11 +76,24 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
       departureLocation: ferry.route.from.name,
       arrivalTime: ferry.schedule.arrivalTime,
       arrivalLocation: ferry.route.to.name,
+      // price: getPriceDisplay(),
       price: minPrice,
       totalPrice: calculatedTotalPrice, // Use calculated price based on passenger counts
       seatsLeft:
         totalSeats > 0 ? totalSeats : ferry.availability.availableSeats,
       operator: ferry.operator,
+
+      // Updated class information
+      // classInfo: {
+      //   summary: getClassSummary(),
+      //   count: validClasses.length,
+      //   details: validClasses.map((cls) => ({
+      //     name: cls.name,
+      //     price: cls.price,
+      //     seats: cls.availableSeats,
+      //     amenities: cls.amenities,
+      //   })),
+      // },
 
       // Updated: Changed from onChooseSeats to onBookNow
       onBookNow: () => {
@@ -112,8 +152,9 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
           </p>
         </div>
         <p className={styles.resultsNote}>
-          Prices shown are starting from the lowest available class. Final price
-          may vary based on selected class and additional services.
+          Prices shown are starting from the lowest available class. Multiple
+          classes may be available for selection. Final price may vary based on
+          selected class and additional services.
         </p>
       </div>
     </div>
