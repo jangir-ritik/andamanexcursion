@@ -146,7 +146,7 @@ const initialState: ActivityStoreState = {
     location: "",
     date: getTomorrow(),
     time: "",
-    adults: 2,
+    adults: 1,
     children: 0,
   },
   cart: [],

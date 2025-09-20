@@ -101,7 +101,7 @@ export function transformPackageToEnquiryData(
     shortDescription: packageData.descriptions?.shortDescription,
 
     // Default booking settings based on package type
-    defaultAdults: 2,
+    defaultAdults: 1,
     defaultChildren: 0,
     defaultDuration: getDurationFromPeriod(period),
   };
