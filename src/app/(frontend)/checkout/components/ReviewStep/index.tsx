@@ -128,6 +128,8 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         },
         handler: async (response: any) => {
           try {
+            // Keep loading state active during payment verification
+            setLoading(true);
             console.log("Payment verification payload:", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -174,6 +176,12 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
               status: "confirmed",
               paymentStatus: "paid",
             });
+
+            // Small delay to show "Booking Confirmed" message before transitioning
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Navigate to confirmation step
+            setCurrentStep(3);
           } catch (verifyError) {
             console.error("Payment verification error:", verifyError);
             setError(
@@ -181,6 +189,8 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                 ? verifyError.message
                 : "Payment verification failed"
             );
+          } finally {
+            setLoading(false);
           }
         },
         modal: {

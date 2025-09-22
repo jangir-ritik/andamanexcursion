@@ -32,11 +32,11 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
         <div className={styles.textContent}>
           <h2 className={styles.title}>{title}</h2>
           <p className={styles.message}>{message}</p>
-          <div className={styles.progressDots}>
+          {/* <div className={styles.progressDots}>
             <span className={styles.dot}></span>
             <span className={styles.dot}></span>
             <span className={styles.dot}></span>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>,

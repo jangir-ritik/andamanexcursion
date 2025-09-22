@@ -92,7 +92,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   bookingData,
   requirements,
 }) => {
-  const { formData, updateFormData, nextStep, setError } = useCheckoutStore();
+  const { formData, updateFormData, nextStep, setError, setLoading } = useCheckoutStore();
 
   // Create form defaults
   const defaultValues = useMemo((): FormData => {
@@ -168,43 +168,52 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   const watchedMembers = watch("members");
 
   // Handle form submission
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit = async (data: FormData) => {
     try {
-      // Convert form data to store format
+      setLoading(true);
+      console.log("Form submitted with data:", data);
+
+      // Transform the form data to match CheckoutFormData structure
       const checkoutFormData: CheckoutFormData = {
-        members: data.members.map((member, index) => ({
-          id: `member-${Date.now()}-${index}`,
-          fullName: member.fullName,
-          age: member.age,
-          gender: member.gender,
-          nationality: member.nationality,
-          passportNumber: member.passportNumber,
-          whatsappNumber: member.whatsappNumber,
-          phoneCountryCode: member.phoneCountryCode, // NEW
-          phoneCountry: member.phoneCountry, // NEW
-          email: member.email,
+        members: data.members.map((m, index) => ({
+          id: `member-${index + 1}`,
+          fullName: m.fullName,
+          age: m.age,
+          gender: m.gender,
+          nationality: m.nationality,
+          passportNumber: m.passportNumber,
+          whatsappNumber: m.whatsappNumber,
+          phoneCountryCode: m.phoneCountryCode, // NEW
+          phoneCountry: m.phoneCountry, // NEW
+          email: m.email,
           isPrimary: index === 0,
-          selectedBookings: member.selectedBookings,
+          selectedBookings: m.selectedBookings,
           // Foreign passenger fields for Makruzz
-          fcountry: member.fcountry || "",
-          fpassport: member.fpassport || "",
-          fexpdate: member.fexpdate || "",
+          fcountry: m.nationality !== "Indian" ? m.nationality : undefined,
+          fpassport: m.fpassport,
+          fexpdate: m.fexpdate,
         })),
         termsAccepted: data.termsAccepted,
       };
 
-      // Update store
+      // Update the store
       updateFormData(checkoutFormData);
-      console.log("Enhanced checkout form data with country codes:", {
-        members: checkoutFormData.members.map((m) => ({
+
+      // Log the transformed data for debugging
+      console.log("Transformed checkout form data:", checkoutFormData);
+      console.log(
+        "Member details for API:",
+        checkoutFormData.members.map((m) => ({
           name: m.fullName,
           phone: m.whatsappNumber,
           phoneCountryCode: m.phoneCountryCode,
           phoneCountry: m.phoneCountry,
           nationality: m.nationality,
-        })),
-        termsAccepted: checkoutFormData.termsAccepted,
-      });
+        }))
+      );
+
+      // Small delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Proceed to next step
       nextStep();
@@ -213,6 +222,8 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
       setError(
         error instanceof Error ? error.message : "Form submission failed"
       );
+    } finally {
+      setLoading(false);
     }
   };
 

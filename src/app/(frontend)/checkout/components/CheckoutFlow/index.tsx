@@ -5,6 +5,7 @@ import { StepIndicator } from "@/app/(frontend)/plan-your-trip/components/StepIn
 import { MemberDetailsStep } from "../MemberDetailsStep";
 import { ReviewStep } from "../ReviewStep";
 import { ConfirmationStep } from "../ConfirmationStep";
+import { LoadingOverlay } from "@/components/molecules/LoadingOverlay";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
@@ -45,6 +46,7 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
     bookingConfirmation,
     formData,
     cleanupOrphanedSessions,
+    isLoading,
   } = useCheckoutStore();
 
   // Clean up orphaned sessions on mount
@@ -117,6 +119,25 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
       {/* Main Content */}
       <div className={styles.stepContent}>{renderStepContent()}</div>
 
+      {/* Loading Overlay for checkout transitions */}
+      <LoadingOverlay 
+        isVisible={isLoading}
+        title={
+          currentStep === 2 && bookingConfirmation 
+            ? "Booking Confirmed!" 
+            : currentStep === 2 
+            ? "Processing Payment" 
+            : "Loading"
+        }
+        message={
+          currentStep === 2 && bookingConfirmation
+            ? "Your booking has been confirmed! Redirecting to confirmation page..."
+            : currentStep === 2 
+            ? "Please wait while we process your payment and confirm your booking..."
+            : "Please wait while we prepare your checkout..."
+        }
+      />
+
       {/* Debug Info (dev only) */}
       {process.env.NODE_ENV === "development" && (
         <div className={styles.debugInfo}>
@@ -130,6 +151,7 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
                   totalItems: bookingData.items.length,
                   totalPassengers: bookingData.totalPassengers,
                   hasFormData: !!formData,
+                  isLoading,
                 },
                 null,
                 2
