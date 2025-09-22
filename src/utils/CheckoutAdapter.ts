@@ -79,6 +79,20 @@ export interface PaymentData {
     phoneCountryCode: string;
     phoneCountry: string;
   };
+  // Helper methods for Makruzz API formatting
+  getMakruzzPassengerData?: () => MakruzzPassengerData[];
+}
+
+// Makruzz-specific passenger data structure
+export interface MakruzzPassengerData {
+  title: string; // MR, MRS, etc.
+  name: string;
+  age: string;
+  sex: string; // male, female
+  nationality: string; // indian, foreigner
+  fcountry: string; // Country name for foreign passengers
+  fpassport: string; // Passport number for foreign passengers  
+  fexpdate: string; // Passport expiry date (YYYY-MM-DD)
 }
 
 /**
@@ -164,7 +178,57 @@ export class CheckoutAdapter {
         phoneCountryCode: formData.members?.[0]?.phoneCountryCode || "",
         phoneCountry: formData.members?.[0]?.phoneCountry || "",
       },
+      // Helper method for Makruzz API formatting
+      getMakruzzPassengerData: () => CheckoutAdapter.formatMakruzzPassengerData(formData.members || []),
     };
+  }
+
+  /**
+   * Format passenger data for Makruzz API
+   */
+  static formatMakruzzPassengerData(members: MemberDetails[]): MakruzzPassengerData[] {
+    return members.map((member, index) => {
+      const isForeigner = member.nationality !== "Indian";
+      
+      return {
+        title: CheckoutAdapter.getTitle(member.gender),
+        name: member.fullName,
+        age: member.age.toString(),
+        sex: CheckoutAdapter.getMakruzzGender(member.gender),
+        nationality: isForeigner ? "foreigner" : "indian",
+        fcountry: isForeigner ? member.nationality : "", // Use nationality directly as country
+        fpassport: isForeigner ? (member.fpassport || "") : "",
+        fexpdate: isForeigner ? (member.fexpdate || "") : "",
+      };
+    });
+  }
+
+  /**
+   * Get title based on gender for Makruzz API
+   */
+  private static getTitle(gender: string): string {
+    switch (gender) {
+      case "Male":
+        return "MR";
+      case "Female":
+        return "MRS";
+      default:
+        return "MR"; // Fallback
+    }
+  }
+
+  /**
+   * Get Makruzz-compatible gender format
+   */
+  private static getMakruzzGender(gender: string): string {
+    switch (gender) {
+      case "Male":
+        return "male";
+      case "Female":
+        return "female";
+      default:
+        return "male"; // Fallback
+    }
   }
 
   /**

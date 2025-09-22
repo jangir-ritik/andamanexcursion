@@ -11,13 +11,17 @@ export interface MemberDetails {
   age: number;
   gender: "Male" | "Female" | "Other" | "";
   nationality: string;
-  passportNumber: string;
+  passportNumber?: string; // Optional since only foreign passengers need it
   whatsappNumber?: string;
   phoneCountryCode?: string; // NEW
   phoneCountry?: string; // NEW
   email?: string;
   isPrimary: boolean;
   selectedBookings: number[];
+  // Foreign passenger fields for Makruzz (conditional based on nationality)
+  fcountry?: string; // Country name for foreign passengers
+  fpassport?: string; // Passport number for foreign passengers
+  fexpdate?: string; // Passport expiry date for foreign passengers (YYYY-MM-DD)
 }
 
 export interface CheckoutFormData {
@@ -140,13 +144,17 @@ export const createDefaultFormData = (
       age: i === 0 ? 25 : 12, // First member adult, others children by default
       gender: "",
       nationality: "Indian",
-      passportNumber: "",
+      passportNumber: undefined,
       whatsappNumber: i === 0 ? "" : undefined, // Only primary gets contact fields
       phoneCountryCode: i === 0 ? "+91" : undefined, // NEW
       phoneCountry: i === 0 ? "India" : undefined, // NEW
       email: i === 0 ? "" : undefined,
       isPrimary: i === 0,
       selectedBookings: [0], // Assign to first booking by default
+      // Initialize foreign passenger fields as empty
+      fcountry: "",
+      fpassport: "",
+      fexpdate: "",
     });
   }
 

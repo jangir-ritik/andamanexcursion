@@ -24,11 +24,15 @@ export interface FerryBookingRequest {
     age: number;
     gender: string;
     nationality: string;
-    passportNumber: string;
+    passportNumber?: string;
     whatsappNumber: string;
-    phoneCountryCode?: string; // "+91"
-    phoneCountry?: string; // "India"
+    phoneCountryCode?: string;
+    phoneCountry?: string;
     email: string;
+    // Foreign passenger fields for Makruzz
+    fpassport?: string;
+    fexpdate?: string;
+    fcountry?: string;
   }>;
   paymentReference: string;
   totalAmount: number;
@@ -380,8 +384,8 @@ export class FerryBookingService {
           passenger.nationality === "Indian" ? "indian" : "foreigner", // ✅ FIXED: Must be lowercase
         fcountry:
           passenger.nationality !== "Indian" ? passenger.nationality : "",
-        fpassport: passenger.passportNumber || "",
-        fexpdate: "", // Not available in current interface
+        fpassport: passenger.nationality !== "Indian" ? (passenger.fpassport || "") : "",
+        fexpdate: passenger.nationality !== "Indian" ? (passenger.fexpdate || "") : "",
       }));
 
       const bookingData = {

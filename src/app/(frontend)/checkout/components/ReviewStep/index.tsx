@@ -336,8 +336,24 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                 </div>
                 <div className={styles.passengerRow}>
                   <span>Passport:</span>
-                  <span>{member.passportNumber}</span>
+                  <span>
+                    {member.nationality !== "Indian" 
+                      ? member.fpassport || "Not provided"
+                      : member.passportNumber || "Not required"}
+                  </span>
                 </div>
+                {member.nationality !== "Indian" && member.fexpdate && (
+                  <div className={styles.passengerRow}>
+                    <span>Passport Expiry:</span>
+                    <span>{member.fexpdate}</span>
+                  </div>
+                )}
+                {member.nationality !== "Indian" && member.fcountry && (
+                  <div className={styles.passengerRow}>
+                    <span>Country:</span>
+                    <span>{member.fcountry}</span>
+                  </div>
+                )}
                 {member.isPrimary && (
                   <>
                     <div className={styles.passengerRow}>

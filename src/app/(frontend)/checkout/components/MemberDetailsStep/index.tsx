@@ -21,37 +21,58 @@ import type {
 import type { CheckoutFormData } from "@/store/CheckoutStore";
 import { COUNTRIES, GENDER_OPTIONS, DEFAULT_VALUES } from "@/constants";
 import styles from "./MemberDetailsStep.module.css";
-import { SectionTitle } from "@/components/atoms";
+import { DateSelect, SectionTitle } from "@/components/atoms";
 import { Ship, Target } from "lucide-react";
 
-// Simplified schema for member details
-const memberSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must not exceed 100 characters"),
-  age: z.coerce
-    .number()
-    .int("Age must be a whole number")
-    .min(1, "Age must be at least 1")
-    .max(120, "Age must not exceed 120"),
-  gender: z.enum(["Male", "Female", "Other"], {
-    errorMap: () => ({ message: "Please select a gender" }),
-  }),
-  nationality: z.string().min(1, "Please select nationality"),
-  passportNumber: z
-    .string()
-    .min(6, "Passport number must be at least 6 characters")
-    .max(12, "Passport number must not exceed 12 characters")
-    .transform((val) => val.toUpperCase()),
-  whatsappNumber: z.string().optional(),
-  phoneCountryCode: z.string().optional(), // NEW: Store country code (+91, +1, etc.)
-  phoneCountry: z.string().optional(), // NEW: Store country name (India, USA, etc.)
-  email: z.string().email("Please enter a valid email").optional(),
-  selectedBookings: z
-    .array(z.number())
-    .min(1, "Please assign to at least one booking"),
-});
+// Enhanced schema for member details with conditional foreign passenger fields
+const memberSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must not exceed 100 characters"),
+    age: z.coerce
+      .number()
+      .int("Age must be a whole number")
+      .min(1, "Age must be at least 1")
+      .max(120, "Age must not exceed 120"),
+    gender: z.enum(["Male", "Female", "Other"], {
+      errorMap: () => ({ message: "Please select a gender" }),
+    }),
+    nationality: z.string().min(1, "Please select nationality"),
+    passportNumber: z.string().optional(), // Made optional since only foreign passengers need it
+    whatsappNumber: z.string().optional(),
+    phoneCountryCode: z.string().optional(), // NEW: Store country code (+91, +1, etc.)
+    phoneCountry: z.string().optional(), // NEW: Store country name (India, USA, etc.)
+    email: z.string().email("Please enter a valid email").optional(),
+    selectedBookings: z
+      .array(z.number())
+      .min(1, "Please assign to at least one booking"),
+    // Foreign passenger fields for Makruzz (conditional based on nationality)
+    fcountry: z.string().optional(),
+    fpassport: z.string().optional(),
+    fexpdate: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      // If nationality is not "Indian", foreign passenger fields are required
+      const isForeigner = data.nationality !== "Indian";
+      if (isForeigner) {
+        return (
+          data.fpassport &&
+          data.fpassport.trim().length > 0 &&
+          data.fexpdate &&
+          data.fexpdate.trim().length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        "Passport number and expiry date are required for foreign passengers",
+      path: ["fpassport"], // This will show the error on the fpassport field
+    }
+  );
 
 const formSchema = z.object({
   members: z.array(memberSchema).min(1, "At least one passenger is required"),
@@ -67,11 +88,11 @@ interface MemberDetailsStepProps {
   requirements: PassengerRequirements;
 }
 
-export const MemberDetailsStep: React.FC<
-  MemberDetailsStepProps
-> = ({ bookingData, requirements }) => {
-  const { formData, updateFormData, nextStep, setError } =
-    useCheckoutStore();
+export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
+  bookingData,
+  requirements,
+}) => {
+  const { formData, updateFormData, nextStep, setError } = useCheckoutStore();
 
   // Create form defaults
   const defaultValues = useMemo((): FormData => {
@@ -82,12 +103,16 @@ export const MemberDetailsStep: React.FC<
           age: member.age || 25,
           gender: (member.gender as "Male" | "Female" | "Other") || "Male",
           nationality: member.nationality || "Indian",
-          passportNumber: member.passportNumber || "",
+          passportNumber: member.passportNumber || undefined,
           whatsappNumber: member.whatsappNumber || "",
           phoneCountryCode: member.phoneCountryCode || "+91", // NEW
           phoneCountry: member.phoneCountry || "India", // NEW
           email: member.email || "",
           selectedBookings: member.selectedBookings || [0],
+          // Foreign passenger fields for Makruzz
+          fcountry: member.fcountry || "",
+          fpassport: member.fpassport || "",
+          fexpdate: member.fexpdate || "",
         })),
         termsAccepted: formData.termsAccepted,
       };
@@ -104,13 +129,17 @@ export const MemberDetailsStep: React.FC<
             : DEFAULT_VALUES.CHILD_AGE,
         gender: DEFAULT_VALUES.GENDER,
         nationality: DEFAULT_VALUES.NATIONALITY,
-        passportNumber: "",
+        passportNumber: undefined,
         whatsappNumber: i === 0 ? "" : undefined,
         phoneCountryCode:
           i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY_CODE : undefined,
         phoneCountry: i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY : undefined,
         email: i === 0 ? "" : undefined,
         selectedBookings: [0],
+        // Initialize foreign passenger fields
+        fcountry: "",
+        fpassport: "",
+        fexpdate: "",
       })
     );
 
@@ -156,6 +185,10 @@ export const MemberDetailsStep: React.FC<
           email: member.email,
           isPrimary: index === 0,
           selectedBookings: member.selectedBookings,
+          // Foreign passenger fields for Makruzz
+          fcountry: member.fcountry || "",
+          fpassport: member.fpassport || "",
+          fexpdate: member.fexpdate || "",
         })),
         termsAccepted: data.termsAccepted,
       };
@@ -189,10 +222,14 @@ export const MemberDetailsStep: React.FC<
       age: DEFAULT_VALUES.CHILD_AGE,
       gender: DEFAULT_VALUES.GENDER,
       nationality: DEFAULT_VALUES.NATIONALITY,
-      passportNumber: "",
+      passportNumber: undefined,
       phoneCountryCode: DEFAULT_VALUES.PHONE_COUNTRY_CODE,
       phoneCountry: DEFAULT_VALUES.PHONE_COUNTRY,
       selectedBookings: [0],
+      // Initialize foreign passenger fields
+      fcountry: "",
+      fpassport: "",
+      fexpdate: "",
     });
   };
 
@@ -327,14 +364,67 @@ export const MemberDetailsStep: React.FC<
                     />
                   </div>
 
-                  <Input
-                    name={`members.${index}.passportNumber`}
-                    control={control}
-                    label="Passport Number"
-                    placeholder="Enter passport number"
-                    hasError={!!memberErrors?.passportNumber}
-                    required
-                  />
+                  {/* Passport number field (only for foreign passengers) */}
+                  {member?.nationality && member.nationality !== "Indian" && (
+                    <div className={styles.fieldRow}>
+                      {/* <h5 className={styles.foreignFieldsTitle}>
+                        Foreign Passenger Details
+                      </h5> */}
+                      <Input
+                        name={`members.${index}.fpassport`}
+                        control={control}
+                        label="Passport Number"
+                        placeholder="Enter passport number"
+                        hasError={!!memberErrors?.fpassport}
+                        required
+                      />
+
+                      <Controller
+                        name={`members.${index}.fexpdate`}
+                        control={control}
+                        render={({ field }) => (
+                          // <div className={styles.inputGroup}>
+                          //   <label className={styles.inputLabel}>
+                          //     Passport Expiry Date
+                          //   </label>
+                          //   <DateSelect
+                          //     selected={field.value}
+                          //     onChange={field.onChange}
+                          //     hasError={!!errors.selectedDate}
+                          //   />
+                          //   <input
+                          //     {...field}
+                          //     type="date"
+                          //     className={`${styles.dateInput} ${
+                          //       memberErrors?.fexpdate ? styles.inputError : ""
+                          //     }`}
+                          //     min={new Date().toISOString().split('T')[0]}
+                          //     required
+                          //   />
+                          //   {memberErrors?.fexpdate && (
+                          //     <span className={styles.errorMessage}>
+                          //       {memberErrors.fexpdate.message}
+                          //     </span>
+                          //   )}
+                          // </div>
+                          <DateSelect
+                            selected={
+                              field.value ? new Date(field.value) : new Date()
+                            }
+                            onChange={(date) => {
+                              // Convert Date to ISO string for form storage
+                              field.onChange(date.toISOString().split("T")[0]);
+                            }}
+                            label="Passport Expiry Date"
+                            hasError={!!memberErrors?.fexpdate}
+                            errorMessage={memberErrors?.fexpdate?.message}
+                            required
+                            className={styles.dateSelectField}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
 
                   {/* Contact fields for primary member */}
                   {isPrimary && (

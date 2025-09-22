@@ -347,7 +347,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 <div className={styles.guestDetail}>
                   <span className={styles.detailLabel}>Passport Number</span>
                   <span className={styles.detailValue}>
-                    {member.passportNumber}
+                    {member.nationality !== "Indian" 
+                      ? member.fpassport || "Not provided"
+                      : member.passportNumber || "Not required"}
                   </span>
                 </div>
               </div>
