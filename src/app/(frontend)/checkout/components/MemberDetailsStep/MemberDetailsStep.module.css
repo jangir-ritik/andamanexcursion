@@ -98,18 +98,23 @@
 }
 
 .removeButton {
-  padding: 0.5rem 1rem;
-  background: var(--color-error);
-  color: white;
+  color: var(--color-alert-error);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-alert-error-light);
   border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.2s;
 }
 
 .removeButton:hover {
-  background: var(--color-error-dark);
+  transform: translateY(-2px);
+}
+
+.removeButton:active {
+  transform: translateY(0);
 }
 
 .memberFields {
