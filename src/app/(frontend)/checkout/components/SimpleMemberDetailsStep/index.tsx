@@ -19,60 +19,10 @@ import type {
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import type { CheckoutFormData } from "@/store/SimpleCheckoutStore";
+import { COUNTRIES, GENDER_OPTIONS, DEFAULT_VALUES } from "@/constants";
 import styles from "./SimpleMemberDetailsStep.module.css";
 import { SectionTitle } from "@/components/atoms";
 import { Ship, Target } from "lucide-react";
-
-export const COUNTRIES = [
-  { value: "Indian", label: "Indian" },
-  { value: "American", label: "American" },
-  { value: "British", label: "British" },
-  { value: "Canadian", label: "Canadian" },
-  { value: "Australian", label: "Australian" },
-  { value: "German", label: "German" },
-  { value: "French", label: "French" },
-  { value: "Italian", label: "Italian" },
-  { value: "Spanish", label: "Spanish" },
-  { value: "Japanese", label: "Japanese" },
-  { value: "Chinese", label: "Chinese" },
-  { value: "South Korean", label: "South Korean" },
-  { value: "Singapore", label: "Singapore" },
-  { value: "Malaysian", label: "Malaysian" },
-  { value: "Thai", label: "Thai" },
-  { value: "Indonesian", label: "Indonesian" },
-  { value: "Filipino", label: "Filipino" },
-  { value: "Vietnamese", label: "Vietnamese" },
-  { value: "Dutch", label: "Dutch" },
-  { value: "Belgian", label: "Belgian" },
-  { value: "Swiss", label: "Swiss" },
-  { value: "Austrian", label: "Austrian" },
-  { value: "Swedish", label: "Swedish" },
-  { value: "Norwegian", label: "Norwegian" },
-  { value: "Danish", label: "Danish" },
-  { value: "Finnish", label: "Finnish" },
-  { value: "Russian", label: "Russian" },
-  { value: "Brazilian", label: "Brazilian" },
-  { value: "Argentine", label: "Argentine" },
-  { value: "Chilean", label: "Chilean" },
-  { value: "Mexican", label: "Mexican" },
-  { value: "South African", label: "South African" },
-  { value: "Egyptian", label: "Egyptian" },
-  { value: "Emirati", label: "Emirati" },
-  { value: "Saudi", label: "Saudi" },
-  { value: "Israeli", label: "Israeli" },
-  { value: "Turkish", label: "Turkish" },
-  { value: "Greek", label: "Greek" },
-  { value: "Portuguese", label: "Portuguese" },
-  { value: "Irish", label: "Irish" },
-  { value: "New Zealand", label: "New Zealand" },
-];
-
-// Gender options for dropdown (unchanged)
-export const GENDER_OPTIONS = [
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
-  { value: "Other", label: "Other" },
-];
 
 // Simplified schema for member details
 const memberSchema = z.object({
@@ -148,13 +98,13 @@ export const SimpleMemberDetailsStep: React.FC<
       { length: requirements.totalRequired },
       (_, i) => ({
         fullName: "",
-        age: i === 0 ? 25 : 12,
-        gender: "Male" as const,
-        nationality: "Indian",
+        age: i === 0 ? DEFAULT_VALUES.PRIMARY_MEMBER_AGE : DEFAULT_VALUES.CHILD_AGE,
+        gender: DEFAULT_VALUES.GENDER,
+        nationality: DEFAULT_VALUES.NATIONALITY,
         passportNumber: "",
         whatsappNumber: i === 0 ? "" : undefined,
-        phoneCountryCode: i === 0 ? "+91" : undefined, // NEW
-        phoneCountry: i === 0 ? "India" : undefined, // NEW
+        phoneCountryCode: i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY_CODE : undefined,
+        phoneCountry: i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY : undefined,
         email: i === 0 ? "" : undefined,
         selectedBookings: [0],
       })
@@ -232,12 +182,12 @@ export const SimpleMemberDetailsStep: React.FC<
   const addMember = () => {
     append({
       fullName: "",
-      age: 12,
-      gender: "Male",
-      nationality: "Indian",
+      age: DEFAULT_VALUES.CHILD_AGE,
+      gender: DEFAULT_VALUES.GENDER,
+      nationality: DEFAULT_VALUES.NATIONALITY,
       passportNumber: "",
-      phoneCountryCode: "+91", // NEW: Default country code
-      phoneCountry: "India", // NEW: Default country name
+      phoneCountryCode: DEFAULT_VALUES.PHONE_COUNTRY_CODE,
+      phoneCountry: DEFAULT_VALUES.PHONE_COUNTRY,
       selectedBookings: [0],
     });
   };

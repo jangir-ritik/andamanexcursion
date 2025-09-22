@@ -1,94 +1,36 @@
 /**
- * Centralized location mapping service for all ferry operators
- * Handles the complexity of different location formats across operators
+ * Centralized location mapping service for ferry operators
+ * Now uses shared constants from @/constants
  */
 
-export interface LocationMapping {
-  formValue: string;
-  displayName: string;
-  sealinkName: string;
-  makruzzId: string;
-  greenOceanId: number;
-  aliases: string[];
-}
-
-/**
- * Master location mapping for all ferry operators
- * This is the single source of truth for location mappings
- */
-export const LOCATION_MAPPINGS: Record<string, LocationMapping> = {
-  "port-blair": {
-    formValue: "port-blair",
-    displayName: "Port Blair",
-    sealinkName: "Port Blair",
-    makruzzId: "1",
-    greenOceanId: 1,
-    aliases: ["Port Blair", "PB", "port-blair"],
-  },
-  havelock: {
-    formValue: "havelock",
-    displayName: "Havelock",
-    sealinkName: "Swaraj Dweep",
-    makruzzId: "2",
-    greenOceanId: 2,
-    aliases: ["Havelock", "Swaraj Dweep", "Havelock Island", "HL", "havelock"],
-  },
-  neil: {
-    formValue: "neil",
-    displayName: "Neil Island",
-    sealinkName: "Shaheed Dweep",
-    makruzzId: "3",
-    greenOceanId: 3,
-    aliases: ["Neil", "Shaheed Dweep", "Neil Island", "NL", "neil"],
-  },
-  // baratang: {
-  //   formValue: "baratang",
-  //   displayName: "Baratang Island",
-  //   sealinkName: "Baratang",
-  //   makruzzId: "4",
-  //   greenOceanId: 4, // Note: Green Ocean might not support Baratang
-  //   aliases: ["Baratang", "Baratang Island", "BT", "baratang"],
-  // },
-};
+import { 
+  LOCATION_MAPPINGS, 
+  type LocationMapping,
+  getSealinkLocationName,
+  getMakruzzLocationId,
+  getGreenOceanLocationId
+} from "@/constants";
 
 export class LocationMappingService {
   /**
    * Get Sealink location name from form value
    */
   static getSealinkLocation(formValue: string): string {
-    const mapping = LOCATION_MAPPINGS[formValue];
-    if (!mapping) {
-      console.warn(`Unknown location for Sealink: ${formValue}`);
-      return "Port Blair"; // Default fallback
-    }
-    console.log(`Sealink mapping: ${formValue} → "${mapping.sealinkName}"`);
-    return mapping.sealinkName;
+    return getSealinkLocationName(formValue);
   }
 
   /**
    * Get Makruzz location ID from form value
    */
   static getMakruzzLocation(formValue: string): string {
-    const mapping = LOCATION_MAPPINGS[formValue];
-    if (!mapping) {
-      console.warn(`Unknown location for Makruzz: ${formValue}`);
-      return "1"; // Default to Port Blair
-    }
-    console.log(`Makruzz mapping: ${formValue} → "${mapping.makruzzId}"`);
-    return mapping.makruzzId;
+    return getMakruzzLocationId(formValue);
   }
 
   /**
    * Get Green Ocean location ID from form value
    */
   static getGreenOceanLocation(formValue: string): number {
-    const mapping = LOCATION_MAPPINGS[formValue];
-    if (!mapping) {
-      console.warn(`Unknown location for Green Ocean: ${formValue}`);
-      return 1; // Default to Port Blair
-    }
-    console.log(`Green Ocean mapping: ${formValue} → ${mapping.greenOceanId}`);
-    return mapping.greenOceanId;
+    return getGreenOceanLocationId(formValue);
   }
 
   /**
@@ -103,13 +45,8 @@ export class LocationMappingService {
    * Get port code for a location
    */
   static getPortCode(formValue: string): string {
-    const codeMap: Record<string, string> = {
-      "port-blair": "PB",
-      havelock: "HL",
-      neil: "NL",
-      // baratang: "BT",
-    };
-    return codeMap[formValue] || "??";
+    const mapping = LOCATION_MAPPINGS[formValue];
+    return mapping?.code || "??";
   }
 
   /**
@@ -126,15 +63,6 @@ export class LocationMappingService {
     if (!fromMapping || !toMapping) {
       return false;
     }
-
-    // Special cases for operators that don't support certain routes
-    // Update : removed baratang from all operators
-    // if (
-    //   operator === "greenocean" &&
-    //   (from === "baratang" || to === "baratang")
-    // ) {
-    //   return false; // Green Ocean doesn't go to Baratang
-    // }
 
     return true;
   }

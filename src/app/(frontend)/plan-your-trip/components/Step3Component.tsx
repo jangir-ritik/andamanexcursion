@@ -2,59 +2,21 @@ import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import * as Switch from "@radix-ui/react-switch";
 import { TripFormData } from "../TripFormSchema";
+import {
+  HOTEL_TYPES,
+  ROOM_PREFERENCES,
+  FERRY_CLASSES,
+  TIME_SLOTS,
+  FERRY_COMPANIES,
+  MEAL_PREFERENCES,
+  TRANSPORTATION_OPTIONS,
+} from "@/constants";
 import styles from "./Step3Component.module.css";
 import { Input, Select } from "@/components/atoms";
 
 interface Step3ComponentProps {
   form: UseFormReturn<TripFormData>;
 }
-
-const HOTEL_TYPES = [
-  { value: "2-star", label: "2 Star" },
-  { value: "3-star", label: "3 Star" },
-  { value: "4-star", label: "4 Star" },
-  { value: "5-star", label: "5 Star" },
-  { value: "premium", label: "Premium" },
-];
-
-const ROOM_PREFERENCES = [
-  { value: "single", label: "Single" },
-  { value: "double", label: "Double" },
-  { value: "premium", label: "Premium" },
-  { value: "suite", label: "Suite" },
-];
-
-const FERRY_CLASSES = [
-  { value: "economy", label: "Economy" },
-  { value: "luxury", label: "Luxury Class" },
-  { value: "premium", label: "Premium" },
-];
-
-const TIME_SLOTS = [
-  { value: "11:00", label: "11:00 AM" },
-  { value: "12:00", label: "12:00 PM" },
-  { value: "13:00", label: "1:00 PM" },
-  { value: "14:00", label: "2:00 PM" },
-];
-
-const FERRY_COMPANIES = [
-  { value: "makruzz", label: "Makruzz Pearl" },
-  { value: "green-ocean", label: "Green Ocean" },
-  { value: "nautika", label: "Nautika" },
-];
-
-const MEAL_PREFERENCES = [
-  { value: "veg", label: "Vegetarian" },
-  { value: "non-veg", label: "Non-Vegetarian" },
-  { value: "both", label: "Both" },
-];
-
-const TRANSPORTATION_OPTIONS = [
-  { value: "taxi", label: "Taxi" },
-  { value: "scooter", label: "Scooter" },
-  { value: "car", label: "Car" },
-  { value: "bike", label: "Bike" },
-];
 
 export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
   const {
