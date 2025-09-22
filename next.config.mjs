@@ -53,7 +53,7 @@ const nextConfig = withPayload({
   },
 
   // Exclude large files from serverless functions
-  serverComponentsExternalPackages: ["sharp"],
+  serverExternalPackages: ["sharp"],
 
   // Optimize bundle size
   webpack: (config, { isServer }) => {

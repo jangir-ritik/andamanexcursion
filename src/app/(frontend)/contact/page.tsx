@@ -3,8 +3,7 @@ import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ContactForm } from "./components/ContactForm/ContactForm";
-import { useFormPersistence } from "./hooks/useFormPersistence";
-import { useEnquiryData } from "./hooks/useEnquiryData";
+
 import styles from "./page.module.css";
 import {
   contactFormSchema,
@@ -23,6 +22,8 @@ import {
   RefreshCw,
   Info,
 } from "lucide-react";
+import { useEnquiryData } from "@/hooks/contact/useEnquiryData";
+import { useFormPersistence } from "@/hooks/contact/useFormPersistence";
 
 type FormInitState =
   | "loading"

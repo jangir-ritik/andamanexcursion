@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { debounce } from "lodash";
-import { TripFormData } from "../TripFormSchema";
+import { TripFormData } from "../../app/(frontend)/plan-your-trip/TripFormSchema";
 
 const FORM_KEY = "andaman_trip_planning_form";
 const SAVE_DEBOUNCE_DELAY = 1000; // Increase debounce to 1 second

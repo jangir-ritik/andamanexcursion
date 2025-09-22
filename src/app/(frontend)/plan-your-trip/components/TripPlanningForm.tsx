@@ -12,8 +12,6 @@ import {
   step3Schema,
 } from "../TripFormSchema";
 import { useMultiStepForm } from "@/hooks/useMultiStepForm";
-import { useFormPersistence } from "../hooks/useFormPersistence";
-import { useFormErrors } from "../hooks/useFormErrors";
 
 import { Step1Component } from "./Step1Component";
 import { Step2Component } from "./Step2Component";
@@ -23,6 +21,8 @@ import styles from "./TripPlanningForm.module.css";
 import { StepIndicator } from "./StepIndicator";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { SaveIndicator } from "./SaveIndicator";
+import { useFormPersistence } from "@/hooks/planYourTrip/useFormPersistence";
+import { useFormErrors } from "@/hooks/planYourTrip/useFormErrors";
 
 const TOTAL_STEPS = 3;
 const STEP_SCHEMAS = [step1Schema, step2Schema, step3Schema];

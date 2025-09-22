@@ -1,5 +1,5 @@
 import React from "react";
-import { SaveStatus } from "../hooks/useFormPersistence";
+import { SaveStatus } from "../../../../hooks/planYourTrip/useFormPersistence";
 import { Check, Save, AlertCircle, Loader2 } from "lucide-react";
 import styles from "./SaveIndicator.module.css";
 

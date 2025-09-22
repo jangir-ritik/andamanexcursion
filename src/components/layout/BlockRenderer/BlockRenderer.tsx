@@ -1,4 +1,4 @@
-import { ExperienceSection } from "@/app/(frontend)/fishing/components/ExperienceSection";
+import { ExperienceSection } from "@/components/molecules/ExperienceSection/ExperienceSection";
 import { VisualCategoryGrid } from "@/components/sectionBlocks/common";
 import {
   FAQ,

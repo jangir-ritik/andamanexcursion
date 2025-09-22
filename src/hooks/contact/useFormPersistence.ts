@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 import {
   ContactFormData,
   contactFormSchema,
-} from "../components/ContactForm/ContactForm.types";
+} from "@/app/(frontend)/contact/components/ContactForm/ContactForm.types";
 
 const STORAGE_KEY = "contact_form_data";
 const EXPIRY_MINUTES = 30;

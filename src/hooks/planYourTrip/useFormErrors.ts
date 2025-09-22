@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { UseFormReturn, FieldError } from "react-hook-form";
-import { TripFormData } from "../TripFormSchema";
+import { TripFormData } from "../../app/(frontend)/plan-your-trip/TripFormSchema";
 
 // Define the error item interface
 interface ErrorItem {
