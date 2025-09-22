@@ -217,20 +217,23 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   };
 
   const addMember = () => {
-    append({
-      fullName: "",
-      age: DEFAULT_VALUES.CHILD_AGE,
-      gender: DEFAULT_VALUES.GENDER,
-      nationality: DEFAULT_VALUES.NATIONALITY,
-      passportNumber: undefined,
-      phoneCountryCode: DEFAULT_VALUES.PHONE_COUNTRY_CODE,
-      phoneCountry: DEFAULT_VALUES.PHONE_COUNTRY,
-      selectedBookings: [0],
-      // Initialize foreign passenger fields
-      fcountry: "",
-      fpassport: "",
-      fexpdate: "",
-    });
+    // Only add if we haven't reached the maximum required passengers
+    if (fields.length < requirements.totalRequired) {
+      append({
+        fullName: "",
+        age: DEFAULT_VALUES.CHILD_AGE,
+        gender: DEFAULT_VALUES.GENDER,
+        nationality: DEFAULT_VALUES.NATIONALITY,
+        passportNumber: undefined,
+        phoneCountryCode: DEFAULT_VALUES.PHONE_COUNTRY_CODE,
+        phoneCountry: DEFAULT_VALUES.PHONE_COUNTRY,
+        selectedBookings: [0],
+        // Initialize foreign passenger fields
+        fcountry: "",
+        fpassport: "",
+        fexpdate: "",
+      });
+    }
   };
 
   const removeMember = (index: number) => {
@@ -469,17 +472,26 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
           })}
         </div>
 
-        {/* Add Member Button */}
-        <div className={styles.addMemberSection}>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addMember}
-            className={styles.addMemberButton}
-          >
-            Add Another Passenger
-          </Button>
-        </div>
+        {/* Add Member Button - Only show if we haven't reached the maximum */}
+        {fields.length < requirements.totalRequired && (
+          <div className={styles.addMemberSection}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addMember}
+              className={styles.addMemberButton}
+            >
+              Add Another Passenger ({fields.length}/{requirements.totalRequired})
+            </Button>
+          </div>
+        )}
+        
+        {/* Show message when maximum passengers reached */}
+        {fields.length >= requirements.totalRequired && (
+          <div className={styles.maxPassengersMessage}>
+            <p>Maximum passengers reached ({requirements.totalRequired})</p>
+          </div>
+        )}
 
         {/* Terms and Conditions */}
         <div className={styles.termsSection}>

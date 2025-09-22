@@ -135,6 +135,23 @@
   padding: 0.75rem 1.5rem;
 }
 
+.maxPassengersMessage {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  background: var(--color-bg-tertiary, #f8f9fa);
+  border: 1px solid var(--color-border-light, #e9ecef);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.maxPassengersMessage p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
 .termsSection {
   margin: 2rem 0;
   padding: 1.5rem;
