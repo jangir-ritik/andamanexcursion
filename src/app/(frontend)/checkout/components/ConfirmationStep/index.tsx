@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Download } from "lucide-react";
-import { useSimpleCheckoutStore } from "@/store/SimpleCheckoutStore";
+import { useCheckoutStore } from "@/store/CheckoutStore";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { Button } from "@/components/atoms/Button/Button";
 import styles from "./ConfirmationStep.module.css";
@@ -12,7 +12,7 @@ import type {
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import { Location } from "@payload-types";
-import { useCheckoutSession } from "@/store/SimpleCheckoutStore";
+import { useCheckoutSession } from "@/store/CheckoutStore";
 
 interface ConfirmationStepProps {
   bookingData: UnifiedBookingData;
@@ -24,7 +24,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   requirements,
 }) => {
   const { bookingConfirmation, formData, resetAfterBooking } =
-    useSimpleCheckoutStore();
+    useCheckoutStore();
 
   const { resetForNewBooking } = useCheckoutSession();
 

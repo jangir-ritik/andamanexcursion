@@ -13,14 +13,14 @@ import { Button } from "@/components/atoms/Button/Button";
 import { Input } from "@/components/atoms/Input/Input";
 import { PhoneInput } from "@/components/atoms/PhoneInput/PhoneInput";
 import { Select } from "@/components/atoms/Select/Select";
-import { useSimpleCheckoutStore } from "@/store/SimpleCheckoutStore";
+import { useCheckoutStore } from "@/store/CheckoutStore";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
-import type { CheckoutFormData } from "@/store/SimpleCheckoutStore";
+import type { CheckoutFormData } from "@/store/CheckoutStore";
 import { COUNTRIES, GENDER_OPTIONS, DEFAULT_VALUES } from "@/constants";
-import styles from "./SimpleMemberDetailsStep.module.css";
+import styles from "./MemberDetailsStep.module.css";
 import { SectionTitle } from "@/components/atoms";
 import { Ship, Target } from "lucide-react";
 
@@ -62,16 +62,16 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-interface SimpleMemberDetailsStepProps {
+interface MemberDetailsStepProps {
   bookingData: UnifiedBookingData;
   requirements: PassengerRequirements;
 }
 
-export const SimpleMemberDetailsStep: React.FC<
-  SimpleMemberDetailsStepProps
+export const MemberDetailsStep: React.FC<
+  MemberDetailsStepProps
 > = ({ bookingData, requirements }) => {
   const { formData, updateFormData, nextStep, setError } =
-    useSimpleCheckoutStore();
+    useCheckoutStore();
 
   // Create form defaults
   const defaultValues = useMemo((): FormData => {
@@ -98,12 +98,16 @@ export const SimpleMemberDetailsStep: React.FC<
       { length: requirements.totalRequired },
       (_, i) => ({
         fullName: "",
-        age: i === 0 ? DEFAULT_VALUES.PRIMARY_MEMBER_AGE : DEFAULT_VALUES.CHILD_AGE,
+        age:
+          i === 0
+            ? DEFAULT_VALUES.PRIMARY_MEMBER_AGE
+            : DEFAULT_VALUES.CHILD_AGE,
         gender: DEFAULT_VALUES.GENDER,
         nationality: DEFAULT_VALUES.NATIONALITY,
         passportNumber: "",
         whatsappNumber: i === 0 ? "" : undefined,
-        phoneCountryCode: i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY_CODE : undefined,
+        phoneCountryCode:
+          i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY_CODE : undefined,
         phoneCountry: i === 0 ? DEFAULT_VALUES.PHONE_COUNTRY : undefined,
         email: i === 0 ? "" : undefined,
         selectedBookings: [0],

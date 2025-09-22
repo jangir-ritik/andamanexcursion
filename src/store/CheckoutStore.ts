@@ -42,7 +42,7 @@ export interface CheckoutSession {
 }
 
 // State interface
-interface SimpleCheckoutState {
+interface CheckoutState {
   currentStep: number;
   formData: CheckoutFormData | null;
   isLoading: boolean;
@@ -52,7 +52,7 @@ interface SimpleCheckoutState {
 }
 
 // Actions interface
-interface SimpleCheckoutActions {
+interface CheckoutActions {
   // Navigation
   setCurrentStep: (step: number) => void;
   nextStep: () => void;
@@ -80,10 +80,10 @@ interface SimpleCheckoutActions {
   resetAfterBooking: () => void;
 }
 
-type SimpleCheckoutStore = SimpleCheckoutState & SimpleCheckoutActions;
+type CheckoutStore = CheckoutState & CheckoutActions;
 
 // Initial state
-const initialState: SimpleCheckoutState = {
+const initialState: CheckoutState = {
   currentStep: 1,
   formData: null,
   isLoading: false,
@@ -212,7 +212,7 @@ const updateSession = (
   }
 };
 
-// Simple storage wrapper that handles errors gracefully
+//  storage wrapper that handles errors gracefully
 const createSafeStorage = () => {
   if (typeof window === "undefined") {
     return createJSONStorage(() => ({
@@ -270,7 +270,7 @@ const createSafeStorage = () => {
 };
 
 // Zustand store
-export const useSimpleCheckoutStore = create<SimpleCheckoutStore>()(
+export const useCheckoutStore = create<CheckoutStore>()(
   persist(
     immer((set, get) => ({
       ...initialState,
@@ -453,7 +453,7 @@ export const useSimpleCheckoutStore = create<SimpleCheckoutStore>()(
       },
     })),
     {
-      name: "simple-checkout-store",
+      name: "checkout-store",
       storage: createSafeStorage(),
       partialize: (state) => ({
         currentStep: state.currentStep,
@@ -506,23 +506,23 @@ export const useSimpleCheckoutStore = create<SimpleCheckoutStore>()(
 
 // Selectors for performance
 export const useCurrentStep = () =>
-  useSimpleCheckoutStore((state) => state.currentStep);
+  useCheckoutStore((state) => state.currentStep);
 export const useFormData = () =>
-  useSimpleCheckoutStore((state) => state.formData);
+  useCheckoutStore((state) => state.formData);
 export const useCheckoutLoading = () =>
-  useSimpleCheckoutStore((state) => state.isLoading);
+  useCheckoutStore((state) => state.isLoading);
 export const useCheckoutError = () =>
-  useSimpleCheckoutStore((state) => state.error);
+  useCheckoutStore((state) => state.error);
 export const useBookingConfirmation = () =>
-  useSimpleCheckoutStore((state) => state.bookingConfirmation);
+  useCheckoutStore((state) => state.bookingConfirmation);
 export const useSessionId = () =>
-  useSimpleCheckoutStore((state) => state.sessionId);
+  useCheckoutStore((state) => state.sessionId);
 export const useIsSessionExpired = () =>
-  useSimpleCheckoutStore((state) => state.isSessionExpired());
+  useCheckoutStore((state) => state.isSessionExpired());
 
 // Session management hooks
 export const useCheckoutSession = () => {
-  const store = useSimpleCheckoutStore();
+  const store = useCheckoutStore();
 
   return {
     sessionId: store.sessionId,

@@ -4,11 +4,11 @@ import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCheckoutAdapter } from "@/utils/CheckoutAdapter";
 import {
-  useSimpleCheckoutStore,
+  useCheckoutStore,
   createDefaultFormData,
   useCheckoutSession,
-} from "@/store/SimpleCheckoutStore";
-import { SimpleCheckoutFlow } from "./components/SimpleCheckoutFlow";
+} from "@/store/CheckoutStore";
+import { CheckoutFlow } from "./components/CheckoutFlow";
 import { Container } from "@/components/layout";
 import styles from "./page.module.css";
 
@@ -28,7 +28,7 @@ function CheckoutContent() {
 
   // Use simplified store - only form state and navigation
   const { formData, updateFormData, setError, reset } =
-    useSimpleCheckoutStore();
+    useCheckoutStore();
 
   useEffect(() => {
     console.log("CheckoutPage - Strategic Adapter Pattern", {
@@ -146,7 +146,7 @@ function CheckoutContent() {
   return (
     <div className={styles.checkoutPage}>
       <Container noPadding>
-        <SimpleCheckoutFlow
+        <CheckoutFlow
           bookingData={bookingData}
           requirements={requirements}
         />

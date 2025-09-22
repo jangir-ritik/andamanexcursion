@@ -2,13 +2,13 @@
 
 import React from "react";
 import { Button } from "@/components/atoms/Button/Button";
-import { useSimpleCheckoutStore } from "@/store/SimpleCheckoutStore";
+import { useCheckoutStore } from "@/store/CheckoutStore";
 import { CheckoutAdapter } from "@/utils/CheckoutAdapter";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
-import styles from "./SimpleReviewStep.module.css";
+import styles from "./ReviewStep.module.css";
 import { SectionTitle } from "@/components/atoms";
 import {
   Ship,
@@ -25,12 +25,12 @@ import {
   Anchor,
 } from "lucide-react";
 
-interface SimpleReviewStepProps {
+interface ReviewStepProps {
   bookingData: UnifiedBookingData;
   requirements: PassengerRequirements;
 }
 
-export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
+export const ReviewStep: React.FC<ReviewStepProps> = ({
   bookingData,
   requirements,
 }) => {
@@ -42,7 +42,7 @@ export const SimpleReviewStep: React.FC<SimpleReviewStepProps> = ({
     setError,
     setBookingConfirmation,
     isLoading,
-  } = useSimpleCheckoutStore();
+  } = useCheckoutStore();
 
   // Handle payment submission
   const handleProceedToPayment = async () => {

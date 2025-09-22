@@ -1,15 +1,15 @@
 "use client";
 import React, { useLayoutEffect, useEffect } from "react";
-import { useSimpleCheckoutStore } from "@/store/SimpleCheckoutStore";
+import { useCheckoutStore } from "@/store/CheckoutStore";
 import { StepIndicator } from "@/app/(frontend)/plan-your-trip/components/StepIndicator";
-import { SimpleMemberDetailsStep } from "../SimpleMemberDetailsStep";
-import { SimpleReviewStep } from "../SimpleReviewStep";
+import { MemberDetailsStep } from "../MemberDetailsStep";
+import { ReviewStep } from "../ReviewStep";
 import { ConfirmationStep } from "../ConfirmationStep";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
-import styles from "./SimpleCheckoutFlow.module.css";
+import styles from "./CheckoutFlow.module.css";
 
 // Checkout steps configuration
 const CHECKOUT_STEPS = [
@@ -30,12 +30,12 @@ const CHECKOUT_STEPS = [
   },
 ];
 
-interface SimpleCheckoutFlowProps {
+interface CheckoutFlowProps {
   bookingData: UnifiedBookingData;
   requirements: PassengerRequirements;
 }
 
-export const SimpleCheckoutFlow: React.FC<SimpleCheckoutFlowProps> = ({
+export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
   bookingData,
   requirements,
 }) => {
@@ -45,7 +45,7 @@ export const SimpleCheckoutFlow: React.FC<SimpleCheckoutFlowProps> = ({
     bookingConfirmation,
     formData,
     cleanupOrphanedSessions,
-  } = useSimpleCheckoutStore();
+  } = useCheckoutStore();
 
   // Clean up orphaned sessions on mount
   useEffect(() => {
@@ -59,7 +59,7 @@ export const SimpleCheckoutFlow: React.FC<SimpleCheckoutFlowProps> = ({
 
   // Debug logging
   useEffect(() => {
-    console.log("SimpleCheckoutFlow - Props", {
+    console.log("CheckoutFlow - Props", {
       bookingData,
       requirements,
       currentStep,
@@ -72,14 +72,14 @@ export const SimpleCheckoutFlow: React.FC<SimpleCheckoutFlowProps> = ({
     switch (currentStep) {
       case 1:
         return (
-          <SimpleMemberDetailsStep
+          <MemberDetailsStep
             bookingData={bookingData}
             requirements={requirements}
           />
         );
       case 2:
         return (
-          <SimpleReviewStep
+          <ReviewStep
             bookingData={bookingData}
             requirements={requirements}
           />

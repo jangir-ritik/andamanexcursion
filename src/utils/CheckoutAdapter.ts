@@ -15,10 +15,7 @@ import type {
   Location as FerryLocation,
 } from "@/types/FerryBookingSession.types";
 import type { Location } from "../../payload-types";
-import type {
-  MemberDetails,
-  CheckoutFormData,
-} from "@/store/SimpleCheckoutStore";
+import type { MemberDetails, CheckoutFormData } from "@/store/CheckoutStore";
 import { Activity } from "@payload-types";
 
 // Unified interfaces (unchanged)
@@ -194,7 +191,8 @@ export class CheckoutAdapter {
         location:
           typeof cartItem.activity.coreInfo?.location === "string"
             ? cartItem.activity.coreInfo.location
-            : Array.isArray(cartItem.activity.coreInfo?.location) && cartItem.activity.coreInfo.location.length > 0
+            : Array.isArray(cartItem.activity.coreInfo?.location) &&
+              cartItem.activity.coreInfo.location.length > 0
             ? typeof cartItem.activity.coreInfo.location[0] === "string"
               ? cartItem.activity.coreInfo.location[0]
               : (cartItem.activity.coreInfo.location[0] as Location)?.name || ""
@@ -285,7 +283,8 @@ export class CheckoutAdapter {
             // Core UnifiedFerryResult properties
             id: selectedFerry.id,
             operator: selectedFerry.operator,
-            operatorFerryId: selectedFerry.operatorFerryId || selectedFerry.id || "",
+            operatorFerryId:
+              selectedFerry.operatorFerryId || selectedFerry.id || "",
             ferryName: selectedFerry.ferryName || "Unknown Ferry",
             route: {
               from: createLocation(bookingSession.searchParams.from),
@@ -339,7 +338,9 @@ export class CheckoutAdapter {
             // Additional properties for backward compatibility
             duration: selectedFerry.schedule?.duration || "2h 30m",
             selectedClass: selectedClass || undefined,
-            selectedSeats: bookingSession.seatReservation?.seats?.map(seat => seat.id) || [],
+            selectedSeats:
+              bookingSession.seatReservation?.seats?.map((seat) => seat.id) ||
+              [],
             fromLocation: CheckoutAdapter.formatLocationName(
               bookingSession.searchParams.from
             ),
@@ -349,7 +350,8 @@ export class CheckoutAdapter {
           }
         : undefined,
       selectedClass: selectedClass || undefined, // Change null to undefined
-      selectedSeats: bookingSession.seatReservation?.seats?.map(seat => seat.id) || [],
+      selectedSeats:
+        bookingSession.seatReservation?.seats?.map((seat) => seat.id) || [],
     };
 
     return {
