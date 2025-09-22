@@ -66,14 +66,6 @@
   color: var(--color-primary);
 }
 
-.form {
-  space: 2rem 0;
-}
-
-.membersContainer {
-  space: 1.5rem 0;
-}
-
 .memberCard {
   background: white;
   border: 1px solid var(--color-border);
