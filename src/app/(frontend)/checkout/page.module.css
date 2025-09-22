@@ -23,10 +23,6 @@
   color: var(--color-text-secondary);
 }
 
-.checkoutPage {
-  /* Main checkout page styles */
-}
-
 /* Loading State Styles */
 .loadingContainer {
   min-height: 100vh;

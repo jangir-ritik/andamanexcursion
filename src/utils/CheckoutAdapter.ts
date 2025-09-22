@@ -11,7 +11,6 @@ import type { Boat, BoatSearchParams, BoatCartItem } from "@/store/BoatStore";
 import type {
   UnifiedFerryResult,
   FerryClass,
-  FerryBookingSession,
   Location as FerryLocation,
 } from "@/types/FerryBookingSession.types";
 import type { Location } from "../../payload-types";
