@@ -14,7 +14,7 @@ import type {
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import type { CheckoutFormData } from "@/store/CheckoutStore";
-import { COUNTRIES, GENDER_OPTIONS, DEFAULT_VALUES } from "@/constants";
+import { COUNTRIES, GENDER_OPTIONS, DEFAULT_VALUES, NATIONALITY_TO_COUNTRY_CODE } from "@/constants";
 import styles from "./MemberDetailsStep.module.css";
 import { DateSelect, SectionTitle } from "@/components/atoms";
 import { Ship, Target } from "lucide-react";
@@ -163,6 +163,23 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
     name: "members",
   });
   const watchedMembers = watch("members");
+
+  // ✅ NEW: Watch for nationality changes and update country code automatically
+  useEffect(() => {
+    watchedMembers.forEach((member, index) => {
+      if (member.nationality && index === 0) { // Only for primary member
+        const countryCodeMapping = NATIONALITY_TO_COUNTRY_CODE[member.nationality as keyof typeof NATIONALITY_TO_COUNTRY_CODE];
+        if (countryCodeMapping) {
+          const currentCountryCode = form.getValues(`members.${index}.phoneCountryCode`);
+          // Only update if it's different to avoid infinite loops
+          if (currentCountryCode !== countryCodeMapping.code) {
+            form.setValue(`members.${index}.phoneCountryCode`, countryCodeMapping.code);
+            form.setValue(`members.${index}.phoneCountry`, countryCodeMapping.country);
+          }
+        }
+      }
+    });
+  }, [watchedMembers.map(m => m.nationality).join(','), form]); // Watch nationality changes
 
   // Handle form submission
   const onSubmit = async (data: FormData) => {
@@ -450,6 +467,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
                         defaultCountryCode={
                           watchedMembers[index]?.phoneCountryCode || "+91"
                         }
+                        countryCode={watchedMembers[index]?.phoneCountryCode} // ✅ NEW: Pass current country code
                         onCountryChange={(countryCode, countryName) => {
                           // Update the form values when country changes
                           form.setValue(

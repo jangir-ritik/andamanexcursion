@@ -7,19 +7,7 @@ import { ChevronDown } from "lucide-react";
 import styles from "./PhoneInput.module.css";
 import type { PhoneInputProps } from "./PhoneInput.types";
 import { cn } from "@/utils/cn";
-
-const COUNTRY_CODES = [
-  { code: "+91", country: "India", flag: "🇮🇳" },
-  { code: "+1", country: "USA", flag: "🇺🇸" },
-  { code: "+44", country: "UK", flag: "🇬🇧" },
-  { code: "+61", country: "Australia", flag: "🇦🇺" },
-  { code: "+65", country: "Singapore", flag: "🇸🇬" },
-  { code: "+86", country: "China", flag: "🇨🇳" },
-  { code: "+81", country: "Japan", flag: "🇯🇵" },
-  { code: "+49", country: "Germany", flag: "🇩🇪" },
-  { code: "+33", country: "France", flag: "🇫🇷" },
-  { code: "+39", country: "Italy", flag: "🇮🇹" },
-] as const;
+import { PHONE_COUNTRY_CODES } from "@/constants";
 
 // ✅ ENHANCED: Add callback props for country code changes
 interface EnhancedPhoneInputProps<T extends FieldValues = FieldValues>
@@ -27,6 +15,7 @@ interface EnhancedPhoneInputProps<T extends FieldValues = FieldValues>
   errorMessage?: string;
   onCountryChange?: (countryCode: string, countryName: string) => void;
   defaultCountryCode?: string;
+  countryCode?: string; // ✅ NEW: Allow external control of country code
 }
 
 export const PhoneInput = <T extends FieldValues = FieldValues>(
@@ -44,6 +33,7 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
     errorMessage,
     onCountryChange, // ✅ NEW: Callback for country changes
     defaultCountryCode = "+91", // ✅ NEW: Default country code
+    countryCode, // ✅ NEW: External country code control
   } = props;
 
   const [selectedCountryCode, setSelectedCountryCode] =
@@ -54,8 +44,8 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
     setSelectedCountryCode(newCountryCode);
 
     // Find the country name for the selected code
-    const selectedCountry = COUNTRY_CODES.find(
-      (c) => c.code === newCountryCode
+    const selectedCountry = PHONE_COUNTRY_CODES.find(
+      (c: any) => c.code === newCountryCode
     );
 
     if (onCountryChange && selectedCountry) {
@@ -63,10 +53,17 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
     }
   };
 
+  // ✅ NEW: Update internal state when external countryCode prop changes
+  useEffect(() => {
+    if (countryCode && countryCode !== selectedCountryCode) {
+      setSelectedCountryCode(countryCode);
+    }
+  }, [countryCode]);
+
   // ✅ NEW: Notify parent on initial mount
   useEffect(() => {
-    const selectedCountry = COUNTRY_CODES.find(
-      (c) => c.code === selectedCountryCode
+    const selectedCountry = PHONE_COUNTRY_CODES.find(
+      (c: any) => c.code === selectedCountryCode
     );
     if (onCountryChange && selectedCountry) {
       onCountryChange(selectedCountryCode, selectedCountry.country);
@@ -115,9 +112,9 @@ export const PhoneInput = <T extends FieldValues = FieldValues>(
                 <Select.Portal>
                   <Select.Content className={styles.countryCodeContent}>
                     <Select.Viewport className={styles.countryCodeViewport}>
-                      {COUNTRY_CODES.map((country) => (
+                      {PHONE_COUNTRY_CODES.map((country: any, index: number) => (
                         <Select.Item
-                          key={country.code}
+                          key={index}
                           value={country.code}
                           className={styles.countryCodeItem}
                         >
