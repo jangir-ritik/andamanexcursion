@@ -1,18 +1,20 @@
 "use client";
-import React from "react";
-import { Download } from "lucide-react";
-import { useCheckoutStore } from "@/store/CheckoutStore";
-import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
+
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button/Button";
-import styles from "./ConfirmationStep.module.css";
-import { DescriptionText } from "@/components/atoms";
+import { useCheckoutStore } from "@/store/CheckoutStore";
+import { BeforeUnloadModal } from "@/components/molecules/BeforeUnloadModal";
+import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
+import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
+import { useRouter } from "next/navigation";
+import { CheckCircle, Download, Share2, MessageCircle } from "lucide-react";
 import { slotIdToTimeString } from "@/utils/timeUtils";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import { Location } from "@payload-types";
-import { useCheckoutSession } from "@/store/CheckoutStore";
+import styles from "./ConfirmationStep.module.css";
 
 interface ConfirmationStepProps {
   bookingData: UnifiedBookingData;
@@ -25,8 +27,46 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 }) => {
   const { bookingConfirmation, formData, resetAfterBooking } =
     useCheckoutStore();
+  const router = useRouter();
+  
+  // State for before unload modal
+  const [showBeforeUnloadModal, setShowBeforeUnloadModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
-  const { resetForNewBooking } = useCheckoutSession();
+  // Handle browser beforeunload event
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "Your booking confirmation details will be lost if you leave this page.";
+      return e.returnValue;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  // Handle navigation attempts
+  const handleNavigation = (path: string) => {
+    setPendingNavigation(path);
+    setShowBeforeUnloadModal(true);
+  };
+
+  // Handle modal responses
+  const handleStayOnPage = () => {
+    setShowBeforeUnloadModal(false);
+    setPendingNavigation(null);
+  };
+
+  const handleLeavePage = () => {
+    setShowBeforeUnloadModal(false);
+    if (pendingNavigation) {
+      resetAfterBooking();
+      router.push(pendingNavigation);
+    }
+  };
 
   // Get all booking details from the new unified data structure
   const getAllBookingDetails = () => {
@@ -374,21 +414,19 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           variant="secondary"
           size="large"
           onClick={() => {
-            resetForNewBooking();
-            // resetAfterBooking();
-            // Navigate back to home or booking page
             const firstItemType = bookingData?.items?.[0]?.type;
-            window.location.href =
-              firstItemType === "ferry"
-                ? "/ferry"
-                : firstItemType === "boat"
-                ? "/boat"
-                : "/activities";
+            const targetPath = firstItemType === "ferry"
+              ? "/ferry"
+              : firstItemType === "boat"
+              ? "/boat"
+              : "/activities";
+            handleNavigation(targetPath);
           }}
           className={styles.newBookingButton}
         >
           Make Another Booking
         </Button>
+
       </div>
 
       {/* Important Instructions */}
@@ -427,6 +465,13 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Before Unload Modal */}
+      <BeforeUnloadModal
+        isVisible={showBeforeUnloadModal}
+        onStay={handleStayOnPage}
+        onLeave={handleLeavePage}
+      />
     </div>
   );
 };

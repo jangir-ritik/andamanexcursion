@@ -6,6 +6,8 @@ import { MemberDetailsStep } from "../MemberDetailsStep";
 import { ReviewStep } from "../ReviewStep";
 import { ConfirmationStep } from "../ConfirmationStep";
 import { LoadingOverlay } from "@/components/molecules/LoadingOverlay";
+import { useCheckoutProtection } from "@/hooks/useCheckoutProtection";
+import { BeforeUnloadModal } from "@/components/molecules/BeforeUnloadModal";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
@@ -48,6 +50,10 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
     cleanupOrphanedSessions,
     isLoading,
   } = useCheckoutStore();
+
+  // Add global checkout protection for all page navigation
+  const { showBeforeUnloadModal, handleStayOnPage, handleLeavePage } = 
+    useCheckoutProtection({ step: currentStep });
 
   // Clean up orphaned sessions on mount
   useEffect(() => {
@@ -137,6 +143,17 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
             : "Please wait while we prepare your checkout..."
         }
       />
+
+      {/* Global BeforeUnload Modal for page navigation protection */}
+      {showBeforeUnloadModal && (
+        <BeforeUnloadModal
+          isVisible={showBeforeUnloadModal}
+          onStay={handleStayOnPage}
+          onLeave={handleLeavePage}
+          title="Leave checkout process?"
+          message={`You'll lose all your progress if you leave now. Are you sure you want to continue?`}
+        />
+      )}
 
       {/* Debug Info (dev only) */}
       {process.env.NODE_ENV === "development" && (

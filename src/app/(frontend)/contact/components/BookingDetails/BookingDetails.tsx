@@ -307,7 +307,7 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
 
           {/* Children Counter */}
           <div className={cn(styles.gridItem, styles.counter)}>
-            <label className={styles.label}>Kids</label>
+            <label className={styles.label}>Infants</label>
             <div className={styles.passengerCounter}>
               <div className={styles.passengerControls}>
                 <button

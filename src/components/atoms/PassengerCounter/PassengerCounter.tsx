@@ -61,7 +61,7 @@ export const PassengerCounter = ({
           </div>
         </div>
 
-        {/* Kids Counter */}
+        {/* Infants Counter */}
         <div className={styles.fieldContainer}>
           <div
             className={`${styles.selectWrapper} ${
@@ -69,7 +69,7 @@ export const PassengerCounter = ({
             }`}
           >
             <span className={clsx(styles.selectLabel, styles.kidSelectLabel)}>
-              Kids
+              Infants
               <div
                 className={styles.tooltipContainer}
                 onMouseEnter={() => setShowTooltip(true)}
@@ -78,7 +78,7 @@ export const PassengerCounter = ({
                 <Info size={12} className={styles.infoIcon} />
                 {showTooltip && (
                   <div className={styles.tooltip}>
-                    Kids under 2 travel free.
+                    Infants under 2 travel free.
                   </div>
                 )}
               </div>
@@ -86,20 +86,20 @@ export const PassengerCounter = ({
             <div className={styles.counterInner}>
               <button
                 type="button"
-                aria-label="Decrease Kids"
+                aria-label="Decrease Infants"
                 className={styles.counterButton}
-                onClick={() => onChange("children", (value.children || 0) - 1)}
-                disabled={(value.children || 0) <= 0}
+                onClick={() => onChange("infants", (value.infants || 0) - 1)}
+                disabled={(value.infants || 0) <= 0}
               >
                 -
               </button>
-              <span className={styles.counterValue}>{value.children || 0}</span>
+              <span className={styles.counterValue}>{value.infants || 0}</span>
               <button
                 type="button"
-                aria-label="Increase Kids"
+                aria-label="Increase Infants"
                 className={styles.counterButton}
-                onClick={() => onChange("children", (value.children || 0) + 1)}
-                disabled={(value.children || 0) >= 10}
+                onClick={() => onChange("infants", (value.infants || 0) + 1)}
+                disabled={(value.infants || 0) >= 10}
               >
                 +
               </button>

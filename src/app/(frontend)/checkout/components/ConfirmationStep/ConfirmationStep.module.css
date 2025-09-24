@@ -223,6 +223,14 @@
   min-width: 180px;
 }
 
+.testButton {
+  margin-top: 10px;
+}
+
+.newBookingButton {
+  min-width: 180px;
+}
+
 /* Instructions */
 .instructionsCard {
   background-color: var(--color-bg-primary);

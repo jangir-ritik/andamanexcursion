@@ -1,12 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
-import {
-  useForm,
-  useFieldArray,
-  Controller,
-  SubmitHandler,
-} from "react-hook-form";
+import React, { useMemo, useEffect, useState } from "react";
+import { useForm, FormProvider, useFieldArray, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/atoms/Button/Button";
@@ -93,6 +88,8 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   requirements,
 }) => {
   const { formData, updateFormData, nextStep, setError, setLoading } = useCheckoutStore();
+  
+  // Add checkout protection for step 1
 
   // Create form defaults
   const defaultValues = useMemo((): FormData => {
@@ -554,6 +551,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
           </Button>
         </div>
       </form>
+
     </div>
   );
 };

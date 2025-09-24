@@ -27,8 +27,7 @@ function CheckoutContent() {
   }, []);
 
   // Use simplified store - only form state and navigation
-  const { formData, updateFormData, setError, reset } =
-    useCheckoutStore();
+  const { formData, updateFormData, setError, reset } = useCheckoutStore();
 
   useEffect(() => {
     console.log("CheckoutPage - Strategic Adapter Pattern", {
@@ -46,10 +45,13 @@ function CheckoutContent() {
       // Redirect to appropriate page based on booking type
       setTimeout(() => {
         if (bookingType === "ferry") {
+          console.log("Redirecting to ferry page");
           router.push("/ferry");
         } else if (bookingType === "boat") {
+          console.log("Redirecting to boat page");
           router.push("/boat");
         } else {
+          console.log("Redirecting to activities page");
           router.push("/activities");
         }
       }, 2000); // Give user time to see the error
@@ -146,10 +148,7 @@ function CheckoutContent() {
   return (
     <div className={styles.checkoutPage}>
       <Container noPadding>
-        <CheckoutFlow
-          bookingData={bookingData}
-          requirements={requirements}
-        />
+        <CheckoutFlow bookingData={bookingData} requirements={requirements} />
       </Container>
     </div>
   );

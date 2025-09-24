@@ -44,6 +44,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
     isLoading,
   } = useCheckoutStore();
 
+
   // Handle payment submission
   const handleProceedToPayment = async () => {
     if (!formData) {
@@ -428,6 +429,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
           .
         </p>
       </div>
+
     </div>
   );
 };

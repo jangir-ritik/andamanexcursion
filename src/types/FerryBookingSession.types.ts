@@ -197,7 +197,7 @@ export interface FerrySearchParams {
   to: string;
   date: string;
   adults: number;
-  children: number;
+  children: number; // DEPRECATED: Keep for backward compatibility, always 0
   infants: number;
 }
 
