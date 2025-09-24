@@ -166,11 +166,64 @@ export class CheckoutAdapter {
     bookingData: UnifiedBookingData,
     formData: CheckoutFormData
   ): PaymentData {
+    // Recalculate pricing based on actual passenger ages for ALL booking types
+    // Universal rule: Infants (<2 years) are free, everyone else (≥2 years) pays full price
+    let adjustedTotalPrice = bookingData.totalPrice;
+    
+    if (formData.members && formData.members.length > 0 && bookingData.items.length > 0) {
+      let totalAdjustedPrice = 0;
+      
+      // Process each booking item
+      bookingData.items.forEach((item, index) => {
+        let basePrice = 0;
+        
+        // Determine base price per passenger for each booking type
+        switch (item.type) {
+          case 'ferry':
+            basePrice = item.ferry?.selectedClass?.price || (item.price / bookingData.totalPassengers);
+            break;
+          case 'activity':
+            basePrice = item.price / bookingData.totalPassengers;
+            break;
+          case 'boat':
+            basePrice = item.price / bookingData.totalPassengers;
+            break;
+          default:
+            basePrice = item.price / bookingData.totalPassengers;
+        }
+        
+        if (basePrice > 0) {
+          const accuratePricing = CheckoutAdapter.calculateAccuratePricing(formData.members, basePrice);
+          totalAdjustedPrice += accuratePricing.totalPrice;
+          
+          console.log(`${item.type.toUpperCase()} pricing adjustment:`, {
+            itemTitle: item.title,
+            originalPrice: item.price,
+            basePrice,
+            adjustedPrice: accuratePricing.totalPrice,
+            ticketedPassengers: accuratePricing.ticketedPassengers,
+            freePassengers: accuratePricing.freePassengers,
+            breakdown: accuratePricing.breakdown
+          });
+        } else {
+          totalAdjustedPrice += item.price;
+        }
+      });
+      
+      adjustedTotalPrice = totalAdjustedPrice;
+      
+      console.log('Total payment pricing adjustment:', {
+        originalTotalPrice: bookingData.totalPrice,
+        adjustedTotalPrice,
+        reason: 'Recalculated based on actual passenger ages (infants <2 years free)'
+      });
+    }
+
     return {
       bookingType: bookingData.type,
       items: bookingData.items,
       members: formData.members || [],
-      totalPrice: bookingData.totalPrice,
+      totalPrice: adjustedTotalPrice,
       contactDetails: {
         primaryName: formData.members?.[0]?.fullName || "",
         email: formData.members?.[0]?.email || "",
@@ -301,18 +354,48 @@ export class CheckoutAdapter {
   private static getFerryCheckoutData(
     ferryStore: FerryStore
   ): UnifiedBookingData {
-    const bookingSession = ferryStore.bookingSession;
-    if (!bookingSession) {
-      throw new Error("No ferry booking session found");
-    }
-
-    const totalPassengers =
-      bookingSession.searchParams.adults +
-      bookingSession.searchParams.children +
-      bookingSession.searchParams.infants;
-
+    // Use current ferry store state instead of booking session
     const selectedFerry = ferryStore.selectedFerry;
     const selectedClass = ferryStore.selectedClass;
+    const selectedSeats = ferryStore.selectedSeats;
+    const searchParams = ferryStore.searchParams;
+
+    // STREAMLINED: Only adults + infants (children field is deprecated)
+    const totalPassengers = searchParams.adults + searchParams.infants;
+
+    // Calculate total price based on passenger types and selected class
+    // NOTE: At checkout stage, we don't have actual ages yet, so we conservatively
+    // assume all passengers need tickets. The accurate pricing will be recalculated
+    // during payment processing when actual passenger ages are available.
+    const calculateTotalPrice = (): number => {
+      if (!selectedClass) return 0;
+      
+      // CORRECTED APPROACH: Now that PassengerCounter uses 'infants' field correctly,
+      // only the 'infants' field represents passengers <2 years (free)
+      // 'children' field is no longer used in ferry search (was confusing)
+      const definiteFreePassengers = searchParams.infants; // Only infants are <2 years and free
+      const ticketedPassengers = totalPassengers - definiteFreePassengers;
+      
+      console.log('Ferry checkout pricing (streamlined):', {
+        totalPassengers,
+        searchAdults: searchParams.adults,
+        searchInfants: searchParams.infants,
+        ticketedPassengers,
+        note: 'Only 2 types: Adults (≥2 years) and Infants (<2 years, free)'
+      });
+      
+      // Everyone else pays the same price (no child discount)
+      return ticketedPassengers * (selectedClass.price || 0);
+    };
+
+    const totalPrice = calculateTotalPrice();
+
+    console.log('Ferry pricing calculation:', {
+      selectedClassPrice: selectedClass?.price,
+      ferryPricing: selectedFerry?.pricing,
+      passengers: { adults: searchParams.adults, children: searchParams.children, infants: searchParams.infants },
+      calculatedTotalPrice: totalPrice
+    });
 
     // Helper function to create FerryLocation objects
     const createLocation = (locationName: string): FerryLocation => ({
@@ -320,25 +403,26 @@ export class CheckoutAdapter {
       code: CheckoutAdapter.getLocationCode(locationName),
     });
 
+    // Use current ferry store state for checkout item
     const item: UnifiedBookingItem = {
-      id: bookingSession.sessionId,
+      id: selectedFerry?.id || "ferry-temp-id",
       type: "ferry",
       title: `${selectedFerry?.ferryName || "Ferry"} - ${
-        bookingSession.searchParams.from
-      } to ${bookingSession.searchParams.to}`,
+        selectedFerry?.route?.from?.name || "Port Blair"
+      } to ${selectedFerry?.route?.to?.name || "Havelock"}`,
       location: `${CheckoutAdapter.formatLocationName(
-        bookingSession.searchParams.from
+        selectedFerry?.route?.from?.name || "Port Blair"
       )} → ${CheckoutAdapter.formatLocationName(
-        bookingSession.searchParams.to
+        selectedFerry?.route?.to?.name || "Havelock"
       )}`,
       time: selectedFerry?.schedule?.departureTime || "N/A",
       passengers: {
-        adults: bookingSession.searchParams.adults,
-        children: bookingSession.searchParams.children,
-        infants: bookingSession.searchParams.infants,
+        adults: searchParams.adults,
+        children: 0, // DEPRECATED: Always 0 in streamlined model
+        infants: searchParams.infants,
       },
-      price: bookingSession.totalAmount,
-      date: bookingSession.searchParams.date,
+      price: totalPrice,
+      date: searchParams.date || new Date().toISOString().split('T')[0],
       // CRITICAL: Add ferryId at item level for payment verification
       ferryId: selectedFerry?.id, // This will be "sealink-68afe5056bbf62f3db17a8c8"
       ferry: selectedFerry
@@ -350,16 +434,16 @@ export class CheckoutAdapter {
               selectedFerry.operatorFerryId || selectedFerry.id || "",
             ferryName: selectedFerry.ferryName || "Unknown Ferry",
             route: {
-              from: createLocation(bookingSession.searchParams.from),
-              to: createLocation(bookingSession.searchParams.to),
+              from: createLocation(selectedFerry.route?.from?.name || "Port Blair"),
+              to: createLocation(selectedFerry.route?.to?.name || "Havelock"),
               fromCode:
                 selectedFerry.route?.fromCode ||
                 CheckoutAdapter.getLocationCode(
-                  bookingSession.searchParams.from
+                  selectedFerry.route?.from?.name || "Port Blair"
                 ),
               toCode:
                 selectedFerry.route?.toCode ||
-                CheckoutAdapter.getLocationCode(bookingSession.searchParams.to),
+                CheckoutAdapter.getLocationCode(selectedFerry.route?.to?.name || "Havelock"),
             },
             schedule: selectedFerry.schedule
               ? {
@@ -368,29 +452,21 @@ export class CheckoutAdapter {
                   duration: selectedFerry.schedule.duration,
                   date:
                     selectedFerry.schedule.date ||
-                    bookingSession.searchParams.date, // Fallback to booking date
+                    new Date().toISOString().split('T')[0], // Fallback to today's date
                 }
               : {
-                  departureTime: "Unknown",
-                  arrivalTime: "Unknown",
-                  duration: "Unknown",
-                  date: bookingSession.searchParams.date, // Always include date
+                  departureTime: "09:00",
+                  arrivalTime: "11:30",
+                  duration: "2h 30m",
+                  date: new Date().toISOString().split('T')[0],
                 },
             classes: selectedFerry.classes || [],
-            availability: selectedFerry.availability || {
-              totalSeats: 0,
-              availableSeats: 0,
-              lastUpdated: new Date().toISOString(),
-            },
-            pricing: selectedFerry.pricing || {
-              baseFare: 0,
-              taxes: 0,
-              portFee: 0,
-              total: bookingSession.totalAmount || 0,
-              currency: "INR" as const,
-            },
+            pricing: selectedFerry.pricing || { adult: 0, child: 0, infant: 0 },
             features: selectedFerry.features || {
-              supportsSeatSelection: true,
+              hasAC: false,
+              hasFood: false,
+              hasWifi: false,
+              supportsSeatSelection: false,
               supportsAutoAssignment: false,
             },
             operatorData: selectedFerry.operatorData || {
@@ -398,30 +474,28 @@ export class CheckoutAdapter {
               bookingEndpoint: "",
             },
             isActive: selectedFerry.isActive ?? true,
+            availability: selectedFerry.availability || { available: true, seatsLeft: 0 },
             // Additional properties for backward compatibility
             duration: selectedFerry.schedule?.duration || "2h 30m",
             selectedClass: selectedClass || undefined,
-            selectedSeats:
-              bookingSession.seatReservation?.seats?.map((seat) => seat.id) ||
-              [],
+            selectedSeats: selectedSeats.map(seat => seat.number || seat.id || ''),
             fromLocation: CheckoutAdapter.formatLocationName(
-              bookingSession.searchParams.from
+              selectedFerry.route?.from?.name || "Port Blair"
             ),
             toLocation: CheckoutAdapter.formatLocationName(
-              bookingSession.searchParams.to
+              selectedFerry.route?.to?.name || "Havelock"
             ),
           }
         : undefined,
       selectedClass: selectedClass || undefined, // Change null to undefined
-      selectedSeats:
-        bookingSession.seatReservation?.seats?.map((seat) => seat.id) || [],
+      selectedSeats: selectedSeats.map(seat => seat.number || seat.id || ''),
     };
 
     return {
       type: "ferry",
       items: [item],
       totalPassengers,
-      totalPrice: bookingSession.totalAmount,
+      totalPrice: totalPrice,
       requirements: {
         totalRequired: totalPassengers,
         bookings: [
@@ -510,7 +584,7 @@ export class CheckoutAdapter {
             requirements: { totalRequired: 0, bookings: [] },
           };
 
-    const ferryData = stores.ferryStore.bookingSession
+    const ferryData = stores.ferryStore.selectedFerry
       ? CheckoutAdapter.getFerryCheckoutData(stores.ferryStore)
       : {
           items: [],
@@ -552,6 +626,7 @@ export class CheckoutAdapter {
     };
   }
 
+
   /**
    * Format location name for display
    */
@@ -578,6 +653,64 @@ export class CheckoutAdapter {
       shaheed: "SH",
     };
     return codeMap[location.toLowerCase()] || location.toUpperCase();
+  }
+
+
+  /**
+   * Calculate accurate pricing based on actual passenger ages
+   * Universal pricing rule for ALL booking types:
+   * - Infants (<2 years): Free, no seat, no ticket (travel with adult)
+   * - Everyone else (≥2 years): Full price, seat required, ticket required
+   */
+  static calculateAccuratePricing(members: MemberDetails[], basePrice: number): {
+    ticketedPassengers: number;
+    freePassengers: number;
+    totalPrice: number;
+    breakdown: { name: string; age: number; price: number; needsTicket: boolean; needsSeat: boolean }[];
+  } {
+    let ticketedPassengers = 0;
+    let freePassengers = 0;
+    const breakdown: { name: string; age: number; price: number; needsTicket: boolean; needsSeat: boolean }[] = [];
+
+    members.forEach((member) => {
+      const age = member.age;
+      const isInfant = age < 2;
+      const price = isInfant ? 0 : basePrice;
+      const needsTicket = !isInfant;
+      const needsSeat = !isInfant;
+      
+      if (isInfant) {
+        freePassengers++;
+      } else {
+        ticketedPassengers++;
+      }
+
+      breakdown.push({
+        name: member.fullName,
+        age: age,
+        price: price,
+        needsTicket,
+        needsSeat
+      });
+    });
+
+    const totalPrice = ticketedPassengers * basePrice;
+
+    console.log('Universal pricing calculation:', {
+      basePrice,
+      ticketedPassengers,
+      freePassengers,
+      totalPrice,
+      breakdown,
+      note: 'Infants (<2 years) are free and travel with adults'
+    });
+
+    return {
+      ticketedPassengers,
+      freePassengers,
+      totalPrice,
+      breakdown
+    };
   }
 }
 

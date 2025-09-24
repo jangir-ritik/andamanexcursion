@@ -279,7 +279,8 @@ const createSafeStorage = () => {
 
 // Zustand store
 export const useCheckoutStore = create<CheckoutStore>()(
-  persist(
+  // COMMENTED OUT: Persist middleware causing storage errors
+  // persist(
     immer((set, get) => ({
       ...initialState,
 
@@ -287,7 +288,8 @@ export const useCheckoutStore = create<CheckoutStore>()(
       setCurrentStep: (step: number) => {
         set((state) => {
           state.currentStep = step;
-          updateSession(state.sessionId, state.formData, step);
+          // COMMENTED OUT: Session persistence disabled
+          // updateSession(state.sessionId, state.formData, step);
         });
       },
 
@@ -295,7 +297,8 @@ export const useCheckoutStore = create<CheckoutStore>()(
         set((state) => {
           if (state.currentStep < 3) {
             state.currentStep += 1;
-            updateSession(state.sessionId, state.formData, state.currentStep);
+            // COMMENTED OUT: Session persistence disabled
+            // updateSession(state.sessionId, state.formData, state.currentStep);
           }
         });
       },
@@ -304,7 +307,8 @@ export const useCheckoutStore = create<CheckoutStore>()(
         set((state) => {
           if (state.currentStep > 1) {
             state.currentStep -= 1;
-            updateSession(state.sessionId, state.formData, state.currentStep);
+            // COMMENTED OUT: Session persistence disabled
+            // updateSession(state.sessionId, state.formData, state.currentStep);
           }
         });
       },
@@ -313,7 +317,8 @@ export const useCheckoutStore = create<CheckoutStore>()(
       updateFormData: (formData: CheckoutFormData) => {
         set((state) => {
           state.formData = formData;
-          updateSession(state.sessionId, formData, state.currentStep);
+          // COMMENTED OUT: Session persistence disabled
+          // updateSession(state.sessionId, formData, state.currentStep);
         });
       },
 
@@ -339,37 +344,29 @@ export const useCheckoutStore = create<CheckoutStore>()(
         set((state) => {
           state.bookingConfirmation = confirmation;
           state.currentStep = 3;
-          updateSession(state.sessionId, state.formData, 3);
+          // COMMENTED OUT: Session persistence disabled
+          // updateSession(state.sessionId, state.formData, 3);
         });
       },
 
-      // === SESSION MANAGEMENT ===
+      // === SESSION MANAGEMENT (COMMENTED OUT) ===
       initializeSession: () => {
-        if (typeof window === "undefined") return;
-
-        // Don't create empty sessions unnecessarily
-        const currentState = get();
-        if (currentState.sessionId && !currentState.isSessionExpired()) {
-          console.log("Session already exists and is valid");
-          return;
-        }
-
-        const sessionId = generateSessionId();
-        set((state) => {
-          state.sessionId = sessionId;
-        });
-
-        console.log(`New session initialized: ${sessionId}`);
-        // Note: Don't save the session yet - wait for actual data
+        // COMMENTED OUT: Session functionality disabled
+        // if (typeof window === "undefined") return;
+        // const sessionId = generateSessionId();
+        // set((state) => {
+        //   state.sessionId = sessionId;
+        // });
+        console.log("Session initialization disabled");
       },
 
       clearSession: () => {
-        if (typeof window === "undefined") return;
-
-        const { sessionId } = get();
-        if (sessionId) {
-          safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
-        }
+        // COMMENTED OUT: Session storage operations disabled
+        // if (typeof window === "undefined") return;
+        // const { sessionId } = get();
+        // if (sessionId) {
+        //   safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
+        // }
 
         set((state) => {
           state.sessionId = null;
@@ -382,134 +379,84 @@ export const useCheckoutStore = create<CheckoutStore>()(
       },
 
       isSessionExpired: () => {
-        if (typeof window === "undefined") return true;
-
-        const { sessionId } = get();
-        if (!sessionId) return true;
-
-        try {
-          const sessionData = safeSessionStorage.getItem(
-            `checkout-session-${sessionId}`
-          );
-          if (!sessionData) return true;
-
-          const session = safeJsonParse(sessionData);
-          if (!session || !session.expiresAt) return true;
-
-          return isSessionExpired(session.expiresAt);
-        } catch (error) {
-          console.error("Error checking session expiry:", error);
-          return true;
-        }
+        // COMMENTED OUT: Always return true since sessions are disabled
+        return true;
+        // if (typeof window === "undefined") return true;
+        // const { sessionId } = get();
+        // if (!sessionId) return true;
+        // try {
+        //   const sessionData = safeSessionStorage.getItem(`checkout-session-${sessionId}`);
+        //   if (!sessionData) return true;
+        //   const session = safeJsonParse(sessionData);
+        //   if (!session || !session.expiresAt) return true;
+        //   return isSessionExpired(session.expiresAt);
+        // } catch (error) {
+        //   console.error("Error checking session expiry:", error);
+        //   return true;
+        // }
       },
 
-      // FIXED: Added the missing cleanupOrphanedSessions method
       cleanupOrphanedSessions: () => {
-        if (typeof window === "undefined") return;
-
-        try {
-          const allKeys = Object.keys(sessionStorage);
-          const sessionKeys = allKeys.filter((key) =>
-            key.startsWith("checkout-session-")
-          );
-
-          let cleanedCount = 0;
-          sessionKeys.forEach((key) => {
-            try {
-              const sessionData = sessionStorage.getItem(key);
-              if (sessionData) {
-                const session = safeJsonParse(sessionData);
-                if (session?.expiresAt && isSessionExpired(session.expiresAt)) {
-                  sessionStorage.removeItem(key);
-                  cleanedCount++;
-                }
-              }
-            } catch (error) {
-              console.error(`Error cleaning up session ${key}:`, error);
-              // Remove corrupted session data
-              sessionStorage.removeItem(key);
-              cleanedCount++;
-            }
-          });
-
-          if (cleanedCount > 0) {
-            console.log(`Cleaned up ${cleanedCount} orphaned sessions`);
-          }
-        } catch (error) {
-          console.error("Error during session cleanup:", error);
-        }
+        // COMMENTED OUT: Session cleanup disabled
+        console.log("Session cleanup disabled");
+        // if (typeof window === "undefined") return;
+        // try {
+        //   const allKeys = Object.keys(sessionStorage);
+        //   const sessionKeys = allKeys.filter((key) => key.startsWith("checkout-session-"));
+        //   let cleanedCount = 0;
+        //   sessionKeys.forEach((key) => {
+        //     try {
+        //       const sessionData = sessionStorage.getItem(key);
+        //       if (sessionData) {
+        //         const session = safeJsonParse(sessionData);
+        //         if (session?.expiresAt && isSessionExpired(session.expiresAt)) {
+        //           sessionStorage.removeItem(key);
+        //           cleanedCount++;
+        //         }
+        //       }
+        //     } catch (error) {
+        //       console.error(`Error cleaning up session ${key}:`, error);
+        //       sessionStorage.removeItem(key);
+        //       cleanedCount++;
+        //     }
+        //   });
+        //   if (cleanedCount > 0) {
+        //     console.log(`Cleaned up ${cleanedCount} orphaned sessions`);
+        //   }
+        // } catch (error) {
+        //   console.error("Error during session cleanup:", error);
+        // }
       },
 
       // === UTILITY ===
       reset: () => {
-        const { sessionId } = get();
-        if (sessionId) {
-          safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
-        }
+        // COMMENTED OUT: Session storage operations disabled
+        // const { sessionId } = get();
+        // if (sessionId) {
+        //   safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
+        // }
         set(() => ({ ...initialState }));
       },
 
       resetAfterBooking: () => {
-        const { sessionId } = get();
-        if (sessionId) {
-          safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
-        }
+        // COMMENTED OUT: Session storage operations disabled
+        // const { sessionId } = get();
+        // if (sessionId) {
+        //   safeSessionStorage.removeItem(`checkout-session-${sessionId}`);
+        // }
         set(() => ({
           ...initialState,
-          sessionId: generateSessionId(),
+          // COMMENTED OUT: No new session generation
+          // sessionId: generateSessionId(),
         }));
       },
-    })),
-    {
-      name: "checkout-store",
-      storage: createSafeStorage(),
-      partialize: (state) => ({
-        currentStep: state.currentStep,
-        formData: state.formData,
-        sessionId: state.sessionId,
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (typeof window === "undefined" || !state?.sessionId) return;
-
-        try {
-          const sessionData = safeSessionStorage.getItem(
-            `checkout-session-${state.sessionId}`
-          );
-          if (sessionData) {
-            const session = safeJsonParse(sessionData);
-            if (
-              session &&
-              session.expiresAt &&
-              !isSessionExpired(session.expiresAt)
-            ) {
-              state.formData = session.formData;
-              state.currentStep = session.currentStep;
-              console.log("Session restored successfully");
-            } else {
-              console.log("Clearing expired/invalid session");
-              safeSessionStorage.removeItem(
-                `checkout-session-${state.sessionId}`
-              );
-              state.sessionId = null;
-              state.formData = null;
-              state.currentStep = 1;
-            }
-          } else {
-            console.log("Session data not found, resetting state");
-            state.sessionId = null;
-            state.formData = null;
-            state.currentStep = 1;
-          }
-        } catch (error) {
-          console.error("Error rehydrating session:", error);
-          state.sessionId = null;
-          state.formData = null;
-          state.currentStep = 1;
-        }
-      },
-      version: 1,
-    }
-  )
+    }))
+    // COMMENTED OUT: Persist middleware configuration causing storage errors
+    // {
+    //   name: "checkout-store",
+    //   storage: undefined,
+    //   version: 1,
+    // }
 );
 
 // Selectors for performance
@@ -557,12 +504,12 @@ export const useCheckoutSession = () => {
       // 1. Reset checkout store
       store.resetAfterBooking();
 
-      // 2. Clear URL parameters to prevent CheckoutAdapter from trying to read old data
-      if (typeof window !== "undefined") {
-        const url = new URL(window.location.href);
-        url.search = ""; // Clear all search params
-        window.history.replaceState({}, "", url.pathname);
-      }
+      // COMMENTED OUT: URL parameter clearing disabled
+      // if (typeof window !== "undefined") {
+      //   const url = new URL(window.location.href);
+      //   url.search = ""; // Clear all search params
+      //   window.history.replaceState({}, "", url.pathname);
+      // }
 
       console.log("Complete reset for new booking completed");
     },

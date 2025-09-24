@@ -81,9 +81,9 @@ export class SealinkService {
       ? "https://api.gonautika.com:8012/"
       : "http://api.dev.gonautika.com:8012/";
 
-  // Use exact credentials from environment
-  private static readonly USERNAME = process.env.SEALINK_USERNAME;
-  private static readonly TOKEN = process.env.SEALINK_TOKEN;
+  // Use environment variables for credentials
+  private static readonly USERNAME = process.env.SEALINK_USERNAME || "";
+  private static readonly TOKEN = process.env.SEALINK_TOKEN || "";
 
   private static readonly tripDataCache = new Map<string, SealinkTripData>();
 
@@ -92,12 +92,10 @@ export class SealinkService {
    */
   private static validateCredentials(): { username: string; token: string } {
     if (!this.USERNAME || !this.TOKEN) {
-      throw new Error(
-        "Sealink credentials not configured. Please set SEALINK_USERNAME and SEALINK_TOKEN environment variables."
-      );
+      throw new Error("Sealink credentials not found. Please set SEALINK_USERNAME and SEALINK_TOKEN in your .env file");
     }
 
-    console.log(`Sealink: Token validation - Length: ${this.TOKEN.length}`);
+    console.log(`Sealink: Using environment credentials - Username: ${this.USERNAME}, Token length: ${this.TOKEN.length}`);
 
     return {
       username: this.USERNAME,
@@ -413,86 +411,116 @@ export class SealinkService {
 
       const { username, token } = this.validateCredentials();
 
-      // CORRECTED: Use exact structure from working curl (with bookingData wrapper)
+      // CORRECTED: Use exact Sealink API structure as per working curl example
+      let bookingToken = token;
+      
+      // Separate seats by class for the API
+      const pClassSeats: string[] = [];
+      const bClassSeats: string[] = [];
+      
+      // Validate and separate seats by class
+      console.log("Seat validation for Sealink booking:");
+      bookingData.paxDetail.pax.forEach((passenger, index) => {
+        console.log(`  Passenger ${index + 1}: tier=${passenger.tier}, seat=${passenger.seat}`);
+        
+        if ((passenger.tier === "P" || passenger.tier === "L") && passenger.seat) {
+          pClassSeats.push(passenger.seat);
+        } else if ((passenger.tier === "B" || passenger.tier === "R") && passenger.seat) {
+          bClassSeats.push(passenger.seat);
+        }
+      });
+      
+      console.log("Seat arrays prepared:", {
+        pClassSeats,
+        bClassSeats,
+        totalSeats: pClassSeats.length + bClassSeats.length,
+        totalPassengers: bookingData.paxDetail.pax.length
+      });
+
       const requestBody = {
-        bookingData: [
-          {
-            bookingTS: bookingData.bookingTS,
-            id: bookingData.id,
-            tripId: bookingData.tripId,
-            vesselID: bookingData.vesselID,
-            from: bookingData.from,
-            to: bookingData.to,
-            paxDetail: {
-              email: bookingData.paxDetail.email,
-              phone: bookingData.paxDetail.phone,
-              gstin: bookingData.paxDetail.gstin || "",
-              pax: bookingData.paxDetail.pax.map((passenger, index) => ({
-                id: index + 1,
-                name: passenger.name,
-                age: passenger.age, // Keep as string
-                gender: passenger.gender, // M/F
-                nationality: "India", // CORRECTED: Use "India" not "Indian"
-                passport: passenger.photoId || "", // CORRECTED: Field name is "passport"
-                tier: passenger.tier, // CORRECTED: Keep P/B format
-                seat: passenger.seat || "",
-                isCancelled: 0,
-              })),
-              infantPax: bookingData.paxDetail.infantPax.map(
-                (infant, index) => ({
-                  id: index + 1,
-                  name: infant.name || `Infant ${index + 1}`,
-                  age: infant.age || "1",
-                  gender: infant.gender || "M",
-                  nationality: "India",
-                  passport: infant.passport || "",
-                  isCancelled: 0,
-                })
-              ),
-              // Seat arrays matching working curl format
-              bClassSeats: bookingData.paxDetail.pax
-                .filter((p) => p.tier === "B" && p.seat)
-                .map((p) => p.seat),
-              pClassSeats: bookingData.paxDetail.pax
-                .filter((p) => p.tier === "P" && p.seat)
-                .map((p) => p.seat),
-            },
-            userData: {
-              apiUser: {
-                userName: username,
-                agency: bookingData.userData.apiUser.agency || "",
-                token: token,
-                walletBalance: bookingData.userData.apiUser.walletBalance || 0,
-              },
-            },
-            paymentData: {
-              gstin: bookingData.paymentData.gstin || "",
+        bookingData: [{
+          bookingTS: bookingData.bookingTS,
+          id: bookingData.id,
+          tripId: bookingData.tripId,
+          vesselID: bookingData.vesselID,
+          from: bookingData.from,
+          to: bookingData.to,
+          paxDetail: {
+            email: bookingData.paxDetail.email,
+            phone: bookingData.paxDetail.phone,
+            gstin: bookingData.paxDetail.gstin || "",
+            pax: bookingData.paxDetail.pax.map((passenger, index) => ({
+              id: index + 1,
+              name: passenger.name,
+              age: passenger.age.toString(),
+              gender: passenger.gender, // M/F
+              nationality: "India",
+              passport: passenger.photoId || "", // Use passport field, not photoId
+              tier: passenger.tier === "R" ? "B" : passenger.tier === "L" ? "P" : passenger.tier, // Convert R->B, L->P for API
+              seat: passenger.seat || "",
+              isCancelled: 0
+            })),
+            infantPax: (bookingData.paxDetail.infantPax || []).map((infant, index) => ({
+              id: index + 1,
+              name: infant.name,
+              dobTS: Math.floor(new Date(infant.dob || "2022-01-01").getTime() / 1000),
+              dob: infant.dob || "2022-01-01",
+              gender: infant.gender || "M",
+              nationality: "India",
+              passport: "",
+              isCancelled: 0
+            })),
+            bClassSeats,
+            pClassSeats
+          },
+          userData: {
+            apiUser: {
+              userName: username,
+              agency: bookingData.userData.apiUser.agency || "",
+              token: bookingToken,
+              walletBalance: bookingData.userData.apiUser.walletBalance || 0,
             },
           },
-        ],
-        // Root level auth (matches working curl)
+          paymentData: {
+            gstin: bookingData.paymentData.gstin || "",
+          }
+        }],
         userName: username,
-        token: token,
+        token: bookingToken
       };
 
-      console.log("Sealink booking request (matching working curl):", {
-        hasBookingDataWrapper: !!requestBody.bookingData,
-        tripId: requestBody.bookingData[0].tripId,
-        vesselID: requestBody.bookingData[0].vesselID,
-        passengersCount: requestBody.bookingData[0].paxDetail.pax.length,
-        tierFormat: requestBody.bookingData[0].paxDetail.pax.map((p) => p.tier),
-        nationalityFormat:
-          requestBody.bookingData[0].paxDetail.pax[0]?.nationality,
-        pClassSeats: requestBody.bookingData[0].paxDetail.pClassSeats,
-        bClassSeats: requestBody.bookingData[0].paxDetail.bClassSeats,
+      const firstBooking = requestBody.bookingData[0];
+      console.log("Sealink booking request (matching API documentation):", {
+        isCorrectStructure: !!requestBody.bookingData,
+        tripId: firstBooking.tripId,
+        vesselID: firstBooking.vesselID,
+        passengersCount: firstBooking.paxDetail.pax.length,
+        tierFormat: firstBooking.paxDetail.pax.map((p: any) => p.tier),
+        seatNumbers: firstBooking.paxDetail.pax.map((p: any) => p.seat),
+        nationalityFormat: firstBooking.paxDetail.pax[0]?.nationality,
+        from: firstBooking.from,
+        to: firstBooking.to,
+        hasRootAuth: !!(requestBody.userName && requestBody.token),
+        pClassSeats: firstBooking.paxDetail.pClassSeats,
+        bClassSeats: firstBooking.paxDetail.bClassSeats,
       });
+      
+      console.log("Seat/Tier validation details:", {
+        requestedSeats: firstBooking.paxDetail.pax.map(p => `${p.seat}(${p.tier})`),
+        pClassSeatsArray: firstBooking.paxDetail.pClassSeats,
+        bClassSeatsArray: firstBooking.paxDetail.bClassSeats,
+        totalSeatsRequested: firstBooking.paxDetail.pax.length
+      });
+
+      // Debug: Log the exact request being sent
+      console.log("Sealink booking request body:", JSON.stringify(requestBody, null, 2));
 
       const response = await this.fetchWithRetry(
         `${this.BASE_URL}bookSeats`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "text/plain", // FIXED: Use text/plain as required by Sealink API
             "User-Agent": "AndamanExcursion/1.0",
             Accept: "application/json",
           },
@@ -548,6 +576,41 @@ export class SealinkService {
         } else if (bookingResult && bookingResult.err) {
           console.error("Sealink booking API error:", bookingResult.err);
           throw new Error(`Sealink booking failed: ${bookingResult.err}`);
+        } else if (bookingResult && bookingResult.seatStatus === false) {
+          // Handle failed booking with seatStatus: false
+          console.error("Sealink booking failed - seats not available:", bookingResult);
+          
+          // Try to extract error details from requestData if available
+          let errorMessage = "Seat booking failed";
+          let requestedSeats: string[] = [];
+          
+          // Try to extract more detailed error information
+          if (bookingResult.requestData) {
+            try {
+              const requestData = JSON.parse(bookingResult.requestData);
+              requestedSeats = [...(requestData.paxDetail?.bClassSeats || []), ...(requestData.paxDetail?.pClassSeats || [])];
+              
+              if (requestedSeats.length > 0) {
+                errorMessage = `Seats not available: ${requestedSeats.join(', ')}. These seats may already be booked or do not exist.`;
+              } else {
+                errorMessage = "No seats were requested or seat selection failed.";
+              }
+              
+              console.error("Sealink seat booking failure details:", {
+                requestedBClassSeats: requestData.paxDetail?.bClassSeats,
+                requestedPClassSeats: requestData.paxDetail?.pClassSeats,
+                tripId: requestData.tripId,
+                vesselID: requestData.vesselID,
+                from: requestData.from,
+                to: requestData.to
+              });
+            } catch (parseError) {
+              console.warn("Could not parse requestData for error details:", parseError);
+              errorMessage = "Booking failed - unable to parse error details";
+            }
+          }
+          
+          throw new Error(errorMessage);
         }
       }
 
@@ -559,6 +622,28 @@ export class SealinkService {
       // Handle error response
       if (parsedResponse.err) {
         console.error("Sealink booking API error:", parsedResponse.err);
+        
+        // If token validation failed, provide more detailed debugging info
+        if (parsedResponse.err.includes("Token Validation Failed")) {
+          console.error("Token validation failed. Debug info:", {
+            tokenLength: bookingToken.length,
+            tokenStart: bookingToken.substring(0, 10),
+            tokenEnd: bookingToken.substring(bookingToken.length - 10),
+            username: username,
+            requestStructure: {
+              hasRootToken: !!requestBody.token,
+              hasUserDataToken: !!requestBody.bookingData[0]?.userData?.apiUser?.token,
+              tokensMatch: requestBody.token === requestBody.bookingData[0]?.userData?.apiUser?.token
+            }
+          });
+          
+          throw new Error(
+            `Sealink token validation failed. Please check your SEALINK_TOKEN in .env file. ` +
+            `The token might be expired or invalid for the booking API. ` +
+            `Current token length: ${bookingToken.length} characters.`
+          );
+        }
+        
         throw new Error(`Sealink booking failed: ${parsedResponse.err}`);
       }
 

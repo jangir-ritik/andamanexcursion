@@ -30,15 +30,18 @@ export default function FerryBookingDetailPage() {
 
   // Client state from Zustand
   const {
+    selectedFerry: ferry,
     selectedClass,
+    selectedSeats: storeSelectedSeats,
     searchParams: ferrySearchParams,
     selectClass,
     selectSeats,
-    createBookingSession,
+    // COMMENTED OUT: Booking session creation disabled
+    // createBookingSession,
   } = useFerryStore();
 
   // Custom hooks
-  const { ferry, isLoading, error } = useFerryDetails();
+  const { ferry: ferryDetails, isLoading, error } = useFerryDetails();
   const totalPassengers = ferrySearchParams.adults + ferrySearchParams.children;
   const {
     seatLayout,
@@ -106,7 +109,8 @@ export default function FerryBookingDetailPage() {
       passengers: totalPassengers,
     });
 
-    createBookingSession();
+    // COMMENTED OUT: Booking session creation disabled
+    // createBookingSession();
     router.push("/checkout?type=ferry");
   };
 

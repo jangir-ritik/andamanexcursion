@@ -244,16 +244,21 @@ async function handleSeatLayout(request: NextRequest): Promise<NextResponse> {
   try {
     switch (operator) {
       case "greenocean":
+        // Extract numeric ferry ID from prefixed format like "greenocean-1-2"
+        const numericFerryId = ferryId.includes("-") 
+          ? parseInt(ferryId.split("-").pop() || "0")
+          : parseInt(ferryId);
+        
         seatLayout = await GreenOceanService.getSeatLayout(
           parseInt(routeId),
-          parseInt(ferryId),
+          numericFerryId,
           parseInt(classId),
           travelDate,
           forceRefresh
         );
         meta = {
           routeId: parseInt(routeId),
-          ferryId: parseInt(ferryId),
+          ferryId: numericFerryId,
           classId: parseInt(classId),
           travelDate,
           operator,

@@ -166,23 +166,83 @@ export class FerryBookingService {
         vesselID: vesselID,
       });
 
-      // Better location mapping
+      // Better location mapping with debugging
+      console.log("Location mapping input:", {
+        fromLocation: request.fromLocation,
+        toLocation: request.toLocation
+      });
+      
       const fromLocation = this.getSealinkLocationName(request.fromLocation);
       const toLocation = this.getSealinkLocationName(request.toLocation);
+      
+      console.log("Location mapping output:", {
+        fromLocation,
+        toLocation
+      });
+      
+      // Validate locations are different
+      if (fromLocation === toLocation) {
+        console.warn("⚠️ WARNING: From and To locations are the same!", {
+          mapped: { from: fromLocation, to: toLocation }
+        });
+      }
 
-      // Improved passenger mapping
-      const passengerDetails = request.passengerDetails.map(
-        (passenger, index) => ({
+      // Separate passengers by age: infants (<2 years) vs ticketed passengers (≥2 years)
+      const ticketedPassengers: any[] = [];
+      const infantPassengers: any[] = [];
+      let seatIndex = 0;
+
+      request.passengerDetails.forEach((passenger) => {
+        const isInfant = passenger.age < 2;
+        
+        const passengerData = {
           name: passenger.fullName,
           age: passenger.age.toString(),
           gender: passenger.gender === "Male" ? "M" : "F",
-          nationality: passenger.nationality,
-          photoId: passenger.passportNumber || "A1234567",
+          nationality: "Indian", // API expects "Indian" for all passengers as per documentation
+          // For Indian nationals, passport should be empty string, not a placeholder
+          photoId: passenger.nationality === "Indian" ? "" : (passenger.passportNumber || ""),
           expiry: "",
-          seat: request.selectedSeats?.[index] || "",
           tier: this.getSealinkTier(request.classId),
-        })
-      );
+        };
+
+        if (isInfant) {
+          // Infants don't get seats and are added to infantPax
+          infantPassengers.push({
+            ...passengerData,
+            seat: "", // No seat for infants
+            isCancelled: 0
+          });
+        } else {
+          // Ticketed passengers get seats
+          ticketedPassengers.push({
+            ...passengerData,
+            seat: request.selectedSeats?.[seatIndex] || "",
+            isCancelled: 0
+          });
+          seatIndex++; // Only increment seat index for ticketed passengers
+        }
+      });
+
+      console.log('Passenger separation for Sealink booking:', {
+        totalPassengers: request.passengerDetails.length,
+        ticketedPassengers: ticketedPassengers.length,
+        infantPassengers: infantPassengers.length,
+        seatsRequired: ticketedPassengers.length,
+        seatsProvided: request.selectedSeats?.length || 0
+      });
+
+      // Prepare seat arrays for validation (only for ticketed passengers)
+      const pClassSeats: string[] = [];
+      const bClassSeats: string[] = [];
+
+      ticketedPassengers.forEach((passenger) => {
+        if (passenger.tier === "P") {
+          pClassSeats.push(passenger.seat);
+        } else if (passenger.tier === "B") {
+          bClassSeats.push(passenger.seat);
+        }
+      });
 
       // Create booking data with correct IDs
       const bookingData = {
@@ -196,8 +256,8 @@ export class FerryBookingService {
           email: request.passengerDetails[0]?.email || "",
           phone: request.passengerDetails[0]?.whatsappNumber || "",
           gstin: "",
-          pax: passengerDetails,
-          infantPax: [],
+          pax: ticketedPassengers,
+          infantPax: infantPassengers,
         },
         userData: {
           apiUser: {
@@ -242,11 +302,11 @@ export class FerryBookingService {
             tripId: tripId,
             vesselID: vesselID,
             seats: request.selectedSeats || ["AUTO_ASSIGNED"],
-            tickets: request.passengerDetails.map((passenger, index) => ({
+            tickets: ticketedPassengers.map((passenger, index) => ({
               ticketNumber: bookingResult.pnr,
-              passengerName: passenger.fullName,
-              seatNumber: request.selectedSeats?.[index] || "AUTO_ASSIGNED",
-              tier: passengerDetails[index].tier,
+              passengerName: passenger.name,
+              seatNumber: passenger.seat || "AUTO_ASSIGNED",
+              tier: passenger.tier,
             })),
             bookingTimestamp: bookingData.bookingTS,
             providerResponse: bookingResult,
@@ -278,20 +338,49 @@ export class FerryBookingService {
    * Convert location slug to Sealink location name
    */
   private static getSealinkLocationName(location: string): string {
+    if (!location) {
+      console.warn("Empty location provided to getSealinkLocationName");
+      return "Port Blair";
+    }
+    
     const locationMap: Record<string, string> = {
+      // Standard slugs
       "port-blair": "Port Blair",
+      "port blair": "Port Blair",
+      "portblair": "Port Blair",
       havelock: "Swaraj Dweep",
+      "swaraj-dweep": "Swaraj Dweep",
+      "swaraj dweep": "Swaraj Dweep",
+      "swarajdweep": "Swaraj Dweep",
       neil: "Shaheed Dweep",
+      "neil-island": "Shaheed Dweep",
+      "neil island": "Shaheed Dweep",
+      "shaheed-dweep": "Shaheed Dweep",
+      "shaheed dweep": "Shaheed Dweep",
+      "shaheeddweep": "Shaheed Dweep",
+      // Direct API names (in case they're passed through)
+      "Port Blair": "Port Blair",
+      "Swaraj Dweep": "Swaraj Dweep",
+      "Shaheed Dweep": "Shaheed Dweep"
     };
-    return locationMap[location.toLowerCase()] || "Port Blair";
+    
+    const normalizedLocation = location.toLowerCase().trim();
+    const mapped = locationMap[normalizedLocation];
+    
+    if (!mapped) {
+      console.warn(`Unknown location '${location}' mapped to default 'Port Blair'`);
+      return "Port Blair";
+    }
+    
+    return mapped;
   }
 
   /**
    * Convert class ID to Sealink tier
    */
   private static getSealinkTier(classId: string): string {
-    // P for Premium (pClass), B for Business (bClass) - matching Postman collection
-    return classId.includes("premium") ? "P" : "B";
+    // L for Luxury/Premium (pClass), R for Royal/Business (bClass) - matching API documentation
+    return classId.includes("premium") ? "L" : "R";
   }
 
   /**
@@ -555,8 +644,20 @@ export class FerryBookingService {
         );
       }
 
-      // Prepare passenger details with proper validation
-      const passengerDetails = request.passengerDetails.map((passenger) => {
+      // Separate passengers by age: Adults (>= 2 years) and Infants (< 2 years)
+      const adultPassengers = request.passengerDetails.filter((p) => p.age >= 2);
+      const infantPassengers = request.passengerDetails.filter((p) => p.age < 2);
+
+      console.log("👥 Passenger categorization:", {
+        totalPassengers: request.passengerDetails.length,
+        adults: adultPassengers.length,
+        infants: infantPassengers.length,
+        adultAges: adultPassengers.map(p => p.age),
+        infantAges: infantPassengers.map(p => p.age),
+      });
+
+      // Prepare adult passenger details with proper validation
+      const adultDetails = adultPassengers.map((passenger) => {
         const isIndian = passenger.nationality === "Indian";
 
         // For Indians, passport fields should be empty strings
@@ -566,14 +667,17 @@ export class FerryBookingService {
         let country = "";
 
         if (!isIndian) {
-          passportNumber = passenger.passportNumber || "";
-          // Provide default expiry date for foreigners if not available
-          passportExpiry = passenger.passportNumber
-            ? this.formatDateForGreenOcean(
-                new Date(Date.now() + 365 * 24 * 60 * 60 * 1000 * 10)
-              ) // 10 years from now
-            : "";
-          country = "India"; // Default country for foreigners
+          passportNumber = passenger.passportNumber || passenger.fpassport || "";
+          // Format passport expiry date if available, otherwise use default
+          if (passenger.fexpdate) {
+            passportExpiry = this.formatDateForGreenOcean(new Date(passenger.fexpdate));
+          } else if (passenger.passportNumber || passenger.fpassport) {
+            // Provide default expiry date for foreigners if not available
+            passportExpiry = this.formatDateForGreenOcean(
+              new Date(Date.now() + 365 * 24 * 60 * 60 * 1000 * 10)
+            ); // 10 years from now
+          }
+          country = passenger.fcountry || "India"; // Use passenger's country or default to India
         }
 
         return {
@@ -593,14 +697,36 @@ export class FerryBookingService {
         };
       });
 
+      // Prepare infant passenger details
+      const infantDetails = infantPassengers.map((passenger) => {
+        return {
+          prefix:
+            passenger.gender === "Male"
+              ? "Master"
+              : passenger.gender === "Female"
+              ? "Miss"
+              : "Master",
+          name: passenger.fullName,
+          age: passenger.age.toString(),
+          gender: passenger.gender,
+        };
+      });
+
       // Debug logging for passenger validation
-      console.log("🔍 Green Ocean passenger data being prepared:", {
-        passenger_prefix: passengerDetails.map((p) => p.prefix),
-        passenger_name: passengerDetails.map((p) => p.name),
-        nationality: passengerDetails.map((p) => p.nationality),
-        passport_numb: passengerDetails.map((p) => p.passport_numb),
-        passport_expiry: passengerDetails.map((p) => p.passport_expiry),
-        country: passengerDetails.map((p) => p.country),
+      console.log("🔍 Green Ocean adult passenger data being prepared:", {
+        passenger_prefix: adultDetails.map((p) => p.prefix),
+        passenger_name: adultDetails.map((p) => p.name),
+        nationality: adultDetails.map((p) => p.nationality),
+        passport_numb: adultDetails.map((p) => p.passport_numb),
+        passport_expiry: adultDetails.map((p) => p.passport_expiry),
+        country: adultDetails.map((p) => p.country),
+      });
+
+      console.log("🔍 Green Ocean infant passenger data being prepared:", {
+        infant_prefix: infantDetails.map((p) => p.prefix),
+        infant_name: infantDetails.map((p) => p.name),
+        infant_age: infantDetails.map((p) => p.age),
+        infant_gender: infantDetails.map((p) => p.gender),
       });
 
       // Prepare seat IDs - convert seat strings to numbers
@@ -620,23 +746,23 @@ export class FerryBookingService {
         travel_date: this.formatDateForGreenOcean(request.date),
         seat_id: seatIds,
 
-        // Passenger details arrays - properly mapped
-        passenger_prefix: passengerDetails.map((p) => p.prefix),
-        passenger_name: passengerDetails.map((p) => p.name),
-        passenger_age: passengerDetails.map((p) => p.age),
-        gender: passengerDetails.map((p) => p.gender),
-        nationality: passengerDetails.map((p) => p.nationality),
-        passport_numb: passengerDetails.map((p) => p.passport_numb),
+        // Adult passenger details arrays - properly mapped
+        passenger_prefix: adultDetails.map((p) => p.prefix),
+        passenger_name: adultDetails.map((p) => p.name),
+        passenger_age: adultDetails.map((p) => p.age),
+        gender: adultDetails.map((p) => p.gender),
+        nationality: adultDetails.map((p) => p.nationality),
+        passport_numb: adultDetails.map((p) => p.passport_numb),
 
         // IMPORTANT: Use the API's typo "passport_expairy" instead of "passport_expiry"
-        passport_expairy: passengerDetails.map((p) => p.passport_expiry),
-        country: passengerDetails.map((p) => p.country),
+        passport_expairy: adultDetails.map((p) => p.passport_expiry),
+        country: adultDetails.map((p) => p.country),
 
-        // Infant details (empty arrays if no infants)
-        infant_prefix: [],
-        infant_name: [],
-        infant_age: [],
-        infant_gender: [],
+        // Infant details - populated when infants are present
+        infant_prefix: infantDetails.map((p) => p.prefix),
+        infant_name: infantDetails.map((p) => p.name),
+        infant_age: infantDetails.map((p) => p.age),
+        infant_gender: infantDetails.map((p) => p.gender),
 
         // Required authentication parameters
         public_key: process.env.GREEN_OCEAN_PUBLIC_KEY || "public-HGTBlexrva",

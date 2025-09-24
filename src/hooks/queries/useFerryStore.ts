@@ -17,7 +17,7 @@ export const useFerryFlow = (options?: {
     selectedFerry,
     selectedClass,
     selectedSeats,
-    bookingSession,
+    // bookingSession,
   } = useFerryStore();
 
   // Use debounced params for reactive search
@@ -75,9 +75,9 @@ export const useFerryFlow = (options?: {
 
   // Helper functions (keeping your existing logic)
   const createBooking = () => {
-    if (bookingSession) {
-      return bookingMutation.mutate(bookingSession);
-    }
+    // if (bookingSession) {
+    //   return bookingMutation.mutate(bookingSession);
+    // }
   };
 
   const getServiceStatus = () => {

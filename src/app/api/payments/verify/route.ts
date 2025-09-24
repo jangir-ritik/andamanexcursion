@@ -6,6 +6,7 @@ import config from "@/payload.config";
 import { FerryBookingService } from "@/services/ferryServices/ferryBookingService";
 import { notificationManager } from "@/services/notifications/NotificationManager";
 import type { BookingConfirmationData } from "@/services/notifications/channels/base";
+import { CheckoutAdapter } from "@/utils/CheckoutAdapter";
 
 export async function POST(request: NextRequest) {
   try {
@@ -441,11 +442,21 @@ export async function POST(request: NextRequest) {
             );
           }
 
+          // Debug ferry data structure
+          console.log("Ferry item structure for location mapping:", {
+            ferryOperator: ferryItem.ferry?.operator,
+            routeFrom: ferryItem.ferry?.route?.from,
+            routeTo: ferryItem.ferry?.route?.to,
+            fromLocation: ferryItem.ferry?.fromLocation,
+            toLocation: ferryItem.ferry?.toLocation,
+            fullFerryObject: ferryItem.ferry
+          });
+
           const bookingRequest = {
             operator: ferryItem.ferry?.operator || "unknown",
             ferryId: actualFerryId,
-            fromLocation: ferryItem.ferry?.fromLocation || "",
-            toLocation: ferryItem.ferry?.toLocation || "",
+            fromLocation: ferryItem.ferry?.route?.from?.name || ferryItem.ferry?.fromLocation || ferryItem.ferry?.from || "",
+            toLocation: ferryItem.ferry?.route?.to?.name || ferryItem.ferry?.toLocation || ferryItem.ferry?.to || "",
             date: ferryItem.date,
             time: ferryItem.time,
             classId:
@@ -454,9 +465,9 @@ export async function POST(request: NextRequest) {
               "",
             routeId: ferryItem.ferry?.routeData?.routeId || "1",
             passengers: {
-              adults: ferryItem.passengers?.adults || 0,
-              children: ferryItem.passengers?.children || 0,
-              infants: ferryItem.passengers?.infants || 0,
+              adults: (bookingData.members || []).filter((m: any) => m.age >= 2).length,
+              children: 0, // Always 0 in streamlined model
+              infants: (bookingData.members || []).filter((m: any) => m.age < 2).length
             },
             selectedSeats: ferryItem.ferry?.selectedSeats || [],
             passengerDetails: bookingData.members || [],
