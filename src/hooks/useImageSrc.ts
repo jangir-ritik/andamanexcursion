@@ -103,9 +103,9 @@ export const useImageSrc = (
       input && (typeof input === "string" ? input.trim() !== "" : true);
 
     if (!isValidInput) {
-      if (debug) {
-        console.log("❌ Invalid input:", input);
-      }
+      // if (debug) {
+      //   console.log("❌ Invalid input:", input);
+      // }
       return {
         src: fallbackUrl,
         isValid: false,
@@ -117,9 +117,9 @@ export const useImageSrc = (
     // Process string URLs
     if (typeof input === "string") {
       if (isExternalUrl(input)) {
-        if (debug) {
-          console.log("✅ Using external URL directly:", input);
-        }
+        // if (debug) {
+        //   console.log("✅ Using external URL directly:", input);
+        // }
         return {
           src: input,
           isValid: true,
@@ -130,9 +130,9 @@ export const useImageSrc = (
 
       // Handle relative paths
       const finalUrl = input.startsWith("/") ? input : `/${input}`;
-      if (debug) {
-        console.log("✅ Using relative URL:", finalUrl);
-      }
+      // if (debug) {
+      //   console.log("✅ Using relative URL:", finalUrl);
+      // }
 
       return {
         src: finalUrl,
@@ -177,12 +177,12 @@ export const useImageSrc = (
           const sizedVersion = sizes[preferredSizeName];
           selectedSize = preferredSizeName;
 
-          if (debug) {
-            console.log(
-              `🔍 Found sized version for ${preferredSizeName}:`,
-              sizedVersion
-            );
-          }
+          // if (debug) {
+          //   console.log(
+          //     `🔍 Found sized version for ${preferredSizeName}:`,
+          //     sizedVersion
+          //   );
+          // }
 
           // IMPROVED: Handle different sized version formats
           if (typeof sizedVersion === "object" && sizedVersion !== null) {
@@ -192,30 +192,30 @@ export const useImageSrc = (
               isExternalUrl((sizedVersion as any).url)
             ) {
               processedUrl = (sizedVersion as any).url;
-              if (debug)
-                console.log(
-                  "✅ Using direct URL from sized version:",
-                  processedUrl
-                );
+              // if (debug)
+              //   console.log(
+              //     "✅ Using direct URL from sized version:",
+              //     processedUrl
+              //   );
             }
             // Check for key in sized version
             else if ((sizedVersion as any).key || (sizedVersion as any)._key) {
               const key =
                 (sizedVersion as any).key || (sizedVersion as any)._key;
               processedUrl = constructUploadThingUrl(key);
-              if (debug)
-                console.log("✅ Constructed URL from sized key:", processedUrl);
+              // if (debug)
+              //   console.log("✅ Constructed URL from sized key:", processedUrl);
             }
             // Fallback to filename-based construction for sized versions
             else if ((sizedVersion as any).filename) {
               const key = extractUploadThingKey((sizedVersion as any).filename);
               if (key) {
                 processedUrl = constructUploadThingUrl(key);
-                if (debug)
-                  console.log(
-                    "✅ Constructed URL from sized filename:",
-                    processedUrl
-                  );
+                // if (debug)
+                //   console.log(
+                //     "✅ Constructed URL from sized filename:",
+                //     processedUrl
+                //   );
               } else {
                 processedUrl = getMainImageUrl(mediaObj, debug);
               }
@@ -225,18 +225,18 @@ export const useImageSrc = (
           } else if (typeof sizedVersion === "string") {
             if (isExternalUrl(sizedVersion)) {
               processedUrl = sizedVersion;
-              if (debug)
-                console.log("✅ Using sized version string URL:", processedUrl);
+              // if (debug)
+              //   console.log("✅ Using sized version string URL:", processedUrl);
             } else {
               // Try to extract key from string
               const key = extractUploadThingKey(sizedVersion);
               if (key) {
                 processedUrl = constructUploadThingUrl(key);
-                if (debug)
-                  console.log(
-                    "✅ Constructed URL from sized string:",
-                    processedUrl
-                  );
+                // if (debug)
+                //   console.log(
+                //     "✅ Constructed URL from sized string:",
+                //     processedUrl
+                //   );
               } else {
                 processedUrl = getMainImageUrl(mediaObj, debug);
               }
@@ -253,13 +253,13 @@ export const useImageSrc = (
         processedUrl = getMainImageUrl(mediaObj, debug);
       }
 
-      if (debug) {
-        console.log("✅ Final processed Media URL:", {
-          originalFilename: mediaObj.filename,
-          selectedSize,
-          finalUrl: processedUrl,
-        });
-      }
+      // if (debug) {
+      //   console.log("✅ Final processed Media URL:", {
+      //     originalFilename: mediaObj.filename,
+      //     selectedSize,
+      //     finalUrl: processedUrl,
+      //   });
+      // }
 
       return {
         src: processedUrl,
@@ -277,9 +277,9 @@ export const useImageSrc = (
     }
 
     // Fallback for unexpected types
-    if (debug) {
-      console.log("❌ Unexpected input type:", typeof input, input);
-    }
+    // if (debug) {
+    //   console.log("❌ Unexpected input type:", typeof input, input);
+    // }
 
     return {
       src: fallbackUrl,
@@ -299,7 +299,8 @@ function getMainImageUrl(mediaObj: Media, debug: boolean): string {
     typeof mediaObj.url === "string" &&
     !mediaObj.url.includes("undefined")
   ) {
-    if (debug) console.log("✅ Using direct URL from media object:", mediaObj.url);
+    // if (debug)
+    //   console.log("✅ Using direct URL from media object:", mediaObj.url);
     return mediaObj.url;
   }
 
@@ -307,18 +308,19 @@ function getMainImageUrl(mediaObj: Media, debug: boolean): string {
   const storedKey = (mediaObj as any).uploadthingKey;
   if (storedKey) {
     const url = constructUploadThingUrl(storedKey);
-    if (debug) console.log("⚠️ Reconstructing URL from stored key:", url);
+    // if (debug) console.log("⚠️ Reconstructing URL from stored key:", url);
     return url;
   }
-  
+
   // Last resort: Fallback to a relative path if nothing else is available.
   if (mediaObj.filename) {
     const fallbackUrl = `/media/${mediaObj.filename}`;
-    if (debug) console.log("❌ Falling back to relative media URL:", fallbackUrl);
+    // if (debug)
+    //   console.log("❌ Falling back to relative media URL:", fallbackUrl);
     return fallbackUrl;
   }
 
-  if (debug) console.log("❌ No valid URL could be determined.");
+  // if (debug) console.log("❌ No valid URL could be determined.");
   return "";
 }
 
