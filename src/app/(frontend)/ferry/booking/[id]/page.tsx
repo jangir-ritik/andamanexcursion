@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/atoms/Button/Button";
 import { useFerryStore } from "@/store/FerryStore";
@@ -13,29 +13,27 @@ import {
   canProceedToCheckout,
 } from "@/utils/ferryValidation";
 import {
-  requiresManualSelection,
+  // requiresManualSelection,
   shouldLoadSeatLayoutAutomatically,
 } from "@/utils/ferryOperatorLogic";
-import { FerryHeader } from "@/components/ferry/FerryHeader";
 import { ClassSelection } from "@/components/ferry/ClassSelection";
 import { SeatSelectionSection } from "@/components/ferry/SeatSelectionSection";
-import { BookingSummary } from "@/components/ferry/BookingSummary";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import styles from "./page.module.css";
 import FerrySummary from "@/components/ferry/FerrySummary";
 
 export default function FerryBookingDetailPage() {
-  const params = useParams();
+  // const params = useParams();
   const router = useRouter();
 
   // Client state from Zustand
   const {
     selectedFerry: ferry,
     selectedClass,
-    selectedSeats: storeSelectedSeats,
+    // selectedSeats: storeSelectedSeats,
     searchParams: ferrySearchParams,
     selectClass,
-    selectSeats,
+    // selectSeats,
     // COMMENTED OUT: Booking session creation disabled
     // createBookingSession,
   } = useFerryStore();
