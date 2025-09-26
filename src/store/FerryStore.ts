@@ -3,9 +3,9 @@ import {
   FerryClass,
   FerrySearchParams,
   PassengerDetail,
-  Seat,
   UnifiedFerryResult,
 } from "@/types/FerryBookingSession.types";
+import { Seat } from "@/types/SeatSelection.types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 

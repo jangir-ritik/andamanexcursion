@@ -914,9 +914,9 @@ export class SealinkService {
 
   private static createSeatLayout(seats: any[], tier: string): SeatLayout {
     return {
-      rows: Math.ceil(seats.length / 4),
-      seatsPerRow: 4,
-      seats: seats.map((seat, index) => ({
+      rows: 0, // No longer needed - visual layout determines arrangement
+      seatsPerRow: 0, // No longer needed - visual layout determines arrangement
+      seats: seats.map((seat) => ({
         id: seat.number,
         number: seat.number,
         seat_numbering: seat.number,
@@ -926,14 +926,37 @@ export class SealinkService {
             : seat.isBlocked === 1
             ? "blocked"
             : "available",
-        type: index % 4 === 0 || index % 4 === 3 ? "window" : "aisle",
-        position: {
-          row: Math.floor(index / 4) + 1,
-          column: (index % 4) + 1,
-        },
+        // No seat type assumptions - visual layout will determine this
+        tier: tier as "B" | "P",
+        // Remove hardcoded position - visual layout will handle positioning
       })),
+      // Store original Sealink data for the simplified transformer
+      operatorData: {
+        sealink: {
+          // This will be populated by the calling method with full trip data
+          id: "", // Will be set by caller
+          tripId: 0, // Will be set by caller
+          from: "", // Will be set by caller
+          to: "", // Will be set by caller
+          dTime: { hour: 0, minute: 0 }, // Will be set by caller
+          aTime: { hour: 0, minute: 0 }, // Will be set by caller
+          vesselID: 0, // Will be set by caller
+          fares: {
+            pBaseFare: 0,
+            bBaseFare: 0,
+            pBaseFarePBHLNL: 0,
+            bBaseFarePBHLNL: 0,
+            pIslanderFarePBHLNL: 0,
+            bIslanderFarePBHLNL: 0,
+            infantFare: 0,
+          },
+          bClass: {},
+          pClass: {},
+        }
+      }
     };
   }
+
 
   private static formatTime(time: { hour: number; minute: number }): string {
     return `${time.hour.toString().padStart(2, "0")}:${time.minute

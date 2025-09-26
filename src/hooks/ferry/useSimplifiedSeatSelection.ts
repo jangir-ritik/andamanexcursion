@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { UnifiedFerryResult } from "@/types/FerryBookingSession.types";
-import { Seat, SeatLayout } from "@/types/SeatSelection.types";
+import { Seat } from "@/types/SeatSelection.types";
 import { useFerryStore } from "@/store/FerryStore";
 import { validateSeatSelection } from "@/utils/ferryValidation";
 
-interface UseSeatSelectionReturn {
+interface UseSimplifiedSeatSelectionReturn {
   selectedSeats: string[];
   handleSeatSelect: (seatId: string) => void;
   canProceed: boolean;
@@ -12,11 +12,19 @@ interface UseSeatSelectionReturn {
   clearSelection: () => void;
 }
 
-export const useSeatSelection = (
+/**
+ * Simplified Seat Selection Hook
+ * 
+ * This replaces the complex useSeatSelection hook with:
+ * 1. Direct Seat[] array handling instead of SeatLayout object
+ * 2. Simplified state management
+ * 3. Better integration with simplified seat system
+ */
+export const useSimplifiedSeatSelection = (
   ferry: UnifiedFerryResult | null,
   passengers: number,
-  seatLayout: SeatLayout | null = null
-): UseSeatSelectionReturn => {
+  seats: Seat[] = []
+): UseSimplifiedSeatSelectionReturn => {
   const { selectSeats } = useFerryStore();
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
 
@@ -45,17 +53,17 @@ export const useSeatSelection = (
     setSelectedSeats([]);
   }, []);
 
-  // Update store when local seat selection changes and we have seat layout
+  // Update store when local seat selection changes and we have seats
   useEffect(() => {
-    if (seatLayout && selectedSeats.length > 0) {
+    if (seats.length > 0 && selectedSeats.length > 0) {
       const selectedSeatObjects = selectedSeats
-        .map((seatId) => seatLayout.seats.find((s) => s.id === seatId))
+        .map((seatId) => seats.find((s) => s.id === seatId))
         .filter((seat): seat is Seat => seat !== undefined);
       selectSeats(selectedSeatObjects);
     } else {
       selectSeats([]);
     }
-  }, [selectedSeats, seatLayout, selectSeats]);
+  }, [selectedSeats, seats, selectSeats]);
 
   // Validation
   const validation = ferry

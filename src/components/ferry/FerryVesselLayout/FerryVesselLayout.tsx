@@ -1,18 +1,12 @@
-import { UnifiedSeat } from "@/components/molecules/SeatLayout/SeatLayout";
-import { SealinkLuxuryLayout } from "../layouts/SealinkLuxuryLayout";
-import { SealinkRoyalLayout } from "../layouts/SealinkRoyalLayout";
-import { GreenOceanEconomyLayout } from "../layouts/GreenOceanEconomyLayout";
-import { GreenOceanPremiumLayout } from "../layouts/GreenOceanPremiumLayout";
-import { GreenOceanRoyalLayout } from "../layouts/GreenOceanRoyalLayout";
-
-interface FerryVesselLayoutProps {
-  operator: string;
-  vesselClass: string;
-  seatData: UnifiedSeat[];
-  selectedSeats: string[];
-  onSeatSelect: (seatId: string) => void;
-  maxSeats: number;
-}
+import { FerryVesselLayoutProps } from "@/types/SeatSelection.types";
+import { UpdatedSealinkLuxuryLayout } from "../layouts/UpdatedSealinkLuxuryLayout";
+import { UpdatedSealinkRoyalLayout } from "../layouts/UpdatedSealinkRoyalLayout";
+import {
+  UpdatedGreenOceanEconomyLayout,
+  UpdatedGreenOceanPremiumLayout,
+  UpdatedGreenOceanRoyalLayout,
+} from "../layouts/UpdatedGreenOceanLayouts";
+import { DefaultFerryLayout } from "../layouts/DefaultFerryLayout";
 
 export function FerryVesselLayout({
   operator,
@@ -20,19 +14,20 @@ export function FerryVesselLayout({
   ...props
 }: FerryVesselLayoutProps) {
   const layoutKey = `${operator}-${vesselClass}`;
+  console.log(layoutKey);
 
   switch (layoutKey) {
-    case "sealink-luxury":
-      return <SealinkLuxuryLayout {...props} />;
-    case "sealink-royal":
-      return <SealinkRoyalLayout {...props} />;
+    case "sealink-premium":
+      return <UpdatedSealinkLuxuryLayout {...props} />;
+    case "sealink-economy":
+      return <UpdatedSealinkRoyalLayout {...props} />;
     case "greenocean-economy":
-      return <GreenOceanEconomyLayout {...props} />;
+      return <UpdatedGreenOceanEconomyLayout {...props} />;
     case "greenocean-premium":
-      return <GreenOceanPremiumLayout {...props} />;
+      return <UpdatedGreenOceanPremiumLayout {...props} />;
     case "greenocean-royal":
-      return <GreenOceanRoyalLayout {...props} />;
+      return <UpdatedGreenOceanRoyalLayout {...props} />;
     default:
-      return null;
+      return <DefaultFerryLayout {...props} />;
   }
 }
