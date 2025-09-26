@@ -237,9 +237,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  padding: var(--space-3);
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
   border: 1px solid var(--color-border-secondary);
 }
 
@@ -259,23 +259,15 @@
 }
 
 .legendIcon.available {
-  background: var(--color-bg-primary);
+  background: #5fc593;
 }
 
 .legendIcon.selected {
-  background: var(--color-alert-success);
+  background: #578aff;
 }
 
 .legendIcon.booked {
-  background: var(--color-gray-600);
-}
-
-.legendIcon.accessible {
-  background: var(--color-primary);
-}
-
-.legendIcon.premium {
-  background: var(--color-secondary);
+  background: #808080;
 }
 
 .legendIcon.tierB {
