@@ -201,6 +201,10 @@
   justify-self: center;
 }
 
+.seatDisabled {
+  cursor: not-allowed;
+}
+
 .emptySeat {
   width: 16px;
   height: 16px;

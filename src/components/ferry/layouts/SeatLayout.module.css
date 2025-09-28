@@ -12,6 +12,10 @@
   position: relative;
 }
 
+.seatDisabled {
+  cursor: not-allowed;
+}
+
 .seatImage {
   width: 100%;
   height: 100%;
