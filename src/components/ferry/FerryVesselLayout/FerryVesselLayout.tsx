@@ -1,12 +1,9 @@
 import { FerryVesselLayoutProps } from "@/types/SeatSelection.types";
 import { UpdatedSealinkLuxuryLayout } from "../layouts/UpdatedSealinkLuxuryLayout";
 import { UpdatedSealinkRoyalLayout } from "../layouts/UpdatedSealinkRoyalLayout";
-import {
-  UpdatedGreenOceanEconomyLayout,
-  UpdatedGreenOceanPremiumLayout,
-  UpdatedGreenOceanRoyalLayout,
-} from "../layouts/UpdatedGreenOceanLayouts";
-import { DefaultFerryLayout } from "../layouts/DefaultFerryLayout";
+import { GreenOceanEconomyLayout } from "../layouts/GreenOceanEconomyLayout";
+import { GreenOceanPremiumLayout } from "../layouts/GreenOceanPremiumLayout";
+import { GreenOceanRoyalLayout } from "../layouts/GreenOceanRoyalLayout";
 
 export function FerryVesselLayout({
   operator,
@@ -22,12 +19,12 @@ export function FerryVesselLayout({
     case "sealink-economy":
       return <UpdatedSealinkRoyalLayout {...props} />;
     case "greenocean-economy":
-      return <UpdatedGreenOceanEconomyLayout {...props} />;
+      return <GreenOceanEconomyLayout {...props} />;
     case "greenocean-premium":
-      return <UpdatedGreenOceanPremiumLayout {...props} />;
+      return <GreenOceanPremiumLayout {...props} />;
     case "greenocean-royal":
-      return <UpdatedGreenOceanRoyalLayout {...props} />;
+      return <GreenOceanRoyalLayout {...props} />;
     default:
-      return <DefaultFerryLayout {...props} />;
+      return <div>Default Ferry Layout</div>;
   }
 }

@@ -147,6 +147,8 @@
   font-size: 8px;
   font-weight: 600;
   position: relative;
+  align-self: center;
+  justify-self: center;
 }
 
 .seatImage {
