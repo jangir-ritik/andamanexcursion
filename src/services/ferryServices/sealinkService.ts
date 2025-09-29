@@ -118,6 +118,7 @@ export class SealinkService {
 
       // Use exact format from Postman getProfile endpoint
       const apiCall = async (): Promise<any> => {
+        console.log(this.BASE_URL, "BASE_URL for sealink");
         const response = await FerryApiService.fetchWithTimeout(
           `${this.BASE_URL}getProfile`,
           {
