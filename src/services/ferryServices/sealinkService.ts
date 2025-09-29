@@ -77,10 +77,7 @@ interface SealinkBookingRequest {
 export class SealinkService {
   // Use production URLs and correct credentials
   private static readonly BASE_URL =
-    process.env.SEALINK_API_URL || process.env.NODE_ENV === "production"
-      ? "https://api.gonautika.com:8012/"
-      : "http://api.dev.gonautika.com:8012/";
-
+    process.env.SEALINK_API_URL || "http://api.dev.gonautika.com:8012/";
   // Use environment variables for credentials
   private static readonly USERNAME = process.env.SEALINK_USERNAME || "";
   private static readonly TOKEN = process.env.SEALINK_TOKEN || "";
@@ -118,7 +115,6 @@ export class SealinkService {
 
       // Use exact format from Postman getProfile endpoint
       const apiCall = async (): Promise<any> => {
-        console.log(this.BASE_URL, process.env.SEALINK_API_URL, "BASE_URL for sealink");
         const response = await FerryApiService.fetchWithTimeout(
           `${this.BASE_URL}getProfile`,
           {
