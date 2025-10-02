@@ -277,6 +277,10 @@ export interface Icon {
    */
   name: string;
   /**
+   * Alternative text for accessibility (describes the icon's purpose or meaning)
+   */
+  alt: string;
+  /**
    * Category to help organize icons
    */
   category?: ('activity' | 'feature' | 'navigation' | 'step' | 'other') | null;
@@ -2415,6 +2419,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface IconsSelect<T extends boolean = true> {
   name?: T;
+  alt?: T;
   category?: T;
   uploadthingKey?: T;
   uploadthingUrl?: T;

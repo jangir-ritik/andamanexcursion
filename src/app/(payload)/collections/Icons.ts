@@ -11,25 +11,20 @@ const Icons: CollectionConfig = {
   upload: {
     // No image processing - upload SVGs as-is
     disableLocalStorage: false,
-
     // Only accept SVG files
     mimeTypes: ["image/svg+xml"],
-
     // No image sizes needed for SVGs
     imageSizes: [],
-
     // Admin thumbnail
     adminThumbnail: ({ doc }): string | null => {
       if (doc.url && typeof doc.url === "string") {
         return doc.url;
       }
-
       if (doc.uploadthingKey && typeof doc.uploadthingKey === "string") {
         const UPLOADTHING_APP_ID =
           process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID || "zu0uz82q68";
         return `https://${UPLOADTHING_APP_ID}.ufs.sh/f/${doc.uploadthingKey}`;
       }
-
       return null;
     },
   },
@@ -40,6 +35,16 @@ const Icons: CollectionConfig = {
       required: true,
       admin: {
         description: "Descriptive name for the icon",
+      },
+    },
+    {
+      name: "alt",
+      type: "text",
+      required: true,
+      defaultValue: "decorative icon",
+      admin: {
+        description:
+          "Alternative text for accessibility (describes the icon's purpose or meaning)",
       },
     },
     {
@@ -76,18 +81,17 @@ const Icons: CollectionConfig = {
       async ({ doc, operation }) => {
         if (operation === "create" && doc.url && typeof doc.url === "string") {
           doc.uploadthingUrl = doc.url;
-
           const keyMatch = doc.url.match(/\/f\/([^/?#]+)/);
           if (keyMatch && keyMatch[1] !== ".") {
             doc.uploadthingKey = keyMatch[1];
           }
-
           console.log(`✅ Icon uploaded successfully:`, {
             id: doc.id,
             name: doc.name,
             filename: doc.filename,
             url: doc.url,
             uploadthingKey: doc.uploadthingKey,
+            alt: doc.alt,
           });
         }
       },
@@ -95,7 +99,7 @@ const Icons: CollectionConfig = {
   },
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "category", "filename", "updatedAt"],
+    defaultColumns: ["name", "alt", "category", "filename", "updatedAt"],
     description:
       "Upload SVG icons for use throughout the site. Only SVG format is accepted.",
   },
