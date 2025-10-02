@@ -25,7 +25,7 @@ export const Chip = ({
         {iconComponent ? (
           iconComponent
         ) : icon ? (
-          <IconContainer src={icon} alt="" size={20} />
+          <IconContainer src={icon} alt="icon" size={20} />
         ) : null}
       </div>
       <span className={cn(styles.chipText, styles[size])}>{text}</span>

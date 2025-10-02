@@ -42,7 +42,7 @@ export const TestimonialCard: React.FC<TestimonialCardInternalProps> = ({
       <div className={styles.cardContent}>
         <div className={styles.testimonialText}>
           <div className={styles.quoteIconWrapper} aria-hidden="true">
-            <IconContainer src={quoteIcon} alt="" size={29.5} />
+            <IconContainer src={quoteIcon} alt="quote" size={29.5} />
           </div>
           <p className={styles.text}>{text}</p>
         </div>

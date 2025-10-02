@@ -38,7 +38,7 @@ export const JourneyInfo = memo<JourneyInfoProps>(
           <div className={styles.circleStart}>
             <IconContainer
               src={circle_unfilled}
-              alt=""
+              alt="circle unfilled"
               size="auto"
               // Remove fixed size - let CSS handle it
               className={styles.circleIcon}
@@ -48,7 +48,7 @@ export const JourneyInfo = memo<JourneyInfoProps>(
           <div className={styles.ferryIcon}>
             <IconContainer
               src={ferryBoatIcon}
-              alt=""
+              alt="boat"
               size="auto"
               // Remove fixed size - let CSS handle it
               className={styles.ferryIconContainer}
@@ -58,7 +58,7 @@ export const JourneyInfo = memo<JourneyInfoProps>(
           <div className={styles.circleEnd}>
             <IconContainer
               src={circle_filled}
-              alt=""
+              alt="circle filled"
               size="auto" // Add this
               className={styles.circleIcon}
               aria-hidden="true"
