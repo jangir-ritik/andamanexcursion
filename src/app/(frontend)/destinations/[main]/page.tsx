@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 
 import styles from "./page.module.css";
 import { pageService } from "@/services/payload";
+import { Metadata } from "next";
+import { getImageUrl } from "@/utils/getImageUrl";
 
 interface PageProps {
   params: Promise<{ main: string }>;
@@ -79,23 +81,99 @@ export default async function MainDestinationPage({ params }: PageProps) {
 }
 
 // Generate metadata for the page
-// export async function generateMetadata({ params }: PageProps) {
-//   const { main: mainCategorySlug } = await params;
-//   const page = await pageService.getMainDestinationBySlug(mainCategorySlug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  try {
+    const { main: mainCategorySlug } = await params;
+    const page = await pageService.getMainDestinationBySlug(mainCategorySlug);
 
-//   if (!page) {
-//     return {
-//       title: "Destination Not Found",
-//     };
-//   }
+    if (!page || page.publishingSettings?.status !== "published") {
+      return {
+        title: "Destination Not Found | Andaman Excursion",
+        description: "The destination you're looking for doesn't exist.",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
 
-//   return {
-//     title: page.seoMeta?.metaTitle || page.title,
-//     description: page.seoMeta?.metaDescription,
-//     openGraph: {
-//       title: page.seoMeta?.metaTitle || page.title,
-//       description: page.seoMeta?.metaDescription,
-//       images: page.seoMeta?.metaImage ? [page.seoMeta.metaImage] : [],
-//     },
-//   };
-// }
+    // Use SEO plugin data (meta field) or fallback to page data
+    const seoTitle =
+      page.meta?.title ||
+      page.title ||
+      `${page.title} | Destinations | Andaman Excursion`;
+
+    const seoDescription =
+      page.meta?.description ||
+      `Discover ${page.title} in the Andaman Islands. Explore pristine beaches, crystal clear waters, and unforgettable experiences in this beautiful destination.`;
+
+    const seoImageUrl = getImageUrl(page.meta?.image);
+
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com";
+    const canonicalUrl = `${baseUrl.replace(/\/$/, "")}/destinations/${mainCategorySlug}`;
+
+    // Build dynamic keywords based on destination name
+    const destinationName = page.title || mainCategorySlug;
+    const keywords = `${destinationName}, ${destinationName} Andaman, Andaman destinations, ${destinationName} tourism, ${destinationName} travel, Andaman Islands, beach destinations`;
+
+    return {
+      metadataBase: new URL(
+        process.env.NEXT_PUBLIC_SITE_URL || "https://andamanexcursion.com"
+      ),
+      title: seoTitle,
+      description: seoDescription,
+      keywords: typeof keywords === "string" ? keywords : [],
+      openGraph: {
+        title: seoTitle,
+        description: seoDescription,
+        url: canonicalUrl,
+        siteName: "Andaman Excursion",
+        images: seoImageUrl
+          ? [
+              {
+                url: seoImageUrl,
+                width: 1200,
+                height: 630,
+                alt: page.title || seoTitle,
+              },
+            ]
+          : undefined,
+        type: "website",
+        locale: "en_US",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: seoTitle,
+        description: seoDescription,
+        images: seoImageUrl ? [seoImageUrl] : undefined,
+      },
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
+      other: {
+        ...(page.createdAt && {
+          "article:published_time": page.createdAt,
+        }),
+        "article:modified_time": page.updatedAt,
+        "og:type": "place",
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata for main destination page:", error);
+    return {
+      title: "Destination | Andaman Excursion",
+      description: "Explore amazing destinations in the Andaman Islands",
+    };
+  }
+}
