@@ -148,16 +148,16 @@ export const useImageSrc = (
       let selectedSize = "original";
       let processedUrl: string;
 
-      if (debug) {
-        console.log("🔍 Processing Media object:", {
-          filename: mediaObj.filename,
-          mimeType: mediaObj.mimeType,
-          url: mediaObj.url,
-          uploadthingKey: (mediaObj as any).uploadthingKey,
-          sizes: mediaObj.sizes ? Object.keys(mediaObj.sizes) : [],
-          hasDirectUrl: mediaObj.url && isExternalUrl(mediaObj.url),
-        });
-      }
+      // if (debug) {
+      //   console.log("🔍 Processing Media object:", {
+      //     filename: mediaObj.filename,
+      //     mimeType: mediaObj.mimeType,
+      //     url: mediaObj.url,
+      //     uploadthingKey: (mediaObj as any).uploadthingKey,
+      //     sizes: mediaObj.sizes ? Object.keys(mediaObj.sizes) : [],
+      //     hasDirectUrl: mediaObj.url && isExternalUrl(mediaObj.url),
+      //   });
+      // }
 
       // For images, try to get the appropriate sized version
       if (mediaObj.mimeType?.startsWith("image/") && mediaObj.sizes) {

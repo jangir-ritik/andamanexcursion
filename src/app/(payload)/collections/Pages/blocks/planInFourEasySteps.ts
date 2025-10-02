@@ -32,7 +32,7 @@ export const planInFourEasyStepsBlock: Block = {
         {
           name: "icon",
           type: "upload",
-          relationTo: "media",
+          relationTo: "icons",
           required: true,
         },
       ],

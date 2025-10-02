@@ -14,6 +14,7 @@ const dirname = path.dirname(filename);
 import {
   Users,
   Media,
+  Icons,
   Pages,
   Packages,
   PackageCategories,
@@ -37,6 +38,7 @@ export default buildConfig({
   collections: [
     Users,
     Media,
+    Icons,
     Pages,
     Packages,
     PackageCategories,

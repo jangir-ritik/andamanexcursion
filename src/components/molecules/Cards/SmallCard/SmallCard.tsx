@@ -56,7 +56,7 @@ export const SmallCard = ({
             {description && (
               <Chip
                 icon={heart}
-                text={"Customer's Favourite"}
+                text={"Featured Experience"}
                 className={styles.favouriteBadge}
               />
             )}

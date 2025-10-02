@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    icons: Icon;
     pages: Page;
     packages: Package;
     'package-categories': PackageCategory;
@@ -91,6 +92,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    icons: IconsSelect<false> | IconsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     packages: PackagesSelect<false> | PackagesSelect<true>;
     'package-categories': PackageCategoriesSelect<false> | PackageCategoriesSelect<true>;
@@ -261,6 +263,37 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * Upload SVG icons for use throughout the site. Only SVG format is accepted.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "icons".
+ */
+export interface Icon {
+  id: string;
+  /**
+   * Descriptive name for the icon
+   */
+  name: string;
+  /**
+   * Category to help organize icons
+   */
+  category?: ('activity' | 'feature' | 'navigation' | 'step' | 'other') | null;
+  uploadthingKey?: string | null;
+  uploadthingUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {};
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -712,7 +745,7 @@ export interface Page {
                 | {
                     title: string;
                     description?: string | null;
-                    icon: string | Media;
+                    icon: string | Icon;
                     id?: string | null;
                   }[]
                 | null;
@@ -2173,6 +2206,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'icons';
+        value: string | Icon;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: string | Page;
       } | null)
@@ -2371,6 +2408,28 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "icons_select".
+ */
+export interface IconsSelect<T extends boolean = true> {
+  name?: T;
+  category?: T;
+  uploadthingKey?: T;
+  uploadthingUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?: T | {};
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

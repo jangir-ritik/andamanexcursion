@@ -2,6 +2,7 @@
 export { default as Enquiries } from "./Enquiries";
 export { default as Users } from "./Users";
 export { default as Media } from "./Media";
+export { default as Icons } from "./Icons";
 export { default as Pages } from "./Pages";
 export { default as Packages } from "./Packages";
 export { default as PackageCategories } from "./PackageCategories";
