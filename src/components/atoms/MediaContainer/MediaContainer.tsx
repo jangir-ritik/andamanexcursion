@@ -318,7 +318,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       {fixedSize && width && height ? (
         <Image
           src={processedSrc}
-          alt={decorative ? "" : alt}
+          alt={alt}
           width={width}
           height={height}
           priority={priority}
@@ -334,7 +334,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
       ) : (
         <Image
           src={processedSrc}
-          alt={decorative ? "" : alt}
+          alt={alt}
           fill
           priority={priority}
           className={clsx(styles.media, {
