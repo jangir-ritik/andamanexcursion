@@ -4,11 +4,11 @@ import {
   Button,
   DecorativeCurlyArrow,
   DescriptionText,
-  ImageContainer,
   SectionTitle,
 } from "@/components/atoms";
 import styles from "./FeatureSection.module.css";
 import { Media } from "@payload-types";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 
 export interface FeatureSectionContent {
   title: string;
@@ -33,14 +33,14 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ content }) => {
       <div className={styles.contentContainer}>
         <div className={styles.textContent}>
           <SectionTitle text={title} specialWord={specialWord} />
-          <DecorativeCurlyArrow top="5%" left="75%" scale={1.5} />
+          <DecorativeCurlyArrow top="0%" left="70%" scale={1.2} />
           <DescriptionText text={description} className={styles.description} />
           <Button showArrow href={ctaHref}>
             {ctaText}
           </Button>
         </div>
         <div className={styles.imageContainer}>
-          <ImageContainer
+          <MediaContainer
             src={image}
             alt={imageAlt}
             aspectRatio="video"
