@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useMemo, useEffect, useState } from "react";
-import { useForm, FormProvider, useFieldArray, Controller, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFieldArray,
+  Controller,
+  SubmitHandler,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/atoms/Button/Button";
@@ -14,7 +20,12 @@ import type {
   PassengerRequirements,
 } from "@/utils/CheckoutAdapter";
 import type { CheckoutFormData } from "@/store/CheckoutStore";
-import { COUNTRIES, GENDER_OPTIONS, DEFAULT_VALUES, NATIONALITY_TO_COUNTRY_CODE } from "@/constants";
+import {
+  COUNTRIES,
+  GENDER_OPTIONS,
+  DEFAULT_VALUES,
+  NATIONALITY_TO_COUNTRY_CODE,
+} from "@/constants";
 import styles from "./MemberDetailsStep.module.css";
 import { DateSelect, SectionTitle } from "@/components/atoms";
 import { Ship, Target } from "lucide-react";
@@ -48,26 +59,62 @@ const memberSchema = z
     fpassport: z.string().optional(),
     fexpdate: z.string().optional(),
   })
-  .refine(
-    (data) => {
-      // If nationality is not "Indian", foreign passenger fields are required
-      const isForeigner = data.nationality !== "Indian";
-      if (isForeigner) {
-        return (
-          data.fpassport &&
-          data.fpassport.trim().length > 0 &&
-          data.fexpdate &&
-          data.fexpdate.trim().length > 0
-        );
+  .superRefine((data, ctx) => {
+    // Enhanced validation for foreign passengers with specific field errors
+    const isForeigner = data.nationality !== "Indian";
+
+    if (isForeigner) {
+      // Validate passport number
+      if (!data.fpassport || data.fpassport.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passport number is required for foreign passengers",
+          path: ["fpassport"],
+        });
+      } else if (data.fpassport.trim().length < 6) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passport number must be at least 6 characters",
+          path: ["fpassport"],
+        });
+      } else if (!/^[A-Z0-9]+$/i.test(data.fpassport.trim())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passport number can only contain letters and numbers",
+          path: ["fpassport"],
+        });
       }
-      return true;
-    },
-    {
-      message:
-        "Passport number and expiry date are required for foreign passengers",
-      path: ["fpassport"], // This will show the error on the fpassport field
+
+      // Validate passport expiry date
+      if (!data.fexpdate || data.fexpdate.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passport expiry date is required for foreign passengers",
+          path: ["fexpdate"],
+        });
+      } else {
+        const expiryDate = new Date(data.fexpdate);
+        const today = new Date();
+        const sixMonthsFromNow = new Date();
+        sixMonthsFromNow.setMonth(today.getMonth() + 6);
+
+        if (isNaN(expiryDate.getTime())) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please enter a valid expiry date",
+            path: ["fexpdate"],
+          });
+        } else if (expiryDate <= sixMonthsFromNow) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "Passport must be valid for at least 6 months from travel date",
+            path: ["fexpdate"],
+          });
+        }
+      }
     }
-  );
+  });
 
 const formSchema = z.object({
   members: z.array(memberSchema).min(1, "At least one passenger is required"),
@@ -87,8 +134,9 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   bookingData,
   requirements,
 }) => {
-  const { formData, updateFormData, nextStep, setError, setLoading } = useCheckoutStore();
-  
+  const { formData, updateFormData, nextStep, setError, setLoading } =
+    useCheckoutStore();
+
   // Add checkout protection for step 1
 
   // Create form defaults
@@ -149,13 +197,14 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: "onTouched",
+    mode: "onChange", // Changed to onChange for better validation feedback
   });
 
   const {
     control,
     handleSubmit,
     watch,
+    trigger, // Add trigger for manual validation
     formState: { errors, isValid, isSubmitting },
   } = form;
   const { fields, append, remove } = useFieldArray({
@@ -167,19 +216,37 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   // ✅ NEW: Watch for nationality changes and update country code automatically
   useEffect(() => {
     watchedMembers.forEach((member, index) => {
-      if (member.nationality && index === 0) { // Only for primary member
-        const countryCodeMapping = NATIONALITY_TO_COUNTRY_CODE[member.nationality as keyof typeof NATIONALITY_TO_COUNTRY_CODE];
+      if (member.nationality && index === 0) {
+        // Only for primary member
+        const countryCodeMapping =
+          NATIONALITY_TO_COUNTRY_CODE[
+            member.nationality as keyof typeof NATIONALITY_TO_COUNTRY_CODE
+          ];
         if (countryCodeMapping) {
-          const currentCountryCode = form.getValues(`members.${index}.phoneCountryCode`);
+          const currentCountryCode = form.getValues(
+            `members.${index}.phoneCountryCode`
+          );
           // Only update if it's different to avoid infinite loops
           if (currentCountryCode !== countryCodeMapping.code) {
-            form.setValue(`members.${index}.phoneCountryCode`, countryCodeMapping.code);
-            form.setValue(`members.${index}.phoneCountry`, countryCodeMapping.country);
+            form.setValue(
+              `members.${index}.phoneCountryCode`,
+              countryCodeMapping.code
+            );
+            form.setValue(
+              `members.${index}.phoneCountry`,
+              countryCodeMapping.country
+            );
           }
         }
       }
+
+      // Trigger validation when nationality changes (for foreign passenger fields)
+      if (member.nationality) {
+        trigger(`members.${index}.fpassport`);
+        trigger(`members.${index}.fexpdate`);
+      }
     });
-  }, [watchedMembers.map(m => m.nationality).join(','), form]); // Watch nationality changes
+  }, [watchedMembers.map((m) => m.nationality).join(","), form, trigger]); // Watch nationality changes
 
   // Handle form submission
   const onSubmit = async (data: FormData) => {
@@ -227,7 +294,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
       );
 
       // Small delay to show loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Proceed to next step
       nextStep();
@@ -404,6 +471,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
                         label="Passport Number"
                         placeholder="Enter passport number"
                         hasError={!!memberErrors?.fpassport}
+                        errorMessage={memberErrors?.fpassport?.message}
                         required
                       />
 
@@ -441,7 +509,14 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
                             }
                             onChange={(date) => {
                               // Convert Date to ISO string for form storage
-                              field.onChange(date.toISOString().split("T")[0]);
+                              const dateString = date
+                                .toISOString()
+                                .split("T")[0];
+                              field.onChange(dateString);
+                              // Trigger validation after date change
+                              setTimeout(() => {
+                                trigger(`members.${index}.fexpdate`);
+                              }, 100);
                             }}
                             label="Passport Expiry Date"
                             hasError={!!memberErrors?.fexpdate}
@@ -507,11 +582,12 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
               onClick={addMember}
               className={styles.addMemberButton}
             >
-              Add Another Passenger ({fields.length}/{requirements.totalRequired})
+              Add Another Passenger ({fields.length}/
+              {requirements.totalRequired})
             </Button>
           </div>
         )}
-        
+
         {/* Show message when maximum passengers reached */}
         {fields.length >= requirements.totalRequired && (
           <div className={styles.maxPassengersMessage}>
@@ -556,6 +632,23 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
           )}
         </div>
 
+        {/* Debug info for development */}
+        {process.env.NODE_ENV === "development" && (
+          <div
+            style={{
+              padding: "1rem",
+              background: "#f0f0f0",
+              margin: "1rem 0",
+              fontSize: "0.8rem",
+              color: "var(--color-text-secondary)",
+            }}
+          >
+            <strong>Debug Info:</strong>
+            <div>Form Valid: {isValid ? "Yes" : "No"}</div>
+            <div>Errors: {JSON.stringify(errors, null, 2)}</div>
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className={styles.submitSection}>
           <Button
@@ -569,7 +662,6 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
           </Button>
         </div>
       </form>
-
     </div>
   );
 };

@@ -35,6 +35,14 @@ export interface BookingConfirmation {
   bookingDate: string;
   status: "confirmed" | "pending" | "failed";
   paymentStatus: "paid" | "pending" | "failed";
+  successMessage?: string;
+  errorMessage?: string;
+  providerBooking?: {
+    success: boolean;
+    providerBookingId?: string;
+    error?: string;
+    errorType?: string;
+  };
 }
 
 export interface CheckoutSession {

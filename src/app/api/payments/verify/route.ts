@@ -652,7 +652,8 @@ export async function POST(request: NextRequest) {
       // Send booking confirmation notifications
       try {
         if (bookingRecord.customerInfo?.customerEmail) {
-          console.log("Sending booking confirmation email...");
+          const notificationStatus = (providerBookingResult?.success !== false) ? "confirmation" : "issue";
+          console.log(`Sending booking ${notificationStatus} notification...`);
 
           const formatPhoneNumber = (phone: string): string => {
             if (!phone) return "";
@@ -791,13 +792,61 @@ export async function POST(request: NextRequest) {
         paymentId: paymentRecord.transactionId,
       });
 
+      // Determine overall booking status based on provider booking result
+      const isProviderBookingRequired = bookingData.bookingType === "ferry";
+      const isProviderBookingSuccessful = providerBookingResult?.success === true;
+      
+      // For ferry bookings, the overall success depends on provider booking
+      const overallSuccess = !isProviderBookingRequired || isProviderBookingSuccessful;
+      
+      // Determine appropriate message and status
+      let responseMessage: string;
+      let bookingStatus: "confirmed" | "failed" | "pending";
+      
+      if (!isProviderBookingRequired) {
+        // Non-ferry bookings (activities, boats) - payment success = booking success
+        responseMessage = "Payment verified and booking confirmed successfully!";
+        bookingStatus = "confirmed";
+      } else if (isProviderBookingSuccessful) {
+        // Ferry booking successful
+        responseMessage = "Payment verified and ferry booking confirmed successfully!";
+        bookingStatus = "confirmed";
+      } else if ((providerBookingResult as any)?.errorType === "timeout") {
+        // Ferry booking timed out - may still be processing
+        responseMessage = "Payment successful but ferry booking is still processing. You will receive confirmation shortly.";
+        bookingStatus = "pending";
+      } else {
+        // Ferry booking failed - categorize the error
+        const errorMessage = providerBookingResult?.error || "Ferry booking failed";
+        const errorType = (providerBookingResult as any)?.errorType || "unknown";
+        
+        // Categorize specific error types for better user messaging
+        if (errorMessage.toLowerCase().includes("seats not available") || 
+            errorMessage.toLowerCase().includes("seat") ||
+            errorMessage.toLowerCase().includes("already booked")) {
+          responseMessage = `Payment successful but selected seats are no longer available. Our team will help you with alternative seats or provide a full refund.`;
+          bookingStatus = "failed";
+        } else if (errorMessage.toLowerCase().includes("wallet balance") || 
+                   errorMessage.toLowerCase().includes("insufficient") ||
+                   errorMessage.toLowerCase().includes("balance")) {
+          responseMessage = `Payment successful but there's a temporary issue with the ferry operator's system. Your booking will be processed shortly and you'll receive confirmation.`;
+          bookingStatus = "pending";
+        } else if (errorMessage.toLowerCase().includes("save passengers failed")) {
+          responseMessage = `Payment successful but there was an issue processing passenger details. Our team will contact you to complete the booking.`;
+          bookingStatus = "failed";
+        } else {
+          responseMessage = `Payment successful but ferry booking failed: ${errorMessage}. Our team will contact you for assistance.`;
+          bookingStatus = "failed";
+        }
+      }
+
       return NextResponse.json({
-        success: true,
-        message: "Payment verified and booking confirmed successfully!",
+        success: overallSuccess,
+        message: responseMessage,
         booking: {
           bookingId: bookingRecord.bookingId,
           confirmationNumber: bookingRecord.confirmationNumber,
-          status: bookingRecord.status,
+          status: bookingStatus,
           paymentStatus: bookingRecord.paymentStatus,
           totalAmount: bookingRecord.pricing.totalAmount,
           providerBooking: providerBookingResult
@@ -805,6 +854,7 @@ export async function POST(request: NextRequest) {
                 success: providerBookingResult.success,
                 providerBookingId: providerBookingResult.providerBookingId,
                 error: providerBookingResult.error,
+                errorType: (providerBookingResult as any).errorType,
               }
             : null,
         },

@@ -44,7 +44,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
     isLoading,
   } = useCheckoutStore();
 
-
   // Handle payment submission
   const handleProceedToPayment = async () => {
     if (!formData) {
@@ -165,22 +164,44 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
               throw new Error(`Invalid JSON response: ${responseText}`);
             }
 
+            // Handle different booking statuses
             if (!result.success) {
-              throw new Error(result.error || "Payment verification failed");
+              // Payment successful but booking failed
+              if (result.booking && result.payment) {
+                // Show partial success - payment went through but booking failed
+                setBookingConfirmation({
+                  bookingId: result.booking.bookingId,
+                  confirmationNumber: result.booking.confirmationNumber,
+                  bookingDate: new Date().toISOString(),
+                  status: result.booking.status, // "failed" or "pending"
+                  paymentStatus: "paid",
+                  errorMessage: result.message,
+                  providerBooking: result.booking.providerBooking,
+                });
+
+                // Navigate to confirmation step to show the error details
+                setCurrentStep(3);
+                return;
+              } else {
+                // Complete failure
+                throw new Error(result.error || "Payment verification failed");
+              }
             }
 
-            // Payment successful - set booking confirmation
+            // Complete success - set booking confirmation
             setBookingConfirmation({
               bookingId: result.booking.bookingId,
               confirmationNumber: result.booking.confirmationNumber,
               bookingDate: new Date().toISOString(),
-              status: "confirmed",
+              status: result.booking.status, // "confirmed", "pending", or "failed"
               paymentStatus: "paid",
+              successMessage: result.message,
+              providerBooking: result.booking.providerBooking,
             });
 
             // Small delay to show "Booking Confirmed" message before transitioning
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
             // Navigate to confirmation step
             setCurrentStep(3);
           } catch (verifyError) {
@@ -286,6 +307,10 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   {item.type === "boat" && item.boat?.route && (
                     <span>
                       <MapPin size={16} /> {item.boat.route.from} →{" "}
+
+
+
+                      
                       {item.boat.route.to}
                     </span>
                   )}
@@ -296,10 +321,10 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   )}
                   <div className={styles.passengerInfo}>
                     <Users size={16} />
-                    {item.passengers.adults} adults, {item.passengers.children}{" "}
-                    children
+                    {item.passengers.adults} adults,
+                    {/* {item.passengers.children}{" "} children */}
                     {item.passengers.infants > 0 &&
-                      `, ${item.passengers.infants} infants`}
+                      ` ${item.passengers.infants} infants`}
                   </div>
                 </div>
               </div>
@@ -348,7 +373,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                 <div className={styles.passengerRow}>
                   <span>Passport:</span>
                   <span>
-                    {member.nationality !== "Indian" 
+                    {member.nationality !== "Indian"
                       ? member.fpassport || "Not provided"
                       : member.passportNumber || "Not required"}
                   </span>
@@ -429,7 +454,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
           .
         </p>
       </div>
-
     </div>
   );
 };

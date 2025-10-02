@@ -42,13 +42,13 @@ export function SearchSummary({
       `${totalPassengers} passenger${totalPassengers !== 1 ? "s" : ""}`,
     ];
 
-    if (searchParams.children > 0) {
-      parts.push(
-        `${searchParams.children} child${
-          searchParams.children !== 1 ? "ren" : ""
-        }`
-      );
-    }
+    // if (searchParams.children > 0) {
+    //   parts.push(
+    //     `${searchParams.children} child${
+    //       searchParams.children !== 1 ? "ren" : ""
+    //     }`
+    //   );
+    // }
 
     if (searchParams.infants > 0) {
       parts.push(

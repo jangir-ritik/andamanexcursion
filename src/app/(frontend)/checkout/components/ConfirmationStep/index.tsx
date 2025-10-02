@@ -7,7 +7,15 @@ import { BeforeUnloadModal } from "@/components/molecules/BeforeUnloadModal";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Download, Share2, MessageCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Download,
+  Share2,
+  MessageCircle,
+  AlertTriangle,
+  Clock,
+  XCircle,
+} from "lucide-react";
 import { slotIdToTimeString } from "@/utils/timeUtils";
 import type {
   UnifiedBookingData,
@@ -28,21 +36,24 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const { bookingConfirmation, formData, resetAfterBooking } =
     useCheckoutStore();
   const router = useRouter();
-  
+
   // State for before unload modal
   const [showBeforeUnloadModal, setShowBeforeUnloadModal] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null
+  );
 
   // Handle browser beforeunload event
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      e.returnValue = "Your booking confirmation details will be lost if you leave this page.";
+      e.returnValue =
+        "Your booking confirmation details will be lost if you leave this page.";
       return e.returnValue;
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-    
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
@@ -218,17 +229,149 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     );
   }
 
+  // Get status-specific styling and content
+  const getStatusConfig = () => {
+    switch (bookingConfirmation.status) {
+      case "confirmed":
+        return {
+          icon: <CheckCircle size={48} className={styles.successIcon} />,
+          title: "Booking Confirmed!",
+          specialWord: "Confirmed!",
+          description:
+            bookingConfirmation.successMessage ||
+            "Your booking has been confirmed. You will receive your e-ticket via WhatsApp shortly.",
+          headerClass: styles.successHeader,
+          showDownload: true,
+        };
+      case "pending":
+        return {
+          icon: <Clock size={48} className={styles.pendingIcon} />,
+          title: "Booking Processing",
+          specialWord: "Processing",
+          description:
+            bookingConfirmation.errorMessage ||
+            "Your payment was successful but booking is still processing. You will receive confirmation shortly.",
+          headerClass: styles.pendingHeader,
+          showDownload: false,
+        };
+      case "failed":
+        return {
+          icon: <XCircle size={48} className={styles.errorIcon} />,
+          title: "Booking Issue",
+          specialWord: "Issue",
+          description:
+            bookingConfirmation.errorMessage ||
+            "Your payment was successful but there was an issue with the booking. Our team will contact you shortly.",
+          headerClass: styles.errorHeader,
+          showDownload: false,
+        };
+      default:
+        return {
+          icon: <CheckCircle size={48} className={styles.successIcon} />,
+          title: "Booking Confirmed!",
+          specialWord: "Confirmed!",
+          description:
+            "Your booking has been confirmed. You will receive your e-ticket via WhatsApp shortly.",
+          headerClass: styles.successHeader,
+          showDownload: true,
+        };
+    }
+  };
+
+  const statusConfig = getStatusConfig();
+
+  // Helper function to get user-friendly error messages
+  const getErrorTypeMessage = (error: string): string => {
+    const lowerError = error.toLowerCase();
+
+    if (
+      lowerError.includes("seats not available") ||
+      lowerError.includes("seat") ||
+      lowerError.includes("already booked")
+    ) {
+      return "Selected seats are no longer available";
+    } else if (
+      lowerError.includes("wallet balance") ||
+      lowerError.includes("insufficient") ||
+      lowerError.includes("balance")
+    ) {
+      return "Temporary system issue with ferry operator";
+    } else if (lowerError.includes("save passengers failed")) {
+      return "Issue processing passenger details";
+    } else {
+      return `Ferry booking error: ${error}`;
+    }
+  };
+
+  // Helper function to get specific action messages
+  const getErrorActionMessage = (error: string): string | null => {
+    const lowerError = error.toLowerCase();
+
+    if (
+      lowerError.includes("seats not available") ||
+      lowerError.includes("seat") ||
+      lowerError.includes("already booked")
+    ) {
+      return "We'll help you select alternative seats or provide a full refund.";
+    } else if (
+      lowerError.includes("wallet balance") ||
+      lowerError.includes("insufficient") ||
+      lowerError.includes("balance")
+    ) {
+      return "Your booking will be processed automatically once the system is restored. Please note down the booking ID for future reference.";
+    } else if (lowerError.includes("save passengers failed")) {
+      return "Our team will contact you within 2 hours to complete your booking.";
+    }
+    return null;
+  };
+
   return (
     <div className={styles.confirmationStep}>
-      {/* Success Header */}
-      <div className={styles.successHeader}>
+      {/* Status Header */}
+      <div className={statusConfig.headerClass}>
+        {/* <div className={styles.statusIconContainer}>
+          {statusConfig.icon}
+        </div> */}
         <SectionTitle
-          text="Booking Confirmed!"
-          specialWord="Confirmed!"
+          text={statusConfig.title}
+          specialWord={statusConfig.specialWord}
           className={styles.title}
           headingLevel="h1"
         />
-        <DescriptionText text="Your booking has been confirmed. You will receive your e-ticket via WhatsApp shortly." />
+        <DescriptionText
+          className={styles.description}
+          text={statusConfig.description}
+        />
+
+        {/* Show provider booking details if available */}
+        {bookingConfirmation.providerBooking &&
+          !bookingConfirmation.providerBooking.success && (
+            <div className={styles.providerErrorDetails}>
+              <div className={styles.errorBadge}>
+                <AlertTriangle size={16} />
+                <span>
+                  {getErrorTypeMessage(
+                    bookingConfirmation.providerBooking.error || ""
+                  )}
+                </span>
+              </div>
+              {bookingConfirmation.providerBooking.errorType === "timeout" && (
+                <p className={styles.timeoutNote}>
+                  The booking may still be processing. We'll update you once
+                  confirmed.
+                </p>
+              )}
+              {getErrorActionMessage(
+                bookingConfirmation.providerBooking.error || ""
+              ) && (
+                <p className={styles.actionNote}>
+                  {getErrorActionMessage(
+                    bookingConfirmation.providerBooking.error || ""
+                  )}
+                </p>
+              )}
+            </div>
+          )}
       </div>
 
       {/* Booking Details Cards */}
@@ -387,7 +530,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 <div className={styles.guestDetail}>
                   <span className={styles.detailLabel}>Passport Number</span>
                   <span className={styles.detailValue}>
-                    {member.nationality !== "Indian" 
+                    {member.nationality !== "Indian"
                       ? member.fpassport || "Not provided"
                       : member.passportNumber || "Not required"}
                   </span>
@@ -400,33 +543,35 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 
       {/* Download Actions */}
       <div className={styles.actionsCard}>
-        <Button
-          variant="primary"
-          size="large"
-          onClick={handleDownloadPDF}
-          icon={<Download size={20} />}
-          className={styles.downloadButton}
-        >
-          Download PDF
-        </Button>
+        {statusConfig.showDownload && (
+          <Button
+            variant="primary"
+            size="large"
+            onClick={handleDownloadPDF}
+            icon={<Download size={20} />}
+            className={styles.downloadButton}
+          >
+            Download PDF
+          </Button>
+        )}
 
         <Button
           variant="secondary"
           size="large"
           onClick={() => {
             const firstItemType = bookingData?.items?.[0]?.type;
-            const targetPath = firstItemType === "ferry"
-              ? "/ferry"
-              : firstItemType === "boat"
-              ? "/boat"
-              : "/activities";
+            const targetPath =
+              firstItemType === "ferry"
+                ? "/ferry"
+                : firstItemType === "boat"
+                ? "/boat"
+                : "/activities";
             handleNavigation(targetPath);
           }}
           className={styles.newBookingButton}
         >
           Make Another Booking
         </Button>
-
       </div>
 
       {/* Important Instructions */}
