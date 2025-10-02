@@ -166,7 +166,7 @@ export const Trivia = ({
             >
               <Image
                 src={underlineGraphic}
-                alt=""
+                alt="underline graphic"
                 width={position.width}
                 height={6}
                 style={{
