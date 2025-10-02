@@ -505,7 +505,7 @@ export interface Page {
                 | {
                     title: string;
                     description?: string | null;
-                    icon: string | Media;
+                    icon: string | Icon;
                     id?: string | null;
                   }[]
                 | null;

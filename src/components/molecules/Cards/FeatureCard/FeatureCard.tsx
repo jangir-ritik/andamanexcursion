@@ -10,7 +10,7 @@ export const FeatureCard = memo<FeatureCardProps>(
     return (
       <article {...props} className={cn(styles.featureCard, className)}>
         <div className={styles.iconContainer} aria-hidden="true">
-          <IconContainer src={icon.url || ""} alt={icon.alt || ""} size={20} />
+          <IconContainer src={icon.url || ""} alt={icon.alt || ""} size={32} />
         </div>
         <div className={styles.content}>
           <h3 className={styles.title}>{title}</h3>
