@@ -133,7 +133,7 @@
   grid-template-columns: repeat(4, 1fr);
 }
 .famousFishesGrid.itemCount5 {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 .famousFishesGrid.itemCountMore {
   /* For 6+ items, allow wrapping with optimal sizing */
