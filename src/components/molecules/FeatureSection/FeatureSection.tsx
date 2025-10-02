@@ -42,7 +42,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ content }) => {
         <div className={styles.imageContainer}>
           <MediaContainer
             src={image}
-            alt={imageAlt}
+            alt={imageAlt || image.alt}
             aspectRatio="video"
             priority
             fullWidth
