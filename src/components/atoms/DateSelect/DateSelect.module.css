@@ -88,6 +88,7 @@
   gap: var(--space-1);
   flex: 1; /* Take remaining space */
   margin-top: auto; /* Push to bottom of available space */
+  position: relative;
 }
 
 .dateNavButton {
@@ -172,8 +173,11 @@
   width: 100%;
 }
 
-.react-datepicker-popper {
-  z-index: 20000 !important; /* Ensure date picker appears above other elements */
+/* Add a stable container for the datepicker */
+.datePickerContainer {
+  position: relative;
+  width: 100%;
+  min-height: 0;
 }
 
 /* Responsive adjustments */

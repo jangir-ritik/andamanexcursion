@@ -170,3 +170,45 @@ input[type="checkbox"] {
     gap: var(--space-section-mobile);
   }
 }
+
+/* Prevent layout shift when datepicker opens */
+.react-datepicker__tab-loop {
+  position: absolute !important;
+  z-index: 20001 !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+}
+
+.react-datepicker__tab-loop > * {
+  pointer-events: auto !important;
+}
+
+.react-datepicker-popper {
+  position: fixed !important;
+  z-index: 20000 !important;
+}
+
+/* Ensure the datepicker doesn't cause content shift */
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+/* Override react-datepicker positioning to prevent shifts */
+.react-datepicker-popper[data-placement] {
+  will-change: transform;
+}
+
+/* Ensure consistent positioning */
+.react-datepicker__input-container {
+  position: relative;
+}
+
+/* Hide the tab loop start/end elements that cause layout issues */
+.react-datepicker__tab-loop__start,
+.react-datepicker__tab-loop__end {
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+}

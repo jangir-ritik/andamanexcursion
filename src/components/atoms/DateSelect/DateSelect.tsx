@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -26,6 +26,7 @@ export const DateSelect = ({
   const labelId = React.useId();
   const inputId = React.useId();
   const errorId = React.useId();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Ensure selected is a valid Date object
   const selectedDate =
@@ -65,7 +66,7 @@ export const DateSelect = ({
           {label}
           {required && <span className={styles.required}>*</span>}
         </label>
-        <div className={styles.datePickerInner}>
+        <div className={styles.datePickerInner} ref={containerRef}>
           <button
             type="button"
             aria-label="Previous Day"
@@ -84,6 +85,11 @@ export const DateSelect = ({
             aria-labelledby={labelId}
             aria-describedby={hasError && errorMessage ? errorId : undefined}
             aria-invalid={hasError ? "true" : "false"}
+            popperClassName="react-datepicker-popper"
+            popperPlacement="bottom-start"
+            popperProps={{
+              strategy: "fixed",
+            }}
             onKeyDown={(e) => {
               // Prevent Enter key from submitting the form
               if (e.key === "Enter") {
