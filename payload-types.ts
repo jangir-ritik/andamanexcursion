@@ -457,6 +457,7 @@ export interface Page {
               specialWord?: string | null;
               description?: string | null;
               image?: (string | null) | Media;
+              imageAlt?: string | null;
               ctaText?: string | null;
               ctaHref?: string | null;
               id?: string | null;
@@ -2515,6 +2516,7 @@ export interface PagesSelect<T extends boolean = true> {
                     specialWord?: T;
                     description?: T;
                     image?: T;
+                    imageAlt?: T;
                     ctaText?: T;
                     ctaHref?: T;
                     id?: T;

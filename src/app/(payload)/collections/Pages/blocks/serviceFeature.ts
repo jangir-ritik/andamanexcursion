@@ -25,6 +25,10 @@ export const serviceFeatureBlock: Block = {
       relationTo: "media",
     },
     {
+      name: "imageAlt",
+      type: "text",
+    },
+    {
       name: "ctaText",
       type: "text",
     },

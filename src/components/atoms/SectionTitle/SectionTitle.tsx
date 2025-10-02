@@ -123,7 +123,7 @@ export const SectionTitle = ({
           >
             <Image
               src={underlineGraphic}
-              alt=""
+              alt="underline graphic"
               width={position.width}
               height={5}
               style={{

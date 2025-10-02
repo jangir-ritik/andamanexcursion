@@ -95,7 +95,7 @@ export const DecorativeCurlyArrow: React.FC<DecorativeCurlyArrowProps> = ({
   return (
     <Image
       src={curlyArrow}
-      alt=""
+      alt="decorative arrow"
       className={containerClasses}
       style={arrowStyle}
       role="presentation"
