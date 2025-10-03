@@ -191,9 +191,13 @@ export const TripPlanningForm: React.FC = () => {
           className={`${styles.messageContainer} ${styles.success}`}
           aria-live="assertive"
         >
-          <CheckCircle size={48} />
+          <CheckCircle size={48} color={"var(--color-alert-success)"} />
           <SectionTitle text="Thank You!" className={styles.messageTitle} />
-          <DescriptionText text="Your trip planning request has been submitted successfully. Our team will get back to you within 24 hours with your personalized itinerary." />
+          <DescriptionText
+            className={styles.messageDescription}
+            align="center"
+            text="Your trip planning request has been submitted successfully. Our team will get back to you within 24 hours with your personalized itinerary."
+          />
           <Button
             onClick={() => setSubmitStatus("idle")}
             className={styles.messageButton}
@@ -219,7 +223,7 @@ export const TripPlanningForm: React.FC = () => {
 
       {submitStatus === "error" && (
         <div className={`${styles.errorBanner}`} role="alert">
-          <AlertCircle size={20} />
+          <AlertCircle size={20} color={"var(--color-alert-error)"} />
           <span>Something went wrong. Please try again.</span>
           <Button
             variant="outline"

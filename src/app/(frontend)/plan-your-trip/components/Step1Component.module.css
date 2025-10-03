@@ -2,7 +2,7 @@
 .step1Container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6); /* 24px */
+  gap: var(--space-4); /* 24px */
   width: 100%;
 }
 
@@ -17,7 +17,7 @@
   font-size: var(--font-size-xl); /* 20px */
   line-height: 25px;
   color: var(--color-text-primary);
-  margin-bottom: var(--space-6); /* 24px */
+  margin-bottom: var(--space-2); /* 24px */
 }
 
 .formGrid {
@@ -30,6 +30,7 @@
 
 .formField {
   flex: 1;
+  width: 100%;
 }
 
 .label {
@@ -66,7 +67,6 @@
 /* Styled section containers */
 .sectionContainer {
   width: 100%;
-  margin-bottom: var(--space-6);
 }
 
 .sectionHeader {
@@ -195,6 +195,7 @@
   .formGrid,
   .sectionContent {
     flex-direction: column;
+    gap: var(--space-2);
   }
 
   .checkboxGrid {

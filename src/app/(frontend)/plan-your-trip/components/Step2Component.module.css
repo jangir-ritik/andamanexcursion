@@ -81,7 +81,6 @@
 
 .accordionItem {
   width: 100%;
-  margin-bottom: var(--space-4); /* 16px */
   border: 1px solid var(--color-border-secondary); /* #e0e0e0 */
   border-radius: var(--radius-button); /* 8px */
   overflow: hidden;
@@ -176,5 +175,9 @@
 @media (max-width: 768px) {
   .formRow {
     grid-template-columns: 1fr;
+  }
+
+  .accordionContent {
+    padding: var(--space-4); /* 24px */
   }
 }
