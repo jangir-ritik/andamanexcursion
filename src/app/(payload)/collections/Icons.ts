@@ -1,3 +1,4 @@
+import { revalidationHooks } from "@/utils/revalidation";
 import { CollectionConfig } from "payload";
 
 const Icons: CollectionConfig = {
@@ -10,14 +11,18 @@ const Icons: CollectionConfig = {
   },
   upload: {
     // No image processing - upload SVGs as-is
-    disableLocalStorage: false,
+    disableLocalStorage: true,
     // Only accept SVG files
     mimeTypes: ["image/svg+xml"],
     // No image sizes needed for SVGs
     imageSizes: [],
     // Admin thumbnail
     adminThumbnail: ({ doc }): string | null => {
-      if (doc.url && typeof doc.url === "string") {
+      if (
+        doc.url &&
+        typeof doc.url === "string" &&
+        doc.url.includes("ufs.sh")
+      ) {
         return doc.url;
       }
       if (doc.uploadthingKey && typeof doc.uploadthingKey === "string") {
@@ -25,7 +30,9 @@ const Icons: CollectionConfig = {
           process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID || "zu0uz82q68";
         return `https://${UPLOADTHING_APP_ID}.ufs.sh/f/${doc.uploadthingKey}`;
       }
-      return null;
+
+      // Fallback
+      return (doc.url as string) || null;
     },
   },
   fields: [
@@ -48,20 +55,6 @@ const Icons: CollectionConfig = {
       },
     },
     {
-      name: "category",
-      type: "select",
-      options: [
-        { label: "Activity", value: "activity" },
-        { label: "Feature", value: "feature" },
-        { label: "Navigation", value: "navigation" },
-        { label: "Step", value: "step" },
-        { label: "Other", value: "other" },
-      ],
-      admin: {
-        description: "Category to help organize icons",
-      },
-    },
-    {
       name: "uploadthingKey",
       type: "text",
       admin: {
@@ -79,29 +72,72 @@ const Icons: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc, operation }) => {
+        // Only process on create operations (new uploads)
         if (operation === "create" && doc.url && typeof doc.url === "string") {
+          // Store the full URL
           doc.uploadthingUrl = doc.url;
+
+          // Extract and store the key from UploadThing URL
           const keyMatch = doc.url.match(/\/f\/([^/?#]+)/);
           if (keyMatch && keyMatch[1] !== ".") {
             doc.uploadthingKey = keyMatch[1];
           }
+
+          // Enhanced logging for debugging
           console.log(`✅ Icon uploaded successfully:`, {
             id: doc.id,
             name: doc.name,
             filename: doc.filename,
             url: doc.url,
             uploadthingKey: doc.uploadthingKey,
+            uploadthingUrl: doc.uploadthingUrl,
             alt: doc.alt,
+            operation: operation,
+            hasValidKey: keyMatch && keyMatch[1] !== ".",
           });
+
+          // Log warning if key is invalid
+          if (!keyMatch || keyMatch[1] === ".") {
+            console.warn(`⚠️ Invalid UploadThing key detected for icon:`, {
+              url: doc.url,
+              extractedKey: keyMatch ? keyMatch[1] : "no match",
+              filename: doc.filename,
+            });
+          }
         }
+
+        // Trigger revalidation for icon changes (if needed)
+        await revalidationHooks.media({ doc, operation, req: null });
       },
+    ],
+    afterDelete: [
+      // Trigger revalidation when icons are deleted
+      revalidationHooks.media,
     ],
   },
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "alt", "category", "filename", "updatedAt"],
+    defaultColumns: ["name", "alt", "filename", "updatedAt"],
     description:
-      "Upload SVG icons for use throughout the site. Only SVG format is accepted.",
+      "Upload SVG icons for use throughout the site. Only SVG format is accepted. Icons are stored in UploadThing CDN.",
+    // Preview function for consistency
+    preview: (doc): string | null => {
+      if (
+        doc.url &&
+        typeof doc.url === "string" &&
+        doc.url.includes("ufs.sh")
+      ) {
+        return doc.url;
+      }
+
+      if (doc.uploadthingKey && typeof doc.uploadthingKey === "string") {
+        const UPLOADTHING_APP_ID =
+          process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID || "zu0uz82q68";
+        return `https://${UPLOADTHING_APP_ID}.ufs.sh/f/${doc.uploadthingKey}`;
+      }
+
+      return (doc.url as string) || null;
+    },
   },
 };
 

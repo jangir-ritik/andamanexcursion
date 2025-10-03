@@ -265,7 +265,7 @@ export interface Media {
   };
 }
 /**
- * Upload SVG icons for use throughout the site. Only SVG format is accepted.
+ * Upload SVG icons for use throughout the site. Only SVG format is accepted. Icons are stored in UploadThing CDN.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "icons".
@@ -280,12 +280,9 @@ export interface Icon {
    * Alternative text for accessibility (describes the icon's purpose or meaning)
    */
   alt: string;
-  /**
-   * Category to help organize icons
-   */
-  category?: ('activity' | 'feature' | 'navigation' | 'step' | 'other') | null;
   uploadthingKey?: string | null;
   uploadthingUrl?: string | null;
+  _key?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2421,9 +2418,9 @@ export interface MediaSelect<T extends boolean = true> {
 export interface IconsSelect<T extends boolean = true> {
   name?: T;
   alt?: T;
-  category?: T;
   uploadthingKey?: T;
   uploadthingUrl?: T;
+  _key?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

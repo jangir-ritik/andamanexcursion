@@ -118,6 +118,9 @@ export default buildConfig({
         media: {
           disablePayloadAccessControl: true,
         },
+        icons: {
+          disablePayloadAccessControl: true,
+        },
       },
       options: {
         token: process.env.UPLOADTHING_TOKEN || "",
