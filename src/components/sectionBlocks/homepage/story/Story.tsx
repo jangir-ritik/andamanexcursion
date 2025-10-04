@@ -63,7 +63,7 @@ export const Story = ({ content }: StoryProps) => {
           src={media}
           alt={alt}
           className={styles.media}
-          aspectRatio="video" // or add "21/9" support to MediaContainer
+          aspectRatio="auto"
           controls={videoSettings.controls !== false}
           autoplay={videoSettings.autoplay || false}
           muted={videoSettings.muted !== false}
