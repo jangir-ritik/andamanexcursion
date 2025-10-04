@@ -5,7 +5,7 @@ import { Section } from "@/components/layout";
 import { SectionTitle } from "@/components/atoms";
 import { FerryResults } from "./components/FerryResults";
 import { SearchSummary } from "./components/SearchSummary";
-import { ServiceStatusDisplay } from "./components/ServiceStatusDisplay";
+// import { ServiceStatusDisplay } from "./components/ServiceStatusDisplay";
 import { UnifiedSearchingForm } from "@/components/organisms";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 import { useTimeFiltering } from "@/hooks/ferrySearch/useTimeFiltering";
@@ -85,17 +85,17 @@ const FerryResultsContent = () => {
 
   const { filteredResults } = useTimeFiltering(searchResults || []);
 
-  const { enhancedError, handleRetry } = useErrorHandling(
-    error,
-    searchErrors,
-    searchResults || [],
-    isPartialFailure || false,
-    refetchSearch
-  );
+  // const { enhancedError, handleRetry } = useErrorHandling(
+  //   error,
+  //   searchErrors,
+  //   searchResults || [],
+  //   isPartialFailure || false,
+  //   refetchSearch
+  // );
 
-  const handleNewSearch = () => {
-    router.push("/ferry");
-  };
+  // const handleNewSearch = () => {
+  //   router.push("/ferry");
+  // };
 
   const getTimingDisplay = () => {
     if (!preferredTime) return "Any Time";
@@ -148,14 +148,14 @@ const FerryResultsContent = () => {
           </div>
 
           {/* Service Status */}
-          <ServiceStatusDisplay
+          {/* <ServiceStatusDisplay
             searchErrors={searchErrors}
             isPartialFailure={isPartialFailure || false}
             isLoading={isLoading}
             searchResultsCount={searchResults?.length || 0}
             onRetry={handleRetry}
             onNewSearch={handleNewSearch}
-          />
+          /> */}
 
           {/* Results */}
           <FerryResults loading={isLoading} results={filteredResults} />
