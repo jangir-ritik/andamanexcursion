@@ -146,6 +146,12 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
     setVideoLoading(false);
   };
 
+  // ADD THIS NEW HANDLER
+  const handleVideoLoadedMetadata = () => {
+    // Safari prefers loadedmetadata over canplay
+    setVideoLoading(false);
+  };
+
   const handleVideoError = () => {
     setIsVideoError(true);
     setVideoLoading(false);
@@ -284,6 +290,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({
           poster={getPosterSrc()}
           preload="metadata"
           onLoadStart={handleVideoLoadStart}
+          onLoadedMetadata={handleVideoLoadedMetadata}
           onCanPlay={handleVideoCanPlay}
           onError={handleVideoError}
           aria-label={decorative ? undefined : alt}
