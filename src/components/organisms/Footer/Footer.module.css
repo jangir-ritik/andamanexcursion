@@ -24,14 +24,14 @@
 
 /* Wave decoration */
 .waveContainer {
-  width: 101%;
+  width: 100%;
   overflow: hidden;
   pointer-events: none;
   z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: translateX(-2px) translateY(2px);
+  /* transform: translateX(-8px) translateY(2px); */
 }
 
 .wavePlusBoat {
