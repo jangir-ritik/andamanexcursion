@@ -1,4 +1,4 @@
-// pages/ferry/results/page.tsx - SIMPLIFIED
+// pages/ferry/results/page.tsx - 2 COLUMN LAYOUT
 "use client";
 import React, { Suspense } from "react";
 import { Section } from "@/components/layout";
@@ -8,18 +8,65 @@ import { SearchSummary } from "./components/SearchSummary";
 import { ServiceStatusDisplay } from "./components/ServiceStatusDisplay";
 import { UnifiedSearchingForm } from "@/components/organisms";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
-// import { useSearchParamsSync } from "@/hooks/ferrySearch/useSearchParamsSync";
 import { useTimeFiltering } from "@/hooks/ferrySearch/useTimeFiltering";
 import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import LoadingCard from "@/components/molecules/Cards/ComponentStateCards/LoadingCard";
 import { useFerryStore } from "@/store";
+import ferryGraphic from "@graphics/ferry_graphic.svg";
+import Image from "next/image";
+
+// Mock component for right sidebar
+const RightSidebarContent = () => {
+  return (
+    <div className={styles.sidebarContainer}>
+      {/* Travel Tips Card */}
+      <div className={styles.sidebarCard}>
+        <Image src={ferryGraphic} alt="Ferry Graphic" />
+        <h3 className={styles.sidebarCardTitle}>
+          The better way to travel islands
+        </h3>
+        <div className={styles.sidebarCardContent}>
+          <ul className={styles.tipsList}>
+            <li>
+              <span className={styles.tipsListTitle}>
+                Sail Through Paradise
+              </span>
+              <span>Experience Andaman by sea.</span>
+            </li>
+            <li>
+              <span className={styles.tipsListTitle}>Comfort on Waves</span>
+              <span>Modern ferries, cozy journeys.</span>
+            </li>
+            <li>
+              <span className={styles.tipsListTitle}>
+                Every Seat Has a View
+              </span>
+              <span>Blue waters all around.</span>
+            </li>
+            <li>
+              <span className={styles.tipsListTitle}>
+                Your Island Hopping Partner
+              </span>
+              <span>From Port Blair to Havelock & beyond.</span>
+            </li>
+            <li>
+              <span className={styles.tipsListTitle}>
+                The Journey Feels Like Escape
+              </span>
+              <span>Relax, capture, and cruise.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const FerryResultsContent = () => {
   const router = useRouter();
 
-  // Get search params from store instead of URL for reactive updates
   const storeSearchParams = useFerryStore((state) => state.searchParams);
   const preferredTime = useFerryStore((state) => state.preferredTime);
 
@@ -36,7 +83,6 @@ const FerryResultsContent = () => {
     debounceMs: 1500,
   });
 
-  // Apply timing preference filtering (no manual filters needed)
   const { filteredResults } = useTimeFiltering(searchResults || []);
 
   const { enhancedError, handleRetry } = useErrorHandling(
@@ -51,7 +97,6 @@ const FerryResultsContent = () => {
     router.push("/ferry");
   };
 
-  // Show preferred time info
   const getTimingDisplay = () => {
     if (!preferredTime) return "Any Time";
 
@@ -68,8 +113,8 @@ const FerryResultsContent = () => {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      {/* Modify Search Section */}
+    <div className={styles.pageWrapper}>
+      {/* Modify Search Section - Full Width Row */}
       <div className={styles.modifySearchSection}>
         <SectionTitle text="Modify Search" specialWord="Search" />
         <UnifiedSearchingForm
@@ -83,37 +128,44 @@ const FerryResultsContent = () => {
         )}
       </div>
 
-      {/* Search Summary with timing preference */}
-      <div className={styles.searchSummaryWrapper}>
-        <SearchSummary
-          loading={isLoading}
-          ferryCount={filteredResults.length}
-          searchParams={storeSearchParams}
-        />
-        {preferredTime && (
-          <div className={styles.filterSummary}>
-            Showing {getTimingDisplay()} departures • {filteredResults.length}{" "}
-            ferries found
+      {/* Two Column Layout */}
+      <div className={styles.pageContainer}>
+        {/* Left Column - Main Content */}
+        <div className={styles.mainColumn}>
+          {/* Search Summary with timing preference */}
+          <div className={styles.searchSummaryWrapper}>
+            <SearchSummary
+              loading={isLoading}
+              ferryCount={filteredResults.length}
+              searchParams={storeSearchParams}
+            />
+            {preferredTime && (
+              <div className={styles.filterSummary}>
+                Showing {getTimingDisplay()} departures •{" "}
+                {filteredResults.length} ferries found
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Service Status */}
+          <ServiceStatusDisplay
+            searchErrors={searchErrors}
+            isPartialFailure={isPartialFailure || false}
+            isLoading={isLoading}
+            searchResultsCount={searchResults?.length || 0}
+            onRetry={handleRetry}
+            onNewSearch={handleNewSearch}
+          />
+
+          {/* Results */}
+          <FerryResults loading={isLoading} results={filteredResults} />
+        </div>
+
+        {/* Right Column - Sidebar */}
+        <div className={styles.sidebarColumn}>
+          <RightSidebarContent />
+        </div>
       </div>
-
-      {/* Service Status */}
-      <ServiceStatusDisplay
-        searchErrors={searchErrors}
-        isPartialFailure={isPartialFailure || false}
-        isLoading={isLoading}
-        searchResultsCount={searchResults?.length || 0}
-        onRetry={handleRetry}
-        onNewSearch={handleNewSearch}
-      />
-
-      {/* Results - now shows filtered results based on form preference */}
-      <FerryResults
-        loading={isLoading}
-        results={filteredResults}
-        // showTimingInfo={!!preferredTime}
-      />
     </div>
   );
 };

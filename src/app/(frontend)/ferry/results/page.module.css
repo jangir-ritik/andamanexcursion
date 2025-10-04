@@ -1,4 +1,8 @@
-/* ===== Ferry Results Page Styles ===== */
+/* ===== Ferry Results Page Styles - 2 COLUMN LAYOUT ===== */
+
+.pageWrapper {
+  padding-top: 10px;
+}
 
 /* Main page container */
 .ferryResultsPage {
@@ -7,17 +11,111 @@
   font-family: var(--font-family-primary);
 }
 
-/* Single column container */
+/* Two-column grid container */
 .pageContainer {
   max-width: var(--layout-container-max-width);
   margin: 0 auto;
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 400px;
   gap: var(--space-8);
+  padding: var(--space-6) 0;
 }
 
-/* Modify Search Section - Always on top and prominent */
+/* Main column (left) */
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Sidebar column (right) */
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  position: sticky;
+  top: var(--space-6);
+  align-self: flex-start;
+  max-height: calc(100vh - var(--space-12));
+  overflow-y: auto;
+}
+
+/* Sidebar Components */
+.sidebarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.sidebarCard {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-secondary);
+  overflow: hidden;
+}
+
+.sidebarCardTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: var(--space-5) var(--space-6);
+  position: relative;
+}
+
+.sidebarCardTitle::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  width: 10%;
+  height: 2px;
+  background-color: var(--color-secondary);
+}
+
+.sidebarCardContent {
+  padding: var(--space-5) var(--space-6);
+}
+
+/* Travel Tips */
+.tipsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tipsList li {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  padding: var(--space-2) 0 var(--space-2) var(--space-4);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tipsList li::before {
+  content: "●";
+  position: absolute;
+  left: 0;
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+.tipsListTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Modify Search Section */
 .modifySearchSection {
   background: var(--color-white);
   position: relative;
@@ -31,9 +129,8 @@
   border-radius: var(--radius-card);
 }
 
-/* Search Summary - More prominent styling */
+/* Search Summary */
 .searchSummaryWrapper {
-  /* order: 2; */
   background: var(--color-white);
   overflow: hidden;
 }
@@ -49,12 +146,10 @@
   padding: var(--space-2) var(--space-4);
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-button);
-  /* border: 1px solid var(--color-border-secondary); */
 }
 
 /* Smart filtering sections */
 .smartSection {
-  order: 4;
   background: var(--color-white);
   border-radius: var(--radius-card);
   border: 1px solid var(--color-border-secondary);
@@ -228,13 +323,6 @@
   border: 2px dashed var(--color-gray-200);
 }
 
-.loadingContainer p,
-.noResultsContainer p {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-6);
-  color: var(--color-text-secondary);
-}
-
 .noResultsActions {
   display: flex;
   gap: var(--space-4);
@@ -306,92 +394,6 @@
   max-width: 600px;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .pageContainer {
-    gap: var(--space-6);
-  }
-
-  .filtersSection {
-    padding: var(--space-4);
-  }
-
-  .smartSectionTitle {
-    font-size: var(--font-size-lg);
-    padding: var(--space-4) var(--space-5);
-    line-height: 1.4;
-  }
-
-  .loadingContainer,
-  .errorContainer,
-  .noResultsContainer {
-    padding: var(--space-16) var(--space-4);
-  }
-
-  .errorActions,
-  .noResultsActions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .errorActions > *,
-  .noResultsActions > * {
-    width: 100%;
-  }
-
-  .resultsHeader {
-    padding: var(--space-6) var(--space-4);
-  }
-
-  .resultsTitle {
-    font-size: var(--font-size-2xl);
-  }
-
-  .resultsFooter {
-    padding: var(--space-6) var(--space-4);
-  }
-}
-
-@media (max-width: 480px) {
-  .pageContainer {
-    gap: var(--space-4);
-  }
-
-  .smartSectionTitle {
-    font-size: var(--font-size-base);
-    padding: var(--space-3) var(--space-4);
-  }
-
-  .loadingContainer h2,
-  .errorContainer h2,
-  .noResultsContainer h2 {
-    font-size: var(--font-size-xl);
-  }
-
-  .resultsTitle {
-    font-size: var(--font-size-xl);
-  }
-}
-
-/* page.module.css - Ferry Results Page */
-
-.ferryResultsPage {
-  min-height: 100vh;
-}
-
-.pageContainer {
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.bookingForm {
-  margin-top: 16px;
-}
-
-/* Search Summary */
-
 /* Service Status Display */
 .serviceStatusDisplay {
   margin: 0;
@@ -433,14 +435,6 @@
   line-height: 1.3;
 }
 
-.partialFailure .serviceStatusTitle {
-  color: #92400e;
-}
-
-.criticalFailure .serviceStatusTitle {
-  color: #dc2626;
-}
-
 .searchingIndicator {
   color: var(--color-text-primary);
 }
@@ -456,46 +450,6 @@
   line-height: 1.4;
 }
 
-.serviceStatusItem strong {
-  text-transform: capitalize;
-  margin-right: 4px;
-}
-
-.partialFailure .serviceStatusItem {
-  color: #7c2d12;
-}
-
-.criticalFailure .serviceStatusItem {
-  color: #7f1d1d;
-}
-
-.serviceStatusNote {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 12px 0;
-  padding: 12px;
-  background: rgba(240, 249, 255, 0.8);
-  border-radius: 6px;
-  font-size: 14px;
-  color: #0c4a6e;
-  line-height: 1.4;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.statusSuccess {
-  color: #059669;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.serviceStatusActions {
-  margin-top: 16px;
-  padding-left: 32px;
-}
-
 .retryAllButton {
   background: #3b82f6;
   color: white;
@@ -506,192 +460,124 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.retryAllButton:hover:not(:disabled) {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-}
-
-.retryAllButton:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Filters Section */
-
-.filterSummary {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  font-weight: 500;
-}
-
-/* Smart Sections */
-.smartSection {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-}
-
-.smartSectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 16px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Empty State */
-.emptyState {
-  background: white;
-  border-radius: 12px;
-  padding: 60px 40px;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-}
-
-.emptyState h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 8px 0;
-}
-
-.emptyState p {
-  font-size: 16px;
-  color: #6b7280;
-  margin: 0 0 24px 0;
-  line-height: 1.5;
-}
-
-.retryButton {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.retryButton:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
-}
-
-/* Page Loader */
-.pageLoader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 20px;
-  text-align: center;
-}
-
-.pageLoader .loadingSpinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top: 4px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 24px;
-}
-
-.pageLoader p {
-  font-size: 16px;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* Animations */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+/* Responsive Design - Tablet */
+@media (max-width: 1024px) {
+  .pageContainer {
+    grid-template-columns: 1fr 400px;
+    gap: var(--space-6);
   }
-  100% {
-    transform: rotate(360deg);
+
+  .sidebarColumn {
+    max-height: calc(100vh - var(--space-8));
   }
 }
 
-/* Responsive Design */
+/* Responsive Design - Mobile */
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 0;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding: var(--space-4) 0;
+  }
+
+  .sidebarColumn {
+    position: static;
+    max-height: none;
+    order: 2;
+  }
+
+  .sidebarCard {
+    border-radius: var(--radius-md);
+  }
+
+  .sidebarCardTitle {
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--font-size-base);
+  }
+
+  .sidebarCardContent {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .filtersSection {
+    padding: var(--space-4);
+  }
+
+  .smartSectionTitle {
+    font-size: var(--font-size-lg);
+    padding: var(--space-4) var(--space-5);
+    line-height: 1.4;
+  }
+
+  .loadingContainer,
+  .errorContainer,
+  .noResultsContainer {
+    padding: var(--space-16) var(--space-4);
+  }
+
+  .errorActions,
+  .noResultsActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .errorActions > *,
+  .noResultsActions > * {
+    width: 100%;
+  }
+
+  .resultsHeader {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .resultsTitle {
+    font-size: var(--font-size-2xl);
+  }
+
+  .resultsFooter {
+    padding: var(--space-6) var(--space-4);
   }
 
   .serviceStatusDisplay {
     padding: 16px;
   }
 
-  .serviceStatusDetails,
-  .serviceStatusActions {
+  .serviceStatusDetails {
     padding-left: 0;
-  }
-
-  .serviceStatusHeader {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .serviceStatusTitle {
-    font-size: 15px;
-  }
-
-  .smartSection {
-    padding: 16px;
-    border-radius: 8px;
-  }
-
-  .smartSectionTitle {
-    font-size: 16px;
-  }
-
-  .emptyState {
-    padding: 40px 20px;
-    border-radius: 8px;
-  }
-
-  .retryAllButton,
-  .retryButton {
-    width: 100%;
-    justify-content: center;
   }
 }
 
+/* Responsive Design - Small Mobile */
 @media (max-width: 480px) {
   .pageContainer {
-    padding: 0;
+    gap: var(--space-4);
+  }
+  .sidebarContainer {
+    gap: var(--space-4);
   }
 
-  .serviceStatusNote {
-    font-size: 13px;
+  .smartSectionTitle {
+    font-size: var(--font-size-base);
+    padding: var(--space-3) var(--space-4);
   }
 
-  .serviceStatusItem {
-    font-size: 13px;
+  .loadingContainer h2,
+  .errorContainer h2,
+  .noResultsContainer h2 {
+    font-size: var(--font-size-xl);
   }
 
-  .emptyState {
-    padding: 32px 16px;
+  .resultsTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .sidebarCardTitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .tipsList li {
+    font-size: var(--font-size-xs);
   }
 }
