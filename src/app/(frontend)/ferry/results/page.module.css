@@ -2,6 +2,9 @@
 
 .pageWrapper {
   padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 /* Main page container */
@@ -47,6 +50,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+}
+
+.sidebarCardImageContainer {
+  width: 100%;
+}
+
+.sidebarCardImage {
+  width: 100%;
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .sidebarCard {
@@ -462,15 +480,28 @@
   transition: all 0.2s ease;
 }
 
-/* Responsive Design - Tablet */
-@media (max-width: 1024px) {
+/* Responsive Design - Wrap when left column would be < 700px */
+@media (max-width: 1150px) {
   .pageContainer {
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr;
     gap: var(--space-6);
   }
 
   .sidebarColumn {
-    max-height: calc(100vh - var(--space-8));
+    position: static;
+    max-height: none;
+    order: 2;
+  }
+
+  .sidebarCard {
+    display: flex;
+  }
+}
+
+/* Responsive Design - Tablet */
+@media (max-width: 1024px) {
+  .pageContainer {
+    gap: var(--space-6);
   }
 }
 
@@ -489,12 +520,15 @@
   }
 
   .sidebarCard {
+    flex-direction: column;
+  }
+
+  .sidebarCard {
     border-radius: var(--radius-md);
   }
 
   .sidebarCardTitle {
     padding: var(--space-4) var(--space-5);
-    font-size: var(--font-size-base);
   }
 
   .sidebarCardContent {
@@ -571,10 +605,6 @@
 
   .resultsTitle {
     font-size: var(--font-size-xl);
-  }
-
-  .sidebarCardTitle {
-    font-size: var(--font-size-sm);
   }
 
   .tipsList li {

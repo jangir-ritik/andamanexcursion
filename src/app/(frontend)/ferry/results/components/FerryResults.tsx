@@ -143,7 +143,7 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
         ))}
       </div>
 
-      <div className={styles.resultsFooter}>
+      {/* <div className={styles.resultsFooter}>
         <div className={styles.resultsInfo}>
           <Info size={16} className={styles.infoIcon} />
           <p>
@@ -156,7 +156,7 @@ export function FerryResults({ loading, results }: FerryResultsProps) {
           classes may be available for selection. Final price may vary based on
           selected class and additional services.
         </p>
-      </div>
+      </div> */}
     </div>
   );
 }

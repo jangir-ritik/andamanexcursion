@@ -9,7 +9,7 @@ import { SearchSummary } from "./components/SearchSummary";
 import { UnifiedSearchingForm } from "@/components/organisms";
 import { useFerryFlow } from "@/hooks/queries/useFerryStore";
 import { useTimeFiltering } from "@/hooks/ferrySearch/useTimeFiltering";
-import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
+// import { useErrorHandling } from "@/hooks/ferrySearch/useErrorHandling";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import LoadingCard from "@/components/molecules/Cards/ComponentStateCards/LoadingCard";
@@ -23,41 +23,49 @@ const RightSidebarContent = () => {
     <div className={styles.sidebarContainer}>
       {/* Travel Tips Card */}
       <div className={styles.sidebarCard}>
-        <Image src={ferryGraphic} alt="Ferry Graphic" />
-        <h3 className={styles.sidebarCardTitle}>
-          The better way to travel islands
-        </h3>
-        <div className={styles.sidebarCardContent}>
-          <ul className={styles.tipsList}>
-            <li>
-              <span className={styles.tipsListTitle}>
-                Sail Through Paradise
-              </span>
-              <span>Experience Andaman by sea.</span>
-            </li>
-            <li>
-              <span className={styles.tipsListTitle}>Comfort on Waves</span>
-              <span>Modern ferries, cozy journeys.</span>
-            </li>
-            <li>
-              <span className={styles.tipsListTitle}>
-                Every Seat Has a View
-              </span>
-              <span>Blue waters all around.</span>
-            </li>
-            <li>
-              <span className={styles.tipsListTitle}>
-                Your Island Hopping Partner
-              </span>
-              <span>From Port Blair to Havelock & beyond.</span>
-            </li>
-            <li>
-              <span className={styles.tipsListTitle}>
-                The Journey Feels Like Escape
-              </span>
-              <span>Relax, capture, and cruise.</span>
-            </li>
-          </ul>
+        <div className={styles.sidebarCardImageContainer}>
+          <Image
+            className={styles.sidebarCardImage}
+            src={ferryGraphic}
+            alt="Ferry Graphic"
+          />
+        </div>
+        <div className={styles.content}>
+          <h3 className={styles.sidebarCardTitle}>
+            The better way to travel islands
+          </h3>
+          <div className={styles.sidebarCardContent}>
+            <ul className={styles.tipsList}>
+              <li>
+                <span className={styles.tipsListTitle}>
+                  Sail Through Paradise
+                </span>
+                <span>Experience Andaman by sea.</span>
+              </li>
+              <li>
+                <span className={styles.tipsListTitle}>Comfort on Waves</span>
+                <span>Modern ferries, cozy journeys.</span>
+              </li>
+              <li>
+                <span className={styles.tipsListTitle}>
+                  Every Seat Has a View
+                </span>
+                <span>Blue waters all around.</span>
+              </li>
+              <li>
+                <span className={styles.tipsListTitle}>
+                  Your Island Hopping Partner
+                </span>
+                <span>From Port Blair to Havelock & beyond.</span>
+              </li>
+              <li>
+                <span className={styles.tipsListTitle}>
+                  The Journey Feels Like Escape
+                </span>
+                <span>Relax, capture, and cruise.</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
