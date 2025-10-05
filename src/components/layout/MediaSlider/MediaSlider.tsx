@@ -7,8 +7,9 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import styles from "./MediaSlider.module.css";
-import { Button, ImageContainer } from "@/components/atoms";
+import { Button } from "@/components/atoms";
 import { Media } from "@payload-types";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 
 interface MediaSliderProps {
   media: Array<{
@@ -21,12 +22,12 @@ interface MediaSliderProps {
 
 export const MediaSlider = memo<MediaSliderProps>(
   ({ media, altText = "Activity media" }) => {
-    console.log(media, "media");
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const handlePrevious = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
+        e.preventDefault();
         setCurrentIndex((prevIndex) =>
           prevIndex === 0 ? media.length - 1 : prevIndex - 1
         );
@@ -37,6 +38,7 @@ export const MediaSlider = memo<MediaSliderProps>(
     const handleNext = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
+        e.preventDefault();
         setCurrentIndex((prevIndex) =>
           prevIndex === media.length - 1 ? 0 : prevIndex + 1
         );
@@ -46,6 +48,7 @@ export const MediaSlider = memo<MediaSliderProps>(
 
     const handleDotClick = useCallback((index: number, e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
       setCurrentIndex(index);
     }, []);
 
@@ -62,7 +65,7 @@ export const MediaSlider = memo<MediaSliderProps>(
       return "";
     };
 
-    // Helper to check if media is video - FIXED VERSION
+    // Helper to check if media is video
     const isVideoMedia = (mediaItem: {
       src: string | Media;
       alt: string;
@@ -74,7 +77,6 @@ export const MediaSlider = memo<MediaSliderProps>(
 
       // Check Media object properties
       if (typeof mediaItem.src === "object" && mediaItem.src) {
-        // if (mediaItem.src.mediaType === "video") return true;
         if (mediaItem.src.mimeType?.startsWith("video/")) return true;
       }
 
@@ -90,7 +92,7 @@ export const MediaSlider = memo<MediaSliderProps>(
       return (
         <div className={styles.imageSliderContainer}>
           <div className={styles.imageContainer}>
-            <ImageContainer
+            <MediaContainer
               src=""
               alt="No media available"
               className={styles.ferryImage}
@@ -105,46 +107,48 @@ export const MediaSlider = memo<MediaSliderProps>(
 
     const currentMedia = media[currentIndex];
     const currentMediaIsVideo = isVideoMedia(currentMedia);
-    const currentMediaUrl = getMediaUrl(currentMedia.src);
 
     return (
-      <div className={styles.imageSliderContainer}>
+      <div
+        className={styles.imageSliderContainer}
+        onClick={(e) => {
+          // Prevent clicks on the slider container from bubbling up
+          // unless it's on the actual media (image/video)
+          const target = e.target as HTMLElement;
+          if (
+            target.closest('[class*="sliderButton"]') ||
+            target.closest('[class*="sliderCounter"]') ||
+            target.closest("button")
+          ) {
+            e.stopPropagation();
+          }
+        }}
+      >
         {/* Main media display */}
         <div className={styles.imageContainer}>
           {currentMediaIsVideo ? (
-            // Use native HTML video for videos
             <video
-              key={currentMediaUrl} // Force re-render when URL changes
               className={styles.ferryImage}
               autoPlay
               muted
               loop
               playsInline
-              controls // Add controls for better UX
+              controls
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                borderRadius: "inherit", // Inherit border radius from parent
+                borderRadius: "inherit",
               }}
               aria-label={currentMedia.alt || `${altText} ${currentIndex + 1}`}
-              onError={(e) => {
-                console.error("Video failed to load:", currentMediaUrl, e);
-              }}
-              onLoadStart={() => {
-                console.log("Video loading started:", currentMediaUrl);
-              }}
-              onCanPlay={() => {
-                console.log("Video can play:", currentMediaUrl);
-              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <source src={currentMediaUrl} type="video/mp4" />
-              <source src={currentMediaUrl} type="video/webm" />
+              <source src={getMediaUrl(currentMedia.src)} type="video/mp4" />
+              <source src={getMediaUrl(currentMedia.src)} type="video/webm" />
               Your browser does not support the video tag.
             </video>
           ) : (
-            // Use ImageContainer for images
-            <ImageContainer
+            <MediaContainer
               src={currentMedia.src}
               alt={currentMedia.alt || `${altText} ${currentIndex + 1}`}
               className={styles.ferryImage}
@@ -174,6 +178,7 @@ export const MediaSlider = memo<MediaSliderProps>(
               onClick={handlePrevious}
               aria-label="Previous media"
               type="button"
+              data-slider-control="prev"
             >
               <ChevronLeft size={16} aria-hidden="true" />
             </Button>
@@ -184,42 +189,20 @@ export const MediaSlider = memo<MediaSliderProps>(
               onClick={handleNext}
               aria-label="Next media"
               type="button"
+              data-slider-control="next"
             >
               <ChevronRight size={16} aria-hidden="true" />
             </Button>
           </>
         )}
 
-        {/* Dot indicators - only show if more than 1 item */}
-        {/* {media.length > 1 && (
-          <div className={styles.sliderDots}>
-            {media.map((mediaItem, index) => {
-              const isVideo = isVideoMedia(mediaItem);
-
-              return (
-                <button
-                  key={index}
-                  className={`${styles.sliderDot} ${
-                    index === currentIndex ? styles.sliderDotActive : ""
-                  } ${isVideo ? styles.sliderDotVideo : styles.sliderDotImage}`}
-                  onClick={(e) => handleDotClick(index, e)}
-                  aria-label={`Go to ${isVideo ? "video" : "image"} ${
-                    index + 1
-                  }`}
-                  type="button"
-                >
-                  <span className={styles.sliderDotInner}>
-                    {isVideo ? <Play size={8} /> : <ImageIcon size={8} />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )} */}
-
         {/* Current position indicator */}
         {media.length > 1 && (
-          <div className={styles.sliderCounter}>
+          <div
+            className={styles.sliderCounter}
+            onClick={(e) => e.stopPropagation()}
+            data-slider-control="counter"
+          >
             <span aria-live="polite">
               {currentIndex + 1} / {media.length}
             </span>

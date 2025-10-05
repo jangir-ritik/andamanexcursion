@@ -8,13 +8,66 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import type { ActivityCardProps } from "./ActivityCard.types";
 import clsx from "clsx";
 import styles from "./ActivityCard.module.css";
-import { Button, ImageContainer } from "@/components/atoms";
+import { Button } from "@/components/atoms";
 import { MediaSlider } from "@/components/layout/MediaSlider/MediaSlider";
 import { ClassCard } from "../ClassCard/ClassCard";
 import { ChevronDown, Clock, MapPin, User } from "lucide-react";
+import { Media } from "@payload-types";
+
+interface TimeSlot {
+  id: string;
+  startTime: string;
+  endTime: string;
+  displayTime: string;
+  isAvailable: boolean;
+}
+
+interface ActivityOption {
+  id: string;
+  type: string;
+  price: number;
+  totalPrice: number;
+  originalPrice?: number;
+  originalTotalPrice?: number;
+  description: string;
+  seatsLeft: number;
+  amenities?: {
+    icon: string;
+    label: string;
+  }[];
+  media?: (string | Media)[];
+}
+
+interface ActivityCardProps {
+  id: string;
+  title: string;
+  description: string;
+  media: Array<{ src: string | Media; alt: string }>;
+  price: number;
+  totalPrice: number;
+  originalPrice?: number;
+  originalTotalPrice?: number;
+  type: string;
+  duration: string;
+  location?: string;
+  totalGuests?: number;
+  href?: string;
+  className?: string;
+  activityOptions?: ActivityOption[];
+  availableTimeSlots?: Array<{
+    id: string;
+    startTime: string;
+    endTime?: string;
+    displayTime: string;
+    isAvailable: boolean;
+  }>;
+  onSelectActivity?: (activityId: string, optionId: string) => void;
+  selectedOptionId?: string;
+  maxTimeSlots?: number;
+  timeSlots?: string[];
+}
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   id,
@@ -97,22 +150,44 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     setSelectedOptionIndex(index);
   }, []);
 
-  // Fixed card click handler - simplified logic
+  // Updated card click handler - simplified to just toggle expansion
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     // Prevent expansion if clicking on interactive elements
     const target = e.target as HTMLElement;
+
+    // Check if clicking within the MediaSlider navigation or controls
+    const isMediaSliderControl =
+      target.closest('[class*="sliderButton"]') ||
+      target.closest('[class*="sliderDot"]') ||
+      target.closest('[class*="sliderCounter"]') ||
+      target.closest('[data-slider-control]');
+
+    // Check for interactive elements, but exclude the card itself
+    const closestButton = target.closest("button");
+    const closestRoleButton = target.closest('[role="button"]');
+    
+    // If the closest role="button" is the card itself, ignore it
+    const isCardItself = closestRoleButton === e.currentTarget;
+    
     const isInteractiveElement =
-      target.closest("button") ||
-      target.closest('[role="button"]') ||
-      target.tagName === "BUTTON";
+      closestButton ||
+      (closestRoleButton && !isCardItself) ||
+      target.tagName === "BUTTON" ||
+      target.closest("video") ||
+      target.closest("a") ||
+      target.closest("input") ||
+      target.closest("select") ||
+      target.closest("textarea") ||
+      isMediaSliderControl;
 
     if (isInteractiveElement) {
+      e.stopPropagation();
       return;
     }
 
     // Toggle expansion state
     setIsExpanded((prev) => !prev);
-  }, []);
+  }, [isExpanded]);
 
   const handleCardKeyDown = useCallback((e: React.KeyboardEvent) => {
     // Don't handle keyboard events if focus is on interactive elements
@@ -152,16 +227,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     return null;
   }, [originalTotalPrice, totalPrice]);
 
-  // Separate gallery media from featured media for slider
-  const galleryMedia = React.useMemo(() => {
-    // Skip the first media item (featured image) and format the rest for MediaSlider
-    const galleryItems = media.slice(1).map((mediaItem) => {
-      return {
-        src: mediaItem.src, // This should be the Media object or string - NOT 'image'
-        alt: mediaItem.alt || `${title} gallery image`,
-      };
-    });
-    return galleryItems;
+  // Format all media for MediaSlider (including featured image)
+  const allMediaForSlider = useMemo(() => {
+    return media.map((mediaItem) => ({
+      src: mediaItem.src,
+      alt: mediaItem.alt || `${title} image`,
+    }));
   }, [media, title]);
 
   // Get properly formatted time slots for display
@@ -191,11 +262,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         data-expanded={isExpanded}
         ref={contentWrapperRef}
       >
-        {/* Image Section - Updated to use first media item */}
+        {/* Media Slider Section - Replacing the single image */}
         <div className={styles.imageWrapper}>
-          <ImageContainer
-            src={media[0]?.src}
-            alt={media[0]?.alt || `${title} image`}
+          <MediaSlider
+            media={allMediaForSlider}
+            altText={`${title} activity media`}
           />
         </div>
 
@@ -208,7 +279,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               <div className={styles.activityMetadata}>
                 {type && (
                   <div className={styles.typeContainer}>
-                    {/* <Waves size={16} color="var(--color-primary)" /> */}
                     <span className={styles.type}>{type}</span>
                   </div>
                 )}
@@ -239,12 +309,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
                   </div>
                 )}
               </div>
-              {/* SECOND ROW: Activity Info */}
             </div>
 
-            {/* Pricing Section - Redesigned for clarity */}
+            {/* Pricing Section */}
             <div className={styles.pricingSection}>
-              {/* Main Price */}
               {discountPercentage && (
                 <span
                   className={styles.discountBadge}
@@ -316,26 +384,25 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           {/* FOURTH ROW: Description and Toggle Details */}
           <div className={styles.bottomRow}>
             <p className={styles.description}>{description}</p>
-            <Button
-              variant="outline"
-              onClick={toggleExpand}
-              type="button"
-              size="small"
-              // className={styles.viewDetailsButton}
-              aria-expanded={isExpanded}
-              icon={
-                <ChevronDown
-                  strokeWidth={2}
-                  size={16}
-                  aria-hidden="true"
-                  className={clsx(styles.chevronIcon, {
-                    [styles.chevronExpanded]: isExpanded,
-                  })}
-                />
-              }
-            >
-              {isExpanded ? "Hide Details" : "View Details"}
-            </Button>
+              <Button
+                variant="outline"
+                onClick={toggleExpand}
+                type="button"
+                size="small"
+                aria-expanded={isExpanded}
+                icon={
+                  <ChevronDown
+                    strokeWidth={2}
+                    size={16}
+                    aria-hidden="true"
+                    className={clsx(styles.chevronIcon, {
+                      [styles.chevronExpanded]: isExpanded,
+                    })}
+                  />
+                }
+              >
+                {isExpanded ? "Hide Details" : "View Details"}
+              </Button>
           </div>
         </div>
       </div>
@@ -347,12 +414,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           role="region"
           aria-label={`${title} booking options`}
         >
-          <div
-            className={clsx(
-              galleryMedia.length === 0 && styles.fullWidth,
-              styles.classesWrapper
-            )}
-          >
+          <div className={styles.classesWrapper}>
             {activityOptions.map((activityOption, index) => (
               <ClassCard
                 key={activityOption.id}
@@ -367,14 +429,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               />
             ))}
           </div>
-
-          {/* Media Slider - Updated to handle both images and videos */}
-          {galleryMedia.length > 0 && (
-            <MediaSlider
-              media={galleryMedia}
-              altText={`${title} activity gallery`}
-            />
-          )}
         </section>
       )}
     </article>
