@@ -1,6 +1,12 @@
 "use client";
 
-import React, { Suspense, useEffect, useCallback, useMemo } from "react";
+import React, {
+  Suspense,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { Section, Column, Row } from "@/components/layout";
 import styles from "./page.module.css";
@@ -72,7 +78,7 @@ export default function ActivitiesSearchPageRQ() {
 }
 
 // Component for cart content with empty state
-const ActivityCartContent = () => {
+const ActivityCartContent = React.memo(() => {
   const { cart } = useActivityRQ();
 
   // Optimized scroll handler
@@ -97,13 +103,15 @@ const ActivityCartContent = () => {
   return (
     <CartSummaryRQ onAddMore={handleAddMore} className={styles.cartContent} />
   );
-};
+});
+
+ActivityCartContent.displayName = "ActivityCartContent";
 
 // Component that handles search params and displays results
 const ActivitySearchContent = () => {
   const searchParams = useSearchParams();
   const { searchParams: currentParams, updateSearchParams } = useActivityRQ();
-  const initializedRef = React.useRef(false);
+  const initializedRef = useRef(false);
 
   // Use React Query for form options to get display names
   const { categories, locations } = useFormOptions();
@@ -133,17 +141,28 @@ const ActivitySearchContent = () => {
 
     const { activityType, location, ...restParams } = urlSearchParams;
 
-    // Trigger search if we have activityType (for category browsing)
+    // Only trigger search if we have activityType (from URL navigation)
     if (activityType) {
       const params = {
         activityType,
-        location: location || "", // Optional location
+        location: location || "",
         ...restParams,
       };
 
       // Update params (React Query will automatically trigger search)
       updateSearchParams(params);
       initializedRef.current = true;
+
+      // Auto-scroll to results ONLY on initial load with URL params
+      setTimeout(() => {
+        const resultsElement = document.getElementById("search-results");
+        if (resultsElement) {
+          resultsElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }, 300);
     }
   }, [urlSearchParams, updateSearchParams]);
 
