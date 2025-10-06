@@ -834,6 +834,23 @@ export interface Page {
               blockName?: string | null;
               blockType: 'dynamicCategoryPackages';
             }
+          | {
+              title: string;
+              specialWord?: string | null;
+              description?: string | null;
+              teamMembers?:
+                | {
+                    image: string | Media;
+                    title: string;
+                    designation: string;
+                    description?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'teamSection';
+            }
         )[]
       | null;
   };
@@ -2849,6 +2866,24 @@ export interface PagesSelect<T extends boolean = true> {
                                 showDuration?: T;
                                 showLocations?: T;
                               };
+                        };
+                    id?: T;
+                    blockName?: T;
+                  };
+              teamSection?:
+                | T
+                | {
+                    title?: T;
+                    specialWord?: T;
+                    description?: T;
+                    teamMembers?:
+                      | T
+                      | {
+                          image?: T;
+                          title?: T;
+                          designation?: T;
+                          description?: T;
+                          id?: T;
                         };
                     id?: T;
                     blockName?: T;

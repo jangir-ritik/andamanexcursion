@@ -28,6 +28,7 @@ import { Page } from "@payload-types";
 import { FeatureSection } from "@/components/molecules/FeatureSection/FeatureSection";
 import { DynamicCategoryPackagesBlock } from "@/components/sectionBlocks/packages/DynamicCategoryPackagesBlock/DynamicCategoryPackagesBlock";
 import { GoogleTestimonials } from "@/components/sectionBlocks/common/googleTestimonials/GoogleTestimonials";
+import TeamSection from "@/components/molecules/TeamSection/TeamSection";
 
 const blockComponentsMap = {
   hero: Banner,
@@ -54,6 +55,7 @@ const blockComponentsMap = {
   trustedFerries: TrustedFerriesBlock,
   dynamicPackages: DynamicPackagesBlock,
   dynamicCategoryPackages: DynamicCategoryPackagesBlock,
+  teamSection: TeamSection,
 } as const;
 
 interface BlockRendererProps {

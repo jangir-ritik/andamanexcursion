@@ -1,5 +1,4 @@
 "use client";
-
 import type { SmallCardProps } from "./SmallCard.types";
 import { MoveUpRight } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +20,10 @@ export const SmallCard = ({
   href,
   rating,
   priority = false,
+  variant = "default",
 }: SmallCardProps) => {
+  const isMemberCard = variant === "member";
+
   const CardContent = () => (
     <>
       <div className={styles.imageWrapper}>
@@ -33,53 +35,70 @@ export const SmallCard = ({
           objectFit="cover"
           priority={priority}
         />
-        <div className={styles.imageOverlay} />
+        {!isMemberCard && <div className={styles.imageOverlay} />}
         <div
           className={cn(
             styles.contentContainer,
-            description && styles.contentContainerWithDescription
+            description && styles.contentContainerWithDescription,
+            isMemberCard && styles.contentContainerMember
           )}
         >
-          {duration && (
+          {!isMemberCard && duration && (
             <div className={styles.durationBadge}>
               <span className={styles.durationText}>{duration}</span>
             </div>
           )}
           <div className={styles.cardInfo}>
-            {rating && (
+            {!isMemberCard && rating && (
               <Chip
                 icon={star}
                 text={rating.toFixed(1).toString() + " Stars"}
                 className={styles.ratingBadge}
               />
             )}
-            {description && (
+            {!isMemberCard && description && (
               <Chip
                 icon={heart}
                 text={"Featured Experience"}
                 className={styles.favouriteBadge}
               />
             )}
-            <h3 className={styles.cardTitle}>{title}</h3>
+            <h3
+              className={cn(
+                styles.cardTitle,
+                isMemberCard && styles.cardTitleMember
+              )}
+            >
+              {title}
+            </h3>
             {description && (
-              <p className={styles.cardDescription}>{description}</p>
+              <p
+                className={cn(
+                  styles.cardDescription,
+                  isMemberCard && styles.cardDescriptionMember
+                )}
+              >
+                {description}
+              </p>
             )}
-            {price && (
+            {!isMemberCard && price && (
               <p className={styles.cardPrice}>
                 ₹{typeof price === "number" ? price.toLocaleString() : price}
               </p>
             )}
           </div>
         </div>
-        <div
-          className={cn(
-            styles.arrowButton,
-            description && styles.arrowButtonWithDescription
-          )}
-          aria-hidden="true"
-        >
-          <MoveUpRight size={20} color="var(--color-primary)" />
-        </div>
+        {!isMemberCard && (
+          <div
+            className={cn(
+              styles.arrowButton,
+              description && styles.arrowButtonWithDescription
+            )}
+            aria-hidden="true"
+          >
+            <MoveUpRight size={20} color="var(--color-primary)" />
+          </div>
+        )}
       </div>
     </>
   );
@@ -88,10 +107,11 @@ export const SmallCard = ({
     <div
       className={cn(
         styles.cardContainer,
-        description && styles.cardContainerWithDescription
+        description && styles.cardContainerWithDescription,
+        isMemberCard && styles.cardContainerMember
       )}
     >
-      {href ? (
+      {href && !isMemberCard ? (
         <Link href={href} className={styles.cardLink}>
           <CardContent />
         </Link>

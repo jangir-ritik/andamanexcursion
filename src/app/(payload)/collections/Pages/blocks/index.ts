@@ -23,6 +23,7 @@ import { serviceFeatureBlock } from "./serviceFeature";
 import { dynamicPackagesBlock } from "./dynamicPackages";
 import { dynamicCategoryPackagesBlock } from "./dynamicCategoryPackages";
 import { googleTestimonialsBlock } from "./googleTestimonials";
+import { teamSectionBlock } from "./teamSection";
 
 export const contentBlocks: Block[] = [
   heroBlock,
@@ -48,4 +49,5 @@ export const contentBlocks: Block[] = [
   trustedFerriesBlock,
   dynamicPackagesBlock,
   dynamicCategoryPackagesBlock,
+  teamSectionBlock,
 ];

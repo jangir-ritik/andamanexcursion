@@ -13,4 +13,5 @@ export interface SmallCardProps extends BaseCardProps {
   href?: string;
   rating?: number;
   priority?: boolean;
+  variant?: "default" | "member";
 }
