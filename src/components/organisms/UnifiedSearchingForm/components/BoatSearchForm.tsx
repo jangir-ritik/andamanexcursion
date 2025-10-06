@@ -147,7 +147,7 @@ export function BoatSearchForm({
         : new Date(),
       selectedSlot: currentSearchParams.time || "",
       passengers: {
-        adults: currentSearchParams.adults || 2,
+        adults: currentSearchParams.adults || 1, // Fixed: Match activity default of 1 adult
         children: currentSearchParams.children || 0,
       },
     }),

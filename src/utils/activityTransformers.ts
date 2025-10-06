@@ -187,7 +187,7 @@ export function calculateTotalPrice(
   basePrice: number,
   searchParams: ActivitySearchParams
 ): number {
-  return basePrice * (searchParams.adults + searchParams.children * 0.5);
+  return basePrice * searchParams.adults; // COMMENTED OUT: Only adults counted for activities
 }
 
 // Memoized helper to generate stable option IDs
@@ -335,7 +335,7 @@ export function transformActivityToCard(
         : typeof activity.coreInfo?.location[0] === "string"
         ? activity.coreInfo?.location[0]
         : activity.coreInfo?.location[0].name,
-    totalGuests: searchParams.adults + searchParams.children,
+    totalGuests: searchParams.adults, // COMMENTED OUT: Only adults counted for activities
     timeSlots: availableTimeSlots.map((slot) => slot.displayTime),
   };
 }

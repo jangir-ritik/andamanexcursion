@@ -75,7 +75,7 @@ const BoatSearchContent = ({
     const toLocation = searchParams.get("toLocation");
     const date = searchParams.get("date");
     const time = searchParams.get("time");
-    const adults = parseInt(searchParams.get("adults") || "2", 10);
+    const adults = parseInt(searchParams.get("adults") || "1", 10); // Fixed: Match activity default of 1 adult
     const children = parseInt(searchParams.get("children") || "0", 10);
 
     return {
