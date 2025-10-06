@@ -1,12 +1,16 @@
-// Updated SectionTitle component with responsive offset and mobile SVG fixes
+// Updated SectionTitle component with smart underline selection
 "use client";
 import React, { useState, useRef } from "react";
 import styles from "./SectionTitle.module.css";
 import type { SectionTitleProps } from "./SectionTitle.types";
-import underlineGraphic from "@public/graphics/underline.svg";
+import underlineShort from "@public/graphics/underlineShort.svg";
+import underlineLong from "@public/graphics/underlineLong.svg";
 import Image from "next/image";
 import { useSingleElementUnderline } from "@/utils/underlinePositioning";
 import clsx from "clsx";
+
+// Threshold in pixels to determine which underline to use
+const UNDERLINE_THRESHOLD = 200; // Adjust based on your design needs
 
 export const SectionTitle = ({
   text,
@@ -28,12 +32,11 @@ export const SectionTitle = ({
 
     const vw = window.innerWidth;
 
-    // Updated responsive offset values to match mobile needs
-    if (vw <= 360) return 1; // Very small screens - minimal offset
-    if (vw <= 480) return 2; // Small mobile
-    if (vw <= 768) return 4; // Mobile
-    if (vw <= 1024) return 8; // Tablet
-    return 10; // Desktop
+    if (vw <= 360) return 1;
+    if (vw <= 480) return 2;
+    if (vw <= 768) return 4;
+    if (vw <= 1024) return 8;
+    return 10;
   };
 
   // Use the utility hook for underline positioning with responsive offset
@@ -58,17 +61,14 @@ export const SectionTitle = ({
       return <span>{text}</span>;
     }
 
-    // Handle multiple occurrences of the special word
     const parts = text.split(specialWord);
     const result: React.ReactNode[] = [];
 
     parts.forEach((part, index) => {
-      // Add the text part
       if (part) {
         result.push(<span key={`text-${index}`}>{part}</span>);
       }
 
-      // Add the special word (except after the last part)
       if (index < parts.length - 1) {
         result.push(
           <span
@@ -111,31 +111,39 @@ export const SectionTitle = ({
       )}
 
       {specialWord &&
-        underlinePositions.map((position, index) => (
-          <div
-            key={`underline-${index}`}
-            className={styles.underline}
-            style={{
-              left: `${position.left}px`,
-              top: `${position.top}px`,
-              width: `${position.width}px`,
-            }}
-          >
-            <Image
-              src={underlineGraphic}
-              alt="underline graphic"
-              width={position.width}
-              height={5}
+        underlinePositions.map((position, index) => {
+          // Smart selection: use short underline for narrow words, long for wider words
+          const useShortUnderline = position.width < UNDERLINE_THRESHOLD;
+          const underlineGraphic = useShortUnderline
+            ? underlineShort
+            : underlineLong;
+
+          return (
+            <div
+              key={`underline-${index}`}
+              className={styles.underline}
               style={{
-                width: "100%",
-                height: "clamp(0.1875rem, 1.5vw, 0.375rem)", // Responsive height: smaller on mobile
-                objectFit: "contain", // Changed from "cover" to prevent clipping
-                objectPosition: "center",
+                left: `${position.left}px`,
+                top: `${position.top}px`,
+                width: `${position.width}px`,
               }}
-              aria-hidden="true"
-            />
-          </div>
-        ))}
+            >
+              <Image
+                src={underlineGraphic}
+                alt="underline"
+                width={position.width}
+                height={6}
+                className={clsx(
+                  underlineGraphic === underlineShort
+                    ? styles.shortUnderline
+                    : styles.longUnderline,
+                  styles.underlineImage
+                )}
+                aria-hidden="true"
+              />
+            </div>
+          );
+        })}
     </div>
   );
 };

@@ -3,8 +3,13 @@ import { Section } from "@/components/layout";
 import React, { useRef } from "react";
 import styles from "./Trivia.module.css";
 import Image from "next/image";
-import underlineGraphic from "@public/graphics/underline.svg";
+import underlineShort from "@public/graphics/underlineShort.svg";
+import underlineLong from "@public/graphics/underlineLong.svg";
 import { useTextHighlightUnderlines } from "@/utils/underlinePositioning";
+import clsx from "clsx";
+
+// Threshold in pixels to determine which underline to use
+const UNDERLINE_THRESHOLD = 150;
 
 export interface HighlightedPhrase {
   phrase: string;
@@ -35,16 +40,15 @@ export const Trivia = ({
 
   // Calculate responsive offset based on viewport for text highlighting
   const getResponsiveOffset = () => {
-    if (typeof window === "undefined") return 8; // SSR fallback
+    if (typeof window === "undefined") return 8;
 
     const vw = window.innerWidth;
 
-    // Responsive offset values for text highlighting
-    if (vw <= 360) return 2; // Very small screens
-    if (vw <= 480) return 1; // Small mobile
-    if (vw <= 768) return 4; // Mobile
-    if (vw <= 1024) return 7; // Tablet
-    return 8; // Desktop
+    if (vw <= 360) return 2;
+    if (vw <= 480) return 1;
+    if (vw <= 768) return 4;
+    if (vw <= 1024) return 7;
+    return 8;
   };
 
   // Use the custom hook for underline positioning with responsive offset
@@ -79,25 +83,21 @@ export const Trivia = ({
 
       textParts.forEach((part) => {
         if (part.isHighlight) {
-          // Don't modify already highlighted parts
           newParts.push(part);
           return;
         }
 
         const parts = part.text.split(phraseObj.phrase);
         if (parts.length === 1) {
-          // Phrase not found in this part
           newParts.push(part);
           return;
         }
 
-        // Add the parts with highlights
         for (let i = 0; i < parts.length; i++) {
           if (parts[i]) {
             newParts.push({ text: parts[i], isHighlight: false });
           }
 
-          // Add highlight between parts (except after the last part)
           if (i < parts.length - 1) {
             newParts.push({
               text: phraseObj.phrase,
@@ -154,31 +154,39 @@ export const Trivia = ({
             {renderText()}
           </p>
 
-          {underlinePositions.map((position, index) => (
-            <div
-              key={`underline-${index}`}
-              className={styles.underlineWrapper}
-              style={{
-                left: `${position.left}px`,
-                top: `${position.top}px`,
-                width: `${position.width}px`,
-              }}
-            >
-              <Image
-                src={underlineGraphic}
-                alt="underline graphic"
-                width={position.width}
-                height={6}
+          {underlinePositions.map((position, index) => {
+            // Smart selection: use short underline for narrow words, long for wider words
+            const useShortUnderline = position.width < UNDERLINE_THRESHOLD;
+            const underlineGraphic = useShortUnderline
+              ? underlineShort
+              : underlineLong;
+
+            return (
+              <div
+                key={`underline-${index}`}
+                className={styles.underlineWrapper}
                 style={{
-                  width: "100%",
-                  height: "clamp(0.1875rem, 1.5vw, 0.375rem)", // Responsive height: smaller on mobile
-                  objectFit: "cover", // Changed from "cover" to prevent clipping
-                  objectPosition: "center",
+                  left: `${position.left}px`,
+                  top: `${position.top}px`,
+                  width: `${position.width}px`,
                 }}
-                aria-hidden="true"
-              />
-            </div>
-          ))}
+              >
+                <Image
+                  src={underlineGraphic}
+                  alt="underline"
+                  width={position.width}
+                  height={6}
+                  className={clsx(
+                    underlineGraphic === underlineShort
+                      ? styles.shortUnderline
+                      : styles.longUnderline,
+                    styles.underlineImage
+                  )}
+                  aria-hidden="true"
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </Section>
