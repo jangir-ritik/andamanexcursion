@@ -10,6 +10,7 @@ import {
 } from "../collections/packages";
 import { extractImageUrl, getPublishedQuery } from "../base/utils";
 import { getCachedPayload } from "../base/client";
+import { blogService } from "../collections/blogs";
 
 /**
  * Page Data Service
@@ -291,116 +292,6 @@ export const pageDataService = {
   },
 
   /**
-   * Get data needed for activity listing page
-   */
-  async getActivityPageData(
-    filters: {
-      category?: string;
-      location?: string;
-      limit?: number;
-      page?: number;
-      query?: string;
-    } = {}
-  ) {
-    try {
-      const [categories, locations, searchResults, featuredActivities] =
-        await Promise.all([
-          activityCategoryService.getActive(),
-          locationService.getActivityLocations(),
-          activityService.search(filters),
-          activityService.getFeatured(6),
-        ]);
-
-      return {
-        categories: categories.map((cat) => ({
-          id: cat.id,
-          slug: cat.slug || cat.id,
-          name: cat.name,
-          description: cat.description,
-        })),
-        locations: locations.map((loc) => ({
-          id: loc.id,
-          slug: loc.slug || loc.id,
-          name: loc.name,
-          type: loc.type,
-        })),
-        activities: searchResults.activities,
-        featuredActivities,
-        totalCount: searchResults.totalCount,
-        hasMore: searchResults.hasMore,
-        filters: {
-          categoryOptions: [
-            { id: "all", label: "All Categories" },
-            ...categories.map((cat) => ({
-              id: cat.id,
-              label: cat.name,
-            })),
-          ],
-          locationOptions: [
-            { id: "all", label: "All Locations" },
-            ...locations.map((loc) => ({
-              id: loc.id,
-              label: loc.name,
-            })),
-          ],
-        },
-      };
-    } catch (error) {
-      console.error("Error getting activity page data:", error);
-      return {
-        categories: [],
-        locations: [],
-        activities: [],
-        featuredActivities: [],
-        totalCount: 0,
-        hasMore: false,
-        filters: {
-          categoryOptions: [{ id: "all", label: "All Categories" }],
-          locationOptions: [{ id: "all", label: "All Locations" }],
-        },
-      };
-    }
-  },
-
-  /**
-   * Get all specials pages for navigation or listing
-   */
-  async getSpecialsPageData() {
-    try {
-      const payload = await getCachedPayload();
-      const { docs } = await payload.find({
-        collection: "pages",
-        where: getPublishedQuery("pages", [
-          { "basicInfo.pageType": { equals: "specials" } },
-        ]),
-        sort: "title",
-        depth: 2,
-      });
-
-      return {
-        specials: docs.map((special: any) => ({
-          id: special.id,
-          slug: special.slug,
-          title: special.title,
-          description: special.meta?.description || "",
-          image: extractImageUrl(special.meta?.image),
-          href: `/specials/${special.slug}`,
-          // Extract any other useful data for listing/navigation
-          status: special.publishingSettings?.status,
-          publishedAt: special.publishingSettings?.publishedAt,
-        })),
-        totalCount: docs.length,
-      };
-    } catch (error) {
-      console.error("Error getting specials page data:", error);
-      return {
-        specials: [],
-        totalCount: 0,
-      };
-    }
-  },
-
-  /**
    * Get specific special page data by slug
    */
   async getSpecialPageData(slug: string) {
@@ -482,6 +373,242 @@ export const pageDataService = {
         { slug: "engagement" },
         { slug: "photoshoot" },
       ];
+    }
+  },
+
+  /**
+   * Get data needed for blog listing page
+   */
+  async getBlogListingPageData(
+    filters: {
+      page?: number;
+      limit?: number;
+      query?: string;
+      tags?: string[];
+      author?: string;
+      sortBy?: "recent" | "popular" | "oldest";
+    } = {}
+  ) {
+    try {
+      const [paginatedResult, featuredBlogs, allTags, allAuthors] =
+        await Promise.all([
+          blogService.getPaginated({
+            page: filters.page || 1,
+            limit: filters.limit || 12,
+            status: "published",
+            sort:
+              filters.sortBy === "oldest" ? "publishedDate" : "-publishedDate",
+          }),
+          blogService.getFeatured(3),
+          blogService.getAllTags(),
+          blogService.getAllAuthors(),
+        ]);
+
+      // Process blogs to ensure images are handled correctly
+      const processedBlogs = paginatedResult.blogs.map((blog: any) => {
+        const imageUrl = extractImageUrl(blog.featuredImage);
+
+        return {
+          id: blog.id,
+          slug: blog.slug,
+          title: blog.title,
+          description: blog.description,
+          author: blog.author,
+          publishedDate: blog.publishedDate,
+          readingTime: blog.readingTime,
+          featured: blog.featured,
+          tags: blog.tags?.map((t: any) => t.tag) || [],
+          image: imageUrl,
+          href: `/blogs/${blog.slug}`,
+        };
+      });
+
+      // Process featured blogs
+      const processedFeaturedBlogs = featuredBlogs.map((blog: any) => {
+        const imageUrl = extractImageUrl(blog.featuredImage);
+
+        return {
+          id: blog.id,
+          slug: blog.slug,
+          title: blog.title,
+          description: blog.description,
+          author: blog.author,
+          publishedDate: blog.publishedDate,
+          readingTime: blog.readingTime,
+          tags: blog.tags?.map((t: any) => t.tag) || [],
+          image: imageUrl,
+          href: `/blogs/${blog.slug}`,
+        };
+      });
+
+      return {
+        blogs: processedBlogs,
+        featuredBlogs: processedFeaturedBlogs,
+        pagination: {
+          currentPage: paginatedResult.currentPage,
+          totalPages: paginatedResult.totalPages,
+          totalCount: paginatedResult.totalCount,
+          hasNextPage: paginatedResult.hasNextPage,
+          hasPrevPage: paginatedResult.hasPrevPage,
+        },
+        filters: {
+          tagOptions: [
+            { id: "all", label: "All Tags" },
+            ...allTags.map((tag) => ({
+              id: tag,
+              label: tag,
+            })),
+          ],
+          authorOptions: [
+            { id: "all", label: "All Authors" },
+            ...allAuthors.map((author) => ({
+              id: author,
+              label: author,
+            })),
+          ],
+          sortOptions: [
+            { id: "recent", label: "Most Recent" },
+            { id: "popular", label: "Most Popular" },
+            { id: "oldest", label: "Oldest First" },
+          ],
+        },
+      };
+    } catch (error) {
+      console.error("Error getting blog listing page data:", error);
+      return {
+        blogs: [],
+        featuredBlogs: [],
+        pagination: {
+          currentPage: 1,
+          totalPages: 0,
+          totalCount: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+        filters: {
+          tagOptions: [{ id: "all", label: "All Tags" }],
+          authorOptions: [{ id: "all", label: "All Authors" }],
+          sortOptions: [
+            { id: "recent", label: "Most Recent" },
+            { id: "popular", label: "Most Popular" },
+            { id: "oldest", label: "Oldest First" },
+          ],
+        },
+      };
+    }
+  },
+
+  /**
+   * Get data needed for blog detail page
+   */
+  async getBlogPageData(slug: string) {
+    try {
+      const blogData = await blogService.getBlogPageData(slug);
+
+      if (!blogData) return null;
+
+      const { blog, relatedBlogs, breadcrumbs } = blogData;
+
+      // Process main blog image
+      const blogImage = extractImageUrl(blog.featuredImage);
+
+      // Process related blogs
+      const processedRelatedBlogs = relatedBlogs.map((related: any) => {
+        const imageUrl = extractImageUrl(related.featuredImage);
+
+        return {
+          id: related.id,
+          slug: related.slug,
+          title: related.title,
+          description: related.description,
+          author: related.author,
+          publishedDate: related.publishedDate,
+          readingTime: related.readingTime,
+          tags: related.tags?.map((t: any) => t.tag) || [],
+          image: imageUrl,
+          href: `/blogs/${related.slug}`,
+        };
+      });
+
+      return {
+        blog: {
+          ...blog,
+          processedImage: blogImage,
+          tags: blog.tags?.map((t: any) => t.tag) || [],
+        },
+        relatedBlogs: processedRelatedBlogs,
+        breadcrumbs,
+      };
+    } catch (error) {
+      console.error(`Error getting blog page data for slug ${slug}:`, error);
+      return null;
+    }
+  },
+
+  /**
+   * Get static params for blog pages (for generateStaticParams)
+   */
+  async getBlogStaticParams() {
+    try {
+      return await blogService.getBlogStaticParams();
+    } catch (error) {
+      console.error("Error getting blog static params:", error);
+      return [];
+    }
+  },
+
+  /**
+   * Search blogs with filters (for search functionality)
+   */
+  async searchBlogs(filters: {
+    query?: string;
+    tags?: string[];
+    author?: string;
+    limit?: number;
+    page?: number;
+    sortBy?: "recent" | "popular" | "oldest";
+  }) {
+    try {
+      const searchResults = await blogService.search({
+        query: filters.query,
+        tags: filters.tags,
+        author: filters.author,
+        limit: filters.limit || 12,
+        page: filters.page || 1,
+        sortBy: filters.sortBy || "recent",
+      });
+
+      // Process blogs
+      const processedBlogs = searchResults.blogs.map((blog: any) => {
+        const imageUrl = extractImageUrl(blog.featuredImage);
+
+        return {
+          id: blog.id,
+          slug: blog.slug,
+          title: blog.title,
+          description: blog.description,
+          author: blog.author,
+          publishedDate: blog.publishedDate,
+          readingTime: blog.readingTime,
+          featured: blog.featured,
+          tags: blog.tags?.map((t: any) => t.tag) || [],
+          image: imageUrl,
+          href: `/blogs/${blog.slug}`,
+        };
+      });
+
+      return {
+        blogs: processedBlogs,
+        totalCount: searchResults.totalCount,
+        hasMore: searchResults.hasMore,
+      };
+    } catch (error) {
+      console.error("Error searching blogs:", error);
+      return {
+        blogs: [],
+        totalCount: 0,
+        hasMore: false,
+      };
     }
   },
 };
