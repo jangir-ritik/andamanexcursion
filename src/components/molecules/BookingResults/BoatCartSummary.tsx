@@ -18,7 +18,7 @@ export const BoatCartSummary: React.FC<BoatCartSummaryProps> = ({
 }) => {
   const totalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
   const totalPassengers = cart.reduce(
-    (sum, item) => sum + item.searchParams.adults + item.searchParams.children,
+    (sum, item) => sum + item.searchParams.adults, // COMMENTED OUT: Only adults counted for activities (boat bookings)
     0
   );
 
@@ -50,7 +50,7 @@ export const BoatCartSummary: React.FC<BoatCartSummaryProps> = ({
                 </span>
                 <span className={styles.itemDetail}>
                   <Users size={14} className={styles.detailIcon} />
-                  {item.searchParams.adults + item.searchParams.children}{" "}
+                  {item.searchParams.adults}{" "}
                   passengers
                 </span>
               </div>

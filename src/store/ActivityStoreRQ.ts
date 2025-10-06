@@ -132,9 +132,9 @@ const calculateTotalPrice = (
     basePrice = activity.coreInfo.discountedPrice;
   }
 
-  // Calculate price per booking (adults + children with 50% discount for children)
-  const pricePerBooking =
-    basePrice * searchParams.adults + basePrice * searchParams.children * 0.5;
+  // Calculate price per booking (adults only for activities)
+  // COMMENTED OUT: Infants and children are not handled for activities
+  const pricePerBooking = basePrice * searchParams.adults;
 
   return pricePerBooking * quantity;
 };
@@ -147,7 +147,7 @@ const initialState: ActivityStoreState = {
     date: getTomorrow(),
     time: "",
     adults: 1,
-    children: 0,
+    children: 0, // COMMENTED OUT: Children not supported for activities
   },
   cart: [],
   editingItemId: null,
@@ -336,7 +336,8 @@ export const useActivityStoreRQ = create<ActivityStoreRQ>()(
         const { cart } = get();
         return cart.reduce(
           (total, item) =>
-            total + item.searchParams.adults + item.searchParams.children,
+            // COMMENTED OUT: Only adults counted for activities
+            total + item.searchParams.adults,
           0
         );
       },

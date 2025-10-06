@@ -343,6 +343,7 @@ export function FerrySearchForm({
                   value={field.value}
                   onChange={handlePassengerChange(field)}
                   hasError={!!errors.passengers}
+                  hideChildren={true}
                 />
               )}
             />

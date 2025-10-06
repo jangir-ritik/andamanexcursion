@@ -459,6 +459,8 @@ export function BoatSearchForm({
                 value={field.value}
                 onChange={handlePassengerChange(field)}
                 hasError={!!errors.passengers}
+                hideInfants={true} // COMMENTED OUT: Hide infants for activities (boat bookings)
+                hideChildren={true} // COMMENTED OUT: Hide children for activities (boat bookings)
               />
             )}
           />

@@ -18,7 +18,6 @@ import {
 } from "@/components/atoms";
 import { useFormOptions, useActivityTimesByCategory } from "@/hooks/queries";
 
-// Move the schema outside component to prevent recreation on each render
 const activitySearchSchema = z.object({
   selectedActivity: z.string().min(1, "Please select an activity type"),
   activityLocation: z.string().min(1, "Please select a location"), // Location now required for time slot filtering
@@ -29,7 +28,7 @@ const activitySearchSchema = z.object({
       .number()
       .min(1, "At least 1 adult required")
       .max(10, "Maximum 10 adults"),
-    children: z.number().min(0).max(10, "Maximum 10 children"),
+    children: z.number().min(0).max(0, "Children not supported for activities"), // Children not supported for activities
   }),
 });
 
@@ -532,6 +531,8 @@ export function ActivitySearchFormRQ({
                 value={field.value}
                 onChange={handlePassengerChange(field)}
                 hasError={!!errors.passengers}
+                hideInfants={true} // COMMENTED OUT: Hide infants for activities
+                hideChildren={true} // COMMENTED OUT: Hide children for activities
               />
             )}
           />

@@ -297,8 +297,8 @@ export class CheckoutAdapter {
         title: cartItem.activity.title || "Activity",
         passengers: {
           adults: cartItem.searchParams.adults || 0,
-          children: cartItem.searchParams.children || 0,
-          infants: 0, // Combined into children in ActivitySearchParams
+          children: 0, // COMMENTED OUT: Children not handled for activities
+          infants: 0, // COMMENTED OUT: Infants not handled for activities
         },
         price: cartItem.totalPrice,
         date: cartItem.searchParams.date || "",
@@ -522,8 +522,8 @@ export class CheckoutAdapter {
           `${cartItem.boat.route.from} to ${cartItem.boat.route.to}`,
         passengers: {
           adults: cartItem.searchParams.adults || 0,
-          children: cartItem.searchParams.children || 0,
-          infants: 0,
+          children: 0, // COMMENTED OUT: Children not handled for activities (boat bookings)
+          infants: 0, // COMMENTED OUT: Infants not handled for activities (boat bookings)
         },
         price: cartItem.totalPrice,
         date: cartItem.searchParams.date || "",

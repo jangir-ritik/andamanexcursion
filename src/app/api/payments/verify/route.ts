@@ -188,11 +188,8 @@ export async function POST(request: NextRequest) {
                   passengers: {
                     adults:
                       item.passengers?.adults || item.searchParams?.adults || 0,
-                    children:
-                      item.passengers?.children ||
-                      item.searchParams?.children ||
-                      0,
-                    infants: item.passengers?.infants || 0,
+                    children: 0, // COMMENTED OUT: Children not handled for activities
+                    infants: 0, // COMMENTED OUT: Infants not handled for activities
                   },
                 };
               })
@@ -257,8 +254,8 @@ export async function POST(request: NextRequest) {
                     },
                     passengers: {
                       adults: bookingData.items[0].passengers?.adults || 0,
-                      children: bookingData.items[0].passengers?.children || 0,
-                      infants: bookingData.items[0].passengers?.infants || 0,
+                      children: 0, // COMMENTED OUT: Children not handled for activities (boat bookings)
+                      infants: 0, // COMMENTED OUT: Infants not handled for activities (boat bookings)
                     },
                     totalPrice:
                       bookingData.items[0].price || bookingData.totalPrice || 0,

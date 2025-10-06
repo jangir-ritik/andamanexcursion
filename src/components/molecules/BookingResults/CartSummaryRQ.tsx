@@ -163,10 +163,11 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
   const handlePassengerChange = useCallback(
     (cartItemId: string, type: keyof PassengerCount, value: number) => {
       // Map the PassengerCounter type to the correct cart property
+      // COMMENTED OUT: Infants not supported for activities
       const cartPropertyMap: Record<keyof PassengerCount, string> = {
         adults: "adults",
         children: "children",
-        infants: "children", // Legacy support - map infants to children
+        infants: "children", // COMMENTED OUT: Legacy support - map infants to children (not used for activities)
       };
 
       const cartProperty = cartPropertyMap[type];
@@ -225,7 +226,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
   // Calculate total price and guest count
   const totalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
   const totalGuests = cart.reduce(
-    (sum, item) => sum + item.searchParams.adults + item.searchParams.children,
+    (sum, item) => sum + item.searchParams.adults, // COMMENTED OUT: Only adults counted for activities
     0
   );
 
@@ -328,9 +329,9 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                           alt={activity.title}
                           className={styles.compactImage}
                         />
-                        {searchParams.adults + searchParams.children > 1 && (
+                        {searchParams.adults > 1 && (
                           <div className={styles.quantityBadge}>
-                            {searchParams.adults + searchParams.children}
+                            {searchParams.adults}
                           </div>
                         )}
                       </div>
@@ -372,7 +373,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                           >
                             <Users size={12} />
                             <span className={styles.guestCount}>
-                              {searchParams.adults + searchParams.children}{" "}
+                              {searchParams.adults}{" "}
                               guests
                             </span>
                             <Edit2 size={8} className={styles.editIcon} />
@@ -453,9 +454,9 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                           alt={activity.title}
                           className={styles.activityImage}
                         />
-                        {searchParams.adults + searchParams.children > 1 && (
+                        {searchParams.adults > 1 && (
                           <div className={styles.quantityBadge}>
-                            {searchParams.adults + searchParams.children}
+                            {searchParams.adults}
                           </div>
                         )}
                       </div>
@@ -532,7 +533,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                       >
                         <Users size={14} />
                         <span>
-                          {searchParams.adults + searchParams.children} guests
+                          {searchParams.adults} guests
                         </span>
                         <Edit2 size={12} className={styles.editIcon} />
                       </div>
@@ -642,6 +643,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                             handlePassengerChange(item.id, type, value)
                           }
                           className={styles.inlinePassengerCounter}
+                          hideInfants={true} // COMMENTED OUT: Hide infants for activities
+                          hideChildren={true} // COMMENTED OUT: Hide children for activities
                         />
                         <div className={styles.inlineEditActions}>
                           <Button
