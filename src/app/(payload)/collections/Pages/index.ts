@@ -13,6 +13,13 @@ export const pageTypeOptions = [
   { label: "Ferry", value: "ferry" },
   { label: "Boat", value: "boat" },
   { label: "Plan Your Trip", value: "plan-your-trip" },
+  { label: "About", value: "about" },
+  { label: "Blogs", value: "blogs" },
+  { label: "Contact", value: "contact" },
+  { label: "Terms & Conditions", value: "terms-conditions" },
+  { label: "Privacy Policy", value: "privacy-policy" },
+  { label: "Refund Policy", value: "refund-policy" },
+  { label: "FAQs", value: "faqs" },
 ];
 
 const Pages: CollectionConfig = {
