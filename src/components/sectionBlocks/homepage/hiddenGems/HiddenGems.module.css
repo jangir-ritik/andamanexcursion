@@ -11,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: stretch; /* Changed from flex-start to stretch */
-  gap: var(--space-20);
+  gap: var(--space-6);
   max-width: var(--layout-container-max-width);
   width: 100%;
 }

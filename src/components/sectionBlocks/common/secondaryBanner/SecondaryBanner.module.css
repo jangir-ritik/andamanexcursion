@@ -36,7 +36,8 @@
 }
 
 .controlledLineHeight {
-  line-height: 1;
+  line-height: 0.6;
+  margin-bottom: var(--space-6);
 }
 
 .description {
