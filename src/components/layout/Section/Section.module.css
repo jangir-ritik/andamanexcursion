@@ -12,9 +12,9 @@
 
 /* Full bleed section styles */
 .fullBleed {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  width: 99vw;
+  margin-left: calc(50% - 49.5vw);
+  margin-right: calc(50% - 49.5vw);
   padding-left: 0;
   padding-right: 0;
 }
