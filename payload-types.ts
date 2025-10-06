@@ -327,7 +327,14 @@ export interface Page {
       | 'destinations'
       | 'ferry'
       | 'boat'
-      | 'plan-your-trip';
+      | 'plan-your-trip'
+      | 'about'
+      | 'blogs'
+      | 'contact'
+      | 'terms-conditions'
+      | 'privacy-policy'
+      | 'refund-policy'
+      | 'faqs';
   };
   /**
    * Configure this destination page. Main destinations appear as bold categories in navigation, sub-destinations appear as indented items underneath their parent.

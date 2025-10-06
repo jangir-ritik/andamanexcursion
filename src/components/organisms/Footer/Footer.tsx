@@ -39,7 +39,7 @@ const SocialLink = memo(
         key={index}
         href={social.href}
         className={styles.socialLink}
-        target="_blank"
+        // target="_blank"
         rel="noopener noreferrer"
       >
         <Image
@@ -74,7 +74,7 @@ const NavColumn = memo(
             key={index}
             href={link.href}
             className={styles.navLink}
-            target="_blank"
+            // target="_blank"
             rel="noopener noreferrer"
           >
             {link.label}

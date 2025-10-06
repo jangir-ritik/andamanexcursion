@@ -30,7 +30,7 @@ export const footerItems = {
     links: [
       {
         label: "About us",
-        href: "#",
+        href: "/about",
       },
       {
         label: "Destinations",
@@ -38,7 +38,7 @@ export const footerItems = {
       },
       {
         label: "Blogs",
-        href: "#",
+        href: "/blogs",
       },
     ],
   },
