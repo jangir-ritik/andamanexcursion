@@ -16,3 +16,4 @@ export { default as BoatRoutes } from "./BoatRoutes";
 export { default as Bookings } from "./Bookings";
 export { default as Payments } from "./Payments";
 export { default as BookingSessions } from "./BookingSessions";
+export { default as Blogs } from "./Blogs";

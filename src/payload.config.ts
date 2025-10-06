@@ -29,6 +29,7 @@ import {
   Payments,
   BookingSessions,
   Enquiries,
+  Blogs,
 } from "./app/(payload)/collections";
 
 // Globals
@@ -53,6 +54,7 @@ export default buildConfig({
     Payments,
     BookingSessions,
     Enquiries,
+    Blogs,
   ],
   globals: [Navigation],
   secret: process.env.PAYLOAD_SECRET || "",

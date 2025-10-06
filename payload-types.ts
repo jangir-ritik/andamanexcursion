@@ -84,6 +84,7 @@ export interface Config {
     payments: Payment;
     'booking-sessions': BookingSession;
     enquiries: Enquiry;
+    blogs: Blog;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -107,6 +108,7 @@ export interface Config {
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'booking-sessions': BookingSessionsSelect<false> | BookingSessionsSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
+    blogs: BlogsSelect<false> | BlogsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -2218,6 +2220,79 @@ export interface Enquiry {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs".
+ */
+export interface Blog {
+  id: string;
+  /**
+   * The main title of the blog post
+   */
+  title: string;
+  /**
+   * URL-friendly version of the title
+   */
+  slug: string;
+  /**
+   * Main image for the blog post
+   */
+  featuredImage: string | Media;
+  /**
+   * Brief description or excerpt (max 300 characters)
+   */
+  description: string;
+  /**
+   * Author of the blog post
+   */
+  author: string;
+  /**
+   * Date when the blog was published
+   */
+  publishedDate: string;
+  /**
+   * Main content of the blog post
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Tags for categorizing the blog post
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Estimated reading time in minutes
+   */
+  readingTime?: number | null;
+  /**
+   * Publication status of the blog post
+   */
+  status: 'draft' | 'published' | 'archived';
+  /**
+   * Mark as featured blog post
+   */
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -2290,6 +2365,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'enquiries';
         value: string | Enquiry;
+      } | null)
+    | ({
+        relationTo: 'blogs';
+        value: string | Blog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -3625,6 +3704,31 @@ export interface EnquiriesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs_select".
+ */
+export interface BlogsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  featuredImage?: T;
+  description?: T;
+  author?: T;
+  publishedDate?: T;
+  content?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  readingTime?: T;
+  status?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
