@@ -116,11 +116,13 @@ function checkForActiveConditions(
     case "activities":
       return whereString.includes("status.isActive");
 
+    case "blogs":
+      return whereString.includes('"status"');
+
     case "locations":
     case "activity-categories":
     case "package-categories":
     case "package-periods":
-    case "time-slots":
       return (
         whereString.includes('"isActive"') ||
         whereString.includes("displaySettings.isActive")

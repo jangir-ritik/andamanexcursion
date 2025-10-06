@@ -181,9 +181,9 @@ export const getDefaultActiveQuery = (collection: string): any => {
         and: [{ "publishingSettings.status": { equals: "published" } }],
       };
 
-    case "time-slots":
+    case "blogs":
       return {
-        and: [{ "status.isActive": { equals: true } }],
+        and: [{ "status": { equals: "published" } }],
       };
 
     case "locations":
