@@ -2241,6 +2241,10 @@ export interface Blog {
    */
   description: string;
   /**
+   * Quote - will be displayed at the top of the blog post (max 300 characters)
+   */
+  quote: string;
+  /**
    * Author of the blog post
    */
   author: string;
@@ -3714,6 +3718,7 @@ export interface BlogsSelect<T extends boolean = true> {
   slug?: T;
   featuredImage?: T;
   description?: T;
+  quote?: T;
   author?: T;
   publishedDate?: T;
   content?: T;

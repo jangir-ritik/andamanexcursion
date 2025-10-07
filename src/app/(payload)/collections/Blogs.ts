@@ -65,6 +65,16 @@ const Blogs: CollectionConfig = {
       },
     },
     {
+      name: "quote",
+      type: "textarea",
+      required: true,
+      maxLength: 300,
+      admin: {
+        description:
+          "Quote - will be displayed at the top of the blog post (max 300 characters)",
+      },
+    },
+    {
       name: "author",
       type: "text",
       required: true,

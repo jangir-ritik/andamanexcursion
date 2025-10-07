@@ -4,47 +4,65 @@
   padding: var(--space-8) 0;
 }
 
-.main article {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
+.heroImage {
+  border-radius: var(--space-6);
+  aspect-ratio: 1200/450;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  position: relative;
+  width: 100%;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 70%;
+  margin-inline: auto;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
 
 .main header {
   margin-bottom: var(--space-12);
-  text-align: center;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-8);
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--space-6);
+  display: flex;
+  flex-direction: column;
 }
 
-.main h1 {
-  font-size: var(--font-size-4xl);
-  font-weight: 700;
+.authorInfo {
+  display: flex;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.quote {
+  font-size: clamp(var(--font-size-2xl), 5vw, var(--font-size-4xl));
+  font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--space-6);
-  line-height: 1.2;
 }
 
 .main header p {
   font-size: var(--font-size-xl);
   color: var(--color-text-secondary);
-  margin-bottom: var(--space-6);
   line-height: 1.5;
-}
-
-.main header div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
 }
 
 .main header time {
   color: var(--color-text-secondary);
 }
 
+.title {
+  margin-top: var(--space-12);
+}
 .main article > div {
   font-size: var(--font-size-lg);
   line-height: 1.7;
@@ -90,10 +108,10 @@
 
 .main article > div img {
   width: 100%;
+  max-width: 33%;
   height: auto;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--radius-card);
   margin: var(--space-8) 0;
-  box-shadow: var(--shadow-md);
 }
 
 .main article > div code {

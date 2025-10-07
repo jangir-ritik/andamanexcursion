@@ -5,6 +5,8 @@ import styles from "./page.module.css";
 import { Metadata } from "next";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { pageDataService } from "@/services/payload";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
+import { SectionTitle } from "@/components/atoms";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -28,14 +30,18 @@ export default async function BlogPage({ params }: PageProps) {
   });
 
   if (!pageData || !pageData.blog?.content) {
-    console.log(`❌ [BlogPage] Blog not found or no content for slug: "${slug}"`);
+    console.log(
+      `❌ [BlogPage] Blog not found or no content for slug: "${slug}"`
+    );
     notFound();
   }
 
   const { blog } = pageData;
 
   if (blog.status !== "published") {
-    console.log(`❌ [BlogPage] Blog "${slug}" is not published (status: ${blog.status})`);
+    console.log(
+      `❌ [BlogPage] Blog "${slug}" is not published (status: ${blog.status})`
+    );
     notFound();
   }
 
@@ -45,13 +51,27 @@ export default async function BlogPage({ params }: PageProps) {
     <main className={styles.main}>
       <article>
         <header>
-          <h1>{blog.title}</h1>
-          <p>{blog.description}</p>
-          <div>
+          <div className={styles.hero}>
+            <MediaContainer
+              src={getImageUrl(blog.featuredImage)}
+              alt={blog.title}
+              className={styles.heroImage}
+            />
+          </div>
+          <h2 className={styles.quote}>
+            {blog.quote || "Consider this is the quote"}
+          </h2>
+          <div className={styles.authorInfo}>
             <span>By {blog.author}</span>
             <span>•</span>
             <time>{new Date(blog.publishedDate).toLocaleDateString()}</time>
           </div>
+          <SectionTitle
+            text={blog.title}
+            headingLevel="h1"
+            specialWord={blog.title}
+            className={styles.title}
+          />
         </header>
         <div>
           <RichText data={blog.content} />
