@@ -43,6 +43,7 @@
   overflow-wrap: break-word;
   line-break: loose;
   line-height: 110%;
+  text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* ===== CONTAINER ===== */

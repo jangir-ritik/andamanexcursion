@@ -3,7 +3,7 @@ import { pageDataService } from "@/services/payload";
 import styles from "./page.module.css";
 import { DescriptionText, SectionTitle } from "@/components/atoms";
 
-import placeholderImage from "@images/placeholder.png";
+import placeholderImage from "@images/homepage/andamanCalling/image.png";
 import { BlogCard } from "@/components/molecules/Cards";
 import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 
@@ -26,7 +26,7 @@ export default async function BlogsListingPage({ searchParams }: PageProps) {
   // Get blog listing data
   const pageData = await pageDataService.getBlogListingPageData({
     page,
-    limit: 4,
+    limit: 6,
     tags: tag ? [tag] : undefined,
     author: author !== "all" ? author : undefined,
     sortBy,
