@@ -91,10 +91,13 @@
 .main article > div ol {
   margin: var(--space-4) 0;
   padding-left: var(--space-6);
+  list-style-type: decimal;
+  list-style: decimal;
 }
 
 .main article > div li {
-  margin-bottom: var(--space-2);
+  font-weight: 600;
+  font-size: var(--font-size-xl);
 }
 
 .main article > div blockquote {
@@ -108,10 +111,11 @@
 
 .main article > div img {
   width: 100%;
-  max-width: 33%;
+  max-width: 30%;
   height: auto;
   border-radius: var(--radius-card);
-  margin: var(--space-8) 0;
+  display: inline-block;
+  margin-right: var(--space-4);
 }
 
 .main article > div code {
@@ -141,14 +145,6 @@
     padding: var(--space-4) 0;
   }
 
-  .main article {
-    padding: 0 var(--space-4);
-  }
-
-  .main h1 {
-    font-size: var(--font-size-3xl);
-  }
-
   .main header p {
     font-size: var(--font-size-lg);
   }
@@ -168,5 +164,9 @@
 
   .main article > div h3 {
     font-size: var(--font-size-lg);
+  }
+
+  .main article > div img {
+    max-width: unset;
   }
 }
