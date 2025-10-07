@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 import { pageDataService } from "@/services/payload";
-import BlogFilters from "@/components/blogs/BlogFilters";
 import styles from "./page.module.css";
+import { DescriptionText, SectionTitle } from "@/components/atoms";
 
-// You'll need to create these components or adjust based on your existing ones
-// import BlogCard from "@/components/BlogCard";
-// import FeaturedBlogCard from "@/components/FeaturedBlogCard";
-// import Pagination from "@/components/Pagination";
+import placeholderImage from "@images/placeholder.png";
+import { BlogCard } from "@/components/molecules/Cards";
+import MediaContainer from "@/components/atoms/MediaContainer/MediaContainer";
 
 type PageProps = {
   searchParams: Promise<{
@@ -27,112 +26,66 @@ export default async function BlogsListingPage({ searchParams }: PageProps) {
   // Get blog listing data
   const pageData = await pageDataService.getBlogListingPageData({
     page,
-    limit: 12,
+    limit: 4,
     tags: tag ? [tag] : undefined,
     author: author !== "all" ? author : undefined,
     sortBy,
   });
 
-  const { blogs, featuredBlogs, pagination, filters } = pageData;
+  const { blogs, pagination } = pageData;
 
   return (
     <main className={styles.main}>
       {/* Hero Section */}
       <section className={styles.hero}>
+        <MediaContainer
+          src={placeholderImage.src}
+          className={styles.heroImage}
+          alt="Boat Hero Image"
+        />
+
         <div className={styles.heroContent}>
-          <h1>Our Blog</h1>
-          <p>
-            Discover travel tips, destination guides, and stories from the
-            Andaman Islands
-          </p>
-        </div>
-      </section>
-
-      {/* Featured Blogs - Show only on first page */}
-      {page === 1 && featuredBlogs.length > 0 && (
-        <section className={styles.featuredSection}>
-          <div className={styles.container}>
-            <h2>Featured Posts</h2>
-            <div className={styles.featuredGrid}>
-              {featuredBlogs.map((blog) => (
-                <article key={blog.id} className={styles.featuredCard}>
-                  <a href={blog.href}>
-                    <img src={blog.image} alt={blog.title} />
-                    <div className={styles.featuredContent}>
-                      <div className={styles.meta}>
-                        <span>{blog.author}</span>
-                        <span>•</span>
-                        <span>{blog.readingTime} min read</span>
-                      </div>
-                      <h3>{blog.title}</h3>
-                      <p>{blog.description}</p>
-                      <div className={styles.tags}>
-                        {blog.tags.slice(0, 3).map((tag: string) => (
-                          <span key={tag} className={styles.tag}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </a>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Filters Section */}
-      <section className={styles.filtersSection}>
-        <div className={styles.container}>
-          <BlogFilters 
-            allTags={filters.tagOptions.slice(1)} // Remove "All Tags" option
-            allAuthors={filters.authorOptions.slice(1)} // Remove "All Authors" option
-          />
+          <h1 className={styles.heroTitle}>
+            Exploring the Hidden Beauty of Havelock
+          </h1>
         </div>
       </section>
 
       {/* Blog Grid */}
       <section className={styles.blogGrid}>
+        <SectionTitle
+          text="Recent Blog Posts"
+          headingLevel="h1"
+          specialWord="Blog Posts"
+        />
+        <DescriptionText
+          className={styles.description}
+          text="From snorkeling in coral gardens to jet skiing across blue horizons your adventure begins here."
+        />
         <div className={styles.container}>
           {blogs.length > 0 ? (
             <>
               <div className={styles.grid}>
                 {blogs.map((blog) => (
-                  <article key={blog.id} className={styles.blogCard}>
-                    <a href={blog.href}>
-                      <div className={styles.imageWrapper}>
-                        <img src={blog.image} alt={blog.title} />
-                      </div>
-                      <div className={styles.content}>
-                        <div className={styles.meta}>
-                          <span>{blog.author}</span>
-                          <span>•</span>
-                          <time>
-                            {new Date(blog.publishedDate).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )}
-                          </time>
-                          <span>•</span>
-                          <span>{blog.readingTime} min read</span>
-                        </div>
-                        <h3>{blog.title}</h3>
-                        <p>{blog.description}</p>
-                        <div className={styles.tags}>
-                          {blog.tags.slice(0, 3).map((tag: string) => (
-                            <span key={tag} className={styles.tag}>
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </a>
-                  </article>
+                  <BlogCard
+                    key={blog.id}
+                    title={blog.title}
+                    description={blog.description}
+                    category={blog.tags?.[0]}
+                    date={new Date(blog.publishedDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      }
+                    )}
+                    image={{
+                      src: blog.image,
+                      alt: blog.title,
+                    }}
+                    href={blog.href}
+                  />
                 ))}
               </div>
 
