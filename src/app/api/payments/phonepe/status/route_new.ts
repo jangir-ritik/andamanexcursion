@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
     const updatedPhonepeData = {
       ...(paymentRecord.phonepeData || {}),
       phonepeTransactionId: statusResponse.transactionId,
-      statusCheckData: statusResponse,
+      statusCheckData: JSON.stringify(statusResponse),
     };
 
     await payload.update({

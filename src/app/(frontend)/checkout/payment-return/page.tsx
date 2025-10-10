@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCheckoutStore } from "@/store/CheckoutStore";
 import { Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import styles from "./page.module.css";
 
-export default function PhonePeReturnPage() {
+function PhonePeReturnContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setBookingConfirmation, setCurrentStep } = useCheckoutStore();
@@ -231,5 +231,27 @@ export default function PhonePeReturnPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Suspense fallback component
+function PaymentReturnFallback() {
+  return (
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <Loader2 className={styles.iconSpinning} size={64} />
+        <h1 className={styles.title}>Loading...</h1>
+        <p className={styles.message}>Please wait</p>
+      </div>
+    </div>
+  );
+}
+
+// Main page component wrapped with Suspense
+export default function PhonePeReturnPage() {
+  return (
+    <Suspense fallback={<PaymentReturnFallback />}>
+      <PhonePeReturnContent />
+    </Suspense>
   );
 }
