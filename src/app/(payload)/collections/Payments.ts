@@ -1,124 +1,36 @@
+// src/app/(payload)/collections/Payments.ts
+
 import { CollectionConfig } from "payload";
 
-const Payments: CollectionConfig = {
+export const Payments: CollectionConfig = {
   slug: "payments",
   admin: {
     useAsTitle: "transactionId",
-    defaultColumns: [
-      "transactionId",
-      "bookingReference",
-      "amount",
-      "status",
-      "paymentMethod",
-      "createdAt",
-    ],
-    group: "Bookings",
-    listSearchableFields: [
-      "transactionId",
-      "razorpayPaymentId",
-      "razorpayOrderId",
-    ],
-    pagination: {
-      defaultLimit: 25,
-    },
+    defaultColumns: ["transactionId", "amount", "status", "createdAt"],
   },
   access: {
     read: () => true,
     create: () => true,
     update: () => true,
-    delete: () => true,
   },
   fields: [
-    // === PAYMENT IDENTIFICATION ===
     {
       name: "transactionId",
       type: "text",
+      required: true,
       unique: true,
       admin: {
-        description: "Internal transaction ID (auto-generated)",
-        readOnly: true,
+        description: "Unique transaction identifier",
       },
     },
-    {
-      name: "bookingReference",
-      type: "relationship",
-      relationTo: "bookings",
-      admin: {
-        description: "Associated booking (set after booking creation)",
-      },
-    },
-
-    // === RAZORPAY INTEGRATION ===
-    {
-      name: "razorpayData",
-      type: "group",
-      admin: {
-        description: "Razorpay specific transaction data",
-      },
-      fields: [
-        {
-          name: "razorpayOrderId",
-          type: "text",
-          admin: {
-            description: "Razorpay Order ID",
-          },
-        },
-        {
-          name: "razorpayPaymentId",
-          type: "text",
-          admin: {
-            description: "Razorpay Payment ID (after successful payment)",
-          },
-        },
-        {
-          name: "razorpaySignature",
-          type: "text",
-          admin: {
-            description: "Razorpay payment signature for verification",
-          },
-        },
-        {
-          name: "razorpayWebhookData",
-          type: "json",
-          admin: {
-            description: "Raw webhook data from Razorpay",
-          },
-        },
-      ],
-    },
-
-    // === PAYMENT DETAILS ===
     {
       name: "amount",
       type: "number",
       required: true,
       admin: {
-        description: "Payment amount in smallest currency unit (paise for INR)",
+        description: "Amount in paise (₹1 = 100 paise)",
       },
     },
-    {
-      name: "currency",
-      type: "text",
-      required: true,
-      defaultValue: "INR",
-    },
-    {
-      name: "paymentMethod",
-      type: "select",
-      required: true,
-      options: [
-        { label: "Card", value: "card" },
-        { label: "Net Banking", value: "netbanking" },
-        { label: "UPI", value: "upi" },
-        { label: "Wallet", value: "wallet" },
-        { label: "EMI", value: "emi" },
-        { label: "Bank Transfer", value: "bank_transfer" },
-        { label: "Cash", value: "cash" },
-        { label: "Other", value: "other" },
-      ],
-    },
-
-    // === PAYMENT STATUS ===
     {
       name: "status",
       type: "select",
@@ -126,207 +38,177 @@ const Payments: CollectionConfig = {
       defaultValue: "pending",
       options: [
         { label: "Pending", value: "pending" },
-        { label: "Processing", value: "processing" },
         { label: "Success", value: "success" },
         { label: "Failed", value: "failed" },
-        { label: "Cancelled", value: "cancelled" },
         { label: "Refunded", value: "refunded" },
-        { label: "Partially Refunded", value: "partially_refunded" },
       ],
-      admin: {
-        position: "sidebar",
-      },
     },
     {
-      name: "paymentDate",
-      type: "date",
+      name: "gateway",
+      type: "select",
+      required: true,
+      defaultValue: "phonepe",
+      options: [
+        { label: "PhonePe", value: "phonepe" },
+        { label: "Razorpay", value: "razorpay" }, // Keep for historical records
+      ],
       admin: {
-        description: "Date when payment was completed",
+        description: "Payment gateway used",
       },
     },
-
-    // === CUSTOMER INFORMATION ===
+    // PhonePe-specific data
+    {
+      name: "phonepeData",
+      type: "group",
+      fields: [
+        {
+          name: "merchantOrderId",
+          type: "text",
+          admin: {
+            description: "PhonePe merchant order ID",
+          },
+        },
+        {
+          name: "phonepeTransactionId",
+          type: "text",
+          admin: {
+            description: "PhonePe transaction ID",
+          },
+        },
+        {
+          name: "redirectUrl",
+          type: "text",
+        },
+        {
+          name: "checkoutUrl",
+          type: "text",
+        },
+        {
+          name: "statusCheckData",
+          type: "json",
+          admin: {
+            description: "Response from status check API",
+          },
+        },
+        {
+          name: "callbackData",
+          type: "json",
+          admin: {
+            description: "Data received from PhonePe callback",
+          },
+        },
+        {
+          name: "callbackReceivedAt",
+          type: "date",
+          admin: {
+            description: "Timestamp when callback was received",
+          },
+        },
+        {
+          name: "createdAt",
+          type: "date",
+        },
+      ],
+    },
+    // Legacy Razorpay data (keep for historical records)
+    {
+      name: "razorpayData",
+      type: "group",
+      fields: [
+        {
+          name: "razorpayOrderId",
+          type: "text",
+        },
+        {
+          name: "razorpayPaymentId",
+          type: "text",
+        },
+        {
+          name: "razorpaySignature",
+          type: "text",
+        },
+      ],
+    },
     {
       name: "customerDetails",
       type: "group",
       fields: [
         {
-          name: "customerName",
+          name: "name",
           type: "text",
-          admin: {
-            description: "Customer name for payment",
-          },
         },
         {
-          name: "customerEmail",
+          name: "email",
           type: "email",
-          admin: {
-            description: "Customer email for payment receipt",
-          },
         },
         {
-          name: "customerPhone",
+          name: "phone",
           type: "text",
-          admin: {
-            description: "Customer phone for payment notifications",
-          },
         },
       ],
     },
-
-    // === FAILURE/ERROR DETAILS ===
     {
-      name: "failureReason",
-      type: "text",
+      name: "bookingData",
+      type: "json",
       admin: {
-        description: "Reason for payment failure (if applicable)",
-        condition: (data) => data.status === "failed",
+        description: "Complete booking data for reference",
       },
     },
     {
-      name: "errorCode",
-      type: "text",
+      name: "gatewayResponse",
+      type: "json",
       admin: {
-        description: "Error code from payment gateway",
-        condition: (data) => data.status === "failed",
+        description: "Raw gateway response",
       },
     },
-
-    // === REFUND INFORMATION ===
+    {
+      name: "errorDetails",
+      type: "group",
+      fields: [
+        {
+          name: "message",
+          type: "textarea",
+        },
+        {
+          name: "timestamp",
+          type: "date",
+        },
+      ],
+    },
     {
       name: "refundDetails",
       type: "group",
-      admin: {
-        description: "Refund information (if applicable)",
-        condition: (data) =>
-          data.status === "refunded" || data.status === "partially_refunded",
-      },
       fields: [
         {
           name: "refundId",
           type: "text",
-          admin: {
-            description: "Razorpay refund ID",
-          },
         },
         {
           name: "refundAmount",
           type: "number",
-          admin: {
-            description: "Refunded amount in smallest currency unit",
-          },
-        },
-        {
-          name: "refundDate",
-          type: "date",
-        },
-        {
-          name: "refundReason",
-          type: "text",
         },
         {
           name: "refundStatus",
           type: "select",
           options: [
-            { label: "Pending", value: "pending" },
+            { label: "Initiated", value: "initiated" },
             { label: "Processing", value: "processing" },
-            { label: "Processed", value: "processed" },
+            { label: "Completed", value: "completed" },
             { label: "Failed", value: "failed" },
           ],
         },
-      ],
-    },
-
-    // === PAYMENT GATEWAY RESPONSE ===
-    {
-      name: "gatewayResponse",
-      type: "json",
-      admin: {
-        description: "Complete response from payment gateway",
-      },
-    },
-
-    // === INTERNAL TRACKING ===
-    {
-      name: "attemptNumber",
-      type: "number",
-      defaultValue: 1,
-      admin: {
-        description: "Payment attempt number (for retry tracking)",
-      },
-    },
-    {
-      name: "ipAddress",
-      type: "text",
-      admin: {
-        description: "Customer IP address during payment",
-      },
-    },
-    {
-      name: "userAgent",
-      type: "text",
-      admin: {
-        description: "Customer browser/device information",
-      },
-    },
-
-    // === NOTES ===
-    {
-      name: "internalNotes",
-      type: "textarea",
-      admin: {
-        description: "Internal notes about this payment",
-      },
-    },
-
-    // === RECONCILIATION ===
-    {
-      name: "reconciliation",
-      type: "group",
-      admin: {
-        description: "Payment reconciliation information",
-        position: "sidebar",
-      },
-      fields: [
         {
-          name: "isReconciled",
-          type: "checkbox",
-          defaultValue: false,
-          admin: {
-            description: "Has this payment been reconciled?",
-          },
+          name: "refundReason",
+          type: "textarea",
         },
         {
-          name: "reconciledDate",
+          name: "refundedAt",
           type: "date",
-          admin: {
-            condition: (data) => data.reconciliation?.isReconciled,
-          },
-        },
-        {
-          name: "settlementId",
-          type: "text",
-          admin: {
-            description: "Bank settlement reference",
-          },
         },
       ],
     },
   ],
-  hooks: {
-    beforeChange: [
-      ({ data, operation }) => {
-        if (operation === "create" && !data.transactionId) {
-          // Generate transaction ID
-          const timestamp = Date.now();
-          const random = Math.random().toString(36).substr(2, 6).toUpperCase();
-          data.transactionId = `TXN${timestamp}${random}`;
-        }
-        return data;
-      },
-    ],
-  },
-  defaultSort: "-createdAt",
+  timestamps: true,
 };
 
 export default Payments;

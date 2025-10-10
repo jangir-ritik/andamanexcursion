@@ -1,3 +1,10 @@
+// ==========================================
+// ARCHIVED - REPLACED BY PHONEPE
+// This Razorpay route is no longer active
+// Active payment creation now uses PhonePe
+// See: src/app/api/payments/phonepe/create-order/route.ts
+// ==========================================
+
 // app/api/payments/create-order/route.ts
 import Razorpay from "razorpay";
 import { NextRequest, NextResponse } from "next/server";

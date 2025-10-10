@@ -1,3 +1,10 @@
+// ==========================================
+// ARCHIVED - REPLACED BY PHONEPE
+// This Razorpay webhook route is no longer active
+// Active webhook handling now uses PhonePe
+// See: src/app/api/payments/phonepe/callback/route.ts
+// ==========================================
+
 // app/api/payments/webhook/route.ts
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";

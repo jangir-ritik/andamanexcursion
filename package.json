@@ -44,6 +44,7 @@
     "next": "15.3.4",
     "payload": "3.54.0",
     "payload-recaptcha-v3": "^3.1.1",
+    "pg-sdk-node": "https://phonepe.mycloudrepo.io/public/repositories/phonepe-pg-sdk-node/releases/v2/phonepe-pg-sdk-node.tgz",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-datepicker": "^8.4.0",

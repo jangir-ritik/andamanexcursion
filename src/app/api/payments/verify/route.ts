@@ -1,3 +1,10 @@
+// ==========================================
+// ARCHIVED - REPLACED BY PHONEPE
+// This Razorpay verification route is no longer active
+// Active payment verification now uses PhonePe
+// See: src/app/api/payments/phonepe/status/route.ts
+// ==========================================
+
 // app/api/payments/verify/route.ts
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
@@ -62,20 +69,19 @@ export async function POST(request: NextRequest) {
       const paymentRecord = await payload.create({
         collection: "payments",
         data: {
+          transactionId: razorpay_payment_id, // Required field
+          gateway: "razorpay", // Payment gateway used
           razorpayData: {
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,
             razorpaySignature: razorpay_signature,
           },
           amount: bookingData.totalPrice * 100, // Convert to paise
-          currency: "INR",
-          paymentMethod: "other", // Will be updated from webhook
           status: "success",
-          paymentDate: new Date().toISOString(),
           customerDetails: {
-            customerName: bookingData.members?.[0]?.fullName || "",
-            customerEmail: bookingData.members?.[0]?.email || "",
-            customerPhone: bookingData.members?.[0]?.whatsappNumber || "",
+            name: bookingData.members?.[0]?.fullName || "",
+            email: bookingData.members?.[0]?.email || "",
+            phone: bookingData.members?.[0]?.whatsappNumber || "",
           },
           gatewayResponse: {
             razorpay_order_id,
@@ -629,7 +635,7 @@ export async function POST(request: NextRequest) {
         collection: "payments",
         id: paymentRecord.id,
         data: {
-          bookingReference: bookingRecord.id,
+          // bookingReference: bookingRecord.id,
           gatewayResponse: {
             razorpay_order_id,
             razorpay_payment_id,

@@ -1765,6 +1765,10 @@ export interface Booking {
          */
         passportNumber?: string | null;
         /**
+         * Passport expiry date (for foreign nationals)
+         */
+        passportExpiry?: string | null;
+        /**
          * WhatsApp number (only for primary contact)
          */
         whatsappNumber?: string | null;
@@ -1836,33 +1840,33 @@ export interface Booking {
 export interface Payment {
   id: string;
   /**
-   * Internal transaction ID (auto-generated)
+   * Unique transaction identifier
    */
-  transactionId?: string | null;
+  transactionId: string;
   /**
-   * Associated booking (set after booking creation)
+   * Amount in paise (₹1 = 100 paise)
    */
-  bookingReference?: (string | null) | Booking;
+  amount: number;
+  status: 'pending' | 'success' | 'failed' | 'refunded';
   /**
-   * Razorpay specific transaction data
+   * Payment gateway used
    */
-  razorpayData?: {
+  gateway: 'phonepe' | 'razorpay';
+  phonepeData?: {
     /**
-     * Razorpay Order ID
+     * PhonePe merchant order ID
      */
-    razorpayOrderId?: string | null;
+    merchantOrderId?: string | null;
     /**
-     * Razorpay Payment ID (after successful payment)
+     * PhonePe transaction ID
      */
-    razorpayPaymentId?: string | null;
+    phonepeTransactionId?: string | null;
+    redirectUrl?: string | null;
+    checkoutUrl?: string | null;
     /**
-     * Razorpay payment signature for verification
+     * Response from status check API
      */
-    razorpaySignature?: string | null;
-    /**
-     * Raw webhook data from Razorpay
-     */
-    razorpayWebhookData?:
+    statusCheckData?:
       | {
           [k: string]: unknown;
         }
@@ -1871,58 +1875,48 @@ export interface Payment {
       | number
       | boolean
       | null;
+    /**
+     * Data received from PhonePe callback
+     */
+    callbackData?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    /**
+     * Timestamp when callback was received
+     */
+    callbackReceivedAt?: string | null;
+    createdAt?: string | null;
   };
-  /**
-   * Payment amount in smallest currency unit (paise for INR)
-   */
-  amount: number;
-  currency: string;
-  paymentMethod: 'card' | 'netbanking' | 'upi' | 'wallet' | 'emi' | 'bank_transfer' | 'cash' | 'other';
-  status: 'pending' | 'processing' | 'success' | 'failed' | 'cancelled' | 'refunded' | 'partially_refunded';
-  /**
-   * Date when payment was completed
-   */
-  paymentDate?: string | null;
+  razorpayData?: {
+    razorpayOrderId?: string | null;
+    razorpayPaymentId?: string | null;
+    razorpaySignature?: string | null;
+  };
   customerDetails?: {
-    /**
-     * Customer name for payment
-     */
-    customerName?: string | null;
-    /**
-     * Customer email for payment receipt
-     */
-    customerEmail?: string | null;
-    /**
-     * Customer phone for payment notifications
-     */
-    customerPhone?: string | null;
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
   };
   /**
-   * Reason for payment failure (if applicable)
+   * Complete booking data for reference
    */
-  failureReason?: string | null;
+  bookingData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   /**
-   * Error code from payment gateway
-   */
-  errorCode?: string | null;
-  /**
-   * Refund information (if applicable)
-   */
-  refundDetails?: {
-    /**
-     * Razorpay refund ID
-     */
-    refundId?: string | null;
-    /**
-     * Refunded amount in smallest currency unit
-     */
-    refundAmount?: number | null;
-    refundDate?: string | null;
-    refundReason?: string | null;
-    refundStatus?: ('pending' | 'processing' | 'processed' | 'failed') | null;
-  };
-  /**
-   * Complete response from payment gateway
+   * Raw gateway response
    */
   gatewayResponse?:
     | {
@@ -1933,35 +1927,16 @@ export interface Payment {
     | number
     | boolean
     | null;
-  /**
-   * Payment attempt number (for retry tracking)
-   */
-  attemptNumber?: number | null;
-  /**
-   * Customer IP address during payment
-   */
-  ipAddress?: string | null;
-  /**
-   * Customer browser/device information
-   */
-  userAgent?: string | null;
-  /**
-   * Internal notes about this payment
-   */
-  internalNotes?: string | null;
-  /**
-   * Payment reconciliation information
-   */
-  reconciliation?: {
-    /**
-     * Has this payment been reconciled?
-     */
-    isReconciled?: boolean | null;
-    reconciledDate?: string | null;
-    /**
-     * Bank settlement reference
-     */
-    settlementId?: string | null;
+  errorDetails?: {
+    message?: string | null;
+    timestamp?: string | null;
+  };
+  refundDetails?: {
+    refundId?: string | null;
+    refundAmount?: number | null;
+    refundStatus?: ('initiated' | 'processing' | 'completed' | 'failed') | null;
+    refundReason?: string | null;
+    refundedAt?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -3488,6 +3463,7 @@ export interface BookingsSelect<T extends boolean = true> {
         gender?: T;
         nationality?: T;
         passportNumber?: T;
+        passportExpiry?: T;
         whatsappNumber?: T;
         email?: T;
         assignedActivities?:
@@ -3529,49 +3505,51 @@ export interface BookingsSelect<T extends boolean = true> {
  */
 export interface PaymentsSelect<T extends boolean = true> {
   transactionId?: T;
-  bookingReference?: T;
+  amount?: T;
+  status?: T;
+  gateway?: T;
+  phonepeData?:
+    | T
+    | {
+        merchantOrderId?: T;
+        phonepeTransactionId?: T;
+        redirectUrl?: T;
+        checkoutUrl?: T;
+        statusCheckData?: T;
+        callbackData?: T;
+        callbackReceivedAt?: T;
+        createdAt?: T;
+      };
   razorpayData?:
     | T
     | {
         razorpayOrderId?: T;
         razorpayPaymentId?: T;
         razorpaySignature?: T;
-        razorpayWebhookData?: T;
       };
-  amount?: T;
-  currency?: T;
-  paymentMethod?: T;
-  status?: T;
-  paymentDate?: T;
   customerDetails?:
     | T
     | {
-        customerName?: T;
-        customerEmail?: T;
-        customerPhone?: T;
+        name?: T;
+        email?: T;
+        phone?: T;
       };
-  failureReason?: T;
-  errorCode?: T;
+  bookingData?: T;
+  gatewayResponse?: T;
+  errorDetails?:
+    | T
+    | {
+        message?: T;
+        timestamp?: T;
+      };
   refundDetails?:
     | T
     | {
         refundId?: T;
         refundAmount?: T;
-        refundDate?: T;
-        refundReason?: T;
         refundStatus?: T;
-      };
-  gatewayResponse?: T;
-  attemptNumber?: T;
-  ipAddress?: T;
-  userAgent?: T;
-  internalNotes?: T;
-  reconciliation?:
-    | T
-    | {
-        isReconciled?: T;
-        reconciledDate?: T;
-        settlementId?: T;
+        refundReason?: T;
+        refundedAt?: T;
       };
   updatedAt?: T;
   createdAt?: T;

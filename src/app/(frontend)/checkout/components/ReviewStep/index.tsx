@@ -1,6 +1,8 @@
+// src/app/(frontend)/checkout/components/ReviewStep/index.tsx
+// PhonePe Payment Integration - Server Redirect Flow
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/atoms/Button/Button";
 import { useCheckoutStore } from "@/store/CheckoutStore";
 import { CheckoutAdapter } from "@/utils/CheckoutAdapter";
@@ -25,6 +27,8 @@ import {
   Anchor,
 } from "lucide-react";
 
+// PhonePe uses server-side redirect flow (no client SDK needed)
+
 interface ReviewStepProps {
   bookingData: UnifiedBookingData;
   requirements: PassengerRequirements;
@@ -44,7 +48,11 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
     isLoading,
   } = useCheckoutStore();
 
-  // Handle payment submission
+  // No SDK loading needed - PhonePe uses server-side redirect
+
+  // PhonePe uses redirect flow - no callback handler needed here
+
+  // Handle payment submission with PhonePe redirect
   const handleProceedToPayment = async () => {
     if (!formData) {
       setError("Form data not found");
@@ -61,16 +69,14 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         formData
       );
 
-      console.log("Proceeding to payment with data:", paymentData);
+      console.log("Proceeding to PhonePe payment with data:", paymentData);
 
-      // Step 1: Create Razorpay order
-      const orderResponse = await fetch("/api/payments/create-order", {
+      // Step 1: Create PhonePe order (server-side)
+      const orderResponse = await fetch("/api/payments/phonepe/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: paymentData.totalPrice,
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
           bookingData: paymentData,
         }),
       });
@@ -85,150 +91,29 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         throw new Error(orderResult.error || "Failed to create payment order");
       }
 
-      // Step 2: Load Razorpay SDK dynamically
-      if (typeof window === "undefined") {
-        throw new Error("Payment can only be processed in browser");
-      }
+      console.log("PhonePe order created successfully:", {
+        merchantTransactionId: orderResult.merchantTransactionId,
+        hasCheckoutUrl: !!orderResult.checkoutUrl,
+      });
 
-      // Load Razorpay SDK if not already loaded
-      if (!(window as any).Razorpay) {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = "https://checkout.razorpay.com/v1/checkout.js";
-          script.onload = () => resolve();
-          script.onerror = () =>
-            reject(new Error("Failed to load Razorpay SDK"));
-          document.head.appendChild(script);
-        });
-      }
+      // Step 2: Store transaction ID and booking data for return flow
+      sessionStorage.setItem(
+        "phonepe_transaction_id",
+        orderResult.merchantTransactionId
+      );
+      sessionStorage.setItem(
+        "phonepe_booking_data",
+        JSON.stringify(paymentData)
+      );
 
-      const razorpay = (window as any).Razorpay;
+      // Step 3: Redirect to PhonePe checkout page
+      console.log("Redirecting to PhonePe checkout...");
+      window.location.href = orderResult.checkoutUrl;
 
-      // Step 3: Configure Razorpay options
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: orderResult.order.amount,
-        currency: orderResult.order.currency,
-        name: "Andaman Excursion",
-        description: `${
-          bookingData?.items?.[0]?.type === "ferry"
-            ? "Ferry"
-            : bookingData?.items?.[0]?.type === "boat"
-            ? "Boat"
-            : "Activity"
-        } Booking`,
-        order_id: orderResult.order.id,
-        prefill: {
-          name: formData?.members?.[0]?.fullName || "",
-          email: formData?.members?.[0]?.email || "",
-          contact: formData?.members?.[0]?.whatsappNumber || "",
-        },
-        theme: {
-          color: "#3399cc",
-        },
-        handler: async (response: any) => {
-          try {
-            // Keep loading state active during payment verification
-            setLoading(true);
-            console.log("Payment verification payload:", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-            // Step 4: Verify payment
-            const verifyResponse = await fetch("/api/payments/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                bookingData: paymentData,
-                sessionId: (bookingData as any).sessionId,
-              }),
-            });
-
-            const responseText = await verifyResponse.text(); // ✅ Get text first
-            console.log("Raw verify response:", responseText); // ✅ Debug the raw response
-
-            if (!verifyResponse.ok) {
-              throw new Error(
-                `Payment verification failed: ${verifyResponse.status} - ${responseText}`
-              );
-            }
-
-            let result;
-            try {
-              result = JSON.parse(responseText); // ✅ Parse manually with error handling
-            } catch (parseError) {
-              throw new Error(`Invalid JSON response: ${responseText}`);
-            }
-
-            // Handle different booking statuses
-            if (!result.success) {
-              // Payment successful but booking failed
-              if (result.booking && result.payment) {
-                // Show partial success - payment went through but booking failed
-                setBookingConfirmation({
-                  bookingId: result.booking.bookingId,
-                  confirmationNumber: result.booking.confirmationNumber,
-                  bookingDate: new Date().toISOString(),
-                  status: result.booking.status, // "failed" or "pending"
-                  paymentStatus: "paid",
-                  errorMessage: result.message,
-                  providerBooking: result.booking.providerBooking,
-                });
-
-                // Navigate to confirmation step to show the error details
-                setCurrentStep(3);
-                return;
-              } else {
-                // Complete failure
-                throw new Error(result.error || "Payment verification failed");
-              }
-            }
-
-            // Complete success - set booking confirmation
-            setBookingConfirmation({
-              bookingId: result.booking.bookingId,
-              confirmationNumber: result.booking.confirmationNumber,
-              bookingDate: new Date().toISOString(),
-              status: result.booking.status, // "confirmed", "pending", or "failed"
-              paymentStatus: "paid",
-              successMessage: result.message,
-              providerBooking: result.booking.providerBooking,
-            });
-
-            // Small delay to show "Booking Confirmed" message before transitioning
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            // Navigate to confirmation step
-            setCurrentStep(3);
-          } catch (verifyError) {
-            console.error("Payment verification error:", verifyError);
-            setError(
-              verifyError instanceof Error
-                ? verifyError.message
-                : "Payment verification failed"
-            );
-          } finally {
-            setLoading(false);
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setError("Payment was cancelled");
-          },
-        },
-      };
-
-      // Step 5: Open Razorpay payment modal
-      const razorpayInstance = new razorpay(options);
-      razorpayInstance.open();
+      // Keep loading state during redirect
     } catch (error) {
       console.error("Payment error:", error);
       setError(error instanceof Error ? error.message : "Payment failed");
-    } finally {
       setLoading(false);
     }
   };
@@ -307,10 +192,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   {item.type === "boat" && item.boat?.route && (
                     <span>
                       <MapPin size={16} /> {item.boat.route.from} →{" "}
-
-
-
-                      
                       {item.boat.route.to}
                     </span>
                   )}
@@ -321,8 +202,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   )}
                   <div className={styles.passengerInfo}>
                     <Users size={16} />
-                    {item.passengers.adults} adults,
-                    {/* {item.passengers.children}{" "} children */}
+                    {item.passengers.adults} adults
                     {item.passengers.infants > 0 &&
                       ` ${item.passengers.infants} infants`}
                   </div>

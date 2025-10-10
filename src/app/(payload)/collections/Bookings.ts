@@ -587,6 +587,17 @@ const Bookings: CollectionConfig = {
           },
         },
         {
+          name: "passportExpiry",
+          type: "date",
+          admin: {
+            description: "Passport expiry date (for foreign nationals)",
+            date: {
+              pickerAppearance: "dayOnly",
+              displayFormat: "dd MMM yyyy",
+            },
+          },
+        },
+        {
           name: "whatsappNumber",
           type: "text",
           admin: {

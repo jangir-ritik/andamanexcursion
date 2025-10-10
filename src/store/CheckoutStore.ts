@@ -42,7 +42,10 @@ export interface BookingConfirmation {
     providerBookingId?: string;
     error?: string;
     errorType?: string;
+    pnr?: string;
   };
+  // Full booking details from database
+  fullBookingData?: any;
 }
 
 export interface CheckoutSession {

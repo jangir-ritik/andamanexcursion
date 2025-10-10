@@ -15,21 +15,36 @@ import styles from "./page.module.css";
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentStep = parseInt(searchParams.get("step") || "1", 10);
 
+  // Skip adapter for step 3 - we use bookingConfirmation from store instead
+  const isConfirmationStep = currentStep === 3;
+  
   // Use the new React Query adapter pattern - eliminates complex state management
-  const { bookingType, bookingData, requirements, isLoading, error } =
-    useCheckoutAdapter(searchParams);
+  // For step 3, pass empty params to avoid triggering adapter logic
+  const emptyParams = new URLSearchParams();
+  const adapterResult = useCheckoutAdapter(isConfirmationStep ? emptyParams : searchParams);
+  const { bookingType, bookingData, requirements, isLoading, error } = isConfirmationStep
+    ? { bookingType: null, bookingData: null, requirements: null, isLoading: false, error: null }
+    : adapterResult;
 
   const { ensureValidSession } = useCheckoutSession();
 
   useEffect(() => {
-    ensureValidSession();
-  }, []);
+    if (currentStep !== 3) {
+      ensureValidSession();
+    }
+  }, [currentStep]);
 
   // Use simplified store - only form state and navigation
-  const { formData, updateFormData, setError, reset } = useCheckoutStore();
+  const { formData, updateFormData, setError, reset, bookingConfirmation } = useCheckoutStore();
 
   useEffect(() => {
+    // Skip this logic for step 3
+    if (currentStep === 3) {
+      return;
+    }
+    
     console.log("CheckoutPage - Strategic Adapter Pattern", {
       bookingType,
       bookingData,
@@ -58,7 +73,7 @@ function CheckoutContent() {
       return;
     }
 
-    // Ensure we have valid booking data
+    // Ensure we have valid booking data (not needed for step 3)
     if (!bookingData || bookingData.items.length === 0) {
       console.warn("No booking data found, redirecting...");
       if (bookingType === "ferry") {
@@ -87,6 +102,7 @@ function CheckoutContent() {
       setError(null);
     }
   }, [
+    currentStep,
     bookingType,
     bookingData,
     requirements,
@@ -98,7 +114,8 @@ function CheckoutContent() {
   ]);
 
   // Loading state - clean and simple
-  if (isLoading || !bookingData) {
+  // Step 3 (confirmation) doesn't need bookingData from URL, it uses bookingConfirmation from store
+  if (currentStep !== 3 && (isLoading || !bookingData)) {
     return (
       <Container noPadding>
         <div className={styles.loadingContainer}>
@@ -113,9 +130,35 @@ function CheckoutContent() {
       </Container>
     );
   }
+  
+  // For step 3, check if we have booking confirmation in store
+  if (currentStep === 3 && !bookingConfirmation) {
+    return (
+      <Container>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <div className={styles.errorMessage}>
+              <h2 className={styles.errorTitle}>No Booking Data</h2>
+              <p className={styles.errorDescription}>
+                Booking confirmation not found. Please complete the payment process.
+              </p>
+            </div>
+            <div className={styles.errorActions}>
+              <button
+                onClick={() => router.push("/")}
+                className={styles.homeButton}
+              >
+                Go to Home
+              </button>
+            </div>
+          </div>
+        </div>
+      </Container>
+    );
+  }
 
-  // Error state - user-friendly
-  if (error) {
+  // Error state - user-friendly (not applicable for step 3)
+  if (currentStep !== 3 && error) {
     return (
       <Container>
         <div className={styles.errorContainer}>
@@ -145,10 +188,42 @@ function CheckoutContent() {
   }
 
   // Success state - render checkout flow
+  // For step 3, we don't need full bookingData since ConfirmationStep uses bookingConfirmation
+  // But CheckoutFlow still requires these props, so provide minimal valid data
+  if (currentStep === 3 && bookingConfirmation) {
+    const minimalBookingData = {
+      items: [],
+      totalAmount: 0,
+      type: "ferry" as const,
+      bookingType: "ferry" as const,
+      totalPassengers: 0,
+      totalPrice: 0,
+      requirements: {
+        totalRequired: 0,
+        requiresPassportDetails: false,
+        bookings: [],
+      },
+    };
+    
+    return (
+      <div className={styles.checkoutPage}>
+        <Container noPadding>
+          <CheckoutFlow 
+            bookingData={minimalBookingData} 
+            requirements={minimalBookingData.requirements} 
+          />
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.checkoutPage}>
       <Container noPadding>
-        <CheckoutFlow bookingData={bookingData} requirements={requirements} />
+        <CheckoutFlow 
+          bookingData={bookingData!} 
+          requirements={requirements!} 
+        />
       </Container>
     </div>
   );
