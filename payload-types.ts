@@ -82,7 +82,6 @@ export interface Config {
     'boat-routes': BoatRoute;
     bookings: Booking;
     payments: Payment;
-    'booking-sessions': BookingSession;
     enquiries: Enquiry;
     blogs: Blog;
     'payload-locked-documents': PayloadLockedDocument;
@@ -106,7 +105,6 @@ export interface Config {
     'boat-routes': BoatRoutesSelect<false> | BoatRoutesSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
-    'booking-sessions': BookingSessionsSelect<false> | BookingSessionsSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -1943,173 +1941,6 @@ export interface Payment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "booking-sessions".
- */
-export interface BookingSession {
-  id: string;
-  /**
-   * Unique session identifier (auto-generated)
-   */
-  sessionId: string;
-  /**
-   * User ID if user is logged in (future implementation)
-   */
-  userId?: string | null;
-  /**
-   * Browser/device information
-   */
-  userAgent?: string | null;
-  /**
-   * User's IP address
-   */
-  ipAddress?: string | null;
-  /**
-   * How the user reached the site
-   */
-  referrer?: string | null;
-  /**
-   * User's email (captured during checkout process)
-   */
-  userEmail?: string | null;
-  /**
-   * User's phone number
-   */
-  userPhone?: string | null;
-  /**
-   * User's name
-   */
-  userName?: string | null;
-  cartItems?:
-    | {
-        activity: string | Activity;
-        /**
-         * Selected activity option/variant
-         */
-        activityOptionId?: string | null;
-        /**
-         * Search parameters (date, time, passengers, location)
-         */
-        searchParams?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        quantity: number;
-        /**
-         * Price per unit at time of adding to cart
-         */
-        unitPrice: number;
-        /**
-         * Total price for this item
-         */
-        totalPrice: number;
-        /**
-         * When this item was added to cart
-         */
-        addedAt?: string | null;
-        /**
-         * Is inventory reserved for this item?
-         */
-        inventoryReserved?: boolean | null;
-        /**
-         * When the inventory reservation expires
-         */
-        reservationExpiry?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Partially filled member details from checkout form
-   */
-  memberDetails?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  /**
-   * Last completed checkout step (1=Details, 2=Review, 3=Payment)
-   */
-  checkoutStep?: number | null;
-  status: 'active' | 'abandoned' | 'converted' | 'expired';
-  /**
-   * When this session expires
-   */
-  expiresAt: string;
-  /**
-   * Conversion and analytics data
-   */
-  conversionData?: {
-    /**
-     * The booking this session converted to
-     */
-    convertedBookingId?: (string | null) | Booking;
-    /**
-     * When the conversion happened
-     */
-    convertedAt?: string | null;
-    /**
-     * Final booking amount
-     */
-    totalAmount?: number | null;
-    /**
-     * Time from session start to conversion (minutes)
-     */
-    conversionTimeMinutes?: number | null;
-  };
-  analytics?: {
-    /**
-     * Number of pages viewed in this session
-     */
-    pageViews?: number | null;
-    /**
-     * Total time spent on site (minutes)
-     */
-    timeSpentMinutes?: number | null;
-    /**
-     * Did user abandon cart during checkout?
-     */
-    cartAbandoned?: boolean | null;
-    /**
-     * At which checkout step was cart abandoned
-     */
-    abandonedAtStep?: number | null;
-  };
-  /**
-   * Total number of items in cart
-   */
-  itemCount?: number | null;
-  /**
-   * Total cart amount
-   */
-  totalAmount?: number | null;
-  /**
-   * Abandoned cart recovery attempts
-   */
-  recoveryAttempts?:
-    | {
-        attemptDate: string;
-        method: 'email' | 'whatsapp' | 'sms' | 'push';
-        success?: boolean | null;
-        /**
-         * User response or engagement
-         */
-        response?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "enquiries".
  */
 export interface Enquiry {
@@ -2336,10 +2167,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'payments';
         value: string | Payment;
-      } | null)
-    | ({
-        relationTo: 'booking-sessions';
-        value: string | BookingSession;
       } | null)
     | ({
         relationTo: 'enquiries';
@@ -3550,67 +3377,6 @@ export interface PaymentsSelect<T extends boolean = true> {
         refundStatus?: T;
         refundReason?: T;
         refundedAt?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "booking-sessions_select".
- */
-export interface BookingSessionsSelect<T extends boolean = true> {
-  sessionId?: T;
-  userId?: T;
-  userAgent?: T;
-  ipAddress?: T;
-  referrer?: T;
-  userEmail?: T;
-  userPhone?: T;
-  userName?: T;
-  cartItems?:
-    | T
-    | {
-        activity?: T;
-        activityOptionId?: T;
-        searchParams?: T;
-        quantity?: T;
-        unitPrice?: T;
-        totalPrice?: T;
-        addedAt?: T;
-        inventoryReserved?: T;
-        reservationExpiry?: T;
-        id?: T;
-      };
-  memberDetails?: T;
-  checkoutStep?: T;
-  status?: T;
-  expiresAt?: T;
-  conversionData?:
-    | T
-    | {
-        convertedBookingId?: T;
-        convertedAt?: T;
-        totalAmount?: T;
-        conversionTimeMinutes?: T;
-      };
-  analytics?:
-    | T
-    | {
-        pageViews?: T;
-        timeSpentMinutes?: T;
-        cartAbandoned?: T;
-        abandonedAtStep?: T;
-      };
-  itemCount?: T;
-  totalAmount?: T;
-  recoveryAttempts?:
-    | T
-    | {
-        attemptDate?: T;
-        method?: T;
-        success?: T;
-        response?: T;
-        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

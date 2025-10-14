@@ -27,7 +27,6 @@ import {
   BoatRoutes,
   Bookings,
   Payments,
-  BookingSessions,
   Enquiries,
   Blogs,
 } from "./app/(payload)/collections";
@@ -52,7 +51,6 @@ export default buildConfig({
     BoatRoutes,
     Bookings,
     Payments,
-    BookingSessions,
     Enquiries,
     Blogs,
   ],
