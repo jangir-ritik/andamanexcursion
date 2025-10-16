@@ -11,6 +11,9 @@ interface BeforeUnloadModalProps {
   onLeave: () => void;
   title?: string;
   message?: string;
+  showOnlyStayButton?: boolean; // For informational modals where leaving isn't an option
+  stayButtonLabel?: string; // Custom label for stay button
+  leaveButtonLabel?: string; // Custom label for leave button
 }
 
 export const BeforeUnloadModal: React.FC<BeforeUnloadModalProps> = ({
@@ -19,6 +22,9 @@ export const BeforeUnloadModal: React.FC<BeforeUnloadModalProps> = ({
   onLeave,
   title = "Are you sure you want to leave?",
   message = "Your booking confirmation details will be lost if you leave this page. Make sure to save your booking ID and confirmation details.",
+  showOnlyStayButton = false,
+  stayButtonLabel = "Stay on Page",
+  leaveButtonLabel = "Leave Page",
 }) => {
   if (!isVisible) return null;
 
@@ -32,20 +38,32 @@ export const BeforeUnloadModal: React.FC<BeforeUnloadModalProps> = ({
           <h2 className={styles.title}>{title}</h2>
           <p className={styles.message}>{message}</p>
           <div className={styles.actions}>
-            <Button
-              variant="outline"
-              onClick={onStay}
-              className={styles.stayButton}
-            >
-              Stay on Page
-            </Button>
-            <Button
-              variant="primary"
-              onClick={onLeave}
-              className={styles.leaveButton}
-            >
-              Leave Page
-            </Button>
+            {showOnlyStayButton ? (
+              <Button
+                variant="primary"
+                onClick={onStay}
+                className={styles.stayButton}
+              >
+                {stayButtonLabel === "Stay on Page" ? "Got it" : stayButtonLabel}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={onStay}
+                  className={styles.stayButton}
+                >
+                  {stayButtonLabel}
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={onLeave}
+                  className={styles.leaveButton}
+                >
+                  {leaveButtonLabel}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

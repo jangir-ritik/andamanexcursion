@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button/Button";
 import { useCheckoutStore } from "@/store/CheckoutStore";
+import { useFerryStore } from "@/store/FerryStore";
+import { useBoatStore } from "@/store/BoatStore";
+import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
 import { BeforeUnloadModal } from "@/components/molecules/BeforeUnloadModal";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
@@ -35,6 +38,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 }) => {
   const { bookingConfirmation, formData, resetAfterBooking } =
     useCheckoutStore();
+  const ferryReset = useFerryStore((state) => state.reset);
+  const boatReset = useBoatStore((state) => state.reset);
+  const activityReset = useActivityStoreRQ((state) => state.reset);
   const router = useRouter();
 
   // Debug logging
@@ -84,9 +90,37 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const handleLeavePage = () => {
     setShowBeforeUnloadModal(false);
     if (pendingNavigation) {
-      resetAfterBooking();
+      // Cross-store cleanup: Reset all booking stores
+      resetAfterBooking(); // Checkout store
+      ferryReset(); // Ferry store
+      boatReset(); // Boat store
+      activityReset(); // Activity store
+      
+      console.log("✅ All stores reset. Navigating to:", pendingNavigation);
       router.push(pendingNavigation);
     }
+  };
+
+  // Handler for "Start New Booking" button
+  const handleStartNewBooking = () => {
+    // Cross-store cleanup: Reset all booking stores atomically
+    resetAfterBooking(); // Checkout store
+    ferryReset(); // Ferry store
+    boatReset(); // Boat store
+    activityReset(); // Activity store
+    
+    console.log("✅ All stores reset for new booking");
+    
+    // Determine redirect based on booking type
+    const firstItemType = bookingData?.items?.[0]?.type;
+    const targetPath =
+      firstItemType === "ferry"
+        ? "/ferry"
+        : firstItemType === "boat"
+        ? "/boat"
+        : "/activities";
+    
+    router.push(targetPath);
   };
 
   // Get all booking details from the new unified data structure
@@ -223,9 +257,68 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   };
 
   // Handle download PDF
-  const handleDownloadPDF = () => {
-    console.log("Download PDF functionality to be implemented");
-    alert("PDF download functionality will be implemented");
+  const handleDownloadPDF = async () => {
+    try {
+      console.log("📄 Initiating PDF download...");
+      
+      if (!bookingConfirmation) {
+        console.error("No booking confirmation data available");
+        alert("Unable to generate PDF. Booking data not found.");
+        return;
+      }
+
+      // Debug: Log the data being sent
+      console.log("📊 Sending PDF data:", {
+        bookingConfirmation,
+        fullBookingData: bookingConfirmation.fullBookingData,
+        formData,
+        bookingData,
+      });
+
+      // Show loading state (you can add a loading indicator to the button)
+      const response = await fetch("/api/bookings/generate-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bookingId: bookingConfirmation.bookingId,
+          bookingConfirmation,
+          fullBookingData: bookingConfirmation.fullBookingData, // Use full data from confirmation
+          bookingData: {
+            items: bookingData.items,
+            passengers: formData?.members || [],
+            totalPrice: bookingData.totalPrice,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDF generation failed: ${response.statusText}`);
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Booking_${bookingConfirmation.confirmationNumber}_${Date.now()}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log("✅ PDF downloaded successfully");
+    } catch (error) {
+      console.error("❌ PDF download error:", error);
+      alert("Failed to generate PDF. Please try again or contact support.");
+    }
   };
 
   // Handle print
@@ -261,25 +354,36 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           showDownload: true,
         };
       case "pending":
+        // Check if it's a provider failure (HTTP 500, Server Error, etc.)
+        // Check both top-level providerBooking and booking's ferry providerBooking
+        const providerError = bookingConfirmation.providerBooking?.error || 
+          bookingConfirmation.fullBookingData?.bookedFerries?.[0]?.providerBooking?.errorMessage || "";
+        
+        const isProviderDown = providerError && 
+          (providerError.toLowerCase().includes("http 500") ||
+           providerError.toLowerCase().includes("server error") ||
+           providerError.toLowerCase().includes("internal server") ||
+           providerError.toLowerCase().includes("service unavailable") ||
+           providerError.toLowerCase().includes("timeout"));
+        
         return {
           icon: <Clock size={48} className={styles.pendingIcon} />,
-          title: "Booking Processing",
-          specialWord: "Processing",
-          description:
-            bookingConfirmation.errorMessage ||
-            "Your payment was successful but booking is still processing. You will receive confirmation shortly.",
+          title: "Booking Pending",
+          specialWord: "Pending",
+          description: isProviderDown
+            ? "Payment successful but booking needs manual processing. The ferry provider's system appears to be temporarily unavailable. Our team will complete your booking and contact you shortly."
+            : (bookingConfirmation.errorMessage || "Your payment was successful but booking is still processing. You will receive confirmation shortly."),
           headerClass: styles.pendingHeader,
           showDownload: false,
         };
       case "failed":
         return {
-          icon: <XCircle size={48} className={styles.errorIcon} />,
-          title: "Booking Issue",
-          specialWord: "Issue",
+          icon: <Clock size={48} className={styles.pendingIcon} />,
+          title: "Booking Pending",
+          specialWord: "Pending",
           description:
-            bookingConfirmation.errorMessage ||
-            "Your payment was successful but there was an issue with the booking. Our team will contact you shortly.",
-          headerClass: styles.errorHeader,
+            "Payment successful but booking needs manual processing. The ferry provider's system appears to be temporarily unavailable. Our team will complete your booking and contact you shortly.",
+          headerClass: styles.pendingHeader,
           showDownload: false,
         };
       default:
@@ -315,8 +419,17 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       return "Temporary system issue with ferry operator";
     } else if (lowerError.includes("save passengers failed")) {
       return "Issue processing passenger details";
+    } else if (
+      lowerError.includes("http 500") ||
+      lowerError.includes("server error") ||
+      lowerError.includes("internal server") ||
+      lowerError.includes("service unavailable") ||
+      lowerError.includes("timeout")
+    ) {
+      return "Ferry provider's system is temporarily unavailable";
     } else {
-      return `Ferry booking error: ${error}`;
+      // For any other errors, provide a generic message without technical details
+      return "Booking requires manual processing";
     }
   };
 
@@ -338,8 +451,16 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       return "Your booking will be processed automatically once the system is restored. Please note down the booking ID for future reference.";
     } else if (lowerError.includes("save passengers failed")) {
       return "Our team will contact you within 2 hours to complete your booking.";
+    } else if (
+      lowerError.includes("http 500") ||
+      lowerError.includes("server error") ||
+      lowerError.includes("internal server") ||
+      lowerError.includes("service unavailable") ||
+      lowerError.includes("timeout")
+    ) {
+      return "Your payment was successful. Our team will process your booking manually and contact you within 2 hours to confirm. Please save your booking ID for reference.";
     }
-    return null;
+    return "Our team will review your booking and contact you shortly. Please note down your booking ID.";
   };
 
   return (
@@ -796,21 +917,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         )}
 
         <Button
-          variant="secondary"
+          variant="primary"
           size="large"
-          onClick={() => {
-            const firstItemType = bookingData?.items?.[0]?.type;
-            const targetPath =
-              firstItemType === "ferry"
-                ? "/ferry"
-                : firstItemType === "boat"
-                ? "/boat"
-                : "/activities";
-            handleNavigation(targetPath);
-          }}
+          onClick={handleStartNewBooking}
           className={styles.newBookingButton}
         >
-          Make Another Booking
+          Start New Booking
         </Button>
       </div>
 
