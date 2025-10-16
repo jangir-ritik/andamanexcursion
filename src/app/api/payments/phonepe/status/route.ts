@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log("Checking payment status for transaction:", merchantTransactionId);
+    console.log(
+      "Checking payment status for transaction:",
+      merchantTransactionId
+    );
 
     // Check payment status with PhonePe
     const statusResponse = await phonePeService.checkPaymentStatus(
@@ -49,14 +52,14 @@ export async function GET(req: NextRequest) {
     }
 
     const paymentRecord = paymentRecords.docs[0];
-    
+
     // Debug: Log payment record structure
     console.log("Payment record found:", {
       id: paymentRecord.id,
       hasBookingData: !!paymentRecord.bookingData,
       bookingDataType: typeof paymentRecord.bookingData,
     });
-    
+
     // Parse bookingData if it's a string
     let bookingData: any = paymentRecord.bookingData;
     if (typeof bookingData === "string") {
@@ -67,7 +70,7 @@ export async function GET(req: NextRequest) {
         console.error("Failed to parse bookingData:", e);
       }
     }
-    
+
     if (!bookingData) {
       console.error("No booking data found in payment record");
       return NextResponse.json(
@@ -75,7 +78,7 @@ export async function GET(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     console.log("Booking data retrieved:", {
       bookingType: bookingData.bookingType,
       hasItems: !!bookingData.items,
@@ -87,7 +90,7 @@ export async function GET(req: NextRequest) {
     // Update payment record with status
     // Get existing phonepeData and merge with new data to avoid conflicts
     const existingPhonepeData = (paymentRecord as any).phonepeData || {};
-    
+
     await payload.update({
       collection: "payments",
       id: paymentRecord.id,
@@ -196,7 +199,7 @@ async function processBooking(
   if (bookingType === "ferry" && items.length > 0) {
     // Process ferry booking with external API
     const ferryItem = items[0];
-    
+
     console.log("Ferry item structure:", {
       hasId: !!ferryItem.id,
       hasFerryId: !!ferryItem.ferryId,
@@ -205,19 +208,23 @@ async function processBooking(
       itemKeys: Object.keys(ferryItem),
       ferryItem: JSON.stringify(ferryItem, null, 2),
     });
-    
-    const ferryId = ferryItem.ferryId || ferryItem.ferry?.ferryId || ferryItem.ferry?.id;
+
+    const ferryId =
+      ferryItem.ferryId || ferryItem.ferry?.ferryId || ferryItem.ferry?.id;
 
     if (!ferryId) {
       console.error("Ferry ID extraction failed:", { ferryItem });
       throw new Error("Ferry ID not found in booking data");
     }
-    
+
     console.log("Extracted ferry ID:", ferryId);
 
     // Extract operator from ferry data
-    const operator = ferryItem.ferry.operator as "sealink" | "makruzz" | "greenocean";
-    
+    const operator = ferryItem.ferry.operator as
+      | "sealink"
+      | "makruzz"
+      | "greenocean";
+
     // Count passengers
     const adults = ferryItem.passengers?.adults || 1;
     const children = ferryItem.passengers?.children || 0;
@@ -256,7 +263,7 @@ async function processBooking(
       paymentReference: orderId,
       totalAmount: ferryItem.price,
     };
-    
+
     console.log("Booking request prepared:", {
       operator: bookingRequest.operator,
       ferryId: bookingRequest.ferryId,
@@ -265,7 +272,16 @@ async function processBooking(
     });
 
     // Call ferry booking service with proper request object
-    const ferryBookingResult = await FerryBookingService.bookFerry(bookingRequest);
+    const ferryBookingResult = await FerryBookingService.bookFerry(
+      bookingRequest
+    );
+
+    // Determine booking status based on provider booking result
+    // Use "pending" when payment succeeded but provider booking failed (needs manual processing)
+    const bookingStatus = ferryBookingResult.success ? "confirmed" : "pending";
+    const providerBookingStatus = ferryBookingResult.success
+      ? "confirmed"
+      : "failed";
 
     // Create booking record with full details (matching old Razorpay implementation)
     const booking = await payload.create({
@@ -275,71 +291,111 @@ async function processBooking(
         bookingType: "ferry",
         serviceDate: ferryItem.date,
         customerInfo: {
-          primaryContactName: bookingData.contactDetails?.primaryName || bookingData.members?.[0]?.fullName || "",
+          primaryContactName:
+            bookingData.contactDetails?.primaryName ||
+            bookingData.members?.[0]?.fullName ||
+            "",
           customerEmail: bookingData.contactDetails?.email || "",
           customerPhone: bookingData.contactDetails?.whatsapp || "",
           nationality: bookingData.nationality || "Indian",
         },
-        
+
         // Ferry booking details
-        bookedFerries: [{
-          operator: ferryItem.ferry.operator as "sealink" | "makruzz" | "greenocean",
-          ferryName: ferryItem.ferry?.ferryName || ferryItem.title || "Unknown Ferry",
-          route: {
-            from: ferryItem.ferry?.route?.from?.name || ferryItem.ferry?.fromLocation || "Unknown",
-            to: ferryItem.ferry?.route?.to?.name || ferryItem.ferry?.toLocation || "Unknown",
-            fromCode: ferryItem.ferry?.route?.from?.code || ferryItem.ferry?.route?.fromCode || "",
-            toCode: ferryItem.ferry?.route?.to?.code || ferryItem.ferry?.route?.toCode || "",
+        bookedFerries: [
+          {
+            operator: ferryItem.ferry.operator as
+              | "sealink"
+              | "makruzz"
+              | "greenocean",
+            ferryName:
+              ferryItem.ferry?.ferryName || ferryItem.title || "Unknown Ferry",
+            route: {
+              from:
+                ferryItem.ferry?.route?.from?.name ||
+                ferryItem.ferry?.fromLocation ||
+                "Unknown",
+              to:
+                ferryItem.ferry?.route?.to?.name ||
+                ferryItem.ferry?.toLocation ||
+                "Unknown",
+              fromCode:
+                ferryItem.ferry?.route?.from?.code ||
+                ferryItem.ferry?.route?.fromCode ||
+                "",
+              toCode:
+                ferryItem.ferry?.route?.to?.code ||
+                ferryItem.ferry?.route?.toCode ||
+                "",
+            },
+            schedule: {
+              departureTime:
+                ferryItem.ferry?.schedule?.departureTime ||
+                ferryItem.time ||
+                "Unknown",
+              arrivalTime: ferryItem.ferry?.schedule?.arrivalTime || "Unknown",
+              duration: ferryItem.ferry?.schedule?.duration || "Unknown",
+              travelDate: new Date(ferryItem.date).toISOString(),
+            },
+            selectedClass: {
+              classId:
+                ferryItem.selectedClass?.id ||
+                ferryItem.ferry?.selectedClass?.id ||
+                "unknown",
+              className:
+                ferryItem.selectedClass?.name ||
+                ferryItem.ferry?.selectedClass?.name ||
+                "Unknown Class",
+              price:
+                ferryItem.selectedClass?.price ||
+                ferryItem.ferry?.selectedClass?.price ||
+                0,
+            },
+            passengers: {
+              adults: ferryItem.passengers?.adults || 0,
+              children: ferryItem.passengers?.children || 0,
+              infants: ferryItem.passengers?.infants || 0,
+            },
+            selectedSeats: (ferryItem.selectedSeats || []).map((seat: any) => ({
+              seatNumber:
+                seat.number || seat.seatNumber || seat || "Auto-assigned",
+              seatId: seat.id || seat.seatId || "",
+              passengerName: "",
+            })),
+            providerBooking: {
+              pnr: ferryBookingResult.pnr || "",
+              operatorBookingId: ferryBookingResult.providerBookingId || "",
+              bookingStatus: providerBookingStatus,
+              providerResponse: JSON.stringify(ferryBookingResult),
+              errorMessage: ferryBookingResult.success
+                ? ""
+                : ferryBookingResult.error || "Booking failed",
+            },
+            totalPrice: ferryItem.price || 0,
           },
-          schedule: {
-            departureTime: ferryItem.ferry?.schedule?.departureTime || ferryItem.time || "Unknown",
-            arrivalTime: ferryItem.ferry?.schedule?.arrivalTime || "Unknown",
-            duration: ferryItem.ferry?.schedule?.duration || "Unknown",
-            travelDate: new Date(ferryItem.date).toISOString(),
-          },
-          selectedClass: {
-            classId: ferryItem.selectedClass?.id || ferryItem.ferry?.selectedClass?.id || "unknown",
-            className: ferryItem.selectedClass?.name || ferryItem.ferry?.selectedClass?.name || "Unknown Class",
-            price: ferryItem.selectedClass?.price || ferryItem.ferry?.selectedClass?.price || 0,
-          },
-          passengers: {
-            adults: ferryItem.passengers?.adults || 0,
-            children: ferryItem.passengers?.children || 0,
-            infants: ferryItem.passengers?.infants || 0,
-          },
-          selectedSeats: (ferryItem.selectedSeats || []).map((seat: any) => ({
-            seatNumber: seat.number || seat.seatNumber || seat || "Auto-assigned",
-            seatId: seat.id || seat.seatId || "",
-            passengerName: "",
-          })),
-          providerBooking: {
-            pnr: ferryBookingResult.pnr || "",
-            operatorBookingId: ferryBookingResult.providerBookingId || "",
-            bookingStatus: "confirmed",
-            providerResponse: JSON.stringify(ferryBookingResult),
-            errorMessage: "",
-          },
-          totalPrice: ferryItem.price || 0,
-        }],
-        
+        ],
+
         // Passenger details
-        passengers: (bookingData.members || []).map((member: any, memberIndex: number) => ({
-          isPrimary: memberIndex === 0,
-          fullName: member.fullName,
-          age: member.age,
-          gender: member.gender,
-          nationality: member.nationality || "Indian",
-          passportNumber: member.passportNumber || "",
-          passportExpiry: member.fexpdate || member.passportExpiry || "",
-          whatsappNumber: memberIndex === 0 
-            ? bookingData.contactDetails?.whatsapp || member.whatsappNumber 
-            : member.whatsappNumber,
-          email: memberIndex === 0 
-            ? bookingData.contactDetails?.email || member.email 
-            : member.email,
-          assignedActivities: [],
-        })),
-        
+        passengers: (bookingData.members || []).map(
+          (member: any, memberIndex: number) => ({
+            isPrimary: memberIndex === 0,
+            fullName: member.fullName,
+            age: member.age,
+            gender: member.gender,
+            nationality: member.nationality || "Indian",
+            passportNumber: member.passportNumber || "",
+            passportExpiry: member.fexpdate || member.passportExpiry || "",
+            whatsappNumber:
+              memberIndex === 0
+                ? bookingData.contactDetails?.whatsapp || member.whatsappNumber
+                : member.whatsappNumber,
+            email:
+              memberIndex === 0
+                ? bookingData.contactDetails?.email || member.email
+                : member.email,
+            assignedActivities: [],
+          })
+        ),
+
         // Pricing details
         pricing: {
           subtotal: ferryItem.price,
@@ -348,8 +404,8 @@ async function processBooking(
           totalAmount: ferryItem.price,
           currency: "INR",
         },
-        
-        status: "confirmed",
+
+        status: bookingStatus,
         paymentStatus: "paid",
         paymentTransactions: [paymentId],
         termsAccepted: true,
@@ -367,13 +423,20 @@ async function processBooking(
       passengers: booking.passengers?.length,
       pricing: booking.pricing,
     });
-    
-    console.log("Full ferry booking object being returned:", JSON.stringify({
-      bookedFerries: booking.bookedFerries,
-      passengers: booking.passengers,
-      pricing: booking.pricing,
-      customerInfo: booking.customerInfo,
-    }, null, 2));
+
+    console.log(
+      "Full ferry booking object being returned:",
+      JSON.stringify(
+        {
+          bookedFerries: booking.bookedFerries,
+          passengers: booking.passengers,
+          pricing: booking.pricing,
+          customerInfo: booking.customerInfo,
+        },
+        null,
+        2
+      )
+    );
 
     return {
       success: ferryBookingResult.success,
@@ -383,63 +446,80 @@ async function processBooking(
   } else {
     // For activity/boat bookings - create booking record with full details
     const firstItem = items[0] || {};
-    
+
     // Process activities for booking
-    const bookedActivities = bookingType === "activity" && items.length > 0
-      ? items.map((item: any) => {
-          console.log("Processing activity item for booking:", {
-            price: item.price,
-            time: item.time,
-            passengers: item.passengers,
-            searchParams: item.searchParams,
-          });
-          
-          return {
-            activity: item.activity?.id || null,
-            activityOption: item.searchParams?.activityType || "",
-            quantity: 1,
-            unitPrice: item.price || 0,
-            totalPrice: item.price || 0,
-            scheduledTime: item.time || "",
-            location: item.location?.id || null,
-            passengers: {
-              adults: item.passengers?.adults || 0,
-              children: 0,
-              infants: 0,
-            },
-          };
-        })
-      : [];
-    
+    const bookedActivities =
+      bookingType === "activity" && items.length > 0
+        ? items.map((item: any) => {
+            console.log("Processing activity item for booking:", {
+              price: item.price,
+              time: item.time,
+              passengers: item.passengers,
+              searchParams: item.searchParams,
+            });
+
+            return {
+              activity: item.activity?.id || null,
+              activityOption: item.searchParams?.activityType || "",
+              quantity: 1,
+              unitPrice: item.price || 0,
+              totalPrice: item.price || 0,
+              scheduledTime: item.time || "",
+              location: item.location?.id || null,
+              passengers: {
+                adults: item.passengers?.adults || 0,
+                children: 0,
+                infants: 0,
+              },
+            };
+          })
+        : [];
+
     console.log("Processed bookedActivities:", bookedActivities);
-    
+
     // Process boats for booking
-    const bookedBoats = bookingType === "boat" && firstItem
-      ? [{
-          boatRoute: firstItem.boat?.id || null,
-          boatName: firstItem.boat?.name || firstItem.title || "Unknown Boat",
-          route: {
-            from: firstItem.boat?.route?.from || firstItem.location || "Unknown",
-            to: firstItem.boat?.route?.to || "Unknown",
-          },
-          schedule: {
-            departureTime: firstItem.selectedTime || firstItem.time || "Unknown",
-            duration: firstItem.boat?.route?.minTimeAllowed || firstItem.boat?.minTimeAllowed || "Unknown",
-            travelDate: new Date(firstItem.date || new Date()).toISOString(),
-          },
-          passengers: {
-            adults: firstItem.passengers?.adults || 0,
-            children: 0,
-            infants: 0,
-          },
-          totalPrice: firstItem.price || 0,
-        }]
-      : [];
-    
+    const bookedBoats =
+      bookingType === "boat" && firstItem
+        ? [
+            {
+              boatRoute: firstItem.boat?.id || null,
+              boatName:
+                firstItem.boat?.name || firstItem.title || "Unknown Boat",
+              route: {
+                from:
+                  firstItem.boat?.route?.from ||
+                  firstItem.location ||
+                  "Unknown",
+                to: firstItem.boat?.route?.to || "Unknown",
+              },
+              schedule: {
+                departureTime:
+                  firstItem.selectedTime || firstItem.time || "Unknown",
+                duration:
+                  firstItem.boat?.route?.minTimeAllowed ||
+                  firstItem.boat?.minTimeAllowed ||
+                  "Unknown",
+                travelDate: new Date(
+                  firstItem.date || new Date()
+                ).toISOString(),
+              },
+              passengers: {
+                adults: firstItem.passengers?.adults || 0,
+                children: 0,
+                infants: 0,
+              },
+              totalPrice: firstItem.price || 0,
+            },
+          ]
+        : [];
+
     console.log("Creating booking with data:", {
       bookingType,
       customerInfo: {
-        primaryContactName: bookingData.contactDetails?.primaryName || bookingData.members?.[0]?.fullName || "",
+        primaryContactName:
+          bookingData.contactDetails?.primaryName ||
+          bookingData.members?.[0]?.fullName ||
+          "",
         customerEmail: bookingData.contactDetails?.email || "",
       },
       bookedActivitiesCount: bookedActivities.length,
@@ -455,37 +535,47 @@ async function processBooking(
       depth: 2, // Populate relationships
       data: {
         bookingType: bookingType,
-        serviceDate: firstItem.date || new Date().toISOString().split('T')[0],
+        serviceDate: firstItem.date || new Date().toISOString().split("T")[0],
         customerInfo: {
-          primaryContactName: bookingData.contactDetails?.primaryName || bookingData.members?.[0]?.fullName || "",
+          primaryContactName:
+            bookingData.contactDetails?.primaryName ||
+            bookingData.members?.[0]?.fullName ||
+            "",
           customerEmail: bookingData.contactDetails?.email || "",
           customerPhone: bookingData.contactDetails?.whatsapp || "",
           nationality: bookingData.nationality || "Indian",
         },
-        
+
         bookedActivities: bookedActivities,
         bookedBoats: bookedBoats,
-        
+
         // Passenger details
-        passengers: (bookingData.members || []).map((member: any, memberIndex: number) => ({
-          isPrimary: memberIndex === 0,
-          fullName: member.fullName,
-          age: member.age,
-          gender: member.gender,
-          nationality: member.nationality || "Indian",
-          passportNumber: member.passportNumber || "",
-          passportExpiry: member.fexpdate || member.passportExpiry || "",
-          whatsappNumber: memberIndex === 0 
-            ? bookingData.contactDetails?.whatsapp || member.whatsappNumber 
-            : member.whatsappNumber,
-          email: memberIndex === 0 
-            ? bookingData.contactDetails?.email || member.email 
-            : member.email,
-          assignedActivities: bookingType === "activity"
-            ? items.map((item: any, itemIndex: number) => ({ activityIndex: itemIndex }))
-            : [],
-        })),
-        
+        passengers: (bookingData.members || []).map(
+          (member: any, memberIndex: number) => ({
+            isPrimary: memberIndex === 0,
+            fullName: member.fullName,
+            age: member.age,
+            gender: member.gender,
+            nationality: member.nationality || "Indian",
+            passportNumber: member.passportNumber || "",
+            passportExpiry: member.fexpdate || member.passportExpiry || "",
+            whatsappNumber:
+              memberIndex === 0
+                ? bookingData.contactDetails?.whatsapp || member.whatsappNumber
+                : member.whatsappNumber,
+            email:
+              memberIndex === 0
+                ? bookingData.contactDetails?.email || member.email
+                : member.email,
+            assignedActivities:
+              bookingType === "activity"
+                ? items.map((item: any, itemIndex: number) => ({
+                    activityIndex: itemIndex,
+                  }))
+                : [],
+          })
+        ),
+
         pricing: {
           subtotal: bookingData.totalPrice || firstItem.price || 0,
           taxes: 0,
@@ -493,7 +583,7 @@ async function processBooking(
           totalAmount: bookingData.totalPrice || firstItem.price || 0,
           currency: "INR",
         },
-        
+
         status: "confirmed",
         paymentStatus: "paid",
         paymentTransactions: [paymentId],
@@ -512,13 +602,20 @@ async function processBooking(
       passengers: booking.passengers?.length,
       pricing: booking.pricing,
     });
-    
-    console.log("Full booking object being returned:", JSON.stringify({
-      bookedActivities: booking.bookedActivities,
-      passengers: booking.passengers,
-      pricing: booking.pricing,
-      customerInfo: booking.customerInfo,
-    }, null, 2));
+
+    console.log(
+      "Full booking object being returned:",
+      JSON.stringify(
+        {
+          bookedActivities: booking.bookedActivities,
+          passengers: booking.passengers,
+          pricing: booking.pricing,
+          customerInfo: booking.customerInfo,
+        },
+        null,
+        2
+      )
+    );
 
     return {
       success: true,

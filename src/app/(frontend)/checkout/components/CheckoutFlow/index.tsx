@@ -1,6 +1,10 @@
 "use client";
-import React, { useLayoutEffect, useEffect } from "react";
+import React, { useLayoutEffect, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCheckoutStore } from "@/store/CheckoutStore";
+import { useFerryStore } from "@/store/FerryStore";
+import { useBoatStore } from "@/store/BoatStore";
+import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
 import { StepIndicator } from "@/app/(frontend)/plan-your-trip/components/StepIndicator";
 import { MemberDetailsStep } from "../MemberDetailsStep";
 import { ReviewStep } from "../ReviewStep";
@@ -42,18 +46,27 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
   bookingData,
   requirements,
 }) => {
+  const router = useRouter();
   const {
     currentStep,
     setCurrentStep,
     bookingConfirmation,
     formData,
     cleanupOrphanedSessions,
+    resetAfterBooking,
     isLoading,
   } = useCheckoutStore();
+  
+  const ferryReset = useFerryStore((state) => state.reset);
+  const boatReset = useBoatStore((state) => state.reset);
+  const activityReset = useActivityStoreRQ((state) => state.reset);
 
   // Add global checkout protection for all page navigation
   const { showBeforeUnloadModal, handleStayOnPage, handleLeavePage } = 
     useCheckoutProtection({ step: currentStep });
+
+  // State for step navigation modal
+  const [showStepNavigationModal, setShowStepNavigationModal] = useState(false);
 
   // Clean up orphaned sessions on mount
   useEffect(() => {
@@ -74,6 +87,31 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
       formData,
     });
   }, [bookingData, requirements, currentStep, formData]);
+
+  // Handler for "Start New Booking" from modal
+  const handleStartNewBooking = () => {
+    // Close modal first
+    setShowStepNavigationModal(false);
+    
+    // Cross-store cleanup: Reset all booking stores
+    resetAfterBooking(); // Checkout store
+    ferryReset(); // Ferry store
+    boatReset(); // Boat store
+    activityReset(); // Activity store
+    
+    console.log("✅ All stores reset for new booking from modal");
+    
+    // Determine redirect based on booking type
+    const firstItemType = bookingData?.items?.[0]?.type;
+    const targetPath =
+      firstItemType === "ferry"
+        ? "/ferry"
+        : firstItemType === "boat"
+        ? "/boat"
+        : "/activities";
+    
+    router.push(targetPath);
+  };
 
   // Render appropriate step content
   const renderStepContent = () => {
@@ -112,13 +150,31 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
           steps={CHECKOUT_STEPS}
           currentStep={currentStep}
           onStepClick={(step) => {
-            // Allow navigation to previous steps or current step
-            if (step <= currentStep) {
+            // GUARD: Block navigation away from confirmation step (step 3)
+            if (currentStep === 3 && bookingConfirmation) {
+              setShowStepNavigationModal(true);
+              return;
+            }
+            
+            // GUARD: Block direct navigation TO confirmation step without booking
+            if (step === 3 && !bookingConfirmation) {
+              return; // Silently block - can't jump to confirmation
+            }
+            
+            // Allow normal backward navigation for steps 1-2
+            if (step <= currentStep && currentStep < 3) {
               setCurrentStep(step);
             }
           }}
           isStepCompleted={(step) => step < currentStep}
-          isStepAccessible={(step) => step <= currentStep}
+          isStepAccessible={(step) => {
+            // Step 3 is only accessible after booking is confirmed
+            if (step === 3) {
+              return currentStep === 3 && bookingConfirmation !== null;
+            }
+            // Steps 1-2 are accessible normally
+            return step <= currentStep;
+          }}
         />
       </div>
 
@@ -152,6 +208,19 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
           onLeave={handleLeavePage}
           title="Leave checkout process?"
           message={`You'll lose all your progress if you leave now. Are you sure you want to continue?`}
+        />
+      )}
+
+      {/* Step Navigation Modal - prevents going back from confirmation */}
+      {showStepNavigationModal && (
+        <BeforeUnloadModal
+          isVisible={showStepNavigationModal}
+          onStay={() => setShowStepNavigationModal(false)}
+          onLeave={handleStartNewBooking}
+          title="Booking Complete"
+          message="Your booking has been confirmed! Would you like to start a new booking or stay on this page to review your details?"
+          stayButtonLabel="Stay on Page"
+          leaveButtonLabel="Start New Booking"
         />
       )}
 

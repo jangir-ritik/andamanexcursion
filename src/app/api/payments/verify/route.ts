@@ -756,38 +756,8 @@ export async function POST(request: NextRequest) {
         // Don't fail the booking process for email errors
       }
 
-      // Update booking session status if sessionId provided
-      if (sessionId) {
-        try {
-          const sessions = await payload.find({
-            collection: "booking-sessions",
-            where: {
-              sessionId: {
-                equals: sessionId,
-              },
-            },
-            limit: 1,
-          });
-
-          if (sessions.docs.length > 0) {
-            await payload.update({
-              collection: "booking-sessions",
-              id: sessions.docs[0].id,
-              data: {
-                status: "converted",
-                conversionData: {
-                  convertedBookingId: bookingRecord.id,
-                  convertedAt: new Date().toISOString(),
-                  totalAmount: bookingData.totalPrice,
-                },
-              },
-            });
-          }
-        } catch (sessionError) {
-          console.error("Failed to update booking session:", sessionError);
-          // Don't fail the entire process for session update failure
-        }
-      }
+      // REMOVED: BookingSessions collection is deprecated
+      // Future: Use PNR-based booking lookup instead
 
       console.log("Booking created successfully:", {
         bookingId: bookingRecord.bookingId,

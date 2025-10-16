@@ -1,34 +1,57 @@
 "use client";
 
 import React, { useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCheckoutAdapter } from "@/utils/CheckoutAdapter";
 import {
   useCheckoutStore,
   createDefaultFormData,
   useCheckoutSession,
 } from "@/store/CheckoutStore";
+import { useFerryStore } from "@/store/FerryStore";
+import { useBoatStore } from "@/store/BoatStore";
+import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
 import { CheckoutFlow } from "./components/CheckoutFlow";
 import { Container } from "@/components/layout";
 import styles from "./page.module.css";
+import NoBookingsCard from "@/components/molecules/Cards/ComponentStateCards/NoBookingsCard";
 
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const currentStep = parseInt(searchParams.get("step") || "1", 10);
 
   // Skip adapter for step 3 - we use bookingConfirmation from store instead
   const isConfirmationStep = currentStep === 3;
-  
+
   // Use the new React Query adapter pattern - eliminates complex state management
   // For step 3, pass empty params to avoid triggering adapter logic
   const emptyParams = new URLSearchParams();
-  const adapterResult = useCheckoutAdapter(isConfirmationStep ? emptyParams : searchParams);
-  const { bookingType, bookingData, requirements, isLoading, error } = isConfirmationStep
-    ? { bookingType: null, bookingData: null, requirements: null, isLoading: false, error: null }
-    : adapterResult;
+  const adapterResult = useCheckoutAdapter(
+    isConfirmationStep ? emptyParams : searchParams
+  );
+  const { bookingType, bookingData, requirements, isLoading, error } =
+    isConfirmationStep
+      ? {
+          bookingType: null,
+          bookingData: null,
+          requirements: null,
+          isLoading: false,
+          error: null,
+        }
+      : adapterResult;
 
   const { ensureValidSession } = useCheckoutSession();
+
+  // Use simplified store - only form state and navigation
+  const { formData, updateFormData, setError, reset, bookingConfirmation, resetAfterBooking } =
+    useCheckoutStore();
+  
+  // Get reset functions from other stores for cross-store cleanup
+  const ferryReset = useFerryStore((state) => state.reset);
+  const boatReset = useBoatStore((state) => state.reset);
+  const activityReset = useActivityStoreRQ((state) => state.reset);
 
   useEffect(() => {
     if (currentStep !== 3) {
@@ -36,15 +59,40 @@ function CheckoutContent() {
     }
   }, [currentStep]);
 
-  // Use simplified store - only form state and navigation
-  const { formData, updateFormData, setError, reset, bookingConfirmation } = useCheckoutStore();
+  // CRITICAL: Auto-cleanup when navigating away from confirmation page
+  useEffect(() => {
+    // Only set up cleanup if we're on step 3 (confirmation)
+    if (currentStep !== 3 || !bookingConfirmation) {
+      return;
+    }
+
+    console.log("🔒 Confirmation page mounted - setting up navigation cleanup");
+
+    // Cleanup function that runs when component unmounts or route changes
+    return () => {
+      // Check if we're actually leaving the checkout page
+      const isLeavingCheckout = !window.location.pathname.includes("/checkout");
+      
+      if (isLeavingCheckout) {
+        console.log("🧹 User navigating away from confirmation - resetting all stores");
+        
+        // Reset all stores atomically
+        resetAfterBooking(); // Checkout store
+        ferryReset(); // Ferry store
+        boatReset(); // Boat store  
+        activityReset(); // Activity store
+        
+        console.log("✅ All stores reset successfully");
+      }
+    };
+  }, [currentStep, bookingConfirmation, resetAfterBooking, ferryReset, boatReset, activityReset]);
 
   useEffect(() => {
     // Skip this logic for step 3
     if (currentStep === 3) {
       return;
     }
-    
+
     console.log("CheckoutPage - Strategic Adapter Pattern", {
       bookingType,
       bookingData,
@@ -130,31 +178,10 @@ function CheckoutContent() {
       </Container>
     );
   }
-  
+
   // For step 3, check if we have booking confirmation in store
   if (currentStep === 3 && !bookingConfirmation) {
-    return (
-      <Container>
-        <div className={styles.errorContainer}>
-          <div className={styles.errorContent}>
-            <div className={styles.errorMessage}>
-              <h2 className={styles.errorTitle}>No Booking Data</h2>
-              <p className={styles.errorDescription}>
-                Booking confirmation not found. Please complete the payment process.
-              </p>
-            </div>
-            <div className={styles.errorActions}>
-              <button
-                onClick={() => router.push("/")}
-                className={styles.homeButton}
-              >
-                Go to Home
-              </button>
-            </div>
-          </div>
-        </div>
-      </Container>
-    );
+    return <NoBookingsCard onRetry={() => router.push("/")} text="No Booking Data" />;
   }
 
   // Error state - user-friendly (not applicable for step 3)
@@ -204,13 +231,13 @@ function CheckoutContent() {
         bookings: [],
       },
     };
-    
+
     return (
       <div className={styles.checkoutPage}>
         <Container noPadding>
-          <CheckoutFlow 
-            bookingData={minimalBookingData} 
-            requirements={minimalBookingData.requirements} 
+          <CheckoutFlow
+            bookingData={minimalBookingData}
+            requirements={minimalBookingData.requirements}
           />
         </Container>
       </div>
@@ -220,10 +247,7 @@ function CheckoutContent() {
   return (
     <div className={styles.checkoutPage}>
       <Container noPadding>
-        <CheckoutFlow 
-          bookingData={bookingData!} 
-          requirements={requirements!} 
-        />
+        <CheckoutFlow bookingData={bookingData!} requirements={requirements!} />
       </Container>
     </div>
   );
