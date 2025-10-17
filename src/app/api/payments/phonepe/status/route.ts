@@ -148,15 +148,30 @@ export async function GET(req: NextRequest) {
           bookingError
         );
 
+        // Determine user-friendly error message and details based on error type
+        const { userMessage, errorType, requiresRefund } = categorizeBookingError(
+          bookingError.message,
+          bookingData.bookingType
+        );
+
+        console.error("⚠️ POST-PAYMENT BOOKING FAILURE:", {
+          errorType,
+          requiresRefund,
+          transactionId: statusResponse.transactionId,
+          bookingId: failedBooking.id,
+          errorMessage: bookingError.message,
+        });
+
         return NextResponse.json({
           success: false,
           status: statusResponse.state,
           transactionId: statusResponse.transactionId,
           booking: failedBooking,
           error: "Booking processing failed",
+          errorType,
+          requiresRefund,
           details: bookingError.message,
-          message:
-            "Your payment was successful. Our team will process your booking and contact you shortly.",
+          message: userMessage,
         });
       }
     }
@@ -649,4 +664,119 @@ async function createFailedBookingRecord(
       createdAt: new Date().toISOString(),
     },
   });
+}
+
+/**
+ * Categorize booking errors to provide user-friendly messages
+ */
+function categorizeBookingError(
+  errorMessage: string,
+  bookingType: string
+): {
+  userMessage: string;
+  errorType: string;
+  requiresRefund: boolean;
+} {
+  const lowerError = errorMessage.toLowerCase();
+
+  // Seat already booked - most common post-payment failure
+  if (
+    lowerError.includes("already booked") ||
+    lowerError.includes("seat") && lowerError.includes("not available") ||
+    lowerError.includes("seats are taken")
+  ) {
+    return {
+      errorType: "SEAT_UNAVAILABLE",
+      requiresRefund: true,
+      userMessage:
+        "⚠️ Payment Successful - Seat Selection Issue\n\n" +
+        "Your payment of ₹{amount} has been successfully processed. However, the seats you selected are no longer available as they were booked by another customer during checkout.\n\n" +
+        "What happens next:\n" +
+        "✓ Your payment is safe and secure\n" +
+        "✓ Our team will contact you within 2 hours\n" +
+        "✓ We'll offer you alternative seats on the same ferry\n" +
+        "✓ If alternatives aren't suitable, we'll process a full refund within 5-7 business days\n\n" +
+        "You'll receive an email at {email} with next steps.\n\n" +
+        "For immediate assistance, call us at +91-XXXX-XXXX\n" +
+        "Booking Reference: {bookingId}",
+    };
+  }
+
+  // Capacity/availability issues
+  if (
+    lowerError.includes("capacity") ||
+    lowerError.includes("full") ||
+    lowerError.includes("no availability") ||
+    lowerError.includes("sold out")
+  ) {
+    return {
+      errorType: "CAPACITY_FULL",
+      requiresRefund: true,
+      userMessage:
+        "⚠️ Payment Successful - Ferry Fully Booked\n\n" +
+        "Your payment has been processed, but unfortunately this ferry has reached full capacity.\n\n" +
+        "What happens next:\n" +
+        "✓ Our team will contact you within 2 hours\n" +
+        "✓ We'll suggest alternative ferry timings\n" +
+        "✓ If no alternatives work, full refund in 5-7 business days\n\n" +
+        "Booking Reference: {bookingId}",
+    };
+  }
+
+  // Date/schedule issues
+  if (
+    lowerError.includes("date") ||
+    lowerError.includes("schedule") ||
+    lowerError.includes("cancelled") ||
+    lowerError.includes("not operating")
+  ) {
+    return {
+      errorType: "SCHEDULE_ISSUE",
+      requiresRefund: true,
+      userMessage:
+        "⚠️ Payment Successful - Schedule Change\n\n" +
+        "Your payment was successful, but there's an issue with the ferry schedule.\n\n" +
+        "What happens next:\n" +
+        "✓ Our team will contact you within 2 hours\n" +
+        "✓ We'll help you book an alternative ferry\n" +
+        "✓ Full refund available if needed (5-7 business days)\n\n" +
+        "Booking Reference: {bookingId}",
+    };
+  }
+
+  // API/technical errors
+  if (
+    lowerError.includes("timeout") ||
+    lowerError.includes("connection") ||
+    lowerError.includes("network") ||
+    lowerError.includes("api")
+  ) {
+    return {
+      errorType: "TECHNICAL_ERROR",
+      requiresRefund: false,
+      userMessage:
+        "⚠️ Payment Successful - Processing Your Booking\n\n" +
+        "Your payment was successful but we encountered a technical issue while confirming your booking.\n\n" +
+        "What happens next:\n" +
+        "✓ Our team is actively processing your booking\n" +
+        "✓ You'll receive confirmation within 1-2 hours\n" +
+        "✓ No action needed from your side\n\n" +
+        "Booking Reference: {bookingId}",
+    };
+  }
+
+  // Generic/unknown error
+  return {
+    errorType: "UNKNOWN",
+    requiresRefund: false,
+    userMessage:
+      "⚠️ Payment Successful - Booking Being Processed\n\n" +
+      "Your payment was successful. We're currently processing your booking and will confirm shortly.\n\n" +
+      "What happens next:\n" +
+      "✓ Our team will review and process your booking\n" +
+      "✓ You'll receive confirmation within 2-4 hours\n" +
+      "✓ If any issues arise, we'll contact you immediately\n\n" +
+      "Booking Reference: {bookingId}\n\n" +
+      "For questions, contact us at +91-XXXX-XXXX",
+  };
 }

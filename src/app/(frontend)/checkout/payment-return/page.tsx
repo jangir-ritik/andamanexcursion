@@ -11,9 +11,15 @@ function PhonePeReturnContent() {
   const searchParams = useSearchParams();
   const { setBookingConfirmation, setCurrentStep } = useCheckoutStore();
   const [status, setStatus] = useState<
-    "checking" | "success" | "failed" | "pending"
+    "checking" | "success" | "failed" | "pending" | "payment_success_booking_failed"
   >("checking");
   const [message, setMessage] = useState("Verifying your payment...");
+  const [errorDetails, setErrorDetails] = useState<{
+    errorType?: string;
+    requiresRefund?: boolean;
+    bookingId?: string;
+    transactionId?: string;
+  }>({});
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 10; // Check for up to 20 seconds (10 * 2 seconds)
 
@@ -71,7 +77,7 @@ function PhonePeReturnContent() {
 
         // Handle different status scenarios
         if (result.success && result.status === "COMPLETED") {
-          // Payment successful
+          // Payment successful and booking confirmed
           setStatus("success");
           setMessage("Payment successful! Redirecting to confirmation...");
 
@@ -110,6 +116,29 @@ function PhonePeReturnContent() {
           setTimeout(() => {
             router.push("/checkout?step=3");
           }, 2000);
+        } else if (!result.success && result.status === "COMPLETED") {
+          // Payment succeeded but booking failed (critical edge case)
+          console.error("⚠️ POST-PAYMENT BOOKING FAILURE:", {
+            errorType: result.errorType,
+            requiresRefund: result.requiresRefund,
+            transactionId: result.transactionId,
+            bookingId: result.booking?.id,
+          });
+
+          setStatus("payment_success_booking_failed");
+          setMessage(result.message || "Payment successful but booking needs processing");
+          setErrorDetails({
+            errorType: result.errorType,
+            requiresRefund: result.requiresRefund,
+            bookingId: result.booking?.id || result.transactionId,
+            transactionId: result.transactionId,
+          });
+
+          // Clean up session storage
+          sessionStorage.removeItem("phonepe_transaction_id");
+          sessionStorage.removeItem("phonepe_booking_data");
+
+          // Don't auto-redirect - let user read the message
         } else if (result.status === "FAILED") {
           // Payment failed
           setStatus("failed");
@@ -227,6 +256,87 @@ function PhonePeReturnContent() {
             >
               Continue
             </button>
+          </>
+        )}
+
+        {status === "payment_success_booking_failed" && (
+          <>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+              <CheckCircle className={styles.iconSuccess} size={48} />
+              <XCircle className={styles.iconError} size={24} style={{ marginTop: "-16px" }} />
+            </div>
+            <h1 className={styles.title} style={{ color: "#f59e0b" }}>
+              Payment Successful - Booking Needs Attention
+            </h1>
+            
+            <div style={{ 
+              background: "#fef3c7", 
+              border: "2px solid #f59e0b", 
+              borderRadius: "8px", 
+              padding: "20px",
+              marginTop: "16px",
+              textAlign: "left",
+              maxWidth: "600px"
+            }}>
+              <div style={{ whiteSpace: "pre-line", lineHeight: "1.6", fontSize: "14px" }}>
+                {message}
+              </div>
+
+              {errorDetails.bookingId && (
+                <div style={{ 
+                  marginTop: "20px", 
+                  padding: "12px", 
+                  background: "white", 
+                  borderRadius: "6px",
+                  fontSize: "13px"
+                }}>
+                  <strong>Reference Details:</strong><br />
+                  Booking ID: {errorDetails.bookingId}<br />
+                  Transaction ID: {errorDetails.transactionId}<br />
+                  {errorDetails.errorType && (
+                    <>Error Type: {errorDetails.errorType}<br /></>
+                  )}
+                  {errorDetails.requiresRefund && (
+                    <span style={{ color: "#059669", fontWeight: "bold" }}>
+                      ✓ Refund eligible if needed
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div style={{ 
+                marginTop: "16px", 
+                padding: "12px", 
+                background: "#dcfce7", 
+                borderRadius: "6px",
+                fontSize: "13px",
+                border: "1px solid #10b981"
+              }}>
+                <strong style={{ color: "#059669" }}>✓ Your Money is Safe</strong><br />
+                Your payment has been successfully processed and is secure. Our team will resolve this shortly.
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+              <button
+                className={styles.button}
+                onClick={() => router.push("/")}
+                style={{ background: "#6b7280" }}
+              >
+                Go to Home
+              </button>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  // Copy booking details to clipboard
+                  const details = `Booking Reference: ${errorDetails.bookingId}\nTransaction ID: ${errorDetails.transactionId}`;
+                  navigator.clipboard.writeText(details);
+                  alert("Reference details copied to clipboard!");
+                }}
+              >
+                Copy Reference
+              </button>
+            </div>
           </>
         )}
       </div>
