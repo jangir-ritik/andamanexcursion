@@ -29,12 +29,12 @@ export const BookingSummary: React.FC<BookingSummaryProps> = ({
   onCheckout,
 }) => {
   const totalPassengers = searchParams.adults + searchParams.children;
-  const totalCost = selectedClass
-    ? (selectedClass.price +
-        (ferry.pricing.portFee || 0) +
-        (ferry.pricing.taxes || 0)) *
-      totalPassengers
-    : 0;
+  // Use structured pricing to calculate correct totals
+  const baseFare = selectedClass?.pricing?.basePrice || selectedClass?.price || 0;
+  const portFee = selectedClass?.pricing?.fees || 0;
+  const taxes = selectedClass?.pricing?.taxes || 0;
+  const pricePerPassenger = selectedClass?.pricing?.total || selectedClass?.price || 0;
+  const totalCost = pricePerPassenger * totalPassengers;
 
   const formatPassengers = () => {
     const parts = [];
@@ -92,13 +92,19 @@ export const BookingSummary: React.FC<BookingSummaryProps> = ({
               <div className={styles.divider} />
 
               <Row
-                label={`Base (${totalPassengers} pax)`}
-                value={selectedClass.price * totalPassengers}
+                label={`Base Fare (${totalPassengers} pax)`}
+                value={baseFare * totalPassengers}
               />
-              {ferry.pricing.portFee && (
+              {portFee > 0 && (
                 <Row
                   label="Port Fee"
-                  value={ferry.pricing.portFee * totalPassengers}
+                  value={portFee * totalPassengers}
+                />
+              )}
+              {taxes > 0 && (
+                <Row
+                  label="Taxes"
+                  value={taxes * totalPassengers}
                 />
               )}
 

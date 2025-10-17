@@ -38,12 +38,12 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
   onCheckout,
 }) => {
   const totalPassengers = searchParams.adults + searchParams.children;
-  const baseFare = selectedClass ? selectedClass.price * totalPassengers : 0;
-  const portFee = ferry.pricing.portFee
-    ? ferry.pricing.portFee * totalPassengers
-    : 0;
-  const taxes = ferry.pricing.taxes ? ferry.pricing.taxes * totalPassengers : 0;
-  const totalCost = baseFare + portFee + taxes;
+  // Use structured pricing to calculate correct totals
+  const baseFare = selectedClass?.pricing?.basePrice || selectedClass?.price || 0;
+  const portFee = selectedClass?.pricing?.fees || 0;
+  const taxes = selectedClass?.pricing?.taxes || 0;
+  const pricePerPassenger = selectedClass?.pricing?.total || selectedClass?.price || 0;
+  const totalCost = pricePerPassenger * totalPassengers;
 
   const formatPassengers = () => {
     const parts = [];
@@ -142,20 +142,20 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
               <div className={styles.priceBreakdown}>
                 <div className={styles.row}>
                   <span>Base Fare ({totalPassengers} pax)</span>
-                  <span>₹{baseFare.toLocaleString()}</span>
+                  <span>₹{(baseFare * totalPassengers).toLocaleString()}</span>
                 </div>
 
                 {portFee > 0 && (
                   <div className={styles.row}>
                     <span>Port Fee</span>
-                    <span>₹{portFee.toLocaleString()}</span>
+                    <span>₹{(portFee * totalPassengers).toLocaleString()}</span>
                   </div>
                 )}
 
                 {taxes > 0 && (
                   <div className={styles.row}>
-                    <span>Taxes & Fees</span>
-                    <span>₹{taxes.toLocaleString()}</span>
+                    <span>Taxes</span>
+                    <span>₹{(taxes * totalPassengers).toLocaleString()}</span>
                   </div>
                 )}
               </div>

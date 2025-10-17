@@ -376,16 +376,28 @@ export class CheckoutAdapter {
       const definiteFreePassengers = searchParams.infants; // Only infants are <2 years and free
       const ticketedPassengers = totalPassengers - definiteFreePassengers;
       
+      // Use structured pricing (includes base fare + port fees + taxes) instead of legacy price field
+      const pricePerPassenger = selectedClass.pricing?.total || selectedClass.price || 0;
+      
       console.log('Ferry checkout pricing (streamlined):', {
         totalPassengers,
         searchAdults: searchParams.adults,
         searchInfants: searchParams.infants,
         ticketedPassengers,
+        pricePerPassenger,
+        hasStructuredPricing: !!selectedClass.pricing,
+        pricingBreakdown: selectedClass.pricing ? {
+          basePrice: selectedClass.pricing.basePrice,
+          fees: selectedClass.pricing.fees,
+          taxes: selectedClass.pricing.taxes,
+          total: selectedClass.pricing.total
+        } : 'Using legacy price field',
         note: 'Only 2 types: Adults (≥2 years) and Infants (<2 years, free)'
       });
       
       // Everyone else pays the same price (no child discount)
-      return ticketedPassengers * (selectedClass.price || 0);
+      // Use pricing.total to include base fare + port fees + taxes
+      return ticketedPassengers * pricePerPassenger;
     };
 
     const totalPrice = calculateTotalPrice();

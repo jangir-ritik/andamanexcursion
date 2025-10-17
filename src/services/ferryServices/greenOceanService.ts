@@ -319,22 +319,22 @@ export class GreenOceanService {
           // This improves search performance significantly
           let seatLayout: SeatLayout | undefined;
 
-          const classPrice =
-            route.adult_seat_rate +
-            (route.port_fee_status ? route.port_fee : 0);
+          const baseFare = route.adult_seat_rate;
+          const portFee = route.port_fee_status ? route.port_fee : 0;
+          const totalPrice = baseFare + portFee;
 
           classes.push({
             id: route.class_id.toString(),
             name: route.class_name,
-            price: classPrice,
+            price: totalPrice, // Legacy field - total price for backward compatibility
             availableSeats: route.seat_available,
             amenities: this.getAmenitiesForClass(route.class_name),
             seatLayout,
             pricing: {
-              basePrice: classPrice,
+              basePrice: baseFare, // Base fare without port fee
               taxes: 0,
-              fees: route.port_fee_status ? route.port_fee : 0,
-              total: classPrice,
+              fees: portFee, // Port fee
+              total: totalPrice, // Total including all fees
             },
           });
 
