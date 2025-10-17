@@ -169,21 +169,21 @@ export class FerryBookingService {
       // Better location mapping with debugging
       console.log("Location mapping input:", {
         fromLocation: request.fromLocation,
-        toLocation: request.toLocation
+        toLocation: request.toLocation,
       });
-      
+
       const fromLocation = this.getSealinkLocationName(request.fromLocation);
       const toLocation = this.getSealinkLocationName(request.toLocation);
-      
+
       console.log("Location mapping output:", {
         fromLocation,
-        toLocation
+        toLocation,
       });
-      
+
       // Validate locations are different
       if (fromLocation === toLocation) {
         console.warn("⚠️ WARNING: From and To locations are the same!", {
-          mapped: { from: fromLocation, to: toLocation }
+          mapped: { from: fromLocation, to: toLocation },
         });
       }
 
@@ -194,14 +194,17 @@ export class FerryBookingService {
 
       request.passengerDetails.forEach((passenger) => {
         const isInfant = passenger.age < 2;
-        
+
         const passengerData = {
           name: passenger.fullName,
           age: passenger.age.toString(),
           gender: passenger.gender === "Male" ? "M" : "F",
           nationality: "Indian", // API expects "Indian" for all passengers as per documentation
           // For Indian nationals, passport should be empty string, not a placeholder
-          photoId: passenger.nationality === "Indian" ? "" : (passenger.passportNumber || ""),
+          photoId:
+            passenger.nationality === "Indian"
+              ? ""
+              : passenger.passportNumber || "",
           expiry: "",
           tier: this.getSealinkTier(request.classId),
         };
@@ -211,25 +214,25 @@ export class FerryBookingService {
           infantPassengers.push({
             ...passengerData,
             seat: "", // No seat for infants
-            isCancelled: 0
+            isCancelled: 0,
           });
         } else {
           // Ticketed passengers get seats
           ticketedPassengers.push({
             ...passengerData,
             seat: request.selectedSeats?.[seatIndex] || "",
-            isCancelled: 0
+            isCancelled: 0,
           });
           seatIndex++; // Only increment seat index for ticketed passengers
         }
       });
 
-      console.log('Passenger separation for Sealink booking:', {
+      console.log("Passenger separation for Sealink booking:", {
         totalPassengers: request.passengerDetails.length,
         ticketedPassengers: ticketedPassengers.length,
         infantPassengers: infantPassengers.length,
         seatsRequired: ticketedPassengers.length,
-        seatsProvided: request.selectedSeats?.length || 0
+        seatsProvided: request.selectedSeats?.length || 0,
       });
 
       // Prepare seat arrays for validation (only for ticketed passengers)
@@ -342,36 +345,38 @@ export class FerryBookingService {
       console.warn("Empty location provided to getSealinkLocationName");
       return "Port Blair";
     }
-    
+
     const locationMap: Record<string, string> = {
       // Standard slugs
       "port-blair": "Port Blair",
       "port blair": "Port Blair",
-      "portblair": "Port Blair",
+      portblair: "Port Blair",
       havelock: "Swaraj Dweep",
       "swaraj-dweep": "Swaraj Dweep",
       "swaraj dweep": "Swaraj Dweep",
-      "swarajdweep": "Swaraj Dweep",
+      swarajdweep: "Swaraj Dweep",
       neil: "Shaheed Dweep",
       "neil-island": "Shaheed Dweep",
       "neil island": "Shaheed Dweep",
       "shaheed-dweep": "Shaheed Dweep",
       "shaheed dweep": "Shaheed Dweep",
-      "shaheeddweep": "Shaheed Dweep",
+      shaheeddweep: "Shaheed Dweep",
       // Direct API names (in case they're passed through)
       "Port Blair": "Port Blair",
       "Swaraj Dweep": "Swaraj Dweep",
-      "Shaheed Dweep": "Shaheed Dweep"
+      "Shaheed Dweep": "Shaheed Dweep",
     };
-    
+
     const normalizedLocation = location.toLowerCase().trim();
     const mapped = locationMap[normalizedLocation];
-    
+
     if (!mapped) {
-      console.warn(`Unknown location '${location}' mapped to default 'Port Blair'`);
+      console.warn(
+        `Unknown location '${location}' mapped to default 'Port Blair'`
+      );
       return "Port Blair";
     }
-    
+
     return mapped;
   }
 
@@ -473,8 +478,10 @@ export class FerryBookingService {
           passenger.nationality === "Indian" ? "indian" : "foreigner", // ✅ FIXED: Must be lowercase
         fcountry:
           passenger.nationality !== "Indian" ? passenger.nationality : "",
-        fpassport: passenger.nationality !== "Indian" ? (passenger.fpassport || "") : "",
-        fexpdate: passenger.nationality !== "Indian" ? (passenger.fexpdate || "") : "",
+        fpassport:
+          passenger.nationality !== "Indian" ? passenger.fpassport || "" : "",
+        fexpdate:
+          passenger.nationality !== "Indian" ? passenger.fexpdate || "" : "",
       }));
 
       const bookingData = {
@@ -619,12 +626,26 @@ export class FerryBookingService {
     try {
       console.log("📋 Green Ocean: Creating booking with real API...");
 
-      // Extract ferry details from the booking data structure
+      // Extract ferry details from the ferry ID format: "greenocean-{routeId}-{ferryId}"
+      const ferryIdParts = request.ferryId.split("-");
+      
+      // Extract routeId from ferry ID (middle part)
+      let routeId: number;
+      if (ferryIdParts.length >= 3) {
+        routeId = parseInt(ferryIdParts[1]); // Extract from "greenocean-123-456"
+        console.log(`✅ Extracted routeId from ferry ID: ${routeId}`);
+      } else {
+        // Fallback to request.routeId if provided, otherwise default to 1
+        routeId = parseInt(request.routeId || "1");
+        console.warn(`⚠️ Could not extract routeId from ferry ID, using: ${routeId}`);
+      }
+      
       const ferryId = this.extractFerryId(request.ferryId); // Extract numeric ID
       const classId = this.extractClassId(request.classId); // Extract numeric class ID
 
       console.log("🔍 Ferry booking details extracted:", {
         originalFerryId: request.ferryId,
+        extractedRouteId: routeId,
         extractedFerryId: ferryId,
         originalClassId: request.classId,
         extractedClassId: classId,
@@ -632,28 +653,38 @@ export class FerryBookingService {
       });
 
       // Validate required fields for Green Ocean API
-      if (ferryId === 0) {
+      if (ferryId === 0 || isNaN(ferryId)) {
         throw new Error(
           "Invalid ferry_id extracted. Green Ocean API requires a valid numeric ship_id."
         );
       }
 
-      if (classId === 0) {
+      if (classId === 0 || isNaN(classId)) {
         throw new Error(
           "Invalid class_id extracted. Green Ocean API requires a valid numeric class_id."
         );
       }
 
+      if (isNaN(routeId) || routeId === 0) {
+        throw new Error(
+          `Invalid route_id extracted: ${routeId}. Green Ocean API requires a valid numeric route_id.`
+        );
+      }
+
       // Separate passengers by age: Adults (>= 2 years) and Infants (< 2 years)
-      const adultPassengers = request.passengerDetails.filter((p) => p.age >= 2);
-      const infantPassengers = request.passengerDetails.filter((p) => p.age < 2);
+      const adultPassengers = request.passengerDetails.filter(
+        (p) => p.age >= 2
+      );
+      const infantPassengers = request.passengerDetails.filter(
+        (p) => p.age < 2
+      );
 
       console.log("👥 Passenger categorization:", {
         totalPassengers: request.passengerDetails.length,
         adults: adultPassengers.length,
         infants: infantPassengers.length,
-        adultAges: adultPassengers.map(p => p.age),
-        infantAges: infantPassengers.map(p => p.age),
+        adultAges: adultPassengers.map((p) => p.age),
+        infantAges: infantPassengers.map((p) => p.age),
       });
 
       // Prepare adult passenger details with proper validation
@@ -667,10 +698,13 @@ export class FerryBookingService {
         let country = "";
 
         if (!isIndian) {
-          passportNumber = passenger.passportNumber || passenger.fpassport || "";
+          passportNumber =
+            passenger.passportNumber || passenger.fpassport || "";
           // Format passport expiry date if available, otherwise use default
           if (passenger.fexpdate) {
-            passportExpiry = this.formatDateForGreenOcean(new Date(passenger.fexpdate));
+            passportExpiry = this.formatDateForGreenOcean(
+              new Date(passenger.fexpdate)
+            );
           } else if (passenger.passportNumber || passenger.fpassport) {
             // Provide default expiry date for foreigners if not available
             passportExpiry = this.formatDateForGreenOcean(
@@ -688,7 +722,7 @@ export class FerryBookingService {
               ? "Mrs"
               : "Mr",
           name: passenger.fullName,
-          age: passenger.age.toString(),
+          age: String(passenger.age),
           gender: passenger.gender,
           nationality: passenger.nationality,
           passport_numb: passportNumber,
@@ -707,9 +741,19 @@ export class FerryBookingService {
               ? "Miss"
               : "Master",
           name: passenger.fullName,
-          age: passenger.age.toString(),
+          age: String(passenger.age),
           gender: passenger.gender,
         };
+      });
+
+      console.log("\n🔍 DEBUG - adultDetails after mapping:");
+      adultDetails.forEach((adult, idx) => {
+        console.log(`  Adult ${idx + 1}:`, {
+          name: adult.name,
+          age: adult.age,
+          ageType: typeof adult.age, // Should be "string"
+          ageValue: JSON.stringify(adult.age), // Should be quoted like "34"
+        });
       });
 
       // Debug logging for passenger validation
@@ -739,7 +783,7 @@ export class FerryBookingService {
         ship_id: ferryId,
         from_id: this.getLocationId(request.fromLocation),
         dest_to: this.getLocationId(request.toLocation),
-        route_id: parseInt(request.routeId || "1"),
+        route_id: routeId, // Use the extracted routeId
         class_id: classId,
         number_of_adults: request.passengers.adults,
         number_of_infants: request.passengers.infants,
@@ -768,10 +812,57 @@ export class FerryBookingService {
         public_key: process.env.GREEN_OCEAN_PUBLIC_KEY || "public-HGTBlexrva",
       };
 
+      console.log("\n✅ FINAL VALIDATION BEFORE API CALL:");
+      console.log("passenger_age:", JSON.stringify(bookingData.passenger_age));
+      console.log(
+        "passenger_age[0] type:",
+        typeof bookingData.passenger_age[0]
+      );
+
+      if (bookingData.passenger_age.length > 0) {
+        const firstAge = bookingData.passenger_age[0];
+        if (typeof firstAge !== "string") {
+          console.error(
+            `❌ CRITICAL: passenger_age[0] is ${typeof firstAge}, must be string!`
+          );
+          console.error(`   Value: ${JSON.stringify(firstAge)}`);
+          throw new Error(
+            `API Documentation violation: passenger_age must be array of strings, got array of ${typeof firstAge}`
+          );
+        }
+      }
+
+      if (bookingData.infant_age.length > 0) {
+        const firstInfantAge = bookingData.infant_age[0];
+        if (typeof firstInfantAge !== "string") {
+          console.error(
+            `❌ CRITICAL: infant_age[0] is ${typeof firstInfantAge}, must be string!`
+          );
+          throw new Error(
+            `API Documentation violation: infant_age must be array of strings, got array of ${typeof firstInfantAge}`
+          );
+        }
+      }
+
+      console.log("✅ All age fields are correctly strings");
+
       // Add hash to booking data
       const finalBookingData = {
         ...bookingData,
       };
+
+      console.log("\n📤 FINAL BOOKING DATA VALIDATION:");
+      console.log("  ship_id:", bookingData.ship_id, "(from ferryId)");
+      console.log("  route_id:", bookingData.route_id, "(extracted from ferry ID)");
+      console.log("  class_id:", bookingData.class_id);
+      console.log("  from_id:", bookingData.from_id);
+      console.log("  dest_to:", bookingData.dest_to);
+      console.log("  travel_date:", bookingData.travel_date);
+      console.log("  seat_id:", bookingData.seat_id);
+
+      const exactPayload = JSON.stringify(bookingData, null, 2);
+      console.log("\n📤 EXACT PAYLOAD TO BE SENT:");
+      console.log(exactPayload);
 
       // Call the Green Ocean API directly (not through service method since it doesn't exist)
       const bookingResult = await this.greenOceanService.bookTicket(
@@ -790,7 +881,17 @@ export class FerryBookingService {
 
         // Handle PDF if provided
         let pdfUrl: string | undefined;
+        
+        // Debug PDF field
+        console.log("📄 PDF Debug Info:", {
+          hasPdfField: !!bookingResult.pdf_base64,
+          pdfFieldType: typeof bookingResult.pdf_base64,
+          pdfLength: bookingResult.pdf_base64?.length || 0,
+          pdfPreview: bookingResult.pdf_base64?.substring(0, 50) || "N/A",
+        });
+
         if (bookingResult.pdf_base64) {
+          console.log(`📄 Attempting to store PDF for PNR: ${bookingResult.pnr}`);
           try {
             const pdfStorage = await PDFService.storePDFFromBase64(
               bookingResult.pdf_base64,
@@ -798,16 +899,27 @@ export class FerryBookingService {
               "greenocean"
             );
 
+            console.log("📄 PDF Storage Result:", {
+              success: pdfStorage.success,
+              url: pdfStorage.url,
+              fileName: pdfStorage.fileName,
+              error: pdfStorage.error,
+            });
+
             if (pdfStorage.success) {
               pdfUrl = pdfStorage.url;
               console.log(`✅ Green Ocean PDF stored: ${pdfUrl}`);
+            } else {
+              console.error(`❌ PDF storage failed: ${pdfStorage.error}`);
             }
           } catch (pdfError) {
-            console.warn(
-              "⚠️ Green Ocean PDF storage failed (non-critical):",
+            console.error(
+              "❌ Green Ocean PDF storage error (caught in try-catch):",
               pdfError
             );
           }
+        } else {
+          console.warn("⚠️ No pdf_base64 field in Green Ocean API response");
         }
 
         return {

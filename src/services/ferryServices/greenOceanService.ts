@@ -660,7 +660,8 @@ export class GreenOceanService {
         status: response?.status,
         message: response?.message,
         pnr: response?.pnr,
-        pdf_base64: response?.pdf_base64,
+        hasPdf: !!response?.pdf_base64,
+        pdfLength: response?.pdf_base64?.length || 0,
       });
 
       if (response?.status === "success" && response?.pnr) {
@@ -668,6 +669,8 @@ export class GreenOceanService {
           pnr: response.pnr,
           totalAmount: response.total_amount,
           ferryId: response.ferry_id,
+          hasPdf: !!response.pdf_base64,
+          pdfLength: response.pdf_base64?.length || 0,
         });
 
         return {
@@ -681,6 +684,7 @@ export class GreenOceanService {
           travel_date: response.travel_date,
           message: response.message,
           data: response.data,
+          pdf_base64: response.pdf_base64, // ✅ CRITICAL FIX: Include PDF in return!
         };
       } else {
         // Handle various error scenarios

@@ -128,12 +128,19 @@ export class PDFService {
       const fs = await import("fs");
       const path = await import("path");
 
+      console.log(`📁 PDF Storage Dir: ${this.PDF_STORAGE_DIR}`);
+      console.log(`📁 PDF Base URL: ${this.PDF_BASE_URL}`);
+
       // Ensure directory exists
       await this.ensureStorageDirectory();
 
       const timestamp = Date.now();
       const fileName = `${operator}_${bookingId}_${timestamp}.pdf`;
       const filePath = path.join(this.PDF_STORAGE_DIR, fileName);
+
+      console.log(`📝 Writing PDF to: ${filePath}`);
+      console.log(`📝 File name: ${fileName}`);
+      console.log(`📝 Buffer size: ${pdfBuffer.length} bytes`);
 
       // Write PDF to file
       await fs.promises.writeFile(filePath, pdfBuffer);
@@ -149,6 +156,13 @@ export class PDFService {
       };
     } catch (error) {
       console.error("❌ PDF storage error:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : "Unknown",
+        code: (error as any)?.code,
+        errno: (error as any)?.errno,
+        syscall: (error as any)?.syscall,
+        path: (error as any)?.path,
+      });
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
@@ -165,13 +179,52 @@ export class PDFService {
     operator: string = "booking"
   ): Promise<PDFStorageResult> {
     try {
+      console.log(`📄 PDFService: Processing base64 PDF for ${operator}/${bookingId}`);
+      
+      // Validate input
+      if (!base64Data) {
+        console.error("❌ Empty base64 data provided");
+        return {
+          success: false,
+          error: "Empty base64 data",
+        };
+      }
+
+      if (typeof base64Data !== "string") {
+        console.error("❌ base64Data is not a string:", typeof base64Data);
+        return {
+          success: false,
+          error: `Invalid base64 data type: ${typeof base64Data}`,
+        };
+      }
+
+      console.log(`📄 Base64 data length: ${base64Data.length} characters`);
+
       // Convert base64 to buffer
       const pdfBuffer = Buffer.from(base64Data, "base64");
+      console.log(`📄 Converted to buffer: ${pdfBuffer.length} bytes`);
+
+      if (pdfBuffer.length === 0) {
+        console.error("❌ Resulting buffer is empty");
+        return {
+          success: false,
+          error: "Empty PDF buffer after base64 conversion",
+        };
+      }
 
       // Store using existing method
-      return await this.storePDFToFileSystem(pdfBuffer, bookingId, operator);
+      const result = await this.storePDFToFileSystem(pdfBuffer, bookingId, operator);
+      
+      if (result.success) {
+        console.log(`✅ PDF stored successfully: ${result.url}`);
+      } else {
+        console.error(`❌ PDF storage failed: ${result.error}`);
+      }
+      
+      return result;
     } catch (error) {
       console.error("❌ Base64 PDF storage error:", error);
+      console.error("Error stack:", error instanceof Error ? error.stack : "No stack");
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
