@@ -204,7 +204,7 @@ export const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   activityCard: {
-    border: `0.5px solid ${COLORS.border}`,
+    border: `0.5px solid ${COLORS.primaryLight}`,
     borderRadius: 3,
     padding: 10,
     marginBottom: 10,
@@ -256,8 +256,8 @@ export const styles = StyleSheet.create({
     color: COLORS.text.primary,
   },
   passengerList: {
-    border: `0.5px solid ${COLORS.border}`,
-    backgroundColor: COLORS.border,
+    border: `0.5px solid ${COLORS.bg.secondary}`,
+    // backgroundColor: COLORS.border,
     borderRadius: 2,
   },
   passengerItem: {
@@ -317,7 +317,7 @@ export const styles = StyleSheet.create({
   },
   pricingBox: {
     backgroundColor: COLORS.bg.light,
-    border: `0.5px solid ${COLORS.border}`,
+    // border: `0.5px solid ${COLORS.border}`,
     borderRadius: 3,
     padding: 8,
     marginBottom: 10,
@@ -333,7 +333,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: 6,
     marginTop: 6,
-    borderTop: `1px solid ${COLORS.primary}`,
+    borderTop: `1px solid ${COLORS.primaryLight}`,
   },
   totalLabel: {
     fontSize: 10,
@@ -347,7 +347,7 @@ export const styles = StyleSheet.create({
   },
   importantBox: {
     backgroundColor: "#FFF3E0",
-    border: `0.5px solid ${COLORS.warning}`,
+    // border: `0.5px solid ${COLORS.warning}`,
     borderRadius: 3,
     padding: 6,
     marginBottom: 8,
@@ -366,7 +366,7 @@ export const styles = StyleSheet.create({
   },
   termsBox: {
     backgroundColor: COLORS.bg.secondary,
-    border: `0.5px solid ${COLORS.border}`,
+    // border: `0.5px solid ${COLORS.border}`,
     borderRadius: 3,
     padding: 6,
   },
