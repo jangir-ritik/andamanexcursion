@@ -48,8 +48,10 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     hasBookingConfirmation: !!bookingConfirmation,
     hasFullBookingData: !!bookingConfirmation?.fullBookingData,
     bookingDataItems: bookingData?.items?.length || 0,
-    bookedFerries: bookingConfirmation?.fullBookingData?.bookedFerries?.length || 0,
-    bookedActivities: bookingConfirmation?.fullBookingData?.bookedActivities?.length || 0,
+    bookedFerries:
+      bookingConfirmation?.fullBookingData?.bookedFerries?.length || 0,
+    bookedActivities:
+      bookingConfirmation?.fullBookingData?.bookedActivities?.length || 0,
     bookedBoats: bookingConfirmation?.fullBookingData?.bookedBoats?.length || 0,
   });
 
@@ -58,6 +60,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(
     null
   );
+
+  // State for PDF generation
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
   // Handle browser beforeunload event
   useEffect(() => {
@@ -95,7 +100,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       ferryReset(); // Ferry store
       boatReset(); // Boat store
       activityReset(); // Activity store
-      
+
       console.log("✅ All stores reset. Navigating to:", pendingNavigation);
       router.push(pendingNavigation);
     }
@@ -108,9 +113,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     ferryReset(); // Ferry store
     boatReset(); // Boat store
     activityReset(); // Activity store
-    
+
     console.log("✅ All stores reset for new booking");
-    
+
     // Determine redirect based on booking type
     const firstItemType = bookingData?.items?.[0]?.type;
     const targetPath =
@@ -119,7 +124,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         : firstItemType === "boat"
         ? "/boat"
         : "/activities";
-    
+
     router.push(targetPath);
   };
 
@@ -260,12 +265,15 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const handleDownloadPDF = async () => {
     try {
       console.log("📄 Initiating PDF download...");
-      
+
       if (!bookingConfirmation) {
         console.error("No booking confirmation data available");
         alert("Unable to generate PDF. Booking data not found.");
         return;
       }
+
+      // Set loading state
+      setIsPdfGenerating(true);
 
       // Debug: Log the data being sent
       console.log("📊 Sending PDF data:", {
@@ -275,7 +283,6 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         bookingData,
       });
 
-      // Show loading state (you can add a loading indicator to the button)
       const response = await fetch("/api/bookings/generate-pdf", {
         method: "POST",
         headers: {
@@ -284,7 +291,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         body: JSON.stringify({
           bookingId: bookingConfirmation.bookingId,
           bookingConfirmation,
-          fullBookingData: bookingConfirmation.fullBookingData, // Use full data from confirmation
+          fullBookingData: bookingConfirmation.fullBookingData,
           bookingData: {
             items: bookingData.items,
             passengers: formData?.members || [],
@@ -299,25 +306,30 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 
       // Get the PDF blob
       const blob = await response.blob();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Booking_${bookingConfirmation.confirmationNumber}_${Date.now()}.pdf`;
-      
+      link.download = `Booking_${
+        bookingConfirmation.confirmationNumber
+      }_${Date.now()}.pdf`;
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       console.log("✅ PDF downloaded successfully");
     } catch (error) {
       console.error("❌ PDF download error:", error);
       alert("Failed to generate PDF. Please try again or contact support.");
+    } finally {
+      // Always reset loading state
+      setIsPdfGenerating(false);
     }
   };
 
@@ -356,23 +368,28 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       case "pending":
         // Check if it's a provider failure (HTTP 500, Server Error, etc.)
         // Check both top-level providerBooking and booking's ferry providerBooking
-        const providerError = bookingConfirmation.providerBooking?.error || 
-          bookingConfirmation.fullBookingData?.bookedFerries?.[0]?.providerBooking?.errorMessage || "";
-        
-        const isProviderDown = providerError && 
+        const providerError =
+          bookingConfirmation.providerBooking?.error ||
+          bookingConfirmation.fullBookingData?.bookedFerries?.[0]
+            ?.providerBooking?.errorMessage ||
+          "";
+
+        const isProviderDown =
+          providerError &&
           (providerError.toLowerCase().includes("http 500") ||
-           providerError.toLowerCase().includes("server error") ||
-           providerError.toLowerCase().includes("internal server") ||
-           providerError.toLowerCase().includes("service unavailable") ||
-           providerError.toLowerCase().includes("timeout"));
-        
+            providerError.toLowerCase().includes("server error") ||
+            providerError.toLowerCase().includes("internal server") ||
+            providerError.toLowerCase().includes("service unavailable") ||
+            providerError.toLowerCase().includes("timeout"));
+
         return {
           icon: <Clock size={48} className={styles.pendingIcon} />,
           title: "Booking Pending",
           specialWord: "Pending",
           description: isProviderDown
             ? "Payment successful but booking needs manual processing. The ferry provider's system appears to be temporarily unavailable. Our team will complete your booking and contact you shortly."
-            : (bookingConfirmation.errorMessage || "Your payment was successful but booking is still processing. You will receive confirmation shortly."),
+            : bookingConfirmation.errorMessage ||
+              "Your payment was successful but booking is still processing. You will receive confirmation shortly.",
           headerClass: styles.pendingHeader,
           showDownload: false,
         };
@@ -517,9 +534,10 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <div className={styles.bookingHeader}>
           <h3 className={styles.bookingTitle}>
             Booking Details
-            {allBookingDetails.length > 0 && 
-              ` (${allBookingDetails.length} ${allBookingDetails.length === 1 ? "Item" : "Items"})`
-            }
+            {allBookingDetails.length > 0 &&
+              ` (${allBookingDetails.length} ${
+                allBookingDetails.length === 1 ? "Item" : "Items"
+              })`}
           </h3>
           <div className={styles.bookingId}>
             <span className={styles.bookingIdLabel}>Booking ID:</span>
@@ -530,158 +548,214 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         </div>
 
         {/* If no booking details from items, display from fullBookingData */}
-        {allBookingDetails.length === 0 && bookingConfirmation?.fullBookingData && (
-          <>
-            {console.log("Rendering from fullBookingData:", {
-              ferries: bookingConfirmation.fullBookingData.bookedFerries,
-              activities: bookingConfirmation.fullBookingData.bookedActivities,
-              boats: bookingConfirmation.fullBookingData.bookedBoats,
-            })}
-            {/* Ferry Bookings */}
-            {bookingConfirmation.fullBookingData.bookedFerries?.map((ferry: any, index: number) => (
-              <div key={`ferry-${index}`} className={styles.bookingDetailsCard}>
-                <div className={styles.serviceInfo}>
-                  <div className={styles.serviceDetails}>
-                    <h4 className={styles.serviceName}>
-                      {ferry.ferryName}
-                      <span className={styles.activityNumber}>Ferry #{index + 1}</span>
-                    </h4>
-                    <div className={styles.tripDetailsGrid}>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Route</span>
-                        <span className={styles.detailValue}>
-                          {ferry.route?.from} → {ferry.route?.to}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Date</span>
-                        <span className={styles.detailValue}>
-                          {new Date(ferry.schedule?.travelDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Departure</span>
-                        <span className={styles.detailValue}>
-                          {ferry.schedule?.departureTime}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Duration</span>
-                        <span className={styles.detailValue}>
-                          {ferry.schedule?.duration}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Class</span>
-                        <span className={styles.detailValue}>
-                          {ferry.selectedClass?.className}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Passengers</span>
-                        <span className={styles.detailValue}>
-                          {ferry.passengers?.adults || 0} Adult{(ferry.passengers?.adults || 0) !== 1 ? 's' : ''}
-                          {ferry.passengers?.children > 0 && `, ${ferry.passengers.children} Child${ferry.passengers.children !== 1 ? 'ren' : ''}`}
-                        </span>
-                      </div>
-                      {ferry.providerBooking?.pnr && (
-                        <div className={styles.tripDetail}>
-                          <span className={styles.detailLabel}>PNR</span>
-                          <span className={styles.detailValue}>
-                            <strong>{ferry.providerBooking.pnr}</strong>
+        {allBookingDetails.length === 0 &&
+          bookingConfirmation?.fullBookingData && (
+            <>
+              {console.log("Rendering from fullBookingData:", {
+                ferries: bookingConfirmation.fullBookingData.bookedFerries,
+                activities:
+                  bookingConfirmation.fullBookingData.bookedActivities,
+                boats: bookingConfirmation.fullBookingData.bookedBoats,
+              })}
+              {/* Ferry Bookings */}
+              {bookingConfirmation.fullBookingData.bookedFerries?.map(
+                (ferry: any, index: number) => (
+                  <div
+                    key={`ferry-${index}`}
+                    className={styles.bookingDetailsCard}
+                  >
+                    <div className={styles.serviceInfo}>
+                      <div className={styles.serviceDetails}>
+                        <h4 className={styles.serviceName}>
+                          {ferry.ferryName}
+                          <span className={styles.activityNumber}>
+                            Ferry #{index + 1}
                           </span>
+                        </h4>
+                        <div className={styles.tripDetailsGrid}>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Route</span>
+                            <span className={styles.detailValue}>
+                              {ferry.route?.from} → {ferry.route?.to}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Date</span>
+                            <span className={styles.detailValue}>
+                              {new Date(
+                                ferry.schedule?.travelDate
+                              ).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>
+                              Departure
+                            </span>
+                            <span className={styles.detailValue}>
+                              {ferry.schedule?.departureTime}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Duration</span>
+                            <span className={styles.detailValue}>
+                              {ferry.schedule?.duration}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Class</span>
+                            <span className={styles.detailValue}>
+                              {ferry.selectedClass?.className}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>
+                              Passengers
+                            </span>
+                            <span className={styles.detailValue}>
+                              {ferry.passengers?.adults || 0} Adult
+                              {(ferry.passengers?.adults || 0) !== 1 ? "s" : ""}
+                              {ferry.passengers?.children > 0 &&
+                                `, ${ferry.passengers.children} Child${
+                                  ferry.passengers.children !== 1 ? "ren" : ""
+                                }`}
+                            </span>
+                          </div>
+                          {ferry.providerBooking?.pnr && (
+                            <div className={styles.tripDetail}>
+                              <span className={styles.detailLabel}>PNR</span>
+                              <span className={styles.detailValue}>
+                                <strong>{ferry.providerBooking.pnr}</strong>
+                              </span>
+                            </div>
+                          )}
+                          {ferry.selectedSeats &&
+                            ferry.selectedSeats.length > 0 && (
+                              <div className={styles.tripDetail}>
+                                <span className={styles.detailLabel}>
+                                  Seats
+                                </span>
+                                <span className={styles.detailValue}>
+                                  {ferry.selectedSeats
+                                    .map((s: any) => s.seatNumber)
+                                    .join(", ")}
+                                </span>
+                              </div>
+                            )}
                         </div>
-                      )}
-                      {ferry.selectedSeats && ferry.selectedSeats.length > 0 && (
-                        <div className={styles.tripDetail}>
-                          <span className={styles.detailLabel}>Seats</span>
-                          <span className={styles.detailValue}>
-                            {ferry.selectedSeats.map((s: any) => s.seatNumber).join(', ')}
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+
+              {/* Activity Bookings */}
+              {bookingConfirmation.fullBookingData.bookedActivities?.map(
+                (activity: any, index: number) => (
+                  <div
+                    key={`activity-${index}`}
+                    className={styles.bookingDetailsCard}
+                  >
+                    <div className={styles.serviceInfo}>
+                      <div className={styles.serviceDetails}>
+                        <h4 className={styles.serviceName}>
+                          {activity.activity?.title || "Activity"}
+                          <span className={styles.activityNumber}>
+                            #{index + 1}
                           </span>
+                        </h4>
+                        <div className={styles.tripDetailsGrid}>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Location</span>
+                            <span className={styles.detailValue}>
+                              {activity.activity?.coreInfo?.location?.[0]
+                                ?.name || "N/A"}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Time</span>
+                            <span className={styles.detailValue}>
+                              {activity.scheduledTime
+                                ? formatTime(activity.scheduledTime)
+                                : "N/A"}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Duration</span>
+                            <span className={styles.detailValue}>
+                              {activity.activity?.coreInfo?.duration || "N/A"}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>
+                              Passengers
+                            </span>
+                            <span className={styles.detailValue}>
+                              {activity.passengers?.adults || 0} Adult
+                              {(activity.passengers?.adults || 0) !== 1
+                                ? "s"
+                                : ""}
+                              {activity.passengers?.children > 0 &&
+                                `, ${activity.passengers.children} Child${
+                                  activity.passengers.children !== 1
+                                    ? "ren"
+                                    : ""
+                                }`}
+                            </span>
+                          </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                )
+              )}
 
-            {/* Activity Bookings */}
-            {bookingConfirmation.fullBookingData.bookedActivities?.map((activity: any, index: number) => (
-              <div key={`activity-${index}`} className={styles.bookingDetailsCard}>
-                <div className={styles.serviceInfo}>
-                  <div className={styles.serviceDetails}>
-                    <h4 className={styles.serviceName}>
-                      {activity.activity?.title || 'Activity'}
-                      <span className={styles.activityNumber}>#{index + 1}</span>
-                    </h4>
-                    <div className={styles.tripDetailsGrid}>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Location</span>
-                        <span className={styles.detailValue}>
-                          {activity.activity?.coreInfo?.location?.[0]?.name || 'N/A'}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Time</span>
-                        <span className={styles.detailValue}>
-                          {activity.scheduledTime ? formatTime(activity.scheduledTime) : 'N/A'}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Duration</span>
-                        <span className={styles.detailValue}>
-                          {activity.activity?.coreInfo?.duration || 'N/A'}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Passengers</span>
-                        <span className={styles.detailValue}>
-                          {activity.passengers?.adults || 0} Adult{(activity.passengers?.adults || 0) !== 1 ? 's' : ''}
-                          {activity.passengers?.children > 0 && `, ${activity.passengers.children} Child${activity.passengers.children !== 1 ? 'ren' : ''}`}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Boat Bookings */}
-            {bookingConfirmation.fullBookingData.bookedBoats?.map((boat: any, index: number) => (
-              <div key={`boat-${index}`} className={styles.bookingDetailsCard}>
-                <div className={styles.serviceInfo}>
-                  <div className={styles.serviceDetails}>
-                    <h4 className={styles.serviceName}>
-                      {boat.boatName}
-                      <span className={styles.activityNumber}>Boat #{index + 1}</span>
-                    </h4>
-                    <div className={styles.tripDetailsGrid}>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Route</span>
-                        <span className={styles.detailValue}>
-                          {boat.route?.from} → {boat.route?.to}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Departure</span>
-                        <span className={styles.detailValue}>
-                          {boat.schedule?.departureTime}
-                        </span>
-                      </div>
-                      <div className={styles.tripDetail}>
-                        <span className={styles.detailLabel}>Passengers</span>
-                        <span className={styles.detailValue}>
-                          {boat.passengers?.adults || 0} Adult{(boat.passengers?.adults || 0) !== 1 ? 's' : ''}
-                        </span>
+              {/* Boat Bookings */}
+              {bookingConfirmation.fullBookingData.bookedBoats?.map(
+                (boat: any, index: number) => (
+                  <div
+                    key={`boat-${index}`}
+                    className={styles.bookingDetailsCard}
+                  >
+                    <div className={styles.serviceInfo}>
+                      <div className={styles.serviceDetails}>
+                        <h4 className={styles.serviceName}>
+                          {boat.boatName}
+                          <span className={styles.activityNumber}>
+                            Boat #{index + 1}
+                          </span>
+                        </h4>
+                        <div className={styles.tripDetailsGrid}>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>Route</span>
+                            <span className={styles.detailValue}>
+                              {boat.route?.from} → {boat.route?.to}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>
+                              Departure
+                            </span>
+                            <span className={styles.detailValue}>
+                              {boat.schedule?.departureTime}
+                            </span>
+                          </div>
+                          <div className={styles.tripDetail}>
+                            <span className={styles.detailLabel}>
+                              Passengers
+                            </span>
+                            <span className={styles.detailValue}>
+                              {boat.passengers?.adults || 0} Adult
+                              {(boat.passengers?.adults || 0) !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </>
-        )}
+                )
+              )}
+            </>
+          )}
 
         {allBookingDetails.map((bookingDetail, index) => (
           <div key={bookingDetail.id} className={styles.bookingDetailsCard}>
@@ -792,113 +866,129 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       <div className={styles.guestInfoCard}>
         <div className={styles.guestInfoHeader}>
           <h3 className={styles.sectionTitleOrange}>
-            Guests Information ({
-              bookingConfirmation?.fullBookingData?.passengers?.length || 
-              formData?.members?.length || 
-              0
-            })
+            Guests Information (
+            {bookingConfirmation?.fullBookingData?.passengers?.length ||
+              formData?.members?.length ||
+              0}
+            )
           </h3>
         </div>
 
         <div className={styles.guestCards}>
           {/* After payment, use passengers from fullBookingData */}
-          {bookingConfirmation?.fullBookingData?.passengers ? (
-            bookingConfirmation.fullBookingData.passengers.map((passenger: any, index: number) => (
-              <div key={passenger.id || index} className={styles.guestCard}>
-                <div className={styles.guestHeader}>
-                  <h4 className={styles.guestName}>
-                    {passenger.fullName}
-                    {passenger.isPrimary && <span className={styles.primaryBadge}> (Primary)</span>}
-                  </h4>
-                  <div className={styles.guestMeta}>
-                    <span className={styles.ageGender}>
-                      {passenger.age} years • {passenger.gender}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.guestDetailsGrid}>
-                  <div className={styles.guestDetail}>
-                    <span className={styles.detailLabel}>Contact Number</span>
-                    <span className={styles.detailValue}>
-                      {passenger.whatsappNumber || "NA"}
-                    </span>
-                  </div>
-                  <div className={styles.guestDetail}>
-                    <span className={styles.detailLabel}>Mail ID</span>
-                    <span className={styles.detailValue}>
-                      {passenger.email || "NA"}
-                    </span>
-                  </div>
-                  <div className={styles.guestDetail}>
-                    <span className={styles.detailLabel}>Nationality</span>
-                    <span className={styles.detailValue}>
-                      {passenger.nationality || "Indian"}
-                    </span>
-                  </div>
-                  {passenger.nationality !== "Indian" && passenger.passportNumber && (
-                    <>
-                      <div className={styles.guestDetail}>
-                        <span className={styles.detailLabel}>Passport Number</span>
-                        <span className={styles.detailValue}>
-                          {passenger.passportNumber}
+          {bookingConfirmation?.fullBookingData?.passengers
+            ? bookingConfirmation.fullBookingData.passengers.map(
+                (passenger: any, index: number) => (
+                  <div key={passenger.id || index} className={styles.guestCard}>
+                    <div className={styles.guestHeader}>
+                      <h4 className={styles.guestName}>
+                        {passenger.fullName}
+                        {passenger.isPrimary && (
+                          <span className={styles.primaryBadge}>
+                            {" "}
+                            (Primary)
+                          </span>
+                        )}
+                      </h4>
+                      <div className={styles.guestMeta}>
+                        <span className={styles.ageGender}>
+                          {passenger.age} years • {passenger.gender}
                         </span>
                       </div>
-                      {passenger.passportExpiry && (
-                        <div className={styles.guestDetail}>
-                          <span className={styles.detailLabel}>Passport Expiry</span>
-                          <span className={styles.detailValue}>
-                            {new Date(passenger.passportExpiry).toLocaleDateString('en-IN', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            /* During checkout flow, use formData */
-            (formData?.members || []).map((member) => (
-              <div key={member.id} className={styles.guestCard}>
-                <div className={styles.guestHeader}>
-                  <h4 className={styles.guestName}>{member.fullName}</h4>
-                  <div className={styles.guestMeta}>
-                    <span className={styles.ageGender}>
-                      {member.age} years • {member.gender}
-                    </span>
-                  </div>
-                </div>
+                    </div>
 
-                <div className={styles.guestDetailsGrid}>
-                  <div className={styles.guestDetail}>
-                    <span className={styles.detailLabel}>Contact Number</span>
-                    <span className={styles.detailValue}>
-                      {member.whatsappNumber || "NA"}
-                    </span>
+                    <div className={styles.guestDetailsGrid}>
+                      <div className={styles.guestDetail}>
+                        <span className={styles.detailLabel}>
+                          Contact Number
+                        </span>
+                        <span className={styles.detailValue}>
+                          {passenger.whatsappNumber || "NA"}
+                        </span>
+                      </div>
+                      <div className={styles.guestDetail}>
+                        <span className={styles.detailLabel}>Mail ID</span>
+                        <span className={styles.detailValue}>
+                          {passenger.email || "NA"}
+                        </span>
+                      </div>
+                      <div className={styles.guestDetail}>
+                        <span className={styles.detailLabel}>Nationality</span>
+                        <span className={styles.detailValue}>
+                          {passenger.nationality || "Indian"}
+                        </span>
+                      </div>
+                      {passenger.nationality !== "Indian" &&
+                        passenger.passportNumber && (
+                          <>
+                            <div className={styles.guestDetail}>
+                              <span className={styles.detailLabel}>
+                                Passport Number
+                              </span>
+                              <span className={styles.detailValue}>
+                                {passenger.passportNumber}
+                              </span>
+                            </div>
+                            {passenger.passportExpiry && (
+                              <div className={styles.guestDetail}>
+                                <span className={styles.detailLabel}>
+                                  Passport Expiry
+                                </span>
+                                <span className={styles.detailValue}>
+                                  {new Date(
+                                    passenger.passportExpiry
+                                  ).toLocaleDateString("en-IN", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                    </div>
                   </div>
-                  <div className={styles.guestDetail}>
-                    <span className={styles.detailLabel}>Mail ID</span>
-                    <span className={styles.detailValue}>
-                      {member.email || "NA"}
-                    </span>
+                )
+              )
+            : /* During checkout flow, use formData */
+              (formData?.members || []).map((member) => (
+                <div key={member.id} className={styles.guestCard}>
+                  <div className={styles.guestHeader}>
+                    <h4 className={styles.guestName}>{member.fullName}</h4>
+                    <div className={styles.guestMeta}>
+                      <span className={styles.ageGender}>
+                        {member.age} years • {member.gender}
+                      </span>
+                    </div>
                   </div>
-                  <div className={styles.guestDetail}>
-                    <span className={styles.detailLabel}>Passport Number</span>
-                    <span className={styles.detailValue}>
-                      {member.nationality !== "Indian"
-                        ? member.fpassport || "Not provided"
-                        : member.passportNumber || "Not required"}
-                    </span>
+
+                  <div className={styles.guestDetailsGrid}>
+                    <div className={styles.guestDetail}>
+                      <span className={styles.detailLabel}>Contact Number</span>
+                      <span className={styles.detailValue}>
+                        {member.whatsappNumber || "NA"}
+                      </span>
+                    </div>
+                    <div className={styles.guestDetail}>
+                      <span className={styles.detailLabel}>Mail ID</span>
+                      <span className={styles.detailValue}>
+                        {member.email || "NA"}
+                      </span>
+                    </div>
+                    <div className={styles.guestDetail}>
+                      <span className={styles.detailLabel}>
+                        Passport Number
+                      </span>
+                      <span className={styles.detailValue}>
+                        {member.nationality !== "Indian"
+                          ? member.fpassport || "Not provided"
+                          : member.passportNumber || "Not required"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))}
         </div>
       </div>
 
@@ -909,10 +999,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             variant="primary"
             size="large"
             onClick={handleDownloadPDF}
-            icon={<Download size={20} />}
+            icon={!isPdfGenerating ? <Download size={20} /> : undefined}
             className={styles.downloadButton}
+            disabled={isPdfGenerating}
+            loading={isPdfGenerating}
           >
-            Download PDF
+            {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
           </Button>
         )}
 
