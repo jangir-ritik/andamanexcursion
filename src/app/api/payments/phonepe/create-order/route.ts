@@ -1,10 +1,10 @@
 // src/app/api/payments/phonepe/create-order/route.ts
-// PhonePe Payment Order Creation - Standard Checkout Flow
+// PhonePe Payment Order Creation - Checkout API v2
 
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@payload-config";
-import { phonePeService } from "@/services/payments/phonePeService";
+import { phonePeServiceV2 } from "@/services/payments/phonePeServiceV2";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,42 +25,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate unique merchant transaction ID
-    const merchantTransactionId = phonePeService.generateMerchantTransactionId();
-    const merchantUserId = phonePeService.generateMerchantUserId(
-      bookingData.contactDetails?.email
-    );
+    // Generate unique merchant order ID
+    const merchantOrderId = phonePeServiceV2.generateMerchantOrderId();
 
-    // Build URLs for PhonePe redirect and callback
-    // Use proper base URL with fallback chain
+    // Build URLs for PhonePe redirect
     const protocol = req.headers.get("x-forwarded-proto") || "http";
     const host = req.headers.get("host") || "localhost:3000";
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
     
-    // PhonePe v2 does GET redirects, so point directly to client page
-    const redirectUrl = `${baseUrl}/checkout/payment-return`;
-    const callbackUrl = `${baseUrl}/api/payments/phonepe/callback`;
+    // PhonePe v2: User returns to this URL after payment
+    // CRITICAL: Include merchantOrderId in URL since PhonePe v2 doesn't append it automatically
+    const redirectUrl = `${baseUrl}/checkout/payment-return?merchantOrderId=${merchantOrderId}`;
     
-    console.log("PhonePe URLs configured:", { baseUrl, redirectUrl, callbackUrl });
+    console.log("PhonePe v2 URLs configured:", { baseUrl, redirectUrl });
 
-    console.log("Creating PhonePe payment order:", {
-      merchantTransactionId,
+    console.log("Creating PhonePe v2 payment order:", {
+      merchantOrderId,
       amount: amount,
       bookingType: bookingData.bookingType,
     });
 
-    // Initiate payment with PhonePe
-    const paymentResult = await phonePeService.initiatePayment({
+    // Prepare metadata for PhonePe
+    const metaInfo: Record<string, string> = {
+      udf1: bookingData.bookingType || "booking",
+      udf2: bookingData.contactDetails?.primaryName || "",
+      udf3: bookingData.contactDetails?.email || "",
+    };
+
+    // Add booking-specific metadata
+    if (bookingData.items && bookingData.items.length > 0) {
+      const firstItem = bookingData.items[0];
+      metaInfo.udf4 = firstItem.title || "";
+      metaInfo.udf5 = firstItem.date || "";
+    }
+
+    // Initiate payment with PhonePe v2 API
+    const paymentResult = await phonePeServiceV2.initiatePayment({
       amount: amount,
-      merchantTransactionId: merchantTransactionId,
-      merchantUserId: merchantUserId,
+      merchantOrderId: merchantOrderId,
       redirectUrl: redirectUrl,
-      callbackUrl: callbackUrl,
-      mobileNumber: bookingData.contactDetails?.whatsapp?.replace(/[^0-9]/g, ""),
+      metaInfo: metaInfo,
     });
 
-    if (!paymentResult.success || !paymentResult.checkoutUrl) {
-      throw new Error("Failed to get checkout URL from PhonePe");
+    if (!paymentResult.success || !paymentResult.redirectUrl) {
+      throw new Error("Failed to get redirect URL from PhonePe v2");
     }
 
     // Create initial payment record in Payload CMS
@@ -69,12 +77,13 @@ export async function POST(req: NextRequest) {
     await payload.create({
       collection: "payments",
       data: {
-        transactionId: merchantTransactionId,
+        transactionId: merchantOrderId,
         gateway: "phonepe",
         phonepeData: {
-          merchantOrderId: merchantTransactionId,
+          merchantOrderId: merchantOrderId,
+          phonepeTransactionId: paymentResult.orderId, // PhonePe's internal order ID (v2)
           redirectUrl: redirectUrl,
-          checkoutUrl: paymentResult.checkoutUrl,
+          checkoutUrl: paymentResult.redirectUrl, // v2 calls it redirectUrl
         },
         amount: Math.round(amount * 100),
         status: "pending",
@@ -85,23 +94,26 @@ export async function POST(req: NextRequest) {
         },
         bookingData: bookingData,
         gatewayResponse: {
-          provider: "phonepe",
-          code: paymentResult.code,
-          message: paymentResult.message,
+          provider: "phonepe-v2",
+          state: paymentResult.state,
+          orderId: paymentResult.orderId,
         },
       },
     });
 
-    console.log("PhonePe payment order created successfully:", {
-      merchantTransactionId,
-      hasCheckoutUrl: !!paymentResult.checkoutUrl,
+    console.log("PhonePe v2 payment order created successfully:", {
+      merchantOrderId,
+      phonePeOrderId: paymentResult.orderId,
+      hasRedirectUrl: !!paymentResult.redirectUrl,
     });
 
     return NextResponse.json({
       success: true,
-      merchantTransactionId: merchantTransactionId,
-      checkoutUrl: paymentResult.checkoutUrl,
+      merchantOrderId: merchantOrderId, // Our order ID
+      orderId: paymentResult.orderId, // PhonePe's order ID
+      redirectUrl: paymentResult.redirectUrl, // URL to redirect user to
       amount: amount,
+      state: paymentResult.state,
     });
   } catch (error: any) {
     console.error("PhonePe order creation error:", error);

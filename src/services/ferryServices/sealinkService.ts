@@ -413,7 +413,7 @@ export class SealinkService {
       const { username, token } = this.validateCredentials();
 
       // CORRECTED: Use exact Sealink API structure as per working curl example
-      let bookingToken = token;
+      const bookingToken = token;
 
       // Separate seats by class for the API
       const pClassSeats: string[] = [];
@@ -812,7 +812,7 @@ export class SealinkService {
       Array.from(this.tripDataCache.keys())
     );
 
-    let cachedTripData = this.tripDataCache.get(originalTripId);
+    const cachedTripData = this.tripDataCache.get(originalTripId);
 
     if (cachedTripData) {
       console.log(

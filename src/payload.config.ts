@@ -58,6 +58,10 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || "",
+    connectOptions: {
+      serverSelectionTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 45000,
+    },
   }),
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || "",

@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button/Button";
+import { AlertDialog } from "@/components/atoms/AlertDialog";
 import { useFerryStore } from "@/store/FerryStore";
 import { useFerryDetails } from "@/hooks/ferry/useFerryDetails";
 import { useSimplifiedSeatSelection } from "@/hooks/ferry/useSimplifiedSeatSelection";
@@ -30,6 +31,10 @@ import FerrySummary from "@/components/ferry/FerrySummary";
  */
 export default function SimplifiedFerryBookingPage() {
   const router = useRouter();
+  
+  // Alert dialog state
+  const [showValidationAlert, setShowValidationAlert] = useState(false);
+  const [validationMessage, setValidationMessage] = useState("");
 
   // Client state from Zustand
   const {
@@ -103,7 +108,8 @@ export default function SimplifiedFerryBookingPage() {
         ferry!
       );
       if (!validation.isValid && validation.message) {
-        alert(validation.message);
+        setValidationMessage(validation.message);
+        setShowValidationAlert(true);
       }
       return;
     }
@@ -228,6 +234,18 @@ export default function SimplifiedFerryBookingPage() {
           </div>
         </div>
       </div>
+
+      {/* Validation Alert Dialog */}
+      <AlertDialog
+        open={showValidationAlert}
+        onOpenChange={setShowValidationAlert}
+        title="Seat Selection Required"
+        description={validationMessage}
+        actionLabel="Got it"
+        onAction={() => setShowValidationAlert(false)}
+        onCancel={() => setShowValidationAlert(false)}
+        showOnlyAction={true}
+      />
     </main>
   );
 }

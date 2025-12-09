@@ -1,6 +1,7 @@
 // src/app/api/payments/phonepe/status/route.ts
+// PhonePe v2 API - Payment Status Check and Booking Processing
 import { NextRequest, NextResponse } from "next/server";
-import { phonePeService } from "@/services/payments/phonePeService";
+import { phonePeServiceV2 } from "@/services/payments/phonePeServiceV2";
 import { getPayload } from "payload";
 import config from "@payload-config";
 import NotificationManager from "@/services/notifications/NotificationManager";
@@ -9,29 +10,31 @@ import { FerryBookingService } from "@/services/ferryServices/ferryBookingServic
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    const merchantTransactionId = searchParams.get("merchantTransactionId");
+    // Check merchantOrderId first (primary param), then merchantTransactionId (backward compatibility)
+    const merchantOrderId = searchParams.get("merchantOrderId") || searchParams.get("merchantTransactionId");
 
-    if (!merchantTransactionId) {
+    if (!merchantOrderId) {
       return NextResponse.json(
-        { success: false, error: "Merchant Transaction ID is required" },
+        { success: false, error: "Merchant Order ID is required" },
         { status: 400 }
       );
     }
 
     console.log(
-      "Checking payment status for transaction:",
-      merchantTransactionId
+      "Checking PhonePe v2 payment status for order:",
+      merchantOrderId
     );
 
-    // Check payment status with PhonePe
-    const statusResponse = await phonePeService.checkPaymentStatus(
-      merchantTransactionId
+    // Check payment status with PhonePe v2 API
+    const statusResponse = await phonePeServiceV2.checkPaymentStatus(
+      merchantOrderId
     );
 
-    console.log("PhonePe status response:", {
-      merchantTransactionId,
+    console.log("PhonePe v2 status response:", {
+      merchantOrderId,
       state: statusResponse.state,
-      transactionId: statusResponse.transactionId,
+      orderId: statusResponse.orderId,
+      success: statusResponse.success,
     });
 
     // Get payment record from database
@@ -39,7 +42,7 @@ export async function GET(req: NextRequest) {
     const paymentRecords = await payload.find({
       collection: "payments",
       where: {
-        "phonepeData.merchantOrderId": { equals: merchantTransactionId },
+        "phonepeData.merchantOrderId": { equals: merchantOrderId },
       },
       limit: 1,
     });
@@ -96,28 +99,28 @@ export async function GET(req: NextRequest) {
       id: paymentRecord.id,
       data: {
         status:
-          statusResponse.state === "COMPLETED"
+          statusResponse.state === "SUCCESS" || statusResponse.state === "COMPLETED"
             ? "success"
             : statusResponse.state === "FAILED"
             ? "failed"
             : "pending",
         phonepeData: {
           ...existingPhonepeData,
-          phonepeTransactionId: statusResponse.transactionId,
+          phonepeTransactionId: statusResponse.orderId,
           statusCheckData: JSON.stringify(statusResponse),
         },
       },
     });
 
-    // If payment is successful, process the booking
-    if (statusResponse.state === "COMPLETED") {
+    // If payment is successful, process the booking (accept both SUCCESS and COMPLETED)
+    if (statusResponse.state === "SUCCESS" || statusResponse.state === "COMPLETED") {
       console.log("Payment successful, processing booking...");
 
       try {
         // Process booking based on type
         const bookingResult = await processBooking(
           bookingData,
-          merchantTransactionId,
+          merchantOrderId,
           paymentRecord.id
         );
 
@@ -129,7 +132,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
           success: true,
           status: statusResponse.state,
-          transactionId: statusResponse.transactionId,
+          orderId: statusResponse.orderId,
           booking: bookingResult.booking,
           providerBooking: bookingResult.providerBooking || null,
           message: bookingResult.success
@@ -143,7 +146,7 @@ export async function GET(req: NextRequest) {
         const failedBooking = await createFailedBookingRecord(
           payload,
           bookingData,
-          merchantTransactionId,
+          merchantOrderId,
           paymentRecord.id,
           bookingError
         );
@@ -157,7 +160,7 @@ export async function GET(req: NextRequest) {
         console.error("⚠️ POST-PAYMENT BOOKING FAILURE:", {
           errorType,
           requiresRefund,
-          transactionId: statusResponse.transactionId,
+          orderId: statusResponse.orderId,
           bookingId: failedBooking.id,
           errorMessage: bookingError.message,
         });
@@ -165,7 +168,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
           success: false,
           status: statusResponse.state,
-          transactionId: statusResponse.transactionId,
+          orderId: statusResponse.orderId,
           booking: failedBooking,
           error: "Booking processing failed",
           errorType,
@@ -180,7 +183,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: false,
       status: statusResponse.state,
-      transactionId: statusResponse.transactionId,
+      orderId: statusResponse.orderId,
       message:
         statusResponse.state === "FAILED"
           ? "Payment failed. Please try again."
@@ -240,10 +243,20 @@ async function processBooking(
       | "makruzz"
       | "greenocean";
 
-    // Count passengers
-    const adults = ferryItem.passengers?.adults || 1;
-    const children = ferryItem.passengers?.children || 0;
-    const infants = ferryItem.passengers?.infants || 0;
+    // Count passengers based on ACTUAL member ages (universal pricing model)
+    // Infants (< 2 years): FREE, no ticket
+    // Adults (≥ 2 years): Full price, ticket required
+    const adults = (bookingData.members || []).filter((m: any) => m.age >= 2).length;
+    const children = 0; // Always 0 in streamlined universal model
+    const infants = (bookingData.members || []).filter((m: any) => m.age < 2).length;
+    
+    console.log("Passenger categorization by actual ages:", {
+      totalMembers: bookingData.members?.length || 0,
+      adults,
+      children,
+      infants,
+      memberAges: (bookingData.members || []).map((m: any) => m.age),
+    });
 
     // Build FerryBookingRequest object
     const bookingRequest = {
