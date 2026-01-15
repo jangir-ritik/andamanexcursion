@@ -317,10 +317,14 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
                               label="Add Destination"
                               options={DESTINATIONS}
                               hasError={
+                                hasError &&
                                 !!errors.itinerary?.[index]?.destination
                               }
                               errorMessage={
-                                errors.itinerary?.[index]?.destination?.message
+                                hasError
+                                  ? errors.itinerary?.[index]?.destination
+                                      ?.message
+                                  : undefined
                               }
                               className={styles.selectComponent}
                             />
@@ -337,9 +341,14 @@ export const Step2Component: React.FC<Step2ComponentProps> = ({
                               value={field.value}
                               onChange={field.onChange}
                               options={ACTIVITIES}
-                              hasError={!!errors.itinerary?.[index]?.activity}
+                              hasError={
+                                hasError &&
+                                !!errors.itinerary?.[index]?.activity
+                              }
                               errorMessage={
-                                errors.itinerary?.[index]?.activity?.message
+                                hasError
+                                  ? errors.itinerary?.[index]?.activity?.message
+                                  : undefined
                               }
                               className={styles.selectComponent}
                               placeholder="Select your activity"

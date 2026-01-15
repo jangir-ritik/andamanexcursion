@@ -7,7 +7,6 @@ import { Section, Column } from "@/components/layout";
 import { PackageSelector } from "@/components/molecules/PackageSelector/PackageSelector";
 import { PackageCard } from "@/components/molecules/Cards/PackageCard/PackageCard";
 import {
-  DecorativeCurlyArrow,
   DescriptionText,
   SectionTitle,
 } from "@/components/atoms";
@@ -200,12 +199,6 @@ export const DynamicPackagesBlock: React.FC<DynamicPackagesBlockProps> = ({
           >
             <SectionTitle text={title} specialWord={specialWord} />
             <DescriptionText text={description} />
-            <DecorativeCurlyArrow
-              top="43%"
-              left="30%"
-              scale={1.2}
-              rotation={30}
-            />
           </Column>
 
           <Column>

@@ -79,10 +79,6 @@ export const TripPlanningForm: React.FC = () => {
   // Initialize form persistence
   const { clearSavedData, saveStatus } = useFormPersistence(form);
 
-  // Initialize form error handling
-  const { errorSummary, accordionErrorIndices, validateStep, hasErrors } =
-    useFormErrors(form);
-
   const {
     currentStep,
     nextStep,
@@ -98,6 +94,13 @@ export const TripPlanningForm: React.FC = () => {
     form,
     stepsSchemas: STEP_SCHEMAS,
   });
+
+  // Initialize form error handling (after useMultiStepForm to get currentStep)
+  const {
+    accordionErrorIndices,
+    validateStep,
+    hasTriggeredValidation,
+  } = useFormErrors(form, currentStep);
 
   // Add effect to ensure form is in view when step changes
   useEffect(() => {
@@ -154,6 +157,9 @@ export const TripPlanningForm: React.FC = () => {
   };
 
   const handleNext = async () => {
+    // Trigger validation to show errors (sets hasTriggeredValidation = true)
+    await validateStep();
+
     if (isLastStep) {
       // Validate before final submission
       const isValid = await validateStep();
@@ -177,7 +183,12 @@ export const TripPlanningForm: React.FC = () => {
           />
         );
       case 3:
-        return <Step3Component form={form} />;
+        return (
+          <Step3Component
+            form={form}
+            hasTriggeredValidation={hasTriggeredValidation}
+          />
+        );
       default:
         return <Step1Component form={form} />;
     }
@@ -268,17 +279,7 @@ export const TripPlanningForm: React.FC = () => {
           </Column>
         </Section>
 
-        {/* Error Summary - show only if there are errors and validation has been triggered */}
-        {errorSummary.length > 0 && (
-          <Section className={styles.errorSection} aria-live="polite">
-            <ErrorSummary
-              errors={errorSummary}
-              onErrorClick={(fieldId) => {
-                form.setFocus(fieldId as any);
-              }}
-            />
-          </Section>
-        )}
+{/* Error Summary removed - errors are shown inline on fields */}
 
         {/* Step Content */}
         <Section

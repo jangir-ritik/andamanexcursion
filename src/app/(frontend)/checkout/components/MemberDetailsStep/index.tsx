@@ -141,7 +141,12 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
 
   // Create form defaults
   const defaultValues = useMemo((): FormData => {
-    if (formData) {
+    console.log("🔍 Creating default values with requirements:", requirements);
+    console.log("🔍 Total Required Passengers:", requirements.totalRequired);
+
+    // ✅ FIX: Check if existing formData matches requirements
+    if (formData && formData.members.length === requirements.totalRequired) {
+      console.log("🔍 Using existing formData with", formData.members.length, "members");
       return {
         members: formData.members.map((member) => ({
           fullName: member.fullName || "",
@@ -163,7 +168,10 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
       };
     }
 
+    // ✅ If formData exists but doesn't match requirements, ignore it and create fresh
+
     // Create defaults based on requirements
+    console.log("🔍 Creating new members array with length:", requirements.totalRequired);
     const members = Array.from(
       { length: requirements.totalRequired },
       (_, i) => ({
@@ -389,7 +397,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
               <div key={field.id} className={styles.memberCard}>
                 <div className={styles.memberHeader}>
                   <h4>
-                    {isPrimary ? "Primary Contact" : `Passenger ${index + 1}`}
+                    {isPrimary ? "Passenger 1 (Primary Contact)" : `Passenger ${index + 1}`}
                   </h4>
                   {!isPrimary && fields.length > 1 && (
                     <button

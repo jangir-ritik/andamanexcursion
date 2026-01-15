@@ -16,11 +16,14 @@ import { Input, Select } from "@/components/atoms";
 
 interface Step3ComponentProps {
   form: UseFormReturn<TripFormData>;
+  hasTriggeredValidation?: boolean;
 }
 
-export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
+export const Step3Component: React.FC<Step3ComponentProps> = ({
+  form,
+  hasTriggeredValidation = false,
+}) => {
   const {
-    register,
     control,
     formState: { errors },
   } = form;
@@ -45,9 +48,16 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     label="Hotel Type"
                     options={HOTEL_TYPES}
                     required
-                    hasError={!!errors.hotelPreferences?.hotelType}
+                    hasError={
+                      hasTriggeredValidation &&
+                      !!errors.hotelPreferences?.hotelType
+                    }
                     placeholder="Select hotel type"
-                    errorMessage={errors.hotelPreferences?.hotelType?.message}
+                    errorMessage={
+                      hasTriggeredValidation
+                        ? errors.hotelPreferences?.hotelType?.message
+                        : undefined
+                    }
                   />
                 )}
               />
@@ -64,10 +74,15 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     label="Room Preference"
                     options={ROOM_PREFERENCES}
                     required
-                    hasError={!!errors.hotelPreferences?.roomPreference}
+                    hasError={
+                      hasTriggeredValidation &&
+                      !!errors.hotelPreferences?.roomPreference
+                    }
                     placeholder="Select room preference"
                     errorMessage={
-                      errors.hotelPreferences?.roomPreference?.message
+                      hasTriggeredValidation
+                        ? errors.hotelPreferences?.roomPreference?.message
+                        : undefined
                     }
                   />
                 )}
@@ -106,9 +121,16 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     label="Ferry Class"
                     options={FERRY_CLASSES}
                     required
-                    hasError={!!errors.ferryPreferences?.ferryClass}
+                    hasError={
+                      hasTriggeredValidation &&
+                      !!errors.ferryPreferences?.ferryClass
+                    }
                     placeholder="Select ferry class"
-                    errorMessage={errors.ferryPreferences?.ferryClass?.message}
+                    errorMessage={
+                      hasTriggeredValidation
+                        ? errors.ferryPreferences?.ferryClass?.message
+                        : undefined
+                    }
                   />
                 )}
               />
@@ -125,10 +147,15 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     label="Travel Time Slot"
                     options={TIME_SLOTS}
                     required
-                    hasError={!!errors.ferryPreferences?.travelTimeSlot}
+                    hasError={
+                      hasTriggeredValidation &&
+                      !!errors.ferryPreferences?.travelTimeSlot
+                    }
                     placeholder="Select time slot"
                     errorMessage={
-                      errors.ferryPreferences?.travelTimeSlot?.message
+                      hasTriggeredValidation
+                        ? errors.ferryPreferences?.travelTimeSlot?.message
+                        : undefined
                     }
                   />
                 )}
@@ -216,9 +243,16 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     label="Meal Preference"
                     options={MEAL_PREFERENCES}
                     required
-                    hasError={!!errors.addOns?.mealPreference}
+                    hasError={
+                      hasTriggeredValidation &&
+                      !!errors.addOns?.mealPreference
+                    }
                     placeholder="Select meal preference"
-                    errorMessage={errors.addOns?.mealPreference?.message}
+                    errorMessage={
+                      hasTriggeredValidation
+                        ? errors.addOns?.mealPreference?.message
+                        : undefined
+                    }
                   />
                 )}
               />
@@ -235,9 +269,16 @@ export const Step3Component: React.FC<Step3ComponentProps> = ({ form }) => {
                     label="Transportation"
                     options={TRANSPORTATION_OPTIONS}
                     required
-                    hasError={!!errors.addOns?.transportation}
+                    hasError={
+                      hasTriggeredValidation &&
+                      !!errors.addOns?.transportation
+                    }
                     placeholder="Select transportation"
-                    errorMessage={errors.addOns?.transportation?.message}
+                    errorMessage={
+                      hasTriggeredValidation
+                        ? errors.addOns?.transportation?.message
+                        : undefined
+                    }
                   />
                 )}
               />

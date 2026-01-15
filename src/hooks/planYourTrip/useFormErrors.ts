@@ -8,17 +8,22 @@ interface ErrorItem {
   fieldId?: string;
 }
 
-export const useFormErrors = (form: UseFormReturn<TripFormData>) => {
+export const useFormErrors = (form: UseFormReturn<TripFormData>, currentStep: number = 1) => {
   const { formState, trigger, setFocus } = form;
   const { errors, isSubmitting } = formState;
 
   const [errorSummary, setErrorSummary] = useState<ErrorItem[]>([]);
-  const [hasTriggeredValidation, setHasTriggeredValidation] = useState(false);
+
+  // Track validation per step - { stepNumber: hasTriggered }
+  const [triggeredSteps, setTriggeredSteps] = useState<Record<number, boolean>>({});
 
   // Track which accordion items have errors (for Step 2)
   const [accordionErrorIndices, setAccordionErrorIndices] = useState<number[]>(
     []
   );
+
+  // Check if current step has triggered validation
+  const hasTriggeredValidation = triggeredSteps[currentStep] || false;
 
   // Update error summary whenever errors change
   useEffect(() => {
@@ -208,7 +213,7 @@ export const useFormErrors = (form: UseFormReturn<TripFormData>) => {
 
   // Validate all fields in the current step
   const validateStep = async () => {
-    setHasTriggeredValidation(true);
+    setTriggeredSteps(prev => ({ ...prev, [currentStep]: true }));
     const isValid = await trigger();
 
     if (!isValid) {
@@ -229,5 +234,6 @@ export const useFormErrors = (form: UseFormReturn<TripFormData>) => {
     focusFirstError,
     hasErrors: Object.keys(errors).length > 0,
     isSubmitting,
+    hasTriggeredValidation,
   };
 };

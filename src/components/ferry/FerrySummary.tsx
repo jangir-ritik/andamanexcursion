@@ -108,7 +108,7 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
                   {ferry.route.to.name}
                 </p>
                 <p className={styles.travelDate}>
-                  <Clock size={14} /> {ferry.schedule.date}
+                  {ferry.schedule.date}
                 </p>
               </div>
             </div>
