@@ -60,8 +60,12 @@ export const useFormPersistence = (form: UseFormReturn<TripFormData>) => {
       Object.entries(savedData).forEach(([key, value]) => {
         if (key !== "timestamp" && key !== "expiresAt") {
           try {
-            // Handle nested objects
-            if (typeof value === "object" && value !== null) {
+            // Handle arrays (like itinerary) - set directly
+            if (Array.isArray(value)) {
+              setValue(key as keyof TripFormData, value as any);
+            }
+            // Handle nested objects (but not arrays)
+            else if (typeof value === "object" && value !== null) {
               Object.entries(value).forEach(([nestedKey, nestedValue]) => {
                 setValue(`${key}.${nestedKey}` as any, nestedValue);
               });

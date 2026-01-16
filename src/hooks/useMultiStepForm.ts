@@ -72,9 +72,8 @@ export const useMultiStepForm = ({
 
       setCompletedSteps((prev) => new Set(prev).add(currentStep));
       return true;
-    } catch (error) {
-      console.error("Validation error:", error);
-
+    } catch {
+      // Validation failed - this is expected behavior when fields are invalid
       // Scroll to top of form to show errors
       const formElement = document.querySelector("form");
       if (formElement) {
