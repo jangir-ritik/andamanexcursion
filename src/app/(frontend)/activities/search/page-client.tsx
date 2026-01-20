@@ -43,7 +43,7 @@ export default function ActivitiesSearchPageRQ() {
       </Section>
 
       {/* Cart Section - "No activities selected yet" */}
-      <Section className={styles.cartSection}>
+      <Section id="cart-section" className={styles.cartSection}>
         <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
           <Suspense
             fallback={

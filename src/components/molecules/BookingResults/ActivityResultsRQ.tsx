@@ -83,6 +83,21 @@ export const ActivityResultsRQ = memo<ActivityResultsRQProps>(
           } else {
             // Add new activity to cart with current search params
             addToCart(selectedActivity, 1, optionId, searchParams);
+
+            // Scroll to cart section after adding
+            setTimeout(() => {
+              const cartSection = document.getElementById("cart-section");
+              if (cartSection) {
+                const headerOffset = 80; // Account for fixed header
+                const elementPosition = cartSection.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: "smooth"
+                });
+              }
+            }, 100);
           }
         }
       },
