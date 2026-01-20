@@ -57,6 +57,12 @@ export function UnifiedSearchingForm({
   showManualSearch = true,
 }: UnifiedSearchingFormProps) {
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
+  const [isTabClicked, setIsTabClicked] = useState<boolean>(false);
+
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
+    setIsTabClicked(true);
+  };
 
   // For embedded variant or when hideTabs is true, render just the form content based on selected tab
   if (variant === "embedded" || hideTabs) {
@@ -89,10 +95,13 @@ export function UnifiedSearchingForm({
     >
       <Tabs.Root
         className={styles.tabsRoot}
-        defaultValue={initialTab}
-        onValueChange={setSelectedTab}
+        value={isTabClicked ? selectedTab : undefined}
+        onValueChange={handleTabChange}
       >
-        <Tabs.List className={styles.tabsList} aria-label="Book your travel">
+        <Tabs.List
+          className={`${styles.tabsList} ${!isTabClicked ? styles.tabsListCollapsed : ''}`}
+          aria-label="Book your travel"
+        >
           {TAB_CONFIG.map((tab) => (
             <Tabs.Trigger
               key={tab.id}
@@ -104,21 +113,25 @@ export function UnifiedSearchingForm({
           ))}
         </Tabs.List>
 
-        <Tabs.Content className={styles.tabsContent} value="ferry">
-          <FerrySearchForm
-            enableReactiveSearch={enableReactiveSearch}
-            variant={variant}
-            showManualSearch={showManualSearch}
-          />
-        </Tabs.Content>
+        {isTabClicked && (
+          <>
+            <Tabs.Content className={styles.tabsContent} value="ferry">
+              <FerrySearchForm
+                enableReactiveSearch={enableReactiveSearch}
+                variant={variant}
+                showManualSearch={showManualSearch}
+              />
+            </Tabs.Content>
 
-        <Tabs.Content className={styles.tabsContent} value="local-boat">
-          <BoatSearchForm variant={variant} />
-        </Tabs.Content>
+            <Tabs.Content className={styles.tabsContent} value="local-boat">
+              <BoatSearchForm variant={variant} />
+            </Tabs.Content>
 
-        <Tabs.Content className={styles.tabsContent} value="activities">
-          <ActivitySearchFormRQ variant={variant} />
-        </Tabs.Content>
+            <Tabs.Content className={styles.tabsContent} value="activities">
+              <ActivitySearchFormRQ variant={variant} />
+            </Tabs.Content>
+          </>
+        )}
       </Tabs.Root>
     </div>
   );
