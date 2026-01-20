@@ -31,19 +31,41 @@ export const useSimplifiedSeatSelection = (
   const handleSeatSelect = useCallback(
     (seatId: string) => {
       setSelectedSeats((prev) => {
-        if (prev.includes(seatId)) {
+        const isDeselecting = prev.includes(seatId);
+
+        let newSelection: string[];
+        if (isDeselecting) {
           // Deselect seat
-          return prev.filter((id) => id !== seatId);
+          newSelection = prev.filter((id) => id !== seatId);
         } else {
           // Select seat - check if we've reached the passenger limit
           if (prev.length >= passengers) {
             // Replace the first selected seat with the new one (FIFO)
-            return [...prev.slice(1), seatId];
+            newSelection = [...prev.slice(1), seatId];
           } else {
             // Add the new seat
-            return [...prev, seatId];
+            newSelection = [...prev, seatId];
           }
         }
+
+        // Scroll to seat selection section only when all seats are selected
+        if (!isDeselecting && newSelection.length === passengers) {
+          setTimeout(() => {
+            const seatSection = document.getElementById("seat-selection-section");
+            if (seatSection) {
+              const headerOffset = 80;
+              const elementPosition = seatSection.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+              });
+            }
+          }, 100);
+        }
+
+        return newSelection;
       });
     },
     [passengers]

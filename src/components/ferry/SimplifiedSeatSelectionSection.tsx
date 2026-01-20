@@ -103,7 +103,7 @@ export const SimplifiedSeatSelectionSection: React.FC<SimplifiedSeatSelectionSec
   };
 
   return (
-    <section className={styles.section}>
+    <section id="seat-selection-section" className={styles.section}>
       <SectionTitle
         text="Select your seats"
         specialWord="seats"
