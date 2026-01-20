@@ -98,8 +98,8 @@ export const Header = React.memo(
               <Image
                 src={logo}
                 alt="Andaman Excursion"
-                width={120}
-                height={40}
+                width={150}
+                height={50}
                 priority
               />
             </Link>

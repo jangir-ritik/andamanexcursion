@@ -24,14 +24,13 @@ import { useActivitiesSearch, useFormOptions } from "@/hooks/queries";
 export default function ActivitiesSearchPageRQ() {
   return (
     <main className={styles.main}>
-      {/* Management Section - Cart + Booking Form */}
+      {/* Booking Form Section */}
       <Section
         ariaLabelledby="management-section"
         id="booking-form-section"
         className={styles.managementSection}
       >
         <Column gap="var(--space-6)" fullWidth alignItems="start">
-          {/* Top - Booking Form */}
           <h1 className={styles.sectionHeading}>Your Activities</h1>
           <Row gap="var(--space-3)" className={styles.formColumn}>
             <UnifiedSearchingForm
@@ -40,17 +39,20 @@ export default function ActivitiesSearchPageRQ() {
               className={styles.bookingForm}
             />
           </Row>
-          {/* Bottom - Your Activities Cart */}
-          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
-            <Suspense
-              fallback={
-                <div className={styles.cartLoading}>Loading cart...</div>
-              }
-            >
-              <ActivityCartContent />
-            </Suspense>
-          </Row>
         </Column>
+      </Section>
+
+      {/* Cart Section - "No activities selected yet" */}
+      <Section className={styles.cartSection}>
+        <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
+          <Suspense
+            fallback={
+              <div className={styles.cartLoading}>Loading cart...</div>
+            }
+          >
+            <ActivityCartContent />
+          </Suspense>
+        </Row>
       </Section>
 
       {/* Search Results Section */}

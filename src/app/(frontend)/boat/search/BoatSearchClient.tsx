@@ -254,14 +254,13 @@ export function BoatSearchClient({
 }: BoatSearchClientProps) {
   return (
     <main className={styles.main}>
-      {/* Management Section - Cart + Booking Form */}
+      {/* Booking Form Section */}
       <Section
         ariaLabelledby="management-section"
         id="booking-form-section"
         className={styles.managementSection}
       >
         <Column gap="var(--space-6)" fullWidth alignItems="start">
-          {/* Top - Booking Form */}
           <h1 className={styles.sectionHeading}>Your Boat Trips</h1>
           <Row gap="var(--space-3)" className={styles.formColumn}>
             <UnifiedSearchingForm
@@ -270,20 +269,23 @@ export function BoatSearchClient({
               className={styles.bookingForm}
             />
           </Row>
-          {/* Bottom - Your Boat Cart */}
-          <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
-            <Suspense
-              fallback={
-                <div className={styles.cartLoading}>Loading cart...</div>
-              }
-            >
-              <BoatCartContent />
-            </Suspense>
-          </Row>
         </Column>
       </Section>
 
-      {/* Search Results Section */}
+      {/* Cart Section - "No boats selected yet" */}
+      <Section className={styles.cartSection}>
+        <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
+          <Suspense
+            fallback={
+              <div className={styles.cartLoading}>Loading cart...</div>
+            }
+          >
+            <BoatCartContent />
+          </Suspense>
+        </Row>
+      </Section>
+
+      {/* Search Results Section - Ferry Services */}
       <Section
         id="search-results"
         aria-labelledby="search-results-content"

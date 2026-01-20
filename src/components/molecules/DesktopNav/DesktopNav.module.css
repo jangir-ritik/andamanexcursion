@@ -193,6 +193,11 @@
   max-width: calc(100vw - 40px);
   /* Adjust positioning if it would overflow */
   margin-left: clamp(-45vw, 0px, 45vw);
+  /* Limit height and enable scrolling */
+  max-height: 70vh;
+  overflow-y: auto;
+  /* Prevent scroll from bleeding to background page */
+  overscroll-behavior: contain;
 }
 
 .navigationMenuContent::after {
