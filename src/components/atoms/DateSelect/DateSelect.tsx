@@ -21,12 +21,23 @@ export const DateSelect = ({
   label = "Date",
   errorMessage,
   required = true,
+  minDaysFromNow = 0,
+  allowPastDates = false,
 }: DateSelectPropsWithError) => {
   // Create unique IDs for accessibility
   const labelId = React.useId();
   const inputId = React.useId();
   const errorId = React.useId();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate minimum date based on minDaysFromNow (null if allowPastDates is true)
+  const minDate = React.useMemo(() => {
+    if (allowPastDates) return null;
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + minDaysFromNow);
+    return date;
+  }, [minDaysFromNow, allowPastDates]);
 
   // Ensure selected is a valid Date object
   const selectedDate =
@@ -43,8 +54,20 @@ export const DateSelect = ({
   const handlePreviousDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() - 1);
-    onChange(newDate);
+    // Only allow navigation if new date is >= minDate (or no minDate restriction)
+    if (!minDate || newDate >= minDate) {
+      onChange(newDate);
+    }
   };
+
+  // Check if previous day button should be disabled
+  const isPreviousDayDisabled = React.useMemo(() => {
+    if (!minDate) return false; // No restriction if allowPastDates is true
+    const previousDay = new Date(selectedDate);
+    previousDay.setDate(previousDay.getDate() - 1);
+    previousDay.setHours(0, 0, 0, 0);
+    return previousDay < minDate;
+  }, [selectedDate, minDate]);
 
   // Handle navigation to next day
   const handleNextDay = () => {
@@ -72,14 +95,15 @@ export const DateSelect = ({
             aria-label="Previous Day"
             className={styles.dateNavButton}
             onClick={handlePreviousDay}
+            disabled={isPreviousDayDisabled}
           >
-            <ChevronLeft color="var(--color-primary)" size={20} />
+            <ChevronLeft color={isPreviousDayDisabled ? "var(--color-gray-400)" : "var(--color-primary)"} size={20} />
           </button>
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
             dateFormat="EEE, dd MMM yyyy"
-            minDate={new Date()}
+            minDate={minDate || undefined}
             className={styles.datePicker}
             id={inputId}
             aria-labelledby={labelId}

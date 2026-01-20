@@ -467,6 +467,7 @@ export function ActivitySearchFormRQ({
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
                 hasError={!!errors.selectedDate}
+                minDaysFromNow={1}
               />
             )}
           />

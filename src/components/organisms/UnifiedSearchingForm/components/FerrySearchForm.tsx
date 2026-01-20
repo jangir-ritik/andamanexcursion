@@ -304,6 +304,7 @@ export function FerrySearchForm({
                   selected={field.value}
                   onChange={field.onChange}
                   hasError={!!errors.selectedDate}
+                  allowPastDates={true}
                 />
               )}
             />
