@@ -42,7 +42,7 @@
     "lucide-react": "^0.523.0",
     "mongodb": "^6.17.0",
     "nanoid": "^5.1.5",
-    "next": "15.3.4",
+    "next": "15.3.6",
     "payload": "3.54.0",
     "payload-recaptcha-v3": "^3.1.1",
     "pg-sdk-node": "https://phonepe.mycloudrepo.io/public/repositories/phonepe-pg-sdk-node/releases/v2/phonepe-pg-sdk-node.tgz",
@@ -67,7 +67,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.3.4",
+    "eslint-config-next": "15.3.6",
     "typescript": "^5"
   }
 }
