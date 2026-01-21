@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { getImageUrl } from "@/utils/getImageUrl";
 
 // ISR Configuration - Revalidate every 60 seconds
+// forcing a commmit
 export const revalidate = 60;
 
 type PageProps = {
