@@ -9,6 +9,7 @@ import {
   Trivia,
   ServiceTeaser,
   TopActivityCategories,
+  RichTextBlock,
 } from "@/components/sectionBlocks/common";
 import { PlanInFourEasySteps } from "@/components/sectionBlocks/ferry/planInfourEasySteps/PlanInFourEasySteps";
 import { TrustedFerriesBlock } from "@/components/sectionBlocks/ferry";
@@ -31,6 +32,7 @@ import { GoogleTestimonials } from "@/components/sectionBlocks/common/googleTest
 import TeamSection from "@/components/molecules/TeamSection/TeamSection";
 
 const blockComponentsMap = {
+  richText: RichTextBlock,
   hero: Banner,
   secondaryBanner: SecondaryBanner,
   hiddenGems: HiddenGems,

@@ -47,7 +47,7 @@ export const footerItems = {
     links: [
       {
         label: "Terms & Conditions",
-        href: "#",
+        href: "/terms-and-conditions",
       },
       {
         label: "Privacy Policy",

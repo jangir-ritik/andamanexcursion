@@ -417,6 +417,33 @@ export interface Page {
       | (
           | {
               /**
+               * Optional heading for this content section
+               */
+              title?: string | null;
+              /**
+               * Add your text content here - supports headings, paragraphs, lists, links, etc.
+               */
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: string;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'richText';
+            }
+          | {
+              /**
                * Main title of the hero section (only on the home page)
                */
               title?: string | null;
@@ -2390,6 +2417,14 @@ export interface PagesSelect<T extends boolean = true> {
         content?:
           | T
           | {
+              richText?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                    blockName?: T;
+                  };
               hero?:
                 | T
                 | {

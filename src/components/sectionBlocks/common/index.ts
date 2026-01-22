@@ -7,3 +7,4 @@ export * from "./secondaryBanner/SecondaryBanner";
 export * from "./visualCategoryGrid/VisualCategoryGrid";
 export * from "./serviceTeaser/ServiceTeaser";
 export * from "./topActivityCategories/TopActivityCategories";
+export * from "./richTextBlock/RichTextBlock";

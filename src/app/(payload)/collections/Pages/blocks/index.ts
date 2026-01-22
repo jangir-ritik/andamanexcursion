@@ -24,8 +24,10 @@ import { dynamicPackagesBlock } from "./dynamicPackages";
 import { dynamicCategoryPackagesBlock } from "./dynamicCategoryPackages";
 import { googleTestimonialsBlock } from "./googleTestimonials";
 import { teamSectionBlock } from "./teamSection";
+import { richTextBlock } from "./richText";
 
 export const contentBlocks: Block[] = [
+  richTextBlock,
   heroBlock,
   serviceTeaserBlock,
   serviceFeatureBlock,
