@@ -57,10 +57,6 @@ export const footerItems = {
         label: "Refund Policy",
         href: "/refund-policy",
       },
-      {
-        label: "FAQs",
-        href: "#",
-      },
     ],
   },
   contactInfo: {
