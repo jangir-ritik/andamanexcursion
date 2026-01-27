@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCheckoutStore } from "@/store/CheckoutStore";
+import { AlertDialog } from "@/components/atoms/AlertDialog";
 import { Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -22,17 +23,31 @@ function PhonePeReturnContent() {
   }>({});
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 10; // Check for up to 20 seconds (10 * 2 seconds)
+  
+  // State for clipboard copy alert
+  const [showClipboardAlert, setShowClipboardAlert] = useState(false);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
 
     const checkPaymentStatus = async () => {
       try {
-        // Get transaction ID from URL params (passed by redirect handler)
-        const merchantTransactionId = searchParams.get("merchantTransactionId") || 
-          sessionStorage.getItem("phonepe_transaction_id"); // Fallback to session storage
+        // Get transaction ID from URL params (primary) or session storage (fallback)
+        // PhonePe v2 redirects with merchantOrderId in URL query params
+        const merchantOrderId = 
+          searchParams.get("merchantOrderId") || // Primary source (from URL)
+          searchParams.get("merchantTransactionId") || // Alternative param name
+          sessionStorage.getItem("phonepe_merchant_order_id") || // Fallback to sessionStorage
+          sessionStorage.getItem("phonepe_transaction_id"); // Old session storage key
 
-        if (!merchantTransactionId) {
+        if (!merchantOrderId) {
+          console.error("❌ No merchantOrderId found", {
+            urlParams: Object.fromEntries(searchParams.entries()),
+            sessionStorage: {
+              merchantOrderId: sessionStorage.getItem("phonepe_merchant_order_id"),
+              transactionId: sessionStorage.getItem("phonepe_transaction_id"),
+            }
+          });
           setStatus("failed");
           setMessage(
             "Transaction ID not found. Please contact support if payment was deducted."
@@ -41,14 +56,14 @@ function PhonePeReturnContent() {
         }
 
         console.log(
-          "Checking PhonePe payment status:",
-          merchantTransactionId,
+          "✅ Checking PhonePe payment status:",
+          merchantOrderId,
           `(Attempt ${retryCount + 1}/${MAX_RETRIES})`
         );
 
         // Check payment status with backend
         const response = await fetch(
-          `/api/payments/phonepe/status?merchantTransactionId=${merchantTransactionId}`
+          `/api/payments/phonepe/status?merchantOrderId=${merchantOrderId}`
         );
 
         if (!response.ok) {
@@ -76,7 +91,8 @@ function PhonePeReturnContent() {
         }
 
         // Handle different status scenarios
-        if (result.success && result.status === "COMPLETED") {
+        // PhonePe v2 returns "SUCCESS" instead of "COMPLETED"
+        if (result.success && (result.status === "SUCCESS" || result.status === "COMPLETED")) {
           // Payment successful and booking confirmed
           setStatus("success");
           setMessage("Payment successful! Redirecting to confirmation...");
@@ -109,6 +125,7 @@ function PhonePeReturnContent() {
           }
 
           // Clean up session storage
+          sessionStorage.removeItem("phonepe_merchant_order_id");
           sessionStorage.removeItem("phonepe_transaction_id");
           sessionStorage.removeItem("phonepe_booking_data");
 
@@ -116,7 +133,7 @@ function PhonePeReturnContent() {
           setTimeout(() => {
             router.push("/checkout?step=3");
           }, 2000);
-        } else if (!result.success && result.status === "COMPLETED") {
+        } else if (!result.success && (result.status === "SUCCESS" || result.status === "COMPLETED")) {
           // Payment succeeded but booking failed (critical edge case)
           console.error("⚠️ POST-PAYMENT BOOKING FAILURE:", {
             errorType: result.errorType,
@@ -331,7 +348,7 @@ function PhonePeReturnContent() {
                   // Copy booking details to clipboard
                   const details = `Booking Reference: ${errorDetails.bookingId}\nTransaction ID: ${errorDetails.transactionId}`;
                   navigator.clipboard.writeText(details);
-                  alert("Reference details copied to clipboard!");
+                  setShowClipboardAlert(true);
                 }}
               >
                 Copy Reference
@@ -340,6 +357,18 @@ function PhonePeReturnContent() {
           </>
         )}
       </div>
+
+      {/* Clipboard Copy Confirmation */}
+      <AlertDialog
+        open={showClipboardAlert}
+        onOpenChange={setShowClipboardAlert}
+        title="Copied!"
+        description="Reference details copied to clipboard!"
+        actionLabel="Got it"
+        onAction={() => setShowClipboardAlert(false)}
+        onCancel={() => setShowClipboardAlert(false)}
+        showOnlyAction={true}
+      />
     </div>
   );
 }

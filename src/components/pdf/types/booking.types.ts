@@ -86,6 +86,8 @@ export interface BookingPDFData {
     gender: string;
     nationality: string;
     passportNumber?: string;
+    idNumber?: string;
+    ticketNumber?: string;
     whatsappNumber?: string;
     email?: string;
   }>;
@@ -95,8 +97,16 @@ export interface BookingPDFData {
     fees: number;
     totalAmount: number;
     currency: string;
+    baseFare?: number;
+    utgst?: number;
+    cgst?: number;
+    psf?: number;
+    hsnCode?: string;
+    paymentMode?: string;
   };
   specialRequests?: string;
+  // Dynamic terms from ferry provider PDF (with fallback)
+  termsAndConditions?: string[];
 }
 
 export interface BookingTicketPDFProps {

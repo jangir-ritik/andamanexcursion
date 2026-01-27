@@ -11,7 +11,7 @@ import { ReviewStep } from "../ReviewStep";
 import { ConfirmationStep } from "../ConfirmationStep";
 import { LoadingOverlay } from "@/components/molecules/LoadingOverlay";
 import { useCheckoutProtection } from "@/hooks/useCheckoutProtection";
-import { BeforeUnloadModal } from "@/components/molecules/BeforeUnloadModal";
+import { AlertDialog } from "@/components/atoms/AlertDialog";
 import type {
   UnifiedBookingData,
   PassengerRequirements,
@@ -201,28 +201,28 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({
       />
 
       {/* Global BeforeUnload Modal for page navigation protection */}
-      {showBeforeUnloadModal && (
-        <BeforeUnloadModal
-          isVisible={showBeforeUnloadModal}
-          onStay={handleStayOnPage}
-          onLeave={handleLeavePage}
-          title="Leave checkout process?"
-          message={`You'll lose all your progress if you leave now. Are you sure you want to continue?`}
-        />
-      )}
+      <AlertDialog
+        open={showBeforeUnloadModal}
+        onOpenChange={(open) => !open && handleStayOnPage()}
+        title="Leave checkout process?"
+        description="You'll lose all your progress if you leave now. Are you sure you want to continue?"
+        cancelLabel="Stay on Page"
+        actionLabel="Leave Page"
+        onCancel={handleStayOnPage}
+        onAction={handleLeavePage}
+      />
 
       {/* Step Navigation Modal - prevents going back from confirmation */}
-      {showStepNavigationModal && (
-        <BeforeUnloadModal
-          isVisible={showStepNavigationModal}
-          onStay={() => setShowStepNavigationModal(false)}
-          onLeave={handleStartNewBooking}
-          title="Booking Complete"
-          message="Your booking has been confirmed! Would you like to start a new booking or stay on this page to review your details?"
-          stayButtonLabel="Stay on Page"
-          leaveButtonLabel="Start New Booking"
-        />
-      )}
+      <AlertDialog
+        open={showStepNavigationModal}
+        onOpenChange={(open) => !open && setShowStepNavigationModal(false)}
+        title="Booking Complete"
+        description="Your booking has been confirmed! Would you like to start a new booking or stay on this page to review your details?"
+        cancelLabel="Stay on Page"
+        actionLabel="Start New Booking"
+        onCancel={() => setShowStepNavigationModal(false)}
+        onAction={handleStartNewBooking}
+      />
 
       {/* Debug Info (dev only) */}
       {process.env.NODE_ENV === "development" && (

@@ -1,6 +1,6 @@
 /**
  * Complete WhatsApp notification channel with Twilio Business API integration
- * Includes sandbox support for testing and production template handling
+ * Updated with new message formats as confirmed by client
  */
 
 import {
@@ -50,12 +50,15 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
 
   // Template mappings for different notification types
   private readonly templates = {
-    booking_confirmation: "notifications_welcome_template",
+    booking_confirmation: "booking_confirmation_template",
     booking_status_update: "status_update_template",
     booking_reminder: "booking_reminder_template",
     payment_failed: "payment_failed_template",
     enquiry_confirmation: "enquiry_confirmation_template",
   };
+
+  // Support phone number
+  private readonly supportPhone = process.env.SUPPORT_PHONE || "+91-8107664041";
 
   constructor() {
     super();
@@ -92,16 +95,6 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
     const fromNumber = this.getFromNumber();
     const environment = process.env.NODE_ENV || "development";
 
-    // console.log("[WhatsApp Debug] Environment check:");
-    // console.log("- TWILIO_ACCOUNT_SID:", accountSid ? "✓ Set" : "✗ Missing");
-    // console.log("- TWILIO_AUTH_TOKEN:", authToken ? "✓ Set" : "✗ Missing");
-    // console.log("- TWILIO_WHATSAPP_NUMBER:", fromNumber || "✗ Missing");
-    // console.log("- Environment:", environment);
-    // console.log(
-    //   "- FromNumber starts with 'whatsapp:':",
-    //   fromNumber?.startsWith("whatsapp:") ? "✓ Yes" : "✗ No"
-    // );
-
     const enabled = !!(
       accountSid &&
       authToken &&
@@ -109,7 +102,21 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
       fromNumber.startsWith("whatsapp:")
     );
 
-    // console.log("- Channel enabled:", enabled ? "✓ YES" : "✗ NO");
+    if (!enabled) {
+      console.log("⚠️ WhatsApp is NOT enabled. Checklist:", {
+        hasAccountSid: !!accountSid,
+        hasAuthToken: !!authToken,
+        fromNumber: fromNumber,
+        startsWithWhatsapp: fromNumber?.startsWith("whatsapp:"),
+        environment
+      });
+    } else {
+      console.log("✅ WhatsApp is enabled:", {
+        environment,
+        fromNumber
+      });
+    }
+
     return enabled;
   }
 
@@ -123,15 +130,19 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   async send<T>(payload: NotificationPayload<T>): Promise<NotificationResult> {
-    // console.log("[WhatsApp Debug] Send called with:", {
-    //   type: payload.type,
-    //   recipient: payload.recipient,
-    //   enabled: this.isEnabled(),
-    //   environment: process.env.NODE_ENV || "development",
-    // });
+    console.log("🔔 WhatsApp send() called with payload:", {
+      type: payload.type,
+      recipient: this.maskPhoneNumber(payload.recipient),
+      hasData: !!payload.data
+    });
 
     if (!this.isEnabled()) {
-      // console.log("[WhatsApp Debug] Channel not enabled - skipping");
+      console.error("❌ WhatsApp service not enabled. Configuration check:", {
+        accountSid: !!process.env.TWILIO_ACCOUNT_SID,
+        authToken: !!process.env.TWILIO_AUTH_TOKEN,
+        fromNumber: this.getFromNumber(),
+        nodeEnv: process.env.NODE_ENV
+      });
       return this.createResult(
         false,
         undefined,
@@ -140,22 +151,33 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
     }
 
     if (!this.validatePhoneNumber(payload.recipient)) {
-      // console.log("[WhatsApp Debug] Invalid phone number:", payload.recipient);
-      return this.createResult(false, undefined, "Invalid phone number format");
+      console.error("❌ Invalid phone number format:", payload.recipient);
+      return this.createResult(false, undefined, `Invalid phone number format: ${payload.recipient}. Must be in +91XXXXXXXXXX format`);
     }
-
-    // console.log("[WhatsApp Debug] Proceeding with send...");
 
     try {
       const client = this.getClient();
       const formattedRecipient = this.formatWhatsAppNumber(payload.recipient);
       const messageData = await this.buildWhatsAppMessage(payload);
 
+      console.log("📤 Sending WhatsApp message:", {
+        to: formattedRecipient,
+        from: this.getFromNumber(),
+        hasBody: !!messageData.body,
+        hasTemplate: !!messageData.templateName,
+        messagePreview: messageData.body?.substring(0, 100) + "..."
+      });
+
       const result = await this.sendWhatsAppMessage(
         client,
         formattedRecipient,
         messageData
       );
+
+      console.log("✅ WhatsApp message sent successfully:", {
+        sid: result.sid,
+        recipient: this.maskPhoneNumber(payload.recipient)
+      });
 
       return this.createResult(true, result.sid, undefined, {
         provider: "twilio-whatsapp",
@@ -165,7 +187,7 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error(`WhatsApp channel error for type ${payload.type}:`, error);
+      console.error(`❌ WhatsApp channel error for type ${payload.type}:`, error);
 
       // Enhanced error handling for common Twilio errors
       if (error instanceof Error) {
@@ -216,7 +238,7 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
       recipient: testPhone,
       data: {
         message:
-          "This is a test WhatsApp message from your notification system.",
+          "Test message from Andaman Excursion notification system.",
       },
     };
 
@@ -224,24 +246,13 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private validatePhoneNumber(phone: string): boolean {
-    // console.log("[WhatsApp Debug] Validating phone:", phone);
-
     if (!this.validateRecipient(phone)) {
-      // console.log("[WhatsApp Debug] Basic validation failed");
       return false;
     }
 
     // WhatsApp requires international format
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     const isValid = phoneRegex.test(phone.trim());
-
-    // console.log(
-    //   "[WhatsApp Debug] Regex validation:",
-    //   isValid ? "✓ Pass" : "✗ Fail"
-    // );
-    // console.log(
-    //   "[WhatsApp Debug] Expected format: +[country][number] (e.g., +918107664041)"
-    // );
 
     return isValid;
   }
@@ -280,7 +291,10 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
 
       case "test":
         return {
-          body: "🧪 Test message: WhatsApp integration is working!\n\nThis message was sent from Andaman Excursion's notification system.",
+          body: "Test Successful! 🧪\n\nWhatsApp notification system is working!\n📅 Test Date: " + 
+                new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) +
+                "\n🕐 Test Time: " + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) +
+                "\n✅ Status: Active\n\nThis confirms your WhatsApp integration is properly configured.\n\nAndaman Excursion Tech Team",
         };
 
       default:
@@ -291,30 +305,104 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private buildBookingConfirmationTemplate(data: BookingConfirmationData) {
-    // In development/testing, return simple body message
+    // In development/testing, return new format body message
     if (process.env.NODE_ENV !== "production") {
+      let serviceLine = "booking";
+      let details = "";
+      let closingEmoji = "🌊";
+
+      // Determine service type and build details accordingly
+      if (data.bookingType === "ferry") {
+        serviceLine = "ferry booking";
+        closingEmoji = "🌊";
+        
+        if (data.items.length === 1) {
+          const item = data.items[0];
+          const date = new Date(item.date).toLocaleDateString('en-IN', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+          
+          details = `🚢 Booking Details:\nBooking ID: ${data.confirmationNumber}\nRoute: ${item.title.replace('Ferry: ', '')}\nDate: ${date}\nDeparture: ${item.time}\nPassengers: ${item.passengers || 1}\n`;
+          
+          // Add seat/class if available
+          if (data.specialRequests?.includes("Premium") || data.specialRequests?.includes("Economy")) {
+            details += `💺 Seat/Class: ${data.specialRequests.includes("Premium") ? "Premium" : "Economy"}\n`;
+          }
+        } else {
+          details = `🚢 Booking Details:\nBooking ID: ${data.confirmationNumber}\n`;
+          data.items.forEach((item, index) => {
+            const date = new Date(item.date).toLocaleDateString('en-IN', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            });
+            details += `Service ${index + 1}: ${item.title}\nDate: ${date}\nTime: ${item.time}\n`;
+          });
+          details += `Passengers: ${data.items[0]?.passengers || 1}\n`;
+        }
+      } 
+      else if (data.bookingType === "activity") {
+        serviceLine = "activity booking";
+        closingEmoji = "🤿";
+        
+        if (data.items.length === 1) {
+          const item = data.items[0];
+          const date = new Date(item.date).toLocaleDateString('en-IN', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+          
+          details = `🎯 Booking Details:\nBooking ID: ${data.confirmationNumber}\nActivity: ${item.title}\nDate: ${date}\nTime: ${item.time}\nParticipants: ${item.passengers || 1}\n`;
+        }
+      } 
+      else if (data.bookingType === "mixed") {
+        serviceLine = "booking";
+        closingEmoji = "🌴";
+        
+        details = `📦 Package Details:\nBooking ID: ${data.confirmationNumber}\n\n`;
+        
+        // Add ferry details
+        const ferryItems = data.items.filter(item => item.title.includes('Ferry:'));
+        if (ferryItems.length > 0) {
+          details += `🚢 Ferry:\n`;
+          ferryItems.forEach(item => {
+            const date = new Date(item.date).toLocaleDateString('en-IN', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            });
+            details += `Route: ${item.title.replace('Ferry: ', '')}\nDate: ${date}\nDeparture: ${item.time}\n`;
+          });
+          details += `Passengers: ${ferryItems[0]?.passengers || 1}\n\n`;
+        }
+        
+        // Add activity details
+        const activityItems = data.items.filter(item => !item.title.includes('Ferry:'));
+        if (activityItems.length > 0) {
+          details += `🎯 Activity:\n`;
+          activityItems.forEach(item => {
+            const date = new Date(item.date).toLocaleDateString('en-IN', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            });
+            details += `${item.title}\nDate: ${date}\nTime: ${item.time}\n\n`;
+          });
+        }
+      }
+
+      // Build the complete message
+      const message = `Booking Confirmed! ✅\n\nHi ${data.customerName},\nYour ${serviceLine} with Andaman Excursion is confirmed!\n${details}💰 Amount Paid: ₹${data.totalAmount.toLocaleString()}\n\nImportant:\n- Please arrive ${data.bookingType === 'ferry' ? '1 hour' : '30 minutes'} before ${data.bookingType === 'ferry' ? 'departure' : 'activity'}\n- Carry a valid ID proof\n- Please carry a valid ticket / e-ticket.\n\nHave a ${data.bookingType === 'ferry' ? 'safe journey' : data.bookingType === 'activity' ? 'amazing experience' : 'wonderful trip'}! ${closingEmoji}\nAndaman Excursion | Support: ${this.supportPhone}`;
+
       return {
-        body: `🌴 ANDAMAN EXCURSION - Booking Confirmed! 🌴
-
-Hello ${data.customerName}!
-
-Your booking is confirmed:
-🎫 Confirmation: ${data.confirmationNumber}
-💰 Amount: ₹${data.totalAmount.toLocaleString()}
-📅 Date: ${new Date(data.bookingDate).toLocaleDateString("en-IN")}
-🚢 Service: ${data.items.map((item) => item.title).join(", ")}
-
-${data.items
-  .map((item) => `⏰ ${item.time} | 📍 ${item.location || "Location TBD"}`)
-  .join("\n")}
-
-Thank you for choosing us!
-
-Support: +91-8107664041`,
+        body: message
       };
     }
 
-    // Production: Use template
+    // Production: Use template with new format variables
     return {
       templateName: this.templates.booking_confirmation,
       templateData: {
@@ -326,6 +414,20 @@ Support: +91-8107664041`,
             parameters: [
               { type: "text" as const, text: data.customerName },
               { type: "text" as const, text: data.confirmationNumber },
+              { type: "text" as const, text: data.bookingType },
+              { type: "text" as const, text: data.items[0]?.title || "" },
+              {
+                type: "text" as const,
+                text: new Date(data.items[0]?.date || data.bookingDate).toLocaleDateString('en-IN')
+              },
+              {
+                type: "text" as const,
+                text: data.items[0]?.time || ""
+              },
+              {
+                type: "text" as const,
+                text: (data.items[0]?.passengers || 1).toString()
+              },
               {
                 type: "currency" as const,
                 currency: {
@@ -333,14 +435,6 @@ Support: +91-8107664041`,
                   code: "INR",
                   amount_1000: data.totalAmount * 1000,
                 },
-              },
-              {
-                type: "text" as const,
-                text: new Date(data.bookingDate).toLocaleDateString("en-IN"),
-              },
-              {
-                type: "text" as const,
-                text: data.items.map((item) => item.title).join(", "),
               },
             ],
           },
@@ -350,30 +444,45 @@ Support: +91-8107664041`,
   }
 
   private buildStatusUpdateTemplate(data: BookingStatusUpdateData) {
-    // In development/testing, return simple body message
+    // In development/testing, return new format body message
     if (process.env.NODE_ENV !== "production") {
-      const statusEmojis: Record<string, string> = {
-        confirmed: "✅",
-        cancelled: "❌",
-        completed: "🎉",
-        no_show: "⚠️",
-        pending: "⏳",
-      };
+      const statusEmoji = {
+        'confirmed': '✅',
+        'cancelled': '❌',
+        'completed': '✅',
+        'no_show': '⚠️',
+        'pending': '⏳'
+      }[data.newStatus.toLowerCase()] || '🔄';
+
+      const statusText = {
+        'confirmed': 'Updated',
+        'cancelled': 'Cancelled',
+        'completed': 'Updated',
+        'no_show': 'Update',
+        'pending': 'Updated'
+      }[data.newStatus.toLowerCase()] || 'Updated';
+
+      const date = new Date(data.updateDate).toLocaleDateString('en-IN', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+
+      let customMessage = "";
+      if (data.newStatus.toLowerCase() === 'cancelled') {
+        customMessage = "We're sorry to see you go!\nFull refund will be processed in 5-7 working days.";
+      } else if (data.newStatus.toLowerCase() === 'no_show') {
+        customMessage = "We missed you at the departure point!\nPlease contact support to reschedule.";
+      } else if (data.newStatus.toLowerCase() === 'completed') {
+        customMessage = "We hope you had a great experience!\nThank you for choosing Andaman Excursion 🌊";
+      } else {
+        customMessage = data.message || "Thank you for choosing Andaman Excursion 🌊";
+      }
+
+      const message = `Booking ${statusText}! ${statusEmoji}\n\nHi ${data.customerName},\nYour booking status has been updated:\n📋 Booking ID: ${data.confirmationNumber}\n📊 Status: ${data.oldStatus} → ${data.newStatus}\n📅 Date: ${date}\n\n${customMessage}\n\nFor any feedback, contact support:\n${this.supportPhone}`;
 
       return {
-        body: `🔄 Booking Status Update
-
-Hello ${data.customerName},
-
-Your booking ${data.confirmationNumber} status has been updated:
-
-${statusEmojis[data.oldStatus] || "📋"} ${data.oldStatus} → ${
-          statusEmojis[data.newStatus] || "📋"
-        } ${data.newStatus}
-
-${data.message ? `\nMessage: ${data.message}` : ""}
-
-For questions, contact: +91-8107664041`,
+        body: message
       };
     }
 
@@ -395,7 +504,7 @@ For questions, contact: +91-8107664041`,
               },
               {
                 type: "text" as const,
-                text: data.message || "No additional message",
+                text: data.message || "Status updated successfully",
               },
             ],
           },
@@ -405,24 +514,18 @@ For questions, contact: +91-8107664041`,
   }
 
   private buildReminderTemplate(data: BookingStatusUpdateData) {
-    // In development/testing, return simple body message
+    // In development/testing, return new format body message
     if (process.env.NODE_ENV !== "production") {
+      const date = new Date(data.updateDate).toLocaleDateString('en-IN', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+
+      const message = `Booking Reminder! ⏰\n\nHi ${data.customerName},\nFriendly reminder about your upcoming booking:\n📋 Booking ID: ${data.confirmationNumber}\n📅 Date: ${date}\n\nImportant:\n- Arrive 1 hour before departure\n- Carry valid ID proof and e-ticket\n- Check weather conditions\n\nSee you tomorrow! ⛵\nAndaman Excursion | Support: ${this.supportPhone}`;
+
       return {
-        body: `⏰ Booking Reminder
-
-Hello ${data.customerName},
-
-This is a friendly reminder about your upcoming booking:
-
-🎫 Confirmation: ${data.confirmationNumber}
-📅 Tomorrow's service
-
-Please remember to:
-• Arrive 30 minutes early
-• Bring a valid ID
-• Check weather conditions
-
-Support: +91-8107664041`,
+        body: message
       };
     }
 
@@ -452,22 +555,12 @@ Support: +91-8107664041`,
   }
 
   private buildPaymentFailedTemplate(data: PaymentFailedData) {
-    // In development/testing, return simple body message
+    // In development/testing, return new format body message
     if (process.env.NODE_ENV !== "production") {
+      const message = `Payment Failed! ❌\n\nHi ${data.customerName},\nWe couldn't process your payment:\n💳 Amount: ₹${data.attemptedAmount.toLocaleString()}\n🚫 Reason: ${data.failureReason || "Payment processing error"}\n\nPlease try again or update your payment method.\nYour booking is on hold until payment is complete.\n\nNeed help? Contact support:\n${this.supportPhone}`;
+
       return {
-        body: `❌ Payment Failed
-
-Hello ${data.customerName},
-
-Unfortunately, your payment of ₹${data.attemptedAmount.toLocaleString()} could not be processed.
-
-Reason: ${data.failureReason || "Payment processing error"}
-
-Please try again or contact us for assistance:
-📧 Email: support@andamanexcursion.com
-📞 Phone: +91-8107664041
-
-We're here to help!`,
+        body: message
       };
     }
 
@@ -502,34 +595,23 @@ We're here to help!`,
   }
 
   private buildEnquiryConfirmationTemplate(data: EnquiryData) {
-    // In development/testing, return simple body message
+    // In development/testing, return new format body message
     if (process.env.NODE_ENV !== "production") {
+      const date = new Date(data.submissionDate).toLocaleDateString('en-IN', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+
+      let packageDetails = "";
+      if (data.packageInfo) {
+        packageDetails = `\nPackage Details:\n• ${data.packageInfo.title || data.selectedPackage}\n• Price: ₹${data.packageInfo.price?.toLocaleString() || "Contact for price"}\n• Duration: ${data.packageInfo.period || "Custom"}\n\n`;
+      }
+
+      const message = `Enquiry Received! 📝\n\nHi ${data.fullName},\nThank you for your enquiry!\n📋 Enquiry ID: ${data.enquiryId}\n📦 Package: ${data.selectedPackage || "General Enquiry"}\n📅 Submitted: ${date}\n\nOur team will contact you within 24 hours.\nFor urgent matters, call us directly.\n\nLooking forward to serving you! 🌴\nAndaman Excursion | Support: ${this.supportPhone}`;
+
       return {
-        body: `📝 Enquiry Received
-
-Hello ${data.fullName},
-
-Thank you for your enquiry!
-
-🆔 Enquiry ID: ${data.enquiryId}
-📦 Package: ${data.selectedPackage || "General Enquiry"}
-
-We've received your message and will respond within 24 hours.
-
-${
-  data.packageInfo
-    ? `
-Package Details:
-• ${data.packageInfo.title}
-• Price: ₹${data.packageInfo.price?.toLocaleString()}
-• Duration: ${data.packageInfo.period}
-`
-    : ""
-}
-
-Contact us anytime:
-📞 +91-8107664041
-📧 info@andamanexcursion.com`,
+        body: message
       };
     }
 
@@ -573,12 +655,6 @@ Contact us anytime:
         const message =
           messageData.body || this.buildSimpleMessage(messageData.templateData);
 
-        // console.log(`[WhatsApp Debug] Sending sandbox message to: ${to}`);
-        // console.log(
-        //   `[WhatsApp Debug] Message preview:`,
-        //   message.substring(0, 100) + "..."
-        // );
-
         result = await client.messages.create({
           from: this.getFromNumber(),
           to: to,
@@ -590,10 +666,6 @@ Contact us anytime:
           const contentSid = this.getContentSid(messageData.templateName);
 
           if (!contentSid) {
-            // console.log(
-            //   `[WhatsApp Debug] No content SID found for template: ${messageData.templateName}, falling back to simple message`
-            // );
-
             const fallbackMessage = this.buildSimpleMessage(
               messageData.templateData
             );
@@ -606,12 +678,6 @@ Contact us anytime:
             const contentVariables = this.formatContentVariables(
               messageData.templateData
             );
-
-            // console.log(`[WhatsApp Debug] Sending template message:`, {
-            //   contentSid,
-            //   contentVariables,
-            //   to,
-            // });
 
             result = await client.messages.create({
               from: this.getFromNumber(),
@@ -631,17 +697,13 @@ Contact us anytime:
         }
       }
 
-      // console.log(`[WhatsApp Debug] Message sent successfully:`, result.sid);
       return { sid: result.sid };
     } catch (error: any) {
       console.error("Twilio WhatsApp API error:", error);
 
       if (error.code) {
-        console.error(`[WhatsApp Debug] Twilio Error Code: ${error.code}`);
-        console.error(
-          `[WhatsApp Debug] Twilio Error Message: ${error.message}`
-        );
-        console.error(`[WhatsApp Debug] More Info: ${error.moreInfo || "N/A"}`);
+        console.error(`Twilio Error Code: ${error.code}`);
+        console.error(`Twilio Error Message: ${error.message}`);
       }
 
       throw error;
@@ -655,9 +717,6 @@ Contact us anytime:
     }
 
     const contentSidMapping: Record<string, string> = {
-      notifications_welcome_template:
-        process.env.TWILIO_WELCOME_TEMPLATE_SID ||
-        "HX3edf43c6e376e59648d60c56f57ecdf0",
       booking_confirmation_template:
         process.env.TWILIO_BOOKING_CONFIRMATION_SID || "",
       status_update_template: process.env.TWILIO_STATUS_UPDATE_SID || "",
@@ -691,7 +750,7 @@ Contact us anytime:
 
   private buildSimpleMessage(templateData?: WhatsAppTemplate): string {
     if (!templateData) {
-      return "Test message from Andaman Excursion - WhatsApp integration is working!";
+      return "Booking Confirmed! ✅\n\nHi Customer,\nYour booking with Andaman Excursion is confirmed!\n\nPlease check your email for details.\n\nAndaman Excursion | Support: " + this.supportPhone;
     }
 
     // Extract parameters for any template type
@@ -708,21 +767,9 @@ Contact us anytime:
       }
     });
 
-    const [customerName, confirmationNumber, amount, date, items] = params;
+    const [customerName, confirmationNumber] = params;
 
-    return `🌴 ANDAMAN EXCURSION - Booking Confirmed! 🌴
-
-Hello ${customerName || "Customer"}!
-
-Your booking is confirmed:
-🎫 Confirmation: ${confirmationNumber || "N/A"}
-💰 Amount: ${amount || "N/A"}
-📅 Date: ${date || "N/A"}
-🚢 Service: ${items || "Ferry Service"}
-
-Thank you for choosing us!
-
-Support: +91-8107664041`;
+    return `Booking Confirmed! ✅\n\nHi ${customerName || "Customer"},\nYour booking with Andaman Excursion is confirmed!\n\nBooking ID: ${confirmationNumber || "N/A"}\n\nPlease check your email for full details.\n\nAndaman Excursion | Support: ${this.supportPhone}`;
   }
 
   private maskPhoneNumber(phone: string): string {

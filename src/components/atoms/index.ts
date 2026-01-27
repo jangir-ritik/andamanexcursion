@@ -1,4 +1,5 @@
 export * from "./ActivitySelect/ActivitySelect";
+export * from "./AlertDialog/AlertDialog";
 export * from "./Button/Button";
 export * from "./Chip/Chip";
 export * from "./CustomLink/CustomLink";

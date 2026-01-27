@@ -114,6 +114,19 @@ export class PhonePeService {
       endpoint: `${this.apiUrl}${apiEndpoint}`,
     });
 
+    // Enhanced debugging for KEY_NOT_CONFIGURED issue
+    if (this.devMode) {
+      console.log("🔍 PhonePe Request Debug:", {
+        merchantId: this.merchantId,
+        saltIndex: this.saltIndex,
+        saltKeyLength: this.saltKey?.length,
+        saltKeyPreview: this.saltKey?.substring(0, 10) + "...",
+        xVerifyHashPreview: xVerifyHash.substring(0, 20) + "...",
+        payloadPreview: payloadString.substring(0, 100),
+        apiUrl: this.apiUrl,
+      });
+    }
+
     try {
       const response = await fetch(`${this.apiUrl}${apiEndpoint}`, {
         method: "POST",

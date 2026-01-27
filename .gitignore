@@ -44,3 +44,5 @@ package-lock.json
 
 .scripts/migrate-page.mjs
 .scripts/dry-run-migrate.mjs
+
+CLIENT_CREDENTIALS.md

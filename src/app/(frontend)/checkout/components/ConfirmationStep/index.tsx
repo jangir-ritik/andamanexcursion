@@ -6,7 +6,7 @@ import { useCheckoutStore } from "@/store/CheckoutStore";
 import { useFerryStore } from "@/store/FerryStore";
 import { useBoatStore } from "@/store/BoatStore";
 import { useActivityStoreRQ } from "@/store/ActivityStoreRQ";
-import { BeforeUnloadModal } from "@/components/molecules/BeforeUnloadModal";
+import { AlertDialog } from "@/components/atoms/AlertDialog";
 import { SectionTitle } from "@/components/atoms/SectionTitle/SectionTitle";
 import { DescriptionText } from "@/components/atoms/DescriptionText/DescriptionText";
 import { useRouter } from "next/navigation";
@@ -63,6 +63,10 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 
   // State for PDF generation
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  
+  // State for error alert dialog
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Handle browser beforeunload event
   useEffect(() => {
@@ -268,7 +272,8 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
 
       if (!bookingConfirmation) {
         console.error("No booking confirmation data available");
-        alert("Unable to generate PDF. Booking data not found.");
+        setErrorMessage("Unable to generate PDF. Booking data not found.");
+        setShowErrorAlert(true);
         return;
       }
 
@@ -326,7 +331,8 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       console.log("✅ PDF downloaded successfully");
     } catch (error) {
       console.error("❌ PDF download error:", error);
-      alert("Failed to generate PDF. Please try again or contact support.");
+      setErrorMessage("Failed to generate PDF. Please try again or contact support.");
+      setShowErrorAlert(true);
     } finally {
       // Always reset loading state
       setIsPdfGenerating(false);
@@ -1056,10 +1062,27 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       </div>
 
       {/* Before Unload Modal */}
-      <BeforeUnloadModal
-        isVisible={showBeforeUnloadModal}
-        onStay={handleStayOnPage}
-        onLeave={handleLeavePage}
+      <AlertDialog
+        open={showBeforeUnloadModal}
+        onOpenChange={(open) => !open && handleStayOnPage()}
+        title="Are you sure you want to leave?"
+        description="Your booking confirmation details will be lost if you leave this page. Make sure to save your booking ID and confirmation details."
+        cancelLabel="Stay on Page"
+        actionLabel="Leave Page"
+        onCancel={handleStayOnPage}
+        onAction={handleLeavePage}
+      />
+
+      {/* Error Alert Dialog */}
+      <AlertDialog
+        open={showErrorAlert}
+        onOpenChange={setShowErrorAlert}
+        title="Error"
+        description={errorMessage}
+        actionLabel="Got it"
+        onAction={() => setShowErrorAlert(false)}
+        onCancel={() => setShowErrorAlert(false)}
+        showOnlyAction={true}
       />
     </div>
   );

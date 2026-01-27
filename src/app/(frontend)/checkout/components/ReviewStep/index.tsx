@@ -1,9 +1,11 @@
 // src/app/(frontend)/checkout/components/ReviewStep/index.tsx
-// PhonePe Payment Integration - Server Redirect Flow
+// PhonePe v2 Payment Integration - Iframe Checkout Flow
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button/Button";
+import { AlertDialog } from "@/components/atoms/AlertDialog";
 import { useCheckoutStore } from "@/store/CheckoutStore";
 import { CheckoutAdapter } from "@/utils/CheckoutAdapter";
 import type {
@@ -27,7 +29,7 @@ import {
   Anchor,
 } from "lucide-react";
 
-// PhonePe uses server-side redirect flow (no client SDK needed)
+// PhonePe v2 uses redirect flow (simple and reliable)etter UX
 
 interface ReviewStepProps {
   bookingData: UnifiedBookingData;
@@ -38,6 +40,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
   bookingData,
   requirements,
 }) => {
+  const router = useRouter();
   const {
     formData,
     prevStep,
@@ -47,13 +50,19 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
     setBookingConfirmation,
     isLoading,
   } = useCheckoutStore();
+  
+  // State for payment processing
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  // No SDK loading needed - PhonePe uses server-side redirect
-
-  // PhonePe uses redirect flow - no callback handler needed here
-
-  // Handle payment submission with PhonePe redirect
+  // PhonePe v2 uses redirect flow (iframe doesn't work reliably)
+  
+  // Initiate payment with redirect
   const handleProceedToPayment = async () => {
+    await handleConfirmPayment();
+  };
+
+  // Create payment order and redirect to PhonePe
+  const handleConfirmPayment = async () => {
     if (!formData) {
       setError("Form data not found");
       return;
@@ -61,6 +70,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
 
     try {
       setLoading(true);
+      setIsProcessingPayment(true);
       setError(""); // Clear any previous errors
 
       // Prepare payment data using the adapter
@@ -69,9 +79,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         formData
       );
 
-      console.log("Proceeding to PhonePe payment with data:", paymentData);
+      console.log("Proceeding to PhonePe v2 payment with data:", paymentData);
 
-      // Step 1: Create PhonePe order (server-side)
+      // Step 1: Create PhonePe v2 order (server-side)
       const orderResponse = await fetch("/api/payments/phonepe/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -91,32 +101,32 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         throw new Error(orderResult.error || "Failed to create payment order");
       }
 
-      console.log("PhonePe order created successfully:", {
-        merchantTransactionId: orderResult.merchantTransactionId,
-        hasCheckoutUrl: !!orderResult.checkoutUrl,
+      console.log("PhonePe v2 order created successfully:", {
+        merchantOrderId: orderResult.merchantOrderId,
+        hasRedirectUrl: !!orderResult.redirectUrl,
       });
 
-      // Step 2: Store transaction ID and booking data for return flow
-      sessionStorage.setItem(
-        "phonepe_transaction_id",
-        orderResult.merchantTransactionId
-      );
-      sessionStorage.setItem(
-        "phonepe_booking_data",
-        JSON.stringify(paymentData)
-      );
+      // Step 2: Store order ID in sessionStorage for return page
+      sessionStorage.setItem("phonepe_merchant_order_id", orderResult.merchantOrderId);
+      sessionStorage.setItem("phonepe_booking_data", JSON.stringify(paymentData));
+      
+      // Step 3: Redirect to PhonePe payment page
+      console.log("Redirecting to PhonePe...");
+      
+      // Small delay so user sees the loading state
+      setTimeout(() => {
+        window.location.href = orderResult.redirectUrl;
+      }, 500);
 
-      // Step 3: Redirect to PhonePe checkout page
-      console.log("Redirecting to PhonePe checkout...");
-      window.location.href = orderResult.checkoutUrl;
-
-      // Keep loading state during redirect
     } catch (error) {
       console.error("Payment error:", error);
       setError(error instanceof Error ? error.message : "Payment failed");
       setLoading(false);
+      setIsProcessingPayment(false);
     }
   };
+
+  // No iframe handlers needed - using redirect flow
 
   if (!formData) {
     return (
@@ -334,6 +344,8 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
           .
         </p>
       </div>
+
+      {/* PhonePe uses redirect flow - no iframe needed */}
     </div>
   );
 };

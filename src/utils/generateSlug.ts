@@ -118,7 +118,7 @@ export const createUniqueSlugHook = (
       return data;
     }
 
-    let baseSlug = generateSlug(data[sourceField], options);
+    const baseSlug = generateSlug(data[sourceField], options);
     let finalSlug = baseSlug;
     let counter = 1;
 
