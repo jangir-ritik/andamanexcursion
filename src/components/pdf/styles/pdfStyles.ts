@@ -8,21 +8,323 @@ export const styles = StyleSheet.create({
     fontFamily: "Helvetica",
     backgroundColor: COLORS.bg.primary,
   },
+  
+  // Header Section with Logo and QR Code
+  headerSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+    paddingBottom: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: COLORS.primary,
+    borderBottomStyle: "solid",
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    alignItems: "center",
+  },
+  companyLogo: {
+    width: 150,
+    height: 40,
+  },
+  qrCode: {
+    width: 80,
+    height: 80,
+    marginBottom: 5,
+  },
+  qrLabel: {
+    fontSize: 8,
+    color: COLORS.text.secondary,
+  },
+  
+  // Booking ID Section - FIXED: removed borderRadius or set it to 0
+  bookingIdSection: {
+    backgroundColor: COLORS.primary,
+    padding: 8,
+    marginBottom: 15,
+  },
+  bookingIdText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: COLORS.text.inverse,
+    textAlign: "center",
+  },
+  
+  // Booking Details
+  bookingDetails: {
+    marginBottom: 15,
+  },
+  detailRow: {
+    flexDirection: "row",
+    marginBottom: 4,
+    flexWrap: "wrap",
+  },
+  detailLabel: {
+    fontWeight: "bold",
+    marginRight: 5,
+    width: 130,
+  },
+  detailValue: {
+    marginRight: 30,
+    minWidth: 100,
+  },
+  
+  // Divider
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    borderBottomStyle: "solid",
+    marginBottom: 15,
+  },
+  
+  // Section Titles - FIXED: removed borderRadius or set it to 0
+  sectionTitle: {
+    fontSize: 9,
+    fontWeight: "bold",
+    color: COLORS.text.primary,
+    marginBottom: 8,
+    backgroundColor: COLORS.bg.secondary,
+    padding: 4,
+  },
+  
+  // Tables
+  itineraryTable: {
+    marginBottom: 20,
+  },
+  guestTable: {
+    marginBottom: 20,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: COLORS.border,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderBottomWidth: 0,
+  },
+  tableHeaderCell: {
+    fontWeight: "bold",
+    fontSize: 9,
+    padding: 2,
+  },
+  tableRow: {
+    flexDirection: "row",
+    padding: 5,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderTopWidth: 0,
+  },
+  tableRowAlt: {
+    backgroundColor: COLORS.bg.secondary,
+  },
+  tableCell: {
+    fontSize: 9,
+    padding: 2,
+  },
+  
+  // Price Table - FIXED: removed borderRadius or set it to 0
+  priceTable: {
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 8,
+  },
+  priceRow: {
+    flexDirection: "row",
+    marginBottom: 3,
+    alignItems: "center",
+  },
+  priceLabel: {
+    width: 100,
+    fontWeight: "bold",
+  },
+  priceValue: {
+    width: 60,
+    marginRight: 50,
+  },
+  priceHSN: {
+    marginLeft: "auto",
+    fontSize: 8,
+    color: COLORS.text.secondary,
+  },
+  paymentLabel: {
+    width: 120,
+    marginLeft: 50,
+  },
+  paymentValue: {
+    width: 60,
+  },
+  partyLabel: {
+    width: 120,
+    marginLeft: 50,
+  },
+  partyValue: {
+    width: 60,
+  },
+  refreshmentLabel: {
+    width: 120,
+    marginLeft: 50,
+  },
+  refreshmentValue: {
+    width: 60,
+  },
+  totalRow: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  totalLabel: {
+    fontWeight: "bold",
+    fontSize: 10,
+    width: 100,
+    color: COLORS.text.primary,
+  },
+  totalValue: {
+    fontWeight: "bold",
+    fontSize: 11,
+  },
+  
+  // Remark Section - FIXED: removed borderRadius or set it to 0
+  remarkSection: {
+    marginBottom: 15,
+    padding: 8,
+    backgroundColor: COLORS.bg.secondary,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.primary,
+  },
+  remarkText: {
+    fontStyle: "italic",
+    color: COLORS.primary,
+  },
+  
+  // Terms & Conditions - FIXED: removed borderRadius or set it to 0
+  termsTitle: {
+    fontSize: 11,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: COLORS.warning,
+  },
+  termsSection: {
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: COLORS.bg.secondary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  
+  // Activities Section - FIXED: removed borderRadius or set it to 0
+  activitiesSection: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: COLORS.bg.light,
+    borderWidth: 1,
+    borderColor: COLORS.primaryLight,
+  },
+  activitiesHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  activitiesTitle: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: COLORS.primary,
+  },
+  activitiesLogo: {},
+  activitiesCompanyLogo: {
+    width: 120,
+    height: 30,
+  },
+  activitiesBanner: {
+    width: "100%",
+    height: 80,
+    marginBottom: 10,
+  },
+  activityItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 8,
+    backgroundColor: COLORS.bg.primary,
+    borderWidth: 1,
+    borderColor: COLORS.primaryLight,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitleText: {
+    fontWeight: "bold",
+    fontSize: 10,
+    marginBottom: 2,
+  },
+  activityDescription: {
+    fontSize: 8,
+    color: COLORS.text.secondary,
+  },
+  activityPriceSection: {
+    alignItems: "flex-end",
+  },
+  activityPriceLabel: {
+    fontSize: 8,
+    color: COLORS.text.secondary,
+    marginBottom: 2,
+  },
+  activityPriceValue: {
+    fontWeight: "bold",
+    fontSize: 10,
+    color: COLORS.secondary,
+  },
+  
+  // Footer
+  footer: {
+    marginTop: 25,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  footerContent: {
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  contactText: {
+    fontWeight: "bold",
+    fontSize: 9,
+    marginBottom: 3,
+  },
+  emailText: {
+    fontSize: 9,
+    marginBottom: 3,
+    color: COLORS.primary,
+  },
+  addressText: {
+    fontSize: 8,
+    color: COLORS.text.secondary,
+    fontStyle: "italic",
+  },
+  footerBottom: {
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    alignItems: "center",
+  },
+  footerNote: {
+    fontSize: 8,
+    color: COLORS.text.secondary,
+    fontStyle: "italic",
+  },
+  
+  // Old styles (kept for backward compatibility if needed)
   header: {
     backgroundColor: COLORS.primary,
     padding: "10 16",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  logo: {
-    width: "auto",
-    height: 25,
   },
   companyName: {
     fontSize: 14,
@@ -34,13 +336,6 @@ export const styles = StyleSheet.create({
     fontSize: 6,
     color: COLORS.text.inverse,
     opacity: 0.9,
-  },
-  qrCode: {
-    width: 45,
-    height: 45,
-    backgroundColor: COLORS.bg.primary,
-    padding: 2,
-    borderRadius: 2,
   },
   content: {
     padding: 16,
@@ -54,7 +349,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg.secondary,
     border: `0.5px solid ${COLORS.border}`,
-    borderRadius: 3,
     padding: 6,
     alignItems: "center",
   },
@@ -75,15 +369,12 @@ export const styles = StyleSheet.create({
     padding: "3 10",
     fontSize: 8,
     fontWeight: "bold",
-    borderRadius: 2,
     textTransform: "uppercase",
   },
   confirmationHero: {
     backgroundColor: COLORS.primaryLight,
     padding: 10,
-    borderRadius: 4,
     marginBottom: 10,
-    // border: `1px solid ${COLORS.primary}`,
     alignItems: "center",
   },
   confirmationLabel: {
@@ -105,13 +396,11 @@ export const styles = StyleSheet.create({
     padding: "2 8",
     fontSize: 6,
     fontWeight: "bold",
-    borderRadius: 2,
     textTransform: "uppercase",
     marginTop: 4,
   },
   routeCard: {
     border: `0.5px solid ${COLORS.border}`,
-    borderRadius: 3,
     padding: 10,
     marginBottom: 10,
   },
@@ -134,7 +423,6 @@ export const styles = StyleSheet.create({
     padding: "2 8",
     fontSize: 6,
     fontWeight: "bold",
-    borderRadius: 2,
     textTransform: "uppercase",
   },
   routeVisual: {
@@ -144,7 +432,6 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     backgroundColor: COLORS.bg.secondary,
     padding: 8,
-    borderRadius: 3,
     gap: 10,
   },
   location: {
@@ -188,7 +475,6 @@ export const styles = StyleSheet.create({
   pnrBox: {
     backgroundColor: COLORS.primaryLight,
     padding: "5 8",
-    borderRadius: 2,
     marginTop: 6,
     alignItems: "center",
   },
@@ -205,7 +491,6 @@ export const styles = StyleSheet.create({
   },
   activityCard: {
     border: `0.5px solid ${COLORS.primaryLight}`,
-    borderRadius: 3,
     padding: 10,
     marginBottom: 10,
   },
@@ -220,50 +505,15 @@ export const styles = StyleSheet.create({
     color: COLORS.text.secondary,
     marginBottom: 2,
   },
-  sectionTitle: {
-    fontSize: 9,
-    fontWeight: "bold",
-    color: COLORS.text.primary,
-    marginBottom: 6,
-    marginTop: 4,
-    textTransform: "uppercase",
-  },
   ferryTable: {
     border: `0.5px solid ${COLORS.border}`,
-    borderRadius: 2,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: COLORS.primary,
-    padding: 6,
-  },
-  tableHeaderCell: {
-    fontSize: 6,
-    fontWeight: "bold",
-    color: COLORS.text.inverse,
-    textTransform: "uppercase",
-  },
-  tableRow: {
-    flexDirection: "row",
-    padding: 6,
-    borderBottom: `0.5px solid ${COLORS.border}`,
-  },
-  tableRowAlt: {
-    backgroundColor: COLORS.bg.secondary,
-  },
-  tableCell: {
-    fontSize: 7,
-    color: COLORS.text.primary,
   },
   passengerList: {
     border: `0.5px solid ${COLORS.bg.secondary}`,
-    // backgroundColor: COLORS.border,
-    borderRadius: 2,
   },
   passengerItem: {
     flexDirection: "row",
     padding: 6,
-    // borderBottom: `0.5px solid ${COLORS.border}`,
   },
   passengerItemAlt: {
     backgroundColor: COLORS.bg.secondary,
@@ -293,8 +543,6 @@ export const styles = StyleSheet.create({
   infoCard: {
     flex: 1,
     backgroundColor: COLORS.bg.secondary,
-    // border: `1px solid ${COLORS.border}`,
-    borderRadius: 3,
     padding: 8,
   },
   cardTitle: {
@@ -317,8 +565,6 @@ export const styles = StyleSheet.create({
   },
   pricingBox: {
     backgroundColor: COLORS.bg.light,
-    // border: `0.5px solid ${COLORS.border}`,
-    borderRadius: 3,
     padding: 8,
     marginBottom: 10,
   },
@@ -335,20 +581,8 @@ export const styles = StyleSheet.create({
     marginTop: 6,
     borderTop: `1px solid ${COLORS.primaryLight}`,
   },
-  totalLabel: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: COLORS.text.primary,
-  },
-  totalAmount: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: COLORS.secondary,
-  },
   importantBox: {
     backgroundColor: "#FFF3E0",
-    // border: `0.5px solid ${COLORS.warning}`,
-    borderRadius: 3,
     padding: 6,
     marginBottom: 8,
   },
@@ -366,32 +600,14 @@ export const styles = StyleSheet.create({
   },
   termsBox: {
     backgroundColor: COLORS.bg.secondary,
-    // border: `0.5px solid ${COLORS.border}`,
-    borderRadius: 3,
     padding: 6,
   },
-  termsTitle: {
-    fontSize: 7,
-    fontWeight: "bold",
-    color: COLORS.text.primary,
-    marginBottom: 3,
-  },
   termItem: {
-    fontSize: 5.5,
+    fontSize: 8,
     color: COLORS.text.secondary,
-    lineHeight: 1.4,
-    marginBottom: 1,
+    lineHeight: 1.2,
+    marginBottom: 4,
     paddingLeft: 6,
-  },
-  footer: {
-    position: "absolute",
-    bottom: 10,
-    left: 16,
-    right: 16,
-    paddingTop: 6,
-    borderTop: `0.5px solid ${COLORS.border}`,
-    flexDirection: "row",
-    justifyContent: "space-between",
   },
   footerText: {
     fontSize: 5.5,

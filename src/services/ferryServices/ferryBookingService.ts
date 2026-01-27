@@ -46,6 +46,7 @@ export interface FerryBookingResponse {
   pnr?: string; // Add PNR field
   providerBookingId?: string;
   confirmationDetails?: any;
+  pdfUrl?: string; // Provider PDF URL stored in public/tickets
 }
 
 export class FerryBookingService {
@@ -146,10 +147,10 @@ export class FerryBookingService {
         if (!cachedTripData) {
           throw new Error(
             `Trip data not found for ferry ID: ${originalTripId}. ` +
-              `Refetch attempt failed. Available cached IDs: ${SealinkService.getCachedTripIds().join(
-                ", "
-              )}. ` +
-              `This may happen if the trip is no longer available or the search parameters cannot be reconstructed.`
+            `Refetch attempt failed. Available cached IDs: ${SealinkService.getCachedTripIds().join(
+              ", "
+            )}. ` +
+            `This may happen if the trip is no longer available or the search parameters cannot be reconstructed.`
           );
         }
       }
@@ -293,11 +294,43 @@ export class FerryBookingService {
           seatStatus: bookingResult.seatStatus,
         });
 
+        // Try to get PDF ticket from Sealink API
+        let pdfUrl: string | undefined;
+        try {
+          console.log(`📄 Sealink: Attempting to fetch PDF for PNR: ${bookingResult.pnr}`);
+          const pdfResult = await SealinkService.getTicketPDF(bookingResult.pnr);
+
+          if (pdfResult.success && pdfResult.pdfBase64) {
+            // Store PDF and get public URL
+            const pdfStorage = await PDFService.storePDFFromBase64(
+              pdfResult.pdfBase64,
+              bookingResult.pnr,
+              "sealink"
+            );
+
+            if (pdfStorage.success && pdfStorage.url) {
+              pdfUrl = pdfStorage.url;
+              console.log(`✅ Sealink PDF stored successfully: ${pdfUrl}`);
+            } else {
+              console.warn(`⚠️ Sealink PDF storage failed: ${pdfStorage.error}`);
+            }
+          } else {
+            console.warn(`⚠️ Sealink PDF fetch failed: ${pdfResult.error}`);
+          }
+        } catch (pdfError) {
+          // Non-critical: booking should succeed even if PDF fails
+          console.error(
+            "❌ Sealink PDF fetch/storage error (non-critical):",
+            pdfError instanceof Error ? pdfError.message : pdfError
+          );
+        }
+
         return {
           success: true,
           pnr: bookingResult.pnr,
           providerBookingId: bookingResult.pnr,
           bookingReference: `SEALINK_${request.paymentReference}`,
+          pdfUrl, // Include PDF URL if available
           confirmationDetails: {
             operator: "sealink",
             status: "confirmed",
@@ -313,6 +346,7 @@ export class FerryBookingService {
             })),
             bookingTimestamp: bookingData.bookingTS,
             providerResponse: bookingResult,
+            pdfUrl, // Also include in confirmation details
           },
         };
       } else {
@@ -322,9 +356,8 @@ export class FerryBookingService {
         );
         return {
           success: false,
-          error: `Sealink booking failed: ${
-            bookingResult?.err || "Invalid response format"
-          }`,
+          error: `Sealink booking failed: ${bookingResult?.err || "Invalid response format"
+            }`,
         };
       }
     } catch (error) {
@@ -469,8 +502,8 @@ export class FerryBookingService {
           passenger.gender === "Male"
             ? "MR"
             : passenger.gender === "Female"
-            ? "MRS"
-            : "MR",
+              ? "MRS"
+              : "MR",
         name: passenger.fullName,
         age: passenger.age,
         gender: passenger.gender.toLowerCase(), // ✅ FIXED: Must be lowercase
@@ -628,7 +661,7 @@ export class FerryBookingService {
 
       // Extract ferry details from the ferry ID format: "greenocean-{routeId}-{ferryId}"
       const ferryIdParts = request.ferryId.split("-");
-      
+
       // Extract routeId from ferry ID (middle part)
       let routeId: number;
       if (ferryIdParts.length >= 3) {
@@ -639,7 +672,7 @@ export class FerryBookingService {
         routeId = parseInt(request.routeId || "1");
         console.warn(`⚠️ Could not extract routeId from ferry ID, using: ${routeId}`);
       }
-      
+
       const ferryId = this.extractFerryId(request.ferryId); // Extract numeric ID
       const classId = this.extractClassId(request.classId); // Extract numeric class ID
 
@@ -719,8 +752,8 @@ export class FerryBookingService {
             passenger.gender === "Male"
               ? "Mr"
               : passenger.gender === "Female"
-              ? "Mrs"
-              : "Mr",
+                ? "Mrs"
+                : "Mr",
           name: passenger.fullName,
           age: String(passenger.age),
           gender: passenger.gender,
@@ -738,8 +771,8 @@ export class FerryBookingService {
             passenger.gender === "Male"
               ? "Master"
               : passenger.gender === "Female"
-              ? "Miss"
-              : "Master",
+                ? "Miss"
+                : "Master",
           name: passenger.fullName,
           age: String(passenger.age),
           gender: passenger.gender,
@@ -879,9 +912,9 @@ export class FerryBookingService {
           ferryId: bookingResult.ferry_id,
         });
 
-        // Handle PDF if provided
+        // Handle PDF if provided - with enhanced error handling
         let pdfUrl: string | undefined;
-        
+
         // Debug PDF field
         console.log("📄 PDF Debug Info:", {
           hasPdfField: !!bookingResult.pdf_base64,
@@ -890,33 +923,41 @@ export class FerryBookingService {
           pdfPreview: bookingResult.pdf_base64?.substring(0, 50) || "N/A",
         });
 
+        // ✅ CRITICAL FIX: Wrap entire PDF handling in try-catch to prevent booking failure
         if (bookingResult.pdf_base64) {
           console.log(`📄 Attempting to store PDF for PNR: ${bookingResult.pnr}`);
           try {
-            const pdfStorage = await PDFService.storePDFFromBase64(
-              bookingResult.pdf_base64,
-              bookingResult.pnr,
-              "greenocean"
-            );
-
-            console.log("📄 PDF Storage Result:", {
-              success: pdfStorage.success,
-              url: pdfStorage.url,
-              fileName: pdfStorage.fileName,
-              error: pdfStorage.error,
-            });
-
-            if (pdfStorage.success) {
-              pdfUrl = pdfStorage.url;
-              console.log(`✅ Green Ocean PDF stored: ${pdfUrl}`);
+            // Validate PDF data before attempting storage
+            if (typeof bookingResult.pdf_base64 !== 'string' || bookingResult.pdf_base64.length === 0) {
+              console.warn("⚠️ Invalid PDF data format, skipping storage");
             } else {
-              console.error(`❌ PDF storage failed: ${pdfStorage.error}`);
+              const pdfStorage = await PDFService.storePDFFromBase64(
+                bookingResult.pdf_base64,
+                bookingResult.pnr,
+                "greenocean"
+              );
+
+              console.log("📄 PDF Storage Result:", {
+                success: pdfStorage.success,
+                url: pdfStorage.url,
+                fileName: pdfStorage.fileName,
+                error: pdfStorage.error,
+              });
+
+              if (pdfStorage.success) {
+                pdfUrl = pdfStorage.url;
+                console.log(`✅ Green Ocean PDF stored: ${pdfUrl}`);
+              } else {
+                console.error(`❌ PDF storage failed (non-critical): ${pdfStorage.error}`);
+              }
             }
           } catch (pdfError) {
+            // ✅ CRITICAL: Catch and log but don't throw - booking should succeed even if PDF fails
             console.error(
-              "❌ Green Ocean PDF storage error (caught in try-catch):",
-              pdfError
+              "❌ Green Ocean PDF storage error (non-critical, booking will proceed):",
+              pdfError instanceof Error ? pdfError.message : pdfError
             );
+            console.error("PDF error stack:", pdfError instanceof Error ? pdfError.stack : "No stack");
           }
         } else {
           console.warn("⚠️ No pdf_base64 field in Green Ocean API response");

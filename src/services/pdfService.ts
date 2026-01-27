@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { BookingPDFData } from "@/components/pdf/types/booking.types";
-import { logo_image_base64 } from "@/components/pdf/utils/logo_image_base64";
+import { generateQRCodeDataURL } from "@/utils/qrGenerator";
 
 export interface PDFStorageResult {
   success: boolean;
@@ -22,82 +22,45 @@ export class PDFService {
     process.env.PDF_STORAGE_DIR || "./public/tickets";
   private static readonly PDF_BASE_URL = process.env.PDF_BASE_URL || "/tickets";
 
-  // Logo URL (can be base64 or public URL)
-  private static logoUrl: string = logo_image_base64;
-
-  /**
-   * Set logo URL (call this before generating PDFs)
-   */
-  static setLogo(url: string) {
-    this.logoUrl = url;
-  }
-
-  /**
-   * Validate if string is a valid base64 image
-   */
-  private static isBase64Image(str: string): boolean {
-    if (!str) return false;
-    // Check if it's a data URL
-    if (str.startsWith("data:image/")) return true;
-    // Check if it's base64 encoded
-    const base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
-    return base64Regex.test(str.replace(/\s/g, ""));
-  }
-
-  /**
-   * Convert base64 to data URL if needed
-   */
-  private static ensureDataURL(imageStr: string): string {
-    if (!imageStr) return "";
-
-    // Already a data URL
-    if (imageStr.startsWith("data:")) return imageStr;
-
-    // If it's a regular URL, return as is
-    if (imageStr.startsWith("http://") || imageStr.startsWith("https://")) {
-      return imageStr;
-    }
-
-    // If it's base64 without data URL prefix, add it
-    if (this.isBase64Image(imageStr)) {
-      // Default to PNG if no format specified
-      return `data:image/png;base64,${imageStr}`;
-    }
-
-    return imageStr;
-  }
-
   /**
    * Generate professional booking PDF using React + react-pdf
+   * Uses BookingTicketPDFNew component
+   * @param data - Booking data
+   * @param logoUrl - Optional logo URL (unused, kept for compatibility)
+   * @param providerPDFBase64 - Optional base64 encoded provider PDF (unused, kept for compatibility)
    */
   static async generateBookingPDF(
     data: BookingPDFData,
-    logoUrl?: string
+    logoUrl?: string,
+    providerPDFBase64?: string
   ): Promise<PDFGenerationResult> {
     try {
-      const logo = this.ensureDataURL(logoUrl || this.logoUrl);
-
       console.log("📄 Generating PDF for booking:", data.bookingId);
+      console.log("🔗 Using new PDF design matching client reference");
 
-      // Import react-pdf rendering utilities dynamically (server-side only)
+      // Generate QR code with PNR
+      const pnr = data.confirmationNumber || data.bookingId || "UNKNOWN";
+      const qrCodeUrl = await generateQRCodeDataURL(pnr);
+      console.log("✅ QR Code generated for PNR:", pnr);
+
+      // Import react-pdf rendering utilities dynamically
       const ReactPDF = await import("@react-pdf/renderer");
-      const { default: BookingTicketPDF } = await import(
-        "@/components/pdf/BookingTicketPDF"
+      const { default: BookingTicketPDFNew } = await import(
+        "@/components/pdf/BookingTicketPDFNew"
       );
       const React = await import("react");
 
-      // 1. Create React element
-      const pdfDocument = React.createElement(BookingTicketPDF, {
+      // Create React element with QR code
+      const pdfDocument = React.createElement(BookingTicketPDFNew, {
         data,
-        logoUrl: logo,
+        qrCodeUrl,
       });
 
-      // 2. Render PDF to buffer
+      // Render PDF to buffer
       const pdfBuffer = await ReactPDF.renderToBuffer(pdfDocument as any);
 
-      const fileName = `AndamanExcursion_${
-        data.confirmationNumber
-      }_${Date.now()}.pdf`;
+      const fileName = `AndamanExcursion_${data.confirmationNumber
+        }_${Date.now()}.pdf`;
 
       console.log("✅ PDF generated successfully:", fileName);
 
@@ -108,7 +71,6 @@ export class PDFService {
       };
     } catch (error) {
       console.error("❌ PDF generation error:", error);
-
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
@@ -172,6 +134,7 @@ export class PDFService {
 
   /**
    * Store PDF from base64 string to file system
+   * Used for storing provider PDFs (Makruzz, Sealink, etc.)
    */
   static async storePDFFromBase64(
     base64Data: string,
@@ -180,7 +143,7 @@ export class PDFService {
   ): Promise<PDFStorageResult> {
     try {
       console.log(`📄 PDFService: Processing base64 PDF for ${operator}/${bookingId}`);
-      
+
       // Validate input
       if (!base64Data) {
         console.error("❌ Empty base64 data provided");
@@ -214,13 +177,13 @@ export class PDFService {
 
       // Store using existing method
       const result = await this.storePDFToFileSystem(pdfBuffer, bookingId, operator);
-      
+
       if (result.success) {
         console.log(`✅ PDF stored successfully: ${result.url}`);
       } else {
         console.error(`❌ PDF storage failed: ${result.error}`);
       }
-      
+
       return result;
     } catch (error) {
       console.error("❌ Base64 PDF storage error:", error);
@@ -228,43 +191,6 @@ export class PDFService {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-      };
-    }
-  }
-
-  /**
-   * Store PDF in database as base64
-   */
-  static async storePDFInDatabase(
-    pdfBuffer: Buffer,
-    bookingId: string,
-    operator: string,
-    payload: any
-  ): Promise<{ success: boolean; documentId?: string; error?: string }> {
-    try {
-      const base64Data = pdfBuffer.toString("base64");
-
-      const result = await payload.create({
-        collection: "ferry-tickets",
-        data: {
-          bookingId,
-          operator,
-          pdfData: base64Data,
-          createdAt: new Date().toISOString(),
-          expiresAt: new Date(
-            Date.now() + 30 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-        },
-      });
-
-      console.log(`✅ PDF stored in database: ${result.id}`);
-      return { success: true, documentId: result.id };
-    } catch (error) {
-      console.error("❌ Database storage error:", error);
-      return {
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Database storage failed",
       };
     }
   }
@@ -284,37 +210,6 @@ export class PDFService {
   }
 
   /**
-   * Clean up old PDF files (should be run periodically via cron)
-   */
-  static async cleanupOldPDFs(maxAgeInDays: number = 30): Promise<void> {
-    try {
-      const fs = await import("fs");
-      const path = await import("path");
-
-      const files = await fs.promises.readdir(this.PDF_STORAGE_DIR);
-      const cutoffTime = Date.now() - maxAgeInDays * 24 * 60 * 60 * 1000;
-
-      let deletedCount = 0;
-
-      for (const file of files) {
-        if (!file.endsWith(".pdf")) continue;
-
-        const filePath = path.join(this.PDF_STORAGE_DIR, file);
-        const stats = await fs.promises.stat(filePath);
-
-        if (stats.mtimeMs < cutoffTime) {
-          await fs.promises.unlink(filePath);
-          deletedCount++;
-        }
-      }
-
-      console.log(`🗑️ Cleaned up ${deletedCount} old PDF files`);
-    } catch (error) {
-      console.error("❌ PDF cleanup error:", error);
-    }
-  }
-
-  /**
    * Generate PDF and return as HTTP response (for immediate download)
    */
   static createPDFResponse(pdfBuffer: Buffer, fileName: string) {
@@ -329,29 +224,6 @@ export class PDFService {
         "Cache-Control": "no-cache",
       },
     });
-  }
-
-  /**
-   * Generate PDF stream (useful for previewing in browser)
-   */
-  static async generatePDFStream(
-    data: BookingPDFData,
-    logoUrl?: string
-  ): Promise<NodeJS.ReadableStream> {
-    const logo = this.ensureDataURL(logoUrl || this.logoUrl);
-
-    const ReactPDF = await import("@react-pdf/renderer");
-    const { default: BookingTicketPDF } = await import(
-      "@/components/pdf/BookingTicketPDF"
-    );
-    const React = await import("react");
-
-    const pdfDocument = React.createElement(BookingTicketPDF, {
-      data,
-      logoUrl: logo,
-    });
-
-    return ReactPDF.renderToStream(pdfDocument as any);
   }
 }
 

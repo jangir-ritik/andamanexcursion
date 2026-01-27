@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
+    "@napi-rs/canvas": "^0.1.88",
     "@payloadcms/db-mongodb": "3.54.0",
     "@payloadcms/email-resend": "3.54.0",
     "@payloadcms/next": "3.54.0",
@@ -36,6 +37,7 @@
     "@react-pdf/renderer": "^4.3.1",
     "@tanstack/react-query": "^5.83.0",
     "@types/uuid": "^10.0.0",
+    "canvas": "^3.2.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "immer": "^10.1.1",
@@ -46,6 +48,10 @@
     "next": "15.3.4",
     "payload": "3.54.0",
     "payload-recaptcha-v3": "^3.1.1",
+    "pdf-parse": "^2.4.5",
+    "pdf-to-img": "^5.0.0",
+    "pdfjs-dist": "^5.4.530",
+    "qrcode": "^1.5.4",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-datepicker": "^8.4.0",
@@ -53,7 +59,6 @@
     "react-hook-form": "^7.60.0",
     "react-top-loading-bar": "^3.0.2",
     "resend": "^5.0.0",
-    "sharp": "^0.34.3",
     "ts-node": "^10.9.2",
     "twilio": "^5.8.2",
     "uuid": "^11.1.0",
@@ -64,10 +69,12 @@
     "@eslint/eslintrc": "^3",
     "@types/lodash": "^4.17.20",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
+    "sharp": "^0.34.5",
     "typescript": "^5"
   }
 }

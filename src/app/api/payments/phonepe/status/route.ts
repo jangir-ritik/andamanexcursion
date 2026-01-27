@@ -102,8 +102,8 @@ export async function GET(req: NextRequest) {
           statusResponse.state === "SUCCESS" || statusResponse.state === "COMPLETED"
             ? "success"
             : statusResponse.state === "FAILED"
-            ? "failed"
-            : "pending",
+              ? "failed"
+              : "pending",
         phonepeData: {
           ...existingPhonepeData,
           phonepeTransactionId: statusResponse.orderId,
@@ -141,6 +141,16 @@ export async function GET(req: NextRequest) {
         });
       } catch (bookingError: any) {
         console.error("Booking processing error:", bookingError);
+        console.error("Error details:", {
+          message: bookingError?.message,
+          stack: bookingError?.stack,
+          type: typeof bookingError,
+          isError: bookingError instanceof Error,
+        });
+
+        // ✅ CRITICAL FIX: Safely extract error message with fallback
+        const errorMessage = bookingError?.message ||
+          (typeof bookingError === 'string' ? bookingError : 'Unknown booking error');
 
         // Payment succeeded but booking failed - create failed booking record
         const failedBooking = await createFailedBookingRecord(
@@ -153,7 +163,7 @@ export async function GET(req: NextRequest) {
 
         // Determine user-friendly error message and details based on error type
         const { userMessage, errorType, requiresRefund } = categorizeBookingError(
-          bookingError.message,
+          errorMessage,
           bookingData.bookingType
         );
 
@@ -162,7 +172,7 @@ export async function GET(req: NextRequest) {
           requiresRefund,
           orderId: statusResponse.orderId,
           bookingId: failedBooking.id,
-          errorMessage: bookingError.message,
+          errorMessage: errorMessage,
         });
 
         return NextResponse.json({
@@ -173,7 +183,7 @@ export async function GET(req: NextRequest) {
           error: "Booking processing failed",
           errorType,
           requiresRefund,
-          details: bookingError.message,
+          details: errorMessage,
           message: userMessage,
         });
       }
@@ -249,7 +259,7 @@ async function processBooking(
     const adults = (bookingData.members || []).filter((m: any) => m.age >= 2).length;
     const children = 0; // Always 0 in streamlined universal model
     const infants = (bookingData.members || []).filter((m: any) => m.age < 2).length;
-    
+
     console.log("Passenger categorization by actual ages:", {
       totalMembers: bookingData.members?.length || 0,
       adults,
@@ -402,35 +412,57 @@ async function processBooking(
           },
         ],
 
-        // Passenger details
+        // Passenger details - Extract ticket numbers from provider response
         passengers: (bookingData.members || []).map(
-          (member: any, memberIndex: number) => ({
-            isPrimary: memberIndex === 0,
-            fullName: member.fullName,
-            age: member.age,
-            gender: member.gender,
-            nationality: member.nationality || "Indian",
-            passportNumber: member.passportNumber || "",
-            passportExpiry: member.fexpdate || member.passportExpiry || "",
-            whatsappNumber:
-              memberIndex === 0
-                ? bookingData.contactDetails?.whatsapp || member.whatsappNumber
-                : member.whatsappNumber,
-            email:
-              memberIndex === 0
-                ? bookingData.contactDetails?.email || member.email
-                : member.email,
-            assignedActivities: [],
-          })
+          (member: any, memberIndex: number) => {
+            // Extract ticket number from confirmationDetails.tickets array
+            let ticketNumber = ferryBookingResult.pnr || ""; // Default to PNR
+
+            // Try to get individual ticket number from confirmationDetails
+            if (ferryBookingResult.confirmationDetails?.tickets?.[memberIndex]) {
+              ticketNumber = ferryBookingResult.confirmationDetails.tickets[memberIndex].ticketNumber || ticketNumber;
+            }
+
+            return {
+              isPrimary: memberIndex === 0,
+              fullName: member.fullName,
+              age: member.age,
+              gender: member.gender,
+              nationality: member.nationality || "Indian",
+              passportNumber: member.passportNumber || "",
+              passportExpiry: member.fexpdate || member.passportExpiry || "",
+              ticketNumber: ticketNumber, // Add ticket number field
+              whatsappNumber:
+                memberIndex === 0
+                  ? bookingData.contactDetails?.whatsapp || member.whatsappNumber
+                  : member.whatsappNumber,
+              email:
+                memberIndex === 0
+                  ? bookingData.contactDetails?.email || member.email
+                  : member.email,
+              assignedActivities: [],
+            };
+          }
         ),
 
-        // Pricing details
+        // Pricing details - Extract breakdown from selectedClass pricing if available
         pricing: {
           subtotal: ferryItem.price,
-          taxes: 0,
-          fees: 0,
+          baseFare: ferryItem.selectedClass?.pricing?.basePrice ||
+                    ferryItem.ferry?.selectedClass?.pricing?.basePrice ||
+                    ferryItem.price,
+          taxes: ferryItem.selectedClass?.pricing?.taxes ||
+                 ferryItem.ferry?.selectedClass?.pricing?.taxes || 0,
+          fees: ferryItem.selectedClass?.pricing?.fees ||
+                ferryItem.ferry?.selectedClass?.pricing?.fees || 0,
+          utgst: 0, // UTGST typically 0% for ferry services
+          cgst: 0,  // CGST typically 0% for ferry services
+          psf: ferryItem.selectedClass?.pricing?.fees ||
+               ferryItem.ferry?.selectedClass?.pricing?.fees || 0, // PSF is usually the fees
           totalAmount: ferryItem.price,
           currency: "INR",
+          hsnCode: "996411", // HSN/SAC code for passenger transport by waterways
+          paymentMode: "PhonePe", // Payment mode used
         },
 
         status: bookingStatus,
@@ -479,28 +511,28 @@ async function processBooking(
     const bookedActivities =
       bookingType === "activity" && items.length > 0
         ? items.map((item: any) => {
-            console.log("Processing activity item for booking:", {
-              price: item.price,
-              time: item.time,
-              passengers: item.passengers,
-              searchParams: item.searchParams,
-            });
+          console.log("Processing activity item for booking:", {
+            price: item.price,
+            time: item.time,
+            passengers: item.passengers,
+            searchParams: item.searchParams,
+          });
 
-            return {
-              activity: item.activity?.id || null,
-              activityOption: item.searchParams?.activityType || "",
-              quantity: 1,
-              unitPrice: item.price || 0,
-              totalPrice: item.price || 0,
-              scheduledTime: item.time || "",
-              location: item.location?.id || null,
-              passengers: {
-                adults: item.passengers?.adults || 0,
-                children: 0,
-                infants: 0,
-              },
-            };
-          })
+          return {
+            activity: item.activity?.id || null,
+            activityOption: item.searchParams?.activityType || "",
+            quantity: 1,
+            unitPrice: item.price || 0,
+            totalPrice: item.price || 0,
+            scheduledTime: item.time || "",
+            location: item.location?.id || null,
+            passengers: {
+              adults: item.passengers?.adults || 0,
+              children: 0,
+              infants: 0,
+            },
+          };
+        })
         : [];
 
     console.log("Processed bookedActivities:", bookedActivities);
@@ -509,36 +541,36 @@ async function processBooking(
     const bookedBoats =
       bookingType === "boat" && firstItem
         ? [
-            {
-              boatRoute: firstItem.boat?.id || null,
-              boatName:
-                firstItem.boat?.name || firstItem.title || "Unknown Boat",
-              route: {
-                from:
-                  firstItem.boat?.route?.from ||
-                  firstItem.location ||
-                  "Unknown",
-                to: firstItem.boat?.route?.to || "Unknown",
-              },
-              schedule: {
-                departureTime:
-                  firstItem.selectedTime || firstItem.time || "Unknown",
-                duration:
-                  firstItem.boat?.route?.minTimeAllowed ||
-                  firstItem.boat?.minTimeAllowed ||
-                  "Unknown",
-                travelDate: new Date(
-                  firstItem.date || new Date()
-                ).toISOString(),
-              },
-              passengers: {
-                adults: firstItem.passengers?.adults || 0,
-                children: 0,
-                infants: 0,
-              },
-              totalPrice: firstItem.price || 0,
+          {
+            boatRoute: firstItem.boat?.id || null,
+            boatName:
+              firstItem.boat?.name || firstItem.title || "Unknown Boat",
+            route: {
+              from:
+                firstItem.boat?.route?.from ||
+                firstItem.location ||
+                "Unknown",
+              to: firstItem.boat?.route?.to || "Unknown",
             },
-          ]
+            schedule: {
+              departureTime:
+                firstItem.selectedTime || firstItem.time || "Unknown",
+              duration:
+                firstItem.boat?.route?.minTimeAllowed ||
+                firstItem.boat?.minTimeAllowed ||
+                "Unknown",
+              travelDate: new Date(
+                firstItem.date || new Date()
+              ).toISOString(),
+            },
+            passengers: {
+              adults: firstItem.passengers?.adults || 0,
+              children: 0,
+              infants: 0,
+            },
+            totalPrice: firstItem.price || 0,
+          },
+        ]
         : [];
 
     console.log("Creating booking with data:", {
@@ -598,18 +630,24 @@ async function processBooking(
             assignedActivities:
               bookingType === "activity"
                 ? items.map((item: any, itemIndex: number) => ({
-                    activityIndex: itemIndex,
-                  }))
+                  activityIndex: itemIndex,
+                }))
                 : [],
           })
         ),
 
         pricing: {
           subtotal: bookingData.totalPrice || firstItem.price || 0,
+          baseFare: bookingData.totalPrice || firstItem.price || 0,
           taxes: 0,
           fees: 0,
+          utgst: 0,
+          cgst: 0,
+          psf: 0,
           totalAmount: bookingData.totalPrice || firstItem.price || 0,
           currency: "INR",
+          hsnCode: bookingType === "boat" ? "996411" : "998551", // 996411 for boat/water transport, 998551 for recreational/activity services
+          paymentMode: "PhonePe",
         },
 
         status: "confirmed",

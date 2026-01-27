@@ -1046,4 +1046,174 @@ export class SealinkService {
   static getCachedTripIds(): string[] {
     return Array.from(this.tripDataCache.keys());
   }
+
+  /**
+   * Get ticket PDF from Sealink/Nautika API
+   * @param pnr The PNR (booking reference) from the booking response
+   * @returns Base64-encoded PDF or error
+   */
+  static async getTicketPDF(pnr: string): Promise<{
+    success: boolean;
+    pdfBase64?: string;
+    error?: string;
+  }> {
+    try {
+      console.log(`Sealink: Fetching PDF for PNR: ${pnr}`);
+
+      const { username, token } = this.validateCredentials();
+
+      const requestBody = {
+        pnr: pnr,
+        userName: username,
+        token: token,
+      };
+
+      console.log("Sealink PDF request:", {
+        endpoint: `${this.BASE_URL}getPnrPdf`,
+        pnr: pnr,
+      });
+
+      const response = await this.fetchWithRetry(
+        `${this.BASE_URL}getPnrPdf`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "AndamanExcursion/1.0",
+            Accept: "application/json, application/pdf, */*",
+          },
+          body: JSON.stringify(requestBody),
+        },
+        30000 // 30 second timeout for PDF generation
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Sealink PDF download failed: ${response.status}`, errorText.substring(0, 200));
+        return {
+          success: false,
+          error: `PDF download failed: ${response.status} - ${errorText.substring(0, 100)}`,
+        };
+      }
+
+      // Check content type to determine response format
+      const contentType = response.headers.get("content-type") || "";
+
+      if (contentType.includes("application/pdf")) {
+        // Direct PDF response - convert to base64
+        const arrayBuffer = await response.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString("base64");
+        console.log(`Sealink PDF downloaded successfully (${base64.length} chars, direct PDF)`);
+        return {
+          success: true,
+          pdfBase64: base64,
+        };
+      } else if (contentType.includes("application/json")) {
+        // JSON response - may contain base64 PDF or error
+        const jsonResponse = await response.json();
+
+        if (jsonResponse.err) {
+          console.error("Sealink PDF API error:", jsonResponse.err);
+          return {
+            success: false,
+            error: `Sealink PDF API error: ${jsonResponse.err}`,
+          };
+        }
+
+        // Check for base64 PDF in response
+        if (jsonResponse.pdf || jsonResponse.pdfBase64 || jsonResponse.data) {
+          const pdfData = jsonResponse.pdf || jsonResponse.pdfBase64 || jsonResponse.data;
+          console.log(`Sealink PDF downloaded successfully (${pdfData.length} chars, JSON response)`);
+          return {
+            success: true,
+            pdfBase64: pdfData,
+          };
+        }
+
+        console.warn("Sealink PDF response has no PDF data:", Object.keys(jsonResponse));
+        return {
+          success: false,
+          error: "No PDF data in response",
+        };
+      } else {
+        // Unknown content type - try to read as text/base64 or JSON
+        const textResponse = await response.text();
+
+        // Check if it looks like base64 PDF (starts with PDF magic bytes in base64)
+        if (textResponse.startsWith("JVBERi")) {
+          console.log(`Sealink PDF downloaded successfully (${textResponse.length} chars, text response)`);
+          return {
+            success: true,
+            pdfBase64: textResponse,
+          };
+        }
+
+        // Check if it's JSON response with text/plain content type (common API quirk)
+        if (textResponse.startsWith("{") || textResponse.startsWith("[")) {
+          try {
+            const jsonResponse = JSON.parse(textResponse);
+
+            // Check for error in JSON
+            if (jsonResponse.err || jsonResponse.error) {
+              console.error("Sealink PDF API error (JSON in text/plain):", jsonResponse.err || jsonResponse.error);
+              return {
+                success: false,
+                error: `Sealink PDF API error: ${jsonResponse.err || jsonResponse.error}`,
+              };
+            }
+
+            // Check for PDF data in various formats
+            const pdfData = jsonResponse.pdf || jsonResponse.pdfBase64 || jsonResponse.data || jsonResponse.pdfData;
+            if (pdfData && typeof pdfData === "string" && pdfData.length > 100) {
+              console.log(`Sealink PDF downloaded successfully (${pdfData.length} chars, JSON in text/plain)`);
+              return {
+                success: true,
+                pdfBase64: pdfData,
+              };
+            }
+
+            // If the response is echoing back the request (pnr, userName, token), the API endpoint may not support PDF
+            if (jsonResponse.pnr && jsonResponse.userName && jsonResponse.token) {
+              console.warn("Sealink PDF API appears to be echoing request - endpoint may not be implemented");
+              console.warn("Response keys:", Object.keys(jsonResponse));
+              return {
+                success: false,
+                error: "Sealink PDF endpoint not available (request echoed back). Contact Sealink support.",
+              };
+            }
+
+            console.warn("Sealink PDF response has no PDF data:", Object.keys(jsonResponse));
+            return {
+              success: false,
+              error: "No PDF data in response",
+            };
+          } catch (parseError) {
+            // Not valid JSON, continue to other checks
+            console.warn("Failed to parse as JSON:", parseError);
+          }
+        }
+
+        // Check if it's raw base64 (long string without JSON structure)
+        if (textResponse.length > 1000 && !textResponse.includes("{")) {
+          console.log(`Sealink PDF downloaded successfully (${textResponse.length} chars, raw base64)`);
+          return {
+            success: true,
+            pdfBase64: textResponse,
+          };
+        }
+
+        console.warn("Sealink PDF unknown response format:", textResponse.substring(0, 200));
+        return {
+          success: false,
+          error: `Unknown response format: ${contentType}. Response preview: ${textResponse.substring(0, 100)}`,
+        };
+      }
+    } catch (error) {
+      console.error("Sealink PDF download error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
 }

@@ -598,6 +598,13 @@ const Bookings: CollectionConfig = {
           },
         },
         {
+          name: "ticketNumber",
+          type: "text",
+          admin: {
+            description: "Ticket number from ferry/transport provider",
+          },
+        },
+        {
           name: "whatsappNumber",
           type: "text",
           admin: {
@@ -643,6 +650,13 @@ const Bookings: CollectionConfig = {
           },
         },
         {
+          name: "baseFare",
+          type: "number",
+          admin: {
+            description: "Base fare amount",
+          },
+        },
+        {
           name: "taxes",
           type: "number",
           defaultValue: 0,
@@ -659,6 +673,30 @@ const Bookings: CollectionConfig = {
           },
         },
         {
+          name: "utgst",
+          type: "number",
+          defaultValue: 0,
+          admin: {
+            description: "UTGST amount",
+          },
+        },
+        {
+          name: "cgst",
+          type: "number",
+          defaultValue: 0,
+          admin: {
+            description: "CGST amount",
+          },
+        },
+        {
+          name: "psf",
+          type: "number",
+          defaultValue: 0,
+          admin: {
+            description: "Passenger Service Fee",
+          },
+        },
+        {
           name: "totalAmount",
           type: "number",
           required: true,
@@ -670,6 +708,20 @@ const Bookings: CollectionConfig = {
           name: "currency",
           type: "text",
           defaultValue: "INR",
+        },
+        {
+          name: "hsnCode",
+          type: "text",
+          admin: {
+            description: "HSN/SAC code for tax purposes",
+          },
+        },
+        {
+          name: "paymentMode",
+          type: "text",
+          admin: {
+            description: "Mode of payment used (e.g., PhonePe, Card)",
+          },
         },
       ],
     },

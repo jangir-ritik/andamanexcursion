@@ -1767,6 +1767,10 @@ export interface Booking {
          */
         passportExpiry?: string | null;
         /**
+         * Ticket number from ferry/transport provider
+         */
+        ticketNumber?: string | null;
+        /**
          * WhatsApp number (only for primary contact)
          */
         whatsappNumber?: string | null;
@@ -1792,6 +1796,10 @@ export interface Booking {
      */
     subtotal: number;
     /**
+     * Base fare amount
+     */
+    baseFare?: number | null;
+    /**
      * Total tax amount
      */
     taxes?: number | null;
@@ -1800,10 +1808,30 @@ export interface Booking {
      */
     fees?: number | null;
     /**
+     * UTGST amount
+     */
+    utgst?: number | null;
+    /**
+     * CGST amount
+     */
+    cgst?: number | null;
+    /**
+     * Passenger Service Fee
+     */
+    psf?: number | null;
+    /**
      * Final total amount
      */
     totalAmount: number;
     currency?: string | null;
+    /**
+     * HSN/SAC code for tax purposes
+     */
+    hsnCode?: string | null;
+    /**
+     * Mode of payment used (e.g., PhonePe, Card)
+     */
+    paymentMode?: string | null;
   };
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
@@ -3291,6 +3319,7 @@ export interface BookingsSelect<T extends boolean = true> {
         nationality?: T;
         passportNumber?: T;
         passportExpiry?: T;
+        ticketNumber?: T;
         whatsappNumber?: T;
         email?: T;
         assignedActivities?:
@@ -3305,10 +3334,16 @@ export interface BookingsSelect<T extends boolean = true> {
     | T
     | {
         subtotal?: T;
+        baseFare?: T;
         taxes?: T;
         fees?: T;
+        utgst?: T;
+        cgst?: T;
+        psf?: T;
         totalAmount?: T;
         currency?: T;
+        hsnCode?: T;
+        paymentMode?: T;
       };
   status?: T;
   paymentStatus?: T;

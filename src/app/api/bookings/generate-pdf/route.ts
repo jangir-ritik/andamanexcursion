@@ -25,6 +25,11 @@ export async function POST(request: NextRequest) {
     // Use fullBookingData if available (from database), otherwise use bookingData
     const dataSource = fullBookingData || bookingData;
 
+    // DEBUG: Log bookedActivities structure
+    if (dataSource?.bookedActivities) {
+      console.log("📄 PDF Route - fullBookingData.bookedActivities:", JSON.stringify(dataSource.bookedActivities, null, 2));
+    }
+
     // Transform data to match BookingPDFData interface
     const pdfData: BookingPDFData = {
       // ✅ FIX: Use bookingId field instead of database _id
@@ -73,6 +78,8 @@ export async function POST(request: NextRequest) {
           gender: p.gender || "N/A",
           nationality: p.nationality || "N/A",
           passportNumber: p.passportNumber || p.fpassport,
+          idNumber: p.idNumber,
+          ticketNumber: p.ticketNumber, // Pass through ticket number from booking data
           whatsappNumber: p.whatsappNumber,
           email: p.email,
         })) || [],
@@ -80,15 +87,27 @@ export async function POST(request: NextRequest) {
       pricing: dataSource?.pricing || {
         subtotal:
           dataSource?.totalPrice || bookingConfirmation.totalAmount || 0,
+        baseFare:
+          dataSource?.totalPrice || bookingConfirmation.totalAmount || 0,
         taxes: 0,
         fees: 0,
+        utgst: 0,
+        cgst: 0,
+        psf: 0,
         totalAmount:
           dataSource?.totalPrice || bookingConfirmation.totalAmount || 0,
         currency: "INR",
+        hsnCode: "996411", // Default HSN/SAC code for passenger transport
+        paymentMode: "Online", // Default payment mode
       },
 
       specialRequests: bookingConfirmation.specialRequests,
     };
+
+    // DEBUG: Log final pdfData.bookedActivities
+    if (pdfData.bookedActivities && pdfData.bookedActivities.length > 0) {
+      console.log("📄 PDF Route - Final pdfData.bookedActivities being passed to PDF:", JSON.stringify(pdfData.bookedActivities, null, 2));
+    }
 
     // Generate PDF
     const pdfResult = await PDFService.generateBookingPDF(pdfData);
@@ -402,26 +421,74 @@ function transformActivities(bookingData: any) {
 
   if (activityItems.length === 0) return undefined;
 
-  return activityItems.map((item: any) => ({
-    activity: {
-      name: item.title || "Activity",
+  return activityItems.map((item: any) => {
+    // DEBUG: Log the item structure
+    console.log("📄 PDF transformActivities - Item data:", JSON.stringify({
+      location: item.location,
+      locationType: typeof item.location,
+      activityDuration: item.activity?.duration,
+      activityCoreInfoDuration: item.activity?.coreInfo?.duration,
+      activityCoreInfoLocation: item.activity?.coreInfo?.location,
+      itemDuration: item.duration,
+      time: item.time,
       title: item.title,
-      ...item.activity,
-    },
-    activityOption: item.activityOption || item.option,
-    quantity: item.quantity || 1,
-    unitPrice: item.unitPrice || item.price || 0,
-    totalPrice: item.price || 0,
-    scheduledTime: item.time,
-    location: item.location
-      ? {
-          name: item.location.name || item.location,
-        }
-      : undefined,
-    passengers: {
-      adults: item.passengers?.adults || 0,
-      children: item.passengers?.children || 0,
-      infants: item.passengers?.infants || 0,
-    },
-  }));
+    }, null, 2));
+
+    // Extract duration from various possible locations
+    const duration =
+      item.activity?.duration ||
+      item.activity?.coreInfo?.duration ||
+      item.duration ||
+      "N/A";
+
+    // Extract location - it can be a string or an object
+    let locationName = "N/A";
+    if (item.location) {
+      if (typeof item.location === "string") {
+        locationName = item.location;
+      } else if (item.location.name) {
+        locationName = item.location.name;
+      } else if (Array.isArray(item.location) && item.location.length > 0) {
+        locationName = typeof item.location[0] === "string"
+          ? item.location[0]
+          : item.location[0]?.name || "N/A";
+      }
+    } else if (item.activity?.coreInfo?.location) {
+      const loc = item.activity.coreInfo.location;
+      if (typeof loc === "string") {
+        locationName = loc;
+      } else if (Array.isArray(loc) && loc.length > 0) {
+        locationName = typeof loc[0] === "string"
+          ? loc[0]
+          : loc[0]?.name || "N/A";
+      }
+    }
+
+    console.log("📄 PDF transformActivities - Extracted values:", {
+      locationName,
+      duration,
+    });
+
+    return {
+      activity: {
+        name: item.title || "Activity",
+        title: item.title,
+        duration: duration, // Explicitly include duration
+        ...item.activity,
+      },
+      activityOption: item.activityOption || item.option,
+      quantity: item.quantity || 1,
+      unitPrice: item.unitPrice || item.price || 0,
+      totalPrice: item.price || 0,
+      scheduledTime: item.time,
+      location: {
+        name: locationName,
+      },
+      passengers: {
+        adults: item.passengers?.adults || 0,
+        children: item.passengers?.children || 0,
+        infants: item.passengers?.infants || 0,
+      },
+    };
+  });
 }
