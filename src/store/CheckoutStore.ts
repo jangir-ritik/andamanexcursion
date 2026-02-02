@@ -46,6 +46,7 @@ export interface BookingConfirmation {
   };
   // Full booking details from database
   fullBookingData?: any;
+  pdfUrl?: string;
 }
 
 export interface CheckoutSession {
