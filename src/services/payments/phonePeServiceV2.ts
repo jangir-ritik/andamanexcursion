@@ -11,11 +11,17 @@ export class PhonePeServiceV2 {
   private merchantId: string;
   private apiUrl: string;
   private devMode: boolean;
+  private isProduction: boolean;
 
   constructor() {
     this.merchantId = process.env.PHONEPE_MERCHANT_ID!;
-    this.apiUrl = process.env.PHONEPE_API_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
     this.devMode = process.env.PHONEPE_DEV_MODE === "true";
+    this.isProduction = process.env.PHONEPE_ENV === "production";
+
+    // Production uses /apis/pg for payments, sandbox uses pg-sandbox for everything
+    this.apiUrl = this.isProduction
+      ? process.env.PHONEPE_PG_URL || "https://api.phonepe.com/apis/pg"
+      : process.env.PHONEPE_API_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
 
     if (!this.merchantId) {
       throw new Error("PhonePe merchant ID not configured. Check PHONEPE_MERCHANT_ID");
@@ -25,6 +31,7 @@ export class PhonePeServiceV2 {
       merchantId: this.merchantId,
       apiUrl: this.apiUrl,
       devMode: this.devMode,
+      isProduction: this.isProduction,
     });
   }
 

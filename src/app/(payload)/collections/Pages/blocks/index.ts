@@ -25,6 +25,7 @@ import { dynamicCategoryPackagesBlock } from "./dynamicCategoryPackages";
 import { googleTestimonialsBlock } from "./googleTestimonials";
 import { teamSectionBlock } from "./teamSection";
 import { richTextBlock } from "./richText";
+import { pnrLookupBlock } from "./pnrLookup";
 
 export const contentBlocks: Block[] = [
   richTextBlock,
@@ -52,4 +53,5 @@ export const contentBlocks: Block[] = [
   dynamicPackagesBlock,
   dynamicCategoryPackagesBlock,
   teamSectionBlock,
+  pnrLookupBlock,
 ];

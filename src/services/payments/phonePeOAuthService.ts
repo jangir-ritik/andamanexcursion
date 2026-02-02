@@ -8,7 +8,7 @@
 export class PhonePeOAuthService {
   private clientId: string;
   private clientSecret: string;
-  private apiUrl: string;
+  private authUrl: string;
   private cachedToken?: {
     token: string;
     expiresAt: number;
@@ -17,7 +17,12 @@ export class PhonePeOAuthService {
   constructor() {
     this.clientId = process.env.PHONEPE_MERCHANT_ID!;
     this.clientSecret = process.env.PHONEPE_SALT_KEY!;
-    this.apiUrl = process.env.PHONEPE_API_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+
+    // Production uses identity-manager for auth, sandbox uses pg-sandbox for everything
+    const isProduction = process.env.PHONEPE_ENV === "production";
+    this.authUrl = isProduction
+      ? process.env.PHONEPE_AUTH_URL || "https://api.phonepe.com/apis/identity-manager"
+      : process.env.PHONEPE_API_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
 
     if (!this.clientId || !this.clientSecret) {
       throw new Error("PhonePe OAuth credentials not configured. Check PHONEPE_MERCHANT_ID and PHONEPE_SALT_KEY");
@@ -25,7 +30,8 @@ export class PhonePeOAuthService {
 
     console.log("PhonePe OAuth Service initialized:", {
       clientId: this.clientId,
-      apiUrl: this.apiUrl,
+      authUrl: this.authUrl,
+      isProduction,
     });
   }
 
@@ -53,7 +59,7 @@ export class PhonePeOAuthService {
       }).toString();
 
       // Call OAuth token endpoint
-      const response = await fetch(`${this.apiUrl}/v1/oauth/token`, {
+      const response = await fetch(`${this.authUrl}/v1/oauth/token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

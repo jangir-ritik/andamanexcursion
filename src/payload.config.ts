@@ -1,4 +1,4 @@
-import sharp from "sharp";
+const sharp = require("sharp");
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { buildConfig } from "payload";

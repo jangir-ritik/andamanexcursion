@@ -6,11 +6,12 @@ import { getPayload } from "payload";
 import config from "@payload-config";
 import NotificationManager from "@/services/notifications/NotificationManager";
 import { FerryBookingService } from "@/services/ferryServices/ferryBookingService";
+import { generateAndStorePDF } from "@/utils/generateAndStorePDF";
 
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    // Check merchantOrderId first (primary param), then merchantTransactionId (backward compatibility)
+    // Check merchantOrderId first (v2 primary param), then merchantTransactionId (backward compatibility)
     const merchantOrderId = searchParams.get("merchantOrderId") || searchParams.get("merchantTransactionId");
 
     if (!merchantOrderId) {
@@ -33,8 +34,9 @@ export async function GET(req: NextRequest) {
     console.log("PhonePe v2 status response:", {
       merchantOrderId,
       state: statusResponse.state,
-      orderId: statusResponse.orderId,
+      code: statusResponse.code,
       success: statusResponse.success,
+      orderId: statusResponse.orderId,
     });
 
     // Get payment record from database
@@ -94,26 +96,27 @@ export async function GET(req: NextRequest) {
     // Get existing phonepeData and merge with new data to avoid conflicts
     const existingPhonepeData = (paymentRecord as any).phonepeData || {};
 
+    // v2 API: state is SUCCESS/FAILED/PENDING/EXPIRED, also accept COMPLETED for backward compatibility
+    const isSuccess = statusResponse.state === "SUCCESS" || 
+                     statusResponse.state === "COMPLETED" || 
+                     statusResponse.success;
+    const isFailed = statusResponse.state === "FAILED" || statusResponse.state === "EXPIRED";
+
     await payload.update({
       collection: "payments",
       id: paymentRecord.id,
       data: {
-        status:
-          statusResponse.state === "SUCCESS" || statusResponse.state === "COMPLETED"
-            ? "success"
-            : statusResponse.state === "FAILED"
-              ? "failed"
-              : "pending",
+        status: isSuccess ? "success" : isFailed ? "failed" : "pending",
         phonepeData: {
           ...existingPhonepeData,
-          phonepeTransactionId: statusResponse.orderId,
+          phonepeTransactionId: statusResponse.orderId || merchantOrderId,
           statusCheckData: JSON.stringify(statusResponse),
         },
       },
     });
 
-    // If payment is successful, process the booking (accept both SUCCESS and COMPLETED)
-    if (statusResponse.state === "SUCCESS" || statusResponse.state === "COMPLETED") {
+    // If payment is successful, process the booking
+    if (isSuccess) {
       console.log("Payment successful, processing booking...");
 
       try {
@@ -131,8 +134,9 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          status: statusResponse.state,
-          orderId: statusResponse.orderId,
+          status: statusResponse.state || "SUCCESS",
+          transactionId: statusResponse.orderId || merchantOrderId,
+          orderId: statusResponse.orderId || merchantOrderId,
           booking: bookingResult.booking,
           providerBooking: bookingResult.providerBooking || null,
           message: bookingResult.success
@@ -170,15 +174,16 @@ export async function GET(req: NextRequest) {
         console.error("⚠️ POST-PAYMENT BOOKING FAILURE:", {
           errorType,
           requiresRefund,
-          orderId: statusResponse.orderId,
+          transactionId: statusResponse.orderId || merchantOrderId,
           bookingId: failedBooking.id,
           errorMessage: errorMessage,
         });
 
         return NextResponse.json({
           success: false,
-          status: statusResponse.state,
-          orderId: statusResponse.orderId,
+          status: statusResponse.state || "SUCCESS",
+          transactionId: statusResponse.orderId || merchantOrderId,
+          orderId: statusResponse.orderId || merchantOrderId,
           booking: failedBooking,
           error: "Booking processing failed",
           errorType,
@@ -192,12 +197,12 @@ export async function GET(req: NextRequest) {
     // Payment not successful yet
     return NextResponse.json({
       success: false,
-      status: statusResponse.state,
-      orderId: statusResponse.orderId,
-      message:
-        statusResponse.state === "FAILED"
-          ? "Payment failed. Please try again."
-          : "Payment is still processing...",
+      status: statusResponse.state || "PENDING",
+      transactionId: statusResponse.orderId || merchantOrderId,
+      orderId: statusResponse.orderId || merchantOrderId,
+      message: isFailed
+        ? "Payment failed. Please try again."
+        : "Payment is still processing...",
     });
   } catch (error: any) {
     console.error("PhonePe status check error:", error);
@@ -484,6 +489,9 @@ async function processBooking(
       pricing: booking.pricing,
     });
 
+    // Auto-generate and save PDF to database (from file 1)
+    await generateAndStorePDF(booking, payload);
+
     console.log(
       "Full ferry booking object being returned:",
       JSON.stringify(
@@ -668,6 +676,9 @@ async function processBooking(
       passengers: booking.passengers?.length,
       pricing: booking.pricing,
     });
+
+    // Auto-generate and save PDF to database (from file 1)
+    await generateAndStorePDF(booking, payload);
 
     console.log(
       "Full booking object being returned:",

@@ -265,7 +265,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     return `${displayHour}:${minutes.padStart(2, "0")} ${ampm}`;
   };
 
-  // Handle download PDF
+  // Handle download PDF - use stored PDF from database if available, fallback to on-demand generation
   const handleDownloadPDF = async () => {
     try {
       console.log("📄 Initiating PDF download...");
@@ -277,16 +277,27 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         return;
       }
 
-      // Set loading state
       setIsPdfGenerating(true);
 
-      // Debug: Log the data being sent
-      console.log("📊 Sending PDF data:", {
-        bookingConfirmation,
-        fullBookingData: bookingConfirmation.fullBookingData,
-        formData,
-        bookingData,
-      });
+      // Check if PDF is already stored in the booking (from auto-generation)
+      const storedPdfUrl =
+        bookingConfirmation.fullBookingData?.pdfUrl ||
+        bookingConfirmation.pdfUrl;
+
+      if (storedPdfUrl) {
+        console.log("📄 Using stored PDF:", storedPdfUrl);
+        const link = document.createElement("a");
+        link.href = storedPdfUrl;
+        link.download = `Booking_${bookingConfirmation.confirmationNumber}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log("✅ PDF downloaded from stored URL");
+        return;
+      }
+
+      // Fallback: generate on-demand
+      console.log("📊 No stored PDF, generating on-demand...");
 
       const response = await fetch("/api/bookings/generate-pdf", {
         method: "POST",
@@ -309,10 +320,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         throw new Error(`PDF generation failed: ${response.statusText}`);
       }
 
-      // Get the PDF blob
       const blob = await response.blob();
-
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -320,11 +328,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         bookingConfirmation.confirmationNumber
       }_${Date.now()}.pdf`;
 
-      // Trigger download
       document.body.appendChild(link);
       link.click();
 
-      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
@@ -334,7 +340,6 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       setErrorMessage("Failed to generate PDF. Please try again or contact support.");
       setShowErrorAlert(true);
     } finally {
-      // Always reset loading state
       setIsPdfGenerating(false);
     }
   };

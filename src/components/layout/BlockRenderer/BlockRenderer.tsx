@@ -24,6 +24,7 @@ import {
   TopAdventures,
   TrustStats,
   WhyChooseUs,
+  PnrLookup,
 } from "@/components/sectionBlocks/homepage";
 import { Page } from "@payload-types";
 import { FeatureSection } from "@/components/molecules/FeatureSection/FeatureSection";
@@ -58,6 +59,7 @@ const blockComponentsMap = {
   dynamicPackages: DynamicPackagesBlock,
   dynamicCategoryPackages: DynamicCategoryPackagesBlock,
   teamSection: TeamSection,
+  pnrLookup: PnrLookup,
 } as const;
 
 interface BlockRendererProps {

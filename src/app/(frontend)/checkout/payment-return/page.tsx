@@ -32,11 +32,11 @@ function PhonePeReturnContent() {
 
     const checkPaymentStatus = async () => {
       try {
-        // Get transaction ID from URL params (primary) or session storage (fallback)
+        // Get order ID from URL params (primary) or session storage (fallback)
         // PhonePe v2 redirects with merchantOrderId in URL query params
-        const merchantOrderId = 
-          searchParams.get("merchantOrderId") || // Primary source (from URL)
-          searchParams.get("merchantTransactionId") || // Alternative param name
+        const merchantOrderId =
+          searchParams.get("merchantOrderId") || // Primary source (from URL) - v2
+          searchParams.get("merchantTransactionId") || // Alternative param name - v1 compatibility
           sessionStorage.getItem("phonepe_merchant_order_id") || // Fallback to sessionStorage
           sessionStorage.getItem("phonepe_transaction_id"); // Old session storage key
 
@@ -50,13 +50,13 @@ function PhonePeReturnContent() {
           });
           setStatus("failed");
           setMessage(
-            "Transaction ID not found. Please contact support if payment was deducted."
+            "Order ID not found. Please contact support if payment was deducted."
           );
           return;
         }
 
         console.log(
-          "✅ Checking PhonePe payment status:",
+          "✅ Checking PhonePe v2 payment status:",
           merchantOrderId,
           `(Attempt ${retryCount + 1}/${MAX_RETRIES})`
         );
@@ -124,10 +124,11 @@ function PhonePeReturnContent() {
             });
           }
 
-          // Clean up session storage
+          // Clean up session storage (both v1 and v2 keys)
           sessionStorage.removeItem("phonepe_merchant_order_id");
           sessionStorage.removeItem("phonepe_transaction_id");
           sessionStorage.removeItem("phonepe_booking_data");
+          sessionStorage.removeItem("phonepe_order_id");
 
           // Redirect to confirmation step
           setTimeout(() => {

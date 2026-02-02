@@ -6,3 +6,4 @@ export * from "./story/Story";
 export * from "./trustStats/TrustStats";
 export * from "./whyChooseUs/WhyChooseUs";
 export * from "./banner/Banner";
+export * from "./pnrLookup/PnrLookup";

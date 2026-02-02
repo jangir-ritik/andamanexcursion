@@ -823,6 +823,14 @@ const Bookings: CollectionConfig = {
         },
       ],
     },
+    {
+      name: "pdfUrl",
+      type: "text",
+      admin: {
+        description: "URL of the generated booking PDF",
+        readOnly: true,
+      },
+    },
   ],
   hooks: {
     beforeChange: [

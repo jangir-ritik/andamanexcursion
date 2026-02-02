@@ -59,8 +59,10 @@
     "react-hook-form": "^7.60.0",
     "react-top-loading-bar": "^3.0.2",
     "resend": "^5.0.0",
+    "sharp": "^0.34.5",
     "ts-node": "^10.9.2",
     "twilio": "^5.8.2",
+    "uploadthing": "^7.7.4",
     "uuid": "^11.1.0",
     "zod": "^3.25.76",
     "zustand": "^5.0.6"

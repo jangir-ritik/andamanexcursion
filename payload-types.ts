@@ -878,6 +878,11 @@ export interface Page {
               blockName?: string | null;
               blockType: 'teamSection';
             }
+          | {
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'pnrLookup';
+            }
         )[]
       | null;
   };
@@ -1883,6 +1888,10 @@ export interface Booking {
     sendEmailUpdates?: boolean | null;
     language?: ('en' | 'hi') | null;
   };
+  /**
+   * URL of the generated booking PDF
+   */
+  pdfUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2836,6 +2845,12 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                     blockName?: T;
                   };
+              pnrLookup?:
+                | T
+                | {
+                    id?: T;
+                    blockName?: T;
+                  };
             };
       };
   publishingSettings?:
@@ -3393,6 +3408,7 @@ export interface BookingsSelect<T extends boolean = true> {
         sendEmailUpdates?: T;
         language?: T;
       };
+  pdfUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }
