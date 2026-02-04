@@ -59,12 +59,12 @@ export const PnrLookup = () => {
         <div className={styles.leftColumn}>
           <h2 className={styles.title}>Check your ferry status</h2>
           <p className={styles.subtitle}>
-            Enter your PNR Number to get your ferry ticket
+            Enter your PNR Number / Booking ID to get your ferry ticket
           </p>
 
           <form className={styles.searchForm} onSubmit={handleSearch}>
             <div className={styles.inputWrapper}>
-              <span className={styles.inputLabel}>Enter PNR here</span>
+              <span className={styles.inputLabel}>Enter PNR/Booking ID here</span>
               <input
                 className={styles.input}
                 type="text"
@@ -99,7 +99,7 @@ export const PnrLookup = () => {
           {result && (
             <div className={styles.resultCard}>
               <p className={styles.resultInfo}>
-                Booking <strong>{result.booking.confirmationNumber}</strong> —{" "}
+                Booking ID <strong>{result.booking.confirmationNumber}</strong> —{" "}
                 {result.booking.customerName}
               </p>
 
