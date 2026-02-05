@@ -8,17 +8,17 @@
   border-radius: 16px;
   overflow: hidden;
   background: #0f2b46;
-  height: 603px;
+  height: 400px;
   width: 100%;
 }
 
 .leftColumn {
-  flex: 1;
-  padding: 28px 40px;
+  flex: 0 0 40%;
+  padding: 28px 36px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .title {
@@ -30,9 +30,10 @@
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 16px 0;
+  line-height: 1.4;
 }
 
 .searchForm {
@@ -101,11 +102,8 @@
 }
 
 .rightColumn {
-  flex: 0 0 45%;
+  flex: 1;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
   border-radius: 0 16px 16px 0;
 }
@@ -113,7 +111,8 @@
 .ferryImage {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: right 80%;
 }
 
 .errorText {
@@ -189,19 +188,22 @@
   .container {
     flex-direction: column;
     height: auto;
+    border-radius: 12px;
   }
 
   .leftColumn {
+    flex: none;
     padding: 20px 20px;
   }
 
   .title {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
   }
 
   .rightColumn {
-    height: 100px;
+    height: 140px;
     flex: none;
+    border-radius: 0 0 12px 12px;
   }
 
   .searchForm {

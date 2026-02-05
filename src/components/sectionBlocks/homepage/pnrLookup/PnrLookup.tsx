@@ -132,10 +132,9 @@ export const PnrLookup = () => {
 
         <div className={styles.rightColumn}>
           <Image
-            src="/images/ferry/trustedFerries/goNautica.png"
+            src="/graphics/ferry_graphic.svg"
             alt="Ferry illustration"
-            width={500}
-            height={300}
+            fill
             className={styles.ferryImage}
             priority
           />
