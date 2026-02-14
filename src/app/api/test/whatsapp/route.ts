@@ -1,9 +1,8 @@
 /**
- * WhatsApp Test Endpoint
- * Use this to test WhatsApp messaging configuration
+ * WhatsApp Test Endpoint (Plivo)
  *
- * Usage:
- * POST /api/test/whatsapp
+ * GET  /api/test/whatsapp - Check configuration
+ * POST /api/test/whatsapp - Send test message using enquiry_confirmation template
  * Body: { "phone": "+919876543210" }
  */
 
@@ -12,144 +11,84 @@ import { WhatsAppNotificationChannel } from "@/services/notifications/channels/w
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("🧪 WhatsApp Test Endpoint called");
-
-    // Parse request body
     const body = await request.json();
     const { phone } = body;
 
     if (!phone) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Phone number is required",
-          usage: "Send POST request with { phone: '+919876543210' }",
-        },
+        { success: false, error: "Phone number is required. Example: { phone: '+919876543210' }" },
         { status: 400 }
       );
     }
 
-    console.log("📞 Testing WhatsApp for phone:", phone);
+    const whatsapp = new WhatsAppNotificationChannel();
 
-    // Initialize WhatsApp channel
-    const whatsappChannel = new WhatsAppNotificationChannel();
-
-    // Check if enabled
-    const isEnabled = whatsappChannel.isEnabled();
-    console.log("WhatsApp enabled status:", isEnabled);
-
-    if (!isEnabled) {
+    if (!whatsapp.isEnabled()) {
       return NextResponse.json(
         {
           success: false,
-          error: "WhatsApp service is not enabled",
-          configuration: {
-            hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
-            hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
-            twilioNumber: process.env.TWILIO_WHATSAPP_NUMBER || "Not set",
-            sandboxNumber: process.env.TWILIO_WHATSAPP_SANDBOX || "Not set",
-            nodeEnv: process.env.NODE_ENV,
+          error: "WhatsApp not enabled",
+          config: {
+            hasAuthId: !!process.env.PLIVO_AUTH_ID,
+            hasAuthToken: !!process.env.PLIVO_AUTH_TOKEN,
+            fromNumber: process.env.PLIVO_WHATSAPP_NUMBER || "Not set",
           },
-          help: "Check your .env file for TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_WHATSAPP_NUMBER (or TWILIO_WHATSAPP_SANDBOX for testing)",
         },
         { status: 500 }
       );
     }
 
-    // Send test message
-    console.log("📤 Sending test message...");
-    const result = await whatsappChannel.send({
-      type: "test",
+    // Send using enquiry_confirmation template as test
+    const result = await whatsapp.send({
+      type: "enquiry_confirmation",
       recipient: phone,
       data: {
-        message: "Test message from Andaman Excursion",
+        fullName: "Test User",
+        enquiryId: "TEST-001",
+        email: "test@example.com",
+        phone: phone,
+        selectedPackage: "WhatsApp Integration Test",
+        message: "Test message",
+        submissionDate: new Date().toISOString(),
       },
     });
 
-    console.log("📬 WhatsApp send result:", result);
-
     if (result.success) {
-      return NextResponse.json(
-        {
-          success: true,
-          message: "WhatsApp test message sent successfully!",
-          messageSid: result.messageId,
-          details: result.metadata,
-          note: "Check the phone number for the message. If using sandbox, make sure the number has joined the sandbox first.",
-        },
-        { status: 200 }
-      );
-    } else {
-      return NextResponse.json(
-        {
-          success: false,
-          error: result.error || "Unknown error",
-          troubleshooting: {
-            commonIssues: [
-              "Phone number not in sandbox (for development)",
-              "Invalid phone number format (must be +91XXXXXXXXXX)",
-              "Twilio account in trial mode - recipient not verified",
-              "WhatsApp Business API not enabled",
-            ],
-            sandbox: {
-              instructions: "Send 'join <your-sandbox-keyword>' to the Twilio sandbox number to opt-in",
-              sandboxNumber: process.env.TWILIO_WHATSAPP_SANDBOX || "+14155238886",
-            },
-          },
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        success: true,
+        message: "Test message sent!",
+        messageUuid: result.messageId,
+        details: result.metadata,
+      });
     }
-  } catch (error) {
-    console.error("❌ WhatsApp test endpoint error:", error);
 
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      { success: false, error: result.error },
+      { status: 500 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
-  const whatsappChannel = new WhatsAppNotificationChannel();
-  const isEnabled = whatsappChannel.isEnabled();
+export async function GET() {
+  const whatsapp = new WhatsAppNotificationChannel();
 
-  return NextResponse.json(
-    {
-      service: "WhatsApp Test Endpoint",
-      enabled: isEnabled,
-      configuration: {
-        hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
-        hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
-        fromNumber: process.env.TWILIO_WHATSAPP_NUMBER || process.env.TWILIO_WHATSAPP_SANDBOX || "Not configured",
-        nodeEnv: process.env.NODE_ENV,
-        templateSids: {
-          bookingConfirmation: !!process.env.TWILIO_BOOKING_CONFIRMATION_SID,
-          statusUpdate: !!process.env.TWILIO_STATUS_UPDATE_SID,
-          reminder: !!process.env.TWILIO_REMINDER_SID,
-          paymentFailed: !!process.env.TWILIO_PAYMENT_FAILED_SID,
-          enquiryConfirmation: !!process.env.TWILIO_ENQUIRY_CONFIRMATION_SID,
-        },
-      },
-      usage: {
-        method: "POST",
-        endpoint: "/api/test/whatsapp",
-        body: {
-          phone: "+919876543210",
-        },
-        note: "For sandbox testing, users must first join by sending 'join <keyword>' to the Twilio WhatsApp sandbox number",
-      },
-      sandboxSetup: {
-        step1: "Go to Twilio Console → Messaging → Try it out → Send a WhatsApp message",
-        step2: `Send 'join <your-sandbox-keyword>' from your phone to ${process.env.TWILIO_WHATSAPP_SANDBOX || "+14155238886"}`,
-        step3: "Wait for confirmation message",
-        step4: "Then test using this endpoint",
-      },
+  return NextResponse.json({
+    service: "Plivo WhatsApp",
+    enabled: whatsapp.isEnabled(),
+    config: {
+      hasAuthId: !!process.env.PLIVO_AUTH_ID,
+      hasAuthToken: !!process.env.PLIVO_AUTH_TOKEN,
+      fromNumber: process.env.PLIVO_WHATSAPP_NUMBER || "Not configured",
     },
-    { status: 200 }
-  );
+    webhook: "/api/webhooks/plivo/whatsapp",
+    usage: {
+      method: "POST",
+      body: { phone: "+919876543210" },
+    },
+  });
 }
