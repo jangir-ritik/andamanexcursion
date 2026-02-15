@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { phonePeServiceV2 } from "@/services/payments/phonePeServiceV2";
 import { getPayload } from "payload";
 import config from "@payload-config";
-import NotificationManager from "@/services/notifications/NotificationManager";
+import NotificationService from "@/services/notifications/notificationService";
 import { FerryBookingService } from "@/services/ferryServices/ferryBookingService";
 import { generateAndStorePDF } from "@/utils/generateAndStorePDF";
 
@@ -97,9 +97,9 @@ export async function GET(req: NextRequest) {
     const existingPhonepeData = (paymentRecord as any).phonepeData || {};
 
     // v2 API: state is SUCCESS/FAILED/PENDING/EXPIRED, also accept COMPLETED for backward compatibility
-    const isSuccess = statusResponse.state === "SUCCESS" || 
-                     statusResponse.state === "COMPLETED" || 
-                     statusResponse.success;
+    const isSuccess = statusResponse.state === "SUCCESS" ||
+      statusResponse.state === "COMPLETED" ||
+      statusResponse.success;
     const isFailed = statusResponse.state === "FAILED" || statusResponse.state === "EXPIRED";
 
     await payload.update({
@@ -127,10 +127,19 @@ export async function GET(req: NextRequest) {
           paymentRecord.id
         );
 
-        // Send confirmation notifications (skip for now, can be enabled later)
-        // if (bookingResult.success) {
-        //   await NotificationManager.sendBookingConfirmation(...);
-        // }
+        // Send confirmation notifications
+        if (bookingResult.success && bookingResult.booking) {
+          try {
+            console.log("Sending booking confirmation notifications...");
+            const notificationResult = await NotificationService.sendBookingConfirmation(
+              bookingResult.booking.id
+            );
+            console.log("Notification results:", notificationResult);
+          } catch (notifError) {
+            console.error("Failed to send notifications:", notifError);
+            // Don't fail the booking if notifications fail
+          }
+        }
 
         return NextResponse.json({
           success: true,
@@ -454,16 +463,16 @@ async function processBooking(
         pricing: {
           subtotal: ferryItem.price,
           baseFare: ferryItem.selectedClass?.pricing?.basePrice ||
-                    ferryItem.ferry?.selectedClass?.pricing?.basePrice ||
-                    ferryItem.price,
+            ferryItem.ferry?.selectedClass?.pricing?.basePrice ||
+            ferryItem.price,
           taxes: ferryItem.selectedClass?.pricing?.taxes ||
-                 ferryItem.ferry?.selectedClass?.pricing?.taxes || 0,
+            ferryItem.ferry?.selectedClass?.pricing?.taxes || 0,
           fees: ferryItem.selectedClass?.pricing?.fees ||
-                ferryItem.ferry?.selectedClass?.pricing?.fees || 0,
+            ferryItem.ferry?.selectedClass?.pricing?.fees || 0,
           utgst: 0, // UTGST typically 0% for ferry services
           cgst: 0,  // CGST typically 0% for ferry services
           psf: ferryItem.selectedClass?.pricing?.fees ||
-               ferryItem.ferry?.selectedClass?.pricing?.fees || 0, // PSF is usually the fees
+            ferryItem.ferry?.selectedClass?.pricing?.fees || 0, // PSF is usually the fees
           totalAmount: ferryItem.price,
           currency: "INR",
           hsnCode: "996411", // HSN/SAC code for passenger transport by waterways

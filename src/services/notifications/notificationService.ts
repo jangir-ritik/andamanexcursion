@@ -15,8 +15,8 @@ export interface NotificationPreferences {
 }
 
 // Legacy interfaces for backward compatibility
-export interface BookingData extends BookingConfirmationData {}
-export interface BookingStatusUpdate extends BookingStatusUpdateData {}
+export interface BookingData extends BookingConfirmationData { }
+export interface BookingStatusUpdate extends BookingStatusUpdateData { }
 
 export class NotificationService {
   /**
@@ -146,9 +146,8 @@ export class NotificationService {
           collection: "bookings",
           id: bookingId,
           data: {
-            internalNotes: `${
-              booking.internalNotes || ""
-            }\nStatus changed: ${oldStatus} → ${newStatus} (${new Date().toISOString()})`,
+            internalNotes: `${booking.internalNotes || ""
+              }\nStatus changed: ${oldStatus} → ${newStatus} (${new Date().toISOString()})`,
           },
         });
       } catch (logError) {
@@ -195,7 +194,7 @@ export class NotificationService {
 
       const preferences: NotificationPreferences = {
         sendEmailUpdates: true,
-        sendWhatsAppUpdates: false, // Payment failures typically only via email
+        sendWhatsAppUpdates: true, // Enable WhatsApp for payment failures
         language: "en",
       };
 
@@ -330,61 +329,61 @@ export class NotificationService {
   /**
    * Transform booking record to email data format
    */
-private static transformBookingToEmailData(
-  booking: any
-): BookingConfirmationData {
-  // Extract ferry details for better WhatsApp formatting
-  const ferryItems = booking.ferries || [];
-  const activityItems = booking.activities || [];
-  
-  // Determine booking type
-  let bookingType: "ferry" | "activity" | "mixed" = "mixed";
-  if (ferryItems.length > 0 && activityItems.length === 0) {
-    bookingType = "ferry";
-  } else if (activityItems.length > 0 && ferryItems.length === 0) {
-    bookingType = "activity";
-  }
+  private static transformBookingToEmailData(
+    booking: any
+  ): BookingConfirmationData {
+    // Extract ferry details for better WhatsApp formatting
+    const ferryItems = booking.ferries || [];
+    const activityItems = booking.activities || [];
 
-  return {
-    bookingId: booking.bookingId || "",
-    confirmationNumber: booking.confirmationNumber || "",
-    customerName: booking.customerInfo?.primaryContactName || "",
-    customerEmail: booking.customerInfo?.customerEmail || "",
-    bookingDate: booking.bookingDate,
-    serviceDate:
-      activityItems[0]?.serviceDate ||
-      ferryItems[0]?.serviceDate,
-    totalAmount: booking.pricing.totalAmount,
-    currency: booking.pricing.currency || "INR",
-    bookingType: bookingType,
-    items: [
-      // Transform activities
-      ...(activityItems.map((activity: any) => ({
-        title: activity.activityBooking?.activity?.title || "Activity",
-        date: activity.serviceDate || "",
-        time: activity.serviceTime || "",
-        location: activity.activityBooking?.activity?.location?.name,
-        passengers: activity.passengersCount,
-      }))),
-      // Transform ferries - clean up title
-      ...(ferryItems.map((ferry: any) => ({
-        title: ferry.ferryBooking?.ferry?.name || "Ferry Service",
-        date: ferry.serviceDate || "",
-        time: ferry.departureTime || "",
-        location: `${ferry.fromLocation} → ${ferry.toLocation}`,
-        passengers: ferry.passengersCount,
-      }))),
-    ],
-    passengers:
-      booking.passengers?.map((passenger: any) => ({
-        fullName: passenger.fullName,
-        age: passenger.age,
-        gender: passenger.gender,
-      })) || [],
-    specialRequests: booking.specialRequests,
-    contactPhone: this.formatPhoneNumber(booking.customerInfo.customerPhone),
-  };
-}
+    // Determine booking type
+    let bookingType: "ferry" | "activity" | "mixed" = "mixed";
+    if (ferryItems.length > 0 && activityItems.length === 0) {
+      bookingType = "ferry";
+    } else if (activityItems.length > 0 && ferryItems.length === 0) {
+      bookingType = "activity";
+    }
+
+    return {
+      bookingId: booking.bookingId || "",
+      confirmationNumber: booking.confirmationNumber || "",
+      customerName: booking.customerInfo?.primaryContactName || "",
+      customerEmail: booking.customerInfo?.customerEmail || "",
+      bookingDate: booking.bookingDate,
+      serviceDate:
+        activityItems[0]?.serviceDate ||
+        ferryItems[0]?.serviceDate,
+      totalAmount: booking.pricing.totalAmount,
+      currency: booking.pricing.currency || "INR",
+      bookingType: bookingType,
+      items: [
+        // Transform activities
+        ...(activityItems.map((activity: any) => ({
+          title: activity.activityBooking?.activity?.title || "Activity",
+          date: activity.serviceDate || "",
+          time: activity.serviceTime || "",
+          location: activity.activityBooking?.activity?.location?.name,
+          passengers: activity.passengersCount,
+        }))),
+        // Transform ferries - clean up title
+        ...(ferryItems.map((ferry: any) => ({
+          title: ferry.ferryBooking?.ferry?.name || "Ferry Service",
+          date: ferry.serviceDate || "",
+          time: ferry.departureTime || "",
+          location: `${ferry.fromLocation} → ${ferry.toLocation}`,
+          passengers: ferry.passengersCount,
+        }))),
+      ],
+      passengers:
+        booking.passengers?.map((passenger: any) => ({
+          fullName: passenger.fullName,
+          age: passenger.age,
+          gender: passenger.gender,
+        })) || [],
+      specialRequests: booking.specialRequests,
+      contactPhone: this.formatPhoneNumber(booking.customerInfo.customerPhone),
+    };
+  }
 
   private static formatPhoneNumber(phone: string): string {
     if (!phone) return "";
@@ -408,7 +407,7 @@ private static transformBookingToEmailData(
     try {
       const preferences: NotificationPreferences = {
         sendEmailUpdates: true,
-        sendWhatsAppUpdates: false, // Typically enquiries are confirmed via email
+        sendWhatsAppUpdates: true, // Enable WhatsApp for enquiry confirmations
         language: "en",
       };
 

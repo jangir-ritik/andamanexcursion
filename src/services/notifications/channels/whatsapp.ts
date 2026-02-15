@@ -19,7 +19,10 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   name = "whatsapp";
   private client: plivo.Client | null = null;
 
-  // Approved Plivo template names
+  // Support phone number for all templates
+  private readonly SUPPORT_PHONE = "+91-8107664041";
+
+  // Approved Plivo template names (Meta-approved)
   private readonly templates = {
     booking_confirmation: "copy_booking_conformation_hx3a96db396e8ce0dee85b1c9cb6f7ec18",
     booking_status_update: "status_update_template_hx9e2ef803ef033cc9e572cd096e77a486",
@@ -107,11 +110,11 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         "",
         {
           type: "whatsapp",
-          template: JSON.stringify({
+          template: {
             name: template.name,
             language: template.language,
             components: template.components,
-          }),
+          },
         }
       );
 
@@ -172,6 +175,15 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private bookingConfirmationTemplate(data: BookingConfirmationData) {
+    // Template requires 10 parameters as per WhatsApp Manager screenshot
+    const firstItem = data.items[0] || {};
+    const route = firstItem.location || `${data.bookingType} Booking`;
+    const date = new Date(firstItem.date || data.bookingDate).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+
     return {
       name: this.templates.booking_confirmation,
       language: "en",
@@ -179,17 +191,16 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         {
           type: "body",
           parameters: [
-            { type: "text", text: data.customerName },
-            { type: "text", text: data.confirmationNumber },
-            { type: "text", text: data.bookingType },
-            { type: "text", text: data.items[0]?.title || "" },
-            {
-              type: "text",
-              text: new Date(data.items[0]?.date || data.bookingDate).toLocaleDateString("en-IN"),
-            },
-            { type: "text", text: data.items[0]?.time || "" },
-            { type: "text", text: (data.items[0]?.passengers || 1).toString() },
-            { type: "text", text: `₹${data.totalAmount.toLocaleString()}` },
+            { type: "text", text: data.customerName }, // {{1}} Customer Name
+            { type: "text", text: data.confirmationNumber }, // {{2}} Booking ID
+            { type: "text", text: route }, // {{3}} Route/Title
+            { type: "text", text: date }, // {{4}} Date
+            { type: "text", text: firstItem.time || "--" }, // {{5}} Departure Time
+            { type: "text", text: (firstItem.passengers || 1).toString() }, // {{6}} Passengers
+            { type: "text", text: "Premium" }, // {{7}} Class/Seat
+            { type: "text", text: `₹${data.totalAmount.toLocaleString("en-IN")}` }, // {{8}} Amount
+            { type: "text", text: "1 hour" }, // {{9}} Arrival Time
+            { type: "text", text: this.SUPPORT_PHONE }, // {{10}} Support Phone
           ],
         },
       ],
@@ -197,6 +208,23 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private statusUpdateTemplate(data: BookingStatusUpdateData) {
+    // Get status emoji based on new status
+    const getStatusEmoji = (status: string): string => {
+      const lowerStatus = status.toLowerCase();
+      if (lowerStatus.includes('cancel')) return '❌';
+      if (lowerStatus.includes('complet')) return '✅';
+      if (lowerStatus.includes('confirm')) return '✅';
+      return '🔄';
+    };
+
+    const statusText = data.newStatus.charAt(0).toUpperCase() + data.newStatus.slice(1);
+    const statusEmoji = getStatusEmoji(data.newStatus);
+    const updateDate = new Date(data.updateDate).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+
     return {
       name: this.templates.booking_status_update,
       language: "en",
@@ -204,10 +232,15 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         {
           type: "body",
           parameters: [
-            { type: "text", text: data.customerName },
-            { type: "text", text: data.confirmationNumber },
-            { type: "text", text: `${data.oldStatus} → ${data.newStatus}` },
-            { type: "text", text: data.message || "Status updated successfully" },
+            { type: "text", text: statusText }, // {{1}} Status text
+            { type: "text", text: statusEmoji }, // {{2}} Status emoji
+            { type: "text", text: data.customerName }, // {{3}} Customer Name
+            { type: "text", text: data.confirmationNumber }, // {{4}} Confirmation Number
+            { type: "text", text: data.oldStatus }, // {{5}} Old Status
+            { type: "text", text: data.newStatus }, // {{6}} New Status
+            { type: "text", text: updateDate }, // {{7}} Date
+            { type: "text", text: data.message || "Your booking status has been updated." }, // {{8}} Custom message
+            { type: "text", text: this.SUPPORT_PHONE }, // {{9}} Support phone
           ],
         },
       ],
@@ -215,6 +248,12 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private reminderTemplate(data: BookingStatusUpdateData) {
+    const reminderDate = new Date(data.updateDate).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
     return {
       name: this.templates.booking_reminder,
       language: "en",
@@ -222,16 +261,11 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         {
           type: "body",
           parameters: [
-            { type: "text", text: data.customerName },
-            { type: "text", text: data.confirmationNumber },
-            {
-              type: "text",
-              text: new Date(data.updateDate).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              }),
-            },
+            { type: "text", text: data.customerName }, // {{1}} Customer Name
+            { type: "text", text: data.confirmationNumber }, // {{2}} Confirmation Number
+            { type: "text", text: reminderDate }, // {{3}} Date
+            { type: "text", text: "⛵" }, // {{4}} Closing emoji
+            { type: "text", text: this.SUPPORT_PHONE }, // {{5}} Support phone
           ],
         },
       ],
@@ -246,9 +280,10 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         {
           type: "body",
           parameters: [
-            { type: "text", text: data.customerName },
-            { type: "text", text: `₹${data.attemptedAmount.toLocaleString()}` },
-            { type: "text", text: data.failureReason || "Payment processing error" },
+            { type: "text", text: data.customerName }, // {{1}} Customer Name
+            { type: "text", text: `₹${data.attemptedAmount.toLocaleString("en-IN")}` }, // {{2}} Amount
+            { type: "text", text: data.failureReason || "Payment processing error" }, // {{3}} Failure Reason
+            { type: "text", text: this.SUPPORT_PHONE }, // {{4}} Support phone
           ],
         },
       ],
@@ -256,6 +291,12 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private enquiryConfirmationTemplate(data: EnquiryData) {
+    const submissionDate = new Date(data.submissionDate || Date.now()).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
     return {
       name: this.templates.enquiry_confirmation,
       language: "en",
@@ -263,9 +304,12 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
         {
           type: "body",
           parameters: [
-            { type: "text", text: data.fullName },
-            { type: "text", text: data.enquiryId },
-            { type: "text", text: data.selectedPackage || "General Enquiry" },
+            { type: "text", text: data.fullName }, // {{1}} Customer Name
+            { type: "text", text: data.enquiryId }, // {{2}} Enquiry ID
+            { type: "text", text: data.selectedPackage || "General Enquiry" }, // {{3}} Selected Package
+            { type: "text", text: submissionDate }, // {{4}} Submission Date
+            { type: "text", text: "🌴" }, // {{5}} Closing emoji
+            { type: "text", text: this.SUPPORT_PHONE }, // {{6}} Support phone
           ],
         },
       ],
