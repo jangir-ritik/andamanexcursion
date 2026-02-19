@@ -83,6 +83,18 @@ export default function ActivitiesSearchPageRQ() {
 const ActivityCartContent = React.memo(() => {
   const { cart } = useActivityRQ();
 
+  // Scroll to cart when items are added
+  const prevCartLengthRef = useRef(cart.length);
+  useEffect(() => {
+    if (cart.length > prevCartLengthRef.current) {
+      const cartElement = document.getElementById("cart-section");
+      if (cartElement) {
+        cartElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+    prevCartLengthRef.current = cart.length;
+  }, [cart.length]);
+
   // Optimized scroll handler
   const handleAddMore = useCallback(() => {
     const formElement = document.getElementById("booking-form-section");

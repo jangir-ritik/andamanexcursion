@@ -1,7 +1,7 @@
 // src/app/activities/search/page.tsx (Server Component)
 import React, { Suspense } from "react";
 import { Metadata } from "next";
-import { activityCategoryApi } from "@/services/api/activityCategories";
+import { getCachedPayload } from "@/services/payload/base/client";
 import { getImageUrl } from "@/utils/getImageUrl";
 import ActivitiesSearchPageRQ from "./page-client";
 
@@ -46,11 +46,17 @@ export async function generateMetadata({
       "Find and book exciting activities in the Andaman Islands";
     let keywords = "andaman activities, booking, water sports, adventure";
 
-    // Get category details for better SEO
+    // Get category details for better SEO using Payload Local API
     let categoryData = null;
     if (activityType) {
       try {
-        categoryData = await activityCategoryApi.getBySlug(activityType);
+        const payload = await getCachedPayload();
+        const result = await payload.find({
+          collection: "activity-categories",
+          where: { slug: { equals: activityType } },
+          limit: 1,
+        });
+        categoryData = result.docs[0] || null;
       } catch (error) {
         console.error("Error fetching category for metadata:", error);
       }
