@@ -27,6 +27,7 @@ interface FerrySummaryProps {
   searchParams: FerrySearchParams;
   onBack: () => void;
   onCheckout: () => void;
+  termsAccepted?: boolean;
 }
 
 export const FerrySummary: React.FC<FerrySummaryProps> = ({
@@ -36,6 +37,7 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
   searchParams,
   onBack,
   onCheckout,
+  termsAccepted = false,
 }) => {
   const totalPassengers = searchParams.adults + searchParams.children;
   // Use structured pricing to calculate correct totals
@@ -170,14 +172,21 @@ export const FerrySummary: React.FC<FerrySummaryProps> = ({
 
         {/* Action Button */}
         {selectedClass ? (
-          <Button
-            variant="primary"
-            size="large"
-            onClick={onCheckout}
-            className={styles.checkoutBtn}
-          >
-            Proceed to Checkout
-          </Button>
+          termsAccepted ? (
+            <Button
+              variant="primary"
+              size="large"
+              onClick={onCheckout}
+              className={styles.checkoutBtn}
+            >
+              Proceed to Checkout
+            </Button>
+          ) : (
+            <div className={styles.prompt}>
+              <AlertCircle size={16} />
+              <span>Please accept the Terms & Conditions to proceed</span>
+            </div>
+          )
         ) : (
           <div className={styles.prompt}>
             <AlertCircle size={16} />
