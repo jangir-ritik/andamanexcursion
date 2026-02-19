@@ -48,8 +48,7 @@ export const Select = ({
             className={styles.selectValue}
           />
           <ChevronDown
-            size={20}
-            color="var(----color-primary)"
+            size={16}
             className={cn(styles.selectIcon, styles.textPrimary)}
           />
           {/* Inline error message inside the border */}

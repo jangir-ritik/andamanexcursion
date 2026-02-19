@@ -685,7 +685,7 @@ export class CheckoutAdapter {
     const breakdown: { name: string; age: number; price: number; needsTicket: boolean; needsSeat: boolean }[] = [];
 
     members.forEach((member) => {
-      const age = member.age;
+      const age = Number(member.age) || 0;
       const isInfant = age < 2;
       const price = isInfant ? 0 : basePrice;
       const needsTicket = !isInfant;

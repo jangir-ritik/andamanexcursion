@@ -140,7 +140,7 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
   // Add checkout protection for step 1
 
   // Create form defaults
-  const defaultValues = useMemo((): FormData => {
+  const defaultValues = useMemo(() => {
     console.log("🔍 Creating default values with requirements:", requirements);
     console.log("🔍 Total Required Passengers:", requirements.totalRequired);
 
@@ -150,8 +150,8 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
       return {
         members: formData.members.map((member) => ({
           fullName: member.fullName || "",
-          age: member.age || 25,
-          gender: (member.gender as "Male" | "Female" | "Other") || "Male",
+          age: member.age || ("" as unknown as number),
+          gender: member.gender || ("" as unknown as "Male"),
           nationality: member.nationality || "Indian",
           passportNumber: member.passportNumber || undefined,
           whatsappNumber: member.whatsappNumber || "",
@@ -176,11 +176,8 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
       { length: requirements.totalRequired },
       (_, i) => ({
         fullName: "",
-        age:
-          i === 0
-            ? DEFAULT_VALUES.PRIMARY_MEMBER_AGE
-            : DEFAULT_VALUES.CHILD_AGE,
-        gender: DEFAULT_VALUES.GENDER,
+        age: "" as unknown as number,
+        gender: "" as unknown as "Male",
         nationality: DEFAULT_VALUES.NATIONALITY,
         passportNumber: undefined,
         whatsappNumber: i === 0 ? "" : undefined,
@@ -321,8 +318,8 @@ export const MemberDetailsStep: React.FC<MemberDetailsStepProps> = ({
     if (fields.length < requirements.totalRequired) {
       append({
         fullName: "",
-        age: DEFAULT_VALUES.CHILD_AGE,
-        gender: DEFAULT_VALUES.GENDER,
+        age: "" as unknown as number,
+        gender: "" as unknown as "Male",
         nationality: DEFAULT_VALUES.NATIONALITY,
         passportNumber: undefined,
         phoneCountryCode: DEFAULT_VALUES.PHONE_COUNTRY_CODE,
