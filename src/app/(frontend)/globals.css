@@ -193,9 +193,15 @@ input[type="checkbox"] {
   display: none !important;
 }
 
-/* Override react-datepicker positioning to prevent shifts */
-.react-datepicker-popper[data-placement] {
+/* Force datepicker to always appear below the input - override any data-placement */
+.react-datepicker-popper[data-placement],
+.react-datepicker-popper[data-placement^="top"],
+.react-datepicker-popper[data-placement^="left"],
+.react-datepicker-popper[data-placement^="right"] {
   will-change: transform;
+  /* Reset any negative Y transforms that flip the calendar above */
+  margin-top: 4px !important;
+  margin-bottom: 0 !important;
 }
 
 /* Ensure consistent positioning */
@@ -212,3 +218,4 @@ input[type="checkbox"] {
   overflow: hidden !important;
   opacity: 0 !important;
 }
+

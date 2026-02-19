@@ -272,7 +272,7 @@ export function BoatSearchClient({
         </Column>
       </Section>
 
-      {/* Cart Section - "No boats selected yet" */}
+      {/* Cart Section - "Your Selection" - Above results */}
       <Section id="cart-section" className={styles.cartSection}>
         <Row gap="var(--space-3)" fullWidth className={styles.cartColumn}>
           <Suspense

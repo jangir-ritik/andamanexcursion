@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -29,6 +29,21 @@ export const DateSelect = ({
   const inputId = React.useId();
   const errorId = React.useId();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  // Close calendar immediately when the page is scrolled
+  const handleScroll = useCallback(() => {
+    if (isCalendarOpen) {
+      setIsCalendarOpen(false);
+    }
+  }, [isCalendarOpen]);
+
+  useEffect(() => {
+    if (isCalendarOpen) {
+      window.addEventListener("scroll", handleScroll, true);
+      return () => window.removeEventListener("scroll", handleScroll, true);
+    }
+  }, [isCalendarOpen, handleScroll]);
 
   // Calculate minimum date based on minDaysFromNow (null if allowPastDates is true)
   const minDate = React.useMemo(() => {
@@ -111,6 +126,9 @@ export const DateSelect = ({
             aria-invalid={hasError ? "true" : "false"}
             popperClassName="react-datepicker-popper"
             popperPlacement="bottom-start"
+            open={isCalendarOpen}
+            onCalendarOpen={() => setIsCalendarOpen(true)}
+            onCalendarClose={() => setIsCalendarOpen(false)}
             popperProps={{
               strategy: "fixed",
             }}

@@ -13,6 +13,8 @@
 
 .heroImage {
   border-radius: var(--radius-xl);
+  flex-shrink: 0;
+  height: auto;
 }
 
 /* When the hero row wraps */
