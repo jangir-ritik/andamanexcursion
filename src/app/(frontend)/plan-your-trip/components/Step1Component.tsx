@@ -199,6 +199,7 @@ export const Step1Component: React.FC<Step1ComponentProps> = ({ form }) => {
                 !!errors.tripDetails?.adults || !!errors.tripDetails?.children
               }
               className={styles.passengerCounter}
+              hideInfants
             />
           </div>
         </div>

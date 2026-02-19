@@ -35,6 +35,7 @@ export default function SimplifiedFerryBookingPage() {
   // Alert dialog state
   const [showValidationAlert, setShowValidationAlert] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Client state from Zustand
   const {
@@ -220,6 +221,29 @@ export default function SimplifiedFerryBookingPage() {
               passengers={totalPassengers}
               onRefreshLayout={refreshLayout}
             />
+
+            {/* Terms & Conditions */}
+            {selectedClass && (
+              <div className={styles.termsSection}>
+                <h3 className={styles.termsTitle}>Terms & Conditions</h3>
+                <ul className={styles.termsList}>
+                  <li>Cancellation 48 hours or more before ferry departure: Rs 250 per ticket</li>
+                  <li>Cancellation between 24 and 48 hours before departure: 50% of the ticket price</li>
+                  <li>Cancellation within 24 hours of departure: 100% of the ticket price</li>
+                  <li>Date change is subject to availability and may incur additional charges</li>
+                  <li>Passengers must carry a valid government-issued photo ID during travel</li>
+                </ul>
+                <label className={styles.termsCheckboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className={styles.termsCheckbox}
+                  />
+                  <span>I agree with the <strong>Terms & Conditions</strong></span>
+                </label>
+              </div>
+            )}
           </div>
 
           <div className={styles.rightColumn}>
@@ -230,6 +254,7 @@ export default function SimplifiedFerryBookingPage() {
               searchParams={ferrySearchParams}
               onBack={handleBackToResults}
               onCheckout={handleProceedToCheckout}
+              termsAccepted={termsAccepted}
             />
           </div>
         </div>

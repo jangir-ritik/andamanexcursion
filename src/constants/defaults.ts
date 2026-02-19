@@ -3,12 +3,12 @@
 export const DEFAULT_VALUES = {
   // User defaults
   NATIONALITY: "Indian",
-  GENDER: "Male",
+  GENDER: "",
   PHONE_COUNTRY_CODE: "+91",
   PHONE_COUNTRY: "India",
   
   // Age defaults
-  PRIMARY_MEMBER_AGE: 25,
+  PRIMARY_MEMBER_AGE: "",
   CHILD_AGE: 12,
   INFANT_MAX_AGE: 2,
   

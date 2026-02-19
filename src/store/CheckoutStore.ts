@@ -8,7 +8,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 export interface MemberDetails {
   id: string;
   fullName: string;
-  age: number;
+  age: number | "";
   gender: "Male" | "Female" | "Other" | "";
   nationality: string;
   passportNumber?: string; // Optional since only foreign passengers need it
@@ -153,7 +153,7 @@ export const createDefaultFormData = (
     members.push({
       id: generateMemberId(),
       fullName: "",
-      age: i === 0 ? 25 : 12, // First member adult, others children by default
+      age: "", // Empty by default - user must select
       gender: "",
       nationality: "Indian",
       passportNumber: undefined,
