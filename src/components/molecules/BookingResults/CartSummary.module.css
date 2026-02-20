@@ -23,8 +23,7 @@
   user-select: none;
   transition: background-color 0.2s ease;
   border-radius: var(--radius-base);
-  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-4)
-    calc(var(--space-4) * -1);
+  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-4) calc(var(--space-4) * -1);
   padding: var(--space-4);
 }
 
@@ -515,61 +514,13 @@
   transition: opacity 0.2s ease;
 }
 
-/* Enhanced Summary */
-.enhancedSummary {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-light) 0%,
-    var(--color-bg-secondary) 100%
-  );
-  border-radius: var(--radius-md);
-  padding: var(--space-5);
-  margin-bottom: var(--space-6);
-  border: 1px solid var(--color-primary-light);
-}
-
-.summaryContent {
+/* Trust Signals Row */
+.trustSignalsRow {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-4);
-  text-align: center;
-}
-
-.totalSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.totalLabel {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-1);
-}
-
-.totalAmount {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-1);
-}
-
-.guestSummary {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
-.trustSignals {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .trustItem {
@@ -577,14 +528,16 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--color-alert-success);
-  margin-bottom: var(--space-1);
+  margin: 0;
 }
 
 .trustSubtext {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  margin: 0;
 }
+
 /* Enhanced Action Section */
 .actionSection {
   display: flex;
@@ -744,6 +697,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -919,6 +873,7 @@
     padding: var(--space-2);
     font-size: var(--font-size-xs);
   }
+
   .inlineEditActions {
     flex-direction: column;
     gap: var(--space-2);
@@ -1170,6 +1125,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   .cartItem,
   .expandedDetails,
   .cartContent,

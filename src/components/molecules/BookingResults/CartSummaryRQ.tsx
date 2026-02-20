@@ -296,9 +296,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
 
       {/* Cart Content */}
       <div
-        className={`${styles.cartContent} ${
-          isCollapsed ? styles.collapsed : ""
-        }`}
+        className={`${styles.cartContent} ${isCollapsed ? styles.collapsed : ""
+          }`}
       >
         <div className={styles.cartItems}>
           {cart.map((item) => {
@@ -310,9 +309,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
             return (
               <div
                 key={item.id}
-                className={`${styles.cartItem} ${
-                  isEditingThisItem ? styles.editing : ""
-                }`}
+                className={`${styles.cartItem} ${isEditingThisItem ? styles.editing : ""
+                  }`}
               >
                 {/* Mobile Compact View */}
                 <div className={styles.mobileCompactView}>
@@ -324,7 +322,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                             typeof activity.media.featuredImage === "string"
                               ? activity.media.featuredImage
                               : activity.media.featuredImage?.url ||
-                                "/placeholder.jpg"
+                              "/placeholder.jpg"
                           }
                           alt={activity.title}
                           className={styles.compactImage}
@@ -404,9 +402,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
 
                   {/* Expanded Mobile Details */}
                   <div
-                    className={`${styles.expandedDetails} ${
-                      isExpanded ? styles.expanded : ""
-                    }`}
+                    className={`${styles.expandedDetails} ${isExpanded ? styles.expanded : ""
+                      }`}
                   >
                     <div className={styles.mobileDetails}>
                       <div className={styles.detailRow}>
@@ -415,8 +412,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                           {typeof activity.coreInfo.location === "string"
                             ? activity.coreInfo.location
                             : typeof activity.coreInfo.location[0] === "string"
-                            ? activity.coreInfo.location[0]
-                            : activity.coreInfo.location[0]?.name ||
+                              ? activity.coreInfo.location[0]
+                              : activity.coreInfo.location[0]?.name ||
                               "Unknown Location"}
                         </span>
                       </div>
@@ -449,7 +446,7 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                             typeof activity.media.featuredImage === "string"
                               ? activity.media.featuredImage
                               : activity.media.featuredImage?.url ||
-                                "/placeholder.jpg"
+                              "/placeholder.jpg"
                           }
                           alt={activity.title}
                           className={styles.activityImage}
@@ -478,8 +475,8 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                           {typeof activity.coreInfo.location === "string"
                             ? activity.coreInfo.location
                             : typeof activity.coreInfo.location[0] === "string"
-                            ? activity.coreInfo.location[0]
-                            : activity.coreInfo.location[0]?.name ||
+                              ? activity.coreInfo.location[0]
+                              : activity.coreInfo.location[0]?.name ||
                               "Unknown Location"}
                         </span>
                       </div>
@@ -597,11 +594,10 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
                             {editingTimeSlots.map((slot) => (
                               <button
                                 key={slot.value}
-                                className={`${styles.timeSlotButton} ${
-                                  searchParams.time === slot.value
+                                className={`${styles.timeSlotButton} ${searchParams.time === slot.value
                                     ? styles.selected
                                     : ""
-                                }`}
+                                  }`}
                                 onClick={() =>
                                   handleTimeChange(item.id, slot.value)
                                 }
@@ -665,21 +661,10 @@ export const CartSummaryRQ: React.FC<CartSummaryProps> = ({
           })}
         </div>
 
-        {/* Enhanced Summary */}
-        <div className={styles.enhancedSummary}>
-          <div className={styles.summaryContent}>
-            <div className={styles.totalSection}>
-              <p className={styles.totalLabel}>Total Amount</p>
-              <h3 className={styles.totalAmount}>
-                ₹{totalPrice.toLocaleString()}
-              </h3>
-              <p className={styles.guestSummary}>For {totalGuests} guests</p>
-            </div>
-            <div className={styles.trustSignals}>
-              <p className={styles.trustItem}>✓ Instant Confirmation</p>
-              <p className={styles.trustSubtext}>Free cancellation</p>
-            </div>
-          </div>
+        {/* Trust Signals Row */}
+        <div className={styles.trustSignalsRow}>
+          <p className={styles.trustItem}>✓ Instant Confirmation</p>
+          <p className={styles.trustSubtext}>Free cancellation</p>
         </div>
 
         {/* Action Section */}

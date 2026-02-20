@@ -53,12 +53,6 @@ export const TripRoute: React.FC<TripRouteProps> = ({ id, content }) => {
             aria-labelledby="trip-route-title"
         >
             <div className={styles.content}>
-                <div className={styles.titleWrapper}>
-                    <h2 id="trip-route-title" className={styles.title}>
-                        {renderTitle()}
-                    </h2>
-                </div>
-
                 {description && <p className={styles.description}>{description}</p>}
 
                 <div className={styles.mapContainer}>

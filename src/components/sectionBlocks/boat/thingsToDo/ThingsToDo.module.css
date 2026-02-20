@@ -4,22 +4,6 @@
     overflow: hidden;
 }
 
-/* Decorative dashed curve */
-.decorativeCurve {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.decorativeCurve svg {
-    width: 100%;
-    height: 100%;
-}
-
 .content {
     position: relative;
     z-index: 1;
@@ -28,25 +12,30 @@
     padding: 0 var(--space-4);
 }
 
-/* Image Collage Grid */
+/*
+ * Figma layout (1440px page, 1200px content area):
+ *   Left image:   321×424  at (122, 961)  border-radius: 20px 60px
+ *   Title:        394×152  at (522, 935)
+ *   Center image: 484×252  at (478, 1171) border-radius: 60px 20px
+ *   Right image:  322×442  at (997, 878)  border-radius: 20px 60px
+ *
+ * Right image is highest, left is 83px lower, title is 57px below right.
+ */
 .collageGrid {
     display: grid;
-    grid-template-columns: 1fr 1.4fr 1fr;
-    grid-template-rows: auto;
-    gap: var(--space-4);
-    align-items: center;
-    margin-top: var(--space-8);
+    grid-template-columns: 0.85fr 1.2fr 0.85fr;
+    gap: 20px;
+    align-items: start;
 }
 
-/* Left image - tall portrait */
+/* Left image - portrait, offset 83px below right image */
 .imageLeft {
     position: relative;
-    border-radius: var(--radius-xl);
+    border-radius: 20px 60px;
     overflow: hidden;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 321 / 424;
     width: 100%;
-    height: 100%;
-    max-height: 400px;
+    margin-top: 83px;
 }
 
 /* Center column - title + landscape image */
@@ -54,15 +43,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-5);
-    height: 100%;
+    gap: 80px;
+    margin-top: 100px;
 }
 
 .titleWrapper {
     text-align: center;
     display: flex;
     justify-content: center;
-    padding: var(--space-2) 0;
 }
 
 .sectionTitle {
@@ -74,24 +62,22 @@
     display: block;
 }
 
+/* Center image - landscape, opposite corner pattern */
 .imageCenter {
     position: relative;
-    border-radius: var(--radius-xl);
+    border-radius: 60px 20px;
     overflow: hidden;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 484 / 252;
     width: 100%;
-    flex: 1;
 }
 
-/* Right image - landscape */
+/* Right image - portrait, starts at the top (highest element) */
 .imageRight {
     position: relative;
-    border-radius: var(--radius-xl);
+    border-radius: 20px 60px;
     overflow: hidden;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 322 / 442;
     width: 100%;
-    height: 100%;
-    max-height: 400px;
 }
 
 .image {
@@ -109,21 +95,24 @@
 
     .imageLeft {
         aspect-ratio: 4 / 3;
-        max-height: 280px;
+        margin-top: 0;
+        border-radius: 16px 40px;
     }
 
     .centerColumn {
         grid-column: 1 / -1;
         order: -1;
+        margin-top: 0;
     }
 
     .imageCenter {
         aspect-ratio: 16 / 9;
+        border-radius: 40px 16px;
     }
 
     .imageRight {
         aspect-ratio: 4 / 3;
-        max-height: 280px;
+        border-radius: 16px 40px;
     }
 }
 
@@ -136,7 +125,11 @@
     .imageLeft,
     .imageRight {
         aspect-ratio: 16 / 9;
-        max-height: 220px;
+        border-radius: 12px 32px;
+    }
+
+    .imageCenter {
+        border-radius: 32px 12px;
     }
 
     .title {
