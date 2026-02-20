@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./LocationSelect.module.css";
 import type { LocationSelectProps } from "./LocationSelect.types";
@@ -21,6 +21,22 @@ export const LocationSelect = ({
   placeholder,
   errorMessage,
 }: LocationSelectPropsWithError) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close dropdown immediately on scroll
+  const handleScroll = useCallback(() => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      window.addEventListener("scroll", handleScroll, true);
+      return () => window.removeEventListener("scroll", handleScroll, true);
+    }
+  }, [isOpen, handleScroll]);
+
   // Find the selected location
   const selectedLocation = options.find(
     (loc) => loc.value === value || loc.slug === value || loc.id === value
@@ -33,7 +49,7 @@ export const LocationSelect = ({
 
   return (
     <div className={styles.fieldContainer}>
-      <Select.Root value={value} onValueChange={onChange}>
+      <Select.Root value={value} onValueChange={onChange} open={isOpen} onOpenChange={setIsOpen}>
         <Select.Trigger
           className={cn(
             styles.selectWrapper,
@@ -73,9 +89,9 @@ export const LocationSelect = ({
           <Select.Content
             className={styles.selectContent}
             position="popper"
+            side="bottom"
             sideOffset={8}
-            avoidCollisions={true}
-            collisionPadding={16}
+            avoidCollisions={false}
           >
             <Select.Viewport>
               {options.map((location) => (

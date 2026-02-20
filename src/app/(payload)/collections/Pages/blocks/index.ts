@@ -26,6 +26,8 @@ import { googleTestimonialsBlock } from "./googleTestimonials";
 import { teamSectionBlock } from "./teamSection";
 import { richTextBlock } from "./richText";
 import { pnrLookupBlock } from "./pnrLookup";
+import { thingsToDoBlock } from "./thingsToDo";
+import { tripRouteBlock } from "./tripRoute";
 
 export const contentBlocks: Block[] = [
   richTextBlock,
@@ -54,4 +56,6 @@ export const contentBlocks: Block[] = [
   dynamicCategoryPackagesBlock,
   teamSectionBlock,
   pnrLookupBlock,
+  thingsToDoBlock,
+  tripRouteBlock,
 ];

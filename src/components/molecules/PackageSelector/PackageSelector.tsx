@@ -66,6 +66,15 @@ export const PackageSelector = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close dropdown immediately on scroll
+  useEffect(() => {
+    if (isDropdownOpen) {
+      const handleScroll = () => setIsDropdownOpen(false);
+      window.addEventListener("scroll", handleScroll, true);
+      return () => window.removeEventListener("scroll", handleScroll, true);
+    }
+  }, [isDropdownOpen]);
+
   const handlePackageChange = (packageId: string) => {
     setIsDropdownOpen(false);
 
@@ -167,9 +176,8 @@ export const PackageSelector = ({
               >
                 {/* Add "All Packages" option */}
                 <div
-                  className={`${styles.selectItem} ${
-                    isPackagesIndex ? styles.selected : ""
-                  }`}
+                  className={`${styles.selectItem} ${isPackagesIndex ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setIsDropdownOpen(false);
                     const currentPeriod = getParam("period") || selectedPeriod;
@@ -186,11 +194,10 @@ export const PackageSelector = ({
                 {packageOptions.map((option) => (
                   <div
                     key={option.id}
-                    className={`${styles.selectItem} ${
-                      option.id === (selectedPackage || currentPackageSlug)
+                    className={`${styles.selectItem} ${option.id === (selectedPackage || currentPackageSlug)
                         ? styles.selected
                         : ""
-                    }`}
+                      }`}
                     onClick={() => handlePackageChange(option.id)}
                   >
                     {option.label}

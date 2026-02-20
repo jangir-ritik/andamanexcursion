@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -30,20 +30,40 @@ export const DateSelect = ({
   const errorId = React.useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const scrollHandlerRef = useRef<((e: Event) => void) | null>(null);
 
-  // Close calendar immediately when the page is scrolled
-  const handleScroll = useCallback(() => {
-    if (isCalendarOpen) {
-      setIsCalendarOpen(false);
-    }
-  }, [isCalendarOpen]);
-
+  // Close calendar immediately when the page is scrolled (but not for datepicker's own scrolls)
   useEffect(() => {
-    if (isCalendarOpen) {
-      window.addEventListener("scroll", handleScroll, true);
-      return () => window.removeEventListener("scroll", handleScroll, true);
+    // Clean up previous handler
+    if (scrollHandlerRef.current) {
+      window.removeEventListener("scroll", scrollHandlerRef.current, true);
+      scrollHandlerRef.current = null;
     }
-  }, [isCalendarOpen, handleScroll]);
+
+    if (!isCalendarOpen) return;
+
+    // Small delay so the datepicker's own render events don't immediately close it
+    const timerId = setTimeout(() => {
+      const handler = (e: Event) => {
+        const target = e.target as HTMLElement;
+        // Ignore scroll events from within the datepicker itself
+        if (target?.closest?.(".react-datepicker-popper") || target?.closest?.(".react-datepicker")) {
+          return;
+        }
+        setIsCalendarOpen(false);
+      };
+      scrollHandlerRef.current = handler;
+      window.addEventListener("scroll", handler, true);
+    }, 100);
+
+    return () => {
+      clearTimeout(timerId);
+      if (scrollHandlerRef.current) {
+        window.removeEventListener("scroll", scrollHandlerRef.current, true);
+        scrollHandlerRef.current = null;
+      }
+    };
+  }, [isCalendarOpen]);
 
   // Calculate minimum date based on minDaysFromNow (null if allowPastDates is true)
   const minDate = React.useMemo(() => {

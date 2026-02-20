@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -23,6 +23,22 @@ export const Select = ({
   errorMessage,
   required = false,
 }: SelectPropsWithError) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close dropdown immediately on scroll
+  const handleScroll = useCallback(() => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      window.addEventListener("scroll", handleScroll, true);
+      return () => window.removeEventListener("scroll", handleScroll, true);
+    }
+  }, [isOpen, handleScroll]);
+
   // Find the selected option name
   const selectedOption =
     options.find((opt) => opt.value === value)?.label || "";
@@ -31,7 +47,7 @@ export const Select = ({
 
   return (
     <div className={styles.fieldContainer}>
-      <SelectPrimitive.Root value={value} onValueChange={onChange}>
+      <SelectPrimitive.Root value={value} onValueChange={onChange} open={isOpen} onOpenChange={setIsOpen}>
         <SelectPrimitive.Trigger
           className={cn(
             styles.selectWrapper,
@@ -62,9 +78,9 @@ export const Select = ({
           <SelectPrimitive.Content
             className={styles.selectContent}
             position="popper"
+            side="bottom"
             sideOffset={8}
-            avoidCollisions={true}
-            collisionPadding={16}
+            avoidCollisions={false}
           >
             <SelectPrimitive.Viewport>
               {options.map((option) => (

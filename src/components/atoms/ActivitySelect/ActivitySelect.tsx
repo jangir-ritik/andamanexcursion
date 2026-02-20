@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./ActivitySelect.module.css";
 import type { ActivitySelectProps } from "./ActivitySelect.types";
@@ -22,6 +22,22 @@ export const ActivitySelect = ({
   placeholder,
   errorMessage,
 }: ActivitySelectPropsWithError) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close dropdown immediately on scroll
+  const handleScroll = useCallback(() => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      window.addEventListener("scroll", handleScroll, true);
+      return () => window.removeEventListener("scroll", handleScroll, true);
+    }
+  }, [isOpen, handleScroll]);
+
   // Find the selected activity
   const selectedActivity = options.find(
     (activity) =>
@@ -34,7 +50,7 @@ export const ActivitySelect = ({
 
   return (
     <div className={styles.fieldContainer}>
-      <Select.Root value={value} onValueChange={onChange}>
+      <Select.Root value={value} onValueChange={onChange} open={isOpen} onOpenChange={setIsOpen}>
         <Select.Trigger
           className={cn(
             styles.selectWrapper,
@@ -66,9 +82,9 @@ export const ActivitySelect = ({
           <Select.Content
             className={styles.selectContent}
             position="popper"
+            side="bottom"
             sideOffset={8}
-            avoidCollisions={true}
-            collisionPadding={16}
+            avoidCollisions={false}
           >
             <Select.Viewport>
               {options.map((activity) => (

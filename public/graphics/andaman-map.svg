@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 900" fill="none">
+  <!-- Andaman Islands Map - Stylized -->
+  
+  <!-- Background water texture (subtle) -->
+  <defs>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0f6ff"/>
+      <stop offset="100%" stop-color="#e8f1fc"/>
+    </linearGradient>
+    <linearGradient id="islandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4dce8"/>
+      <stop offset="100%" stop-color="#c2cdd9"/>
+    </linearGradient>
+    <!-- Boat icon -->
+    <symbol id="boat" viewBox="0 0 40 30">
+      <path d="M5 20 L20 8 L35 20 Z" fill="#FF6B35" opacity="0.9"/>
+      <path d="M20 8 L20 25" stroke="#FF6B35" stroke-width="1.5"/>
+      <path d="M8 22 Q20 18 32 22 L30 26 Q20 23 10 26 Z" fill="#FF6B35" opacity="0.7"/>
+    </symbol>
+  </defs>
+
+  <!-- North Andaman Island -->
+  <path d="M200 30 C215 25, 235 30, 245 45 C255 60, 260 80, 255 100 C250 115, 240 125, 235 140 C230 150, 225 155, 220 165 C215 170, 205 175, 200 170 C195 165, 190 155, 185 145 C180 135, 175 120, 178 105 C180 90, 185 75, 188 60 C190 45, 195 35, 200 30Z" 
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+
+  <!-- Middle Andaman Island -->
+  <path d="M210 180 C225 175, 245 180, 255 195 C265 210, 270 230, 268 250 C265 265, 258 280, 250 290 C245 295, 240 300, 235 305 C230 310, 220 312, 215 308 C210 305, 205 295, 200 285 C195 275, 190 260, 192 245 C195 230, 200 215, 205 200 C208 190, 210 180, 210 180Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+
+  <!-- Baratang Island -->
+  <path d="M215 325 C228 320, 240 325, 248 340 C252 350, 250 360, 245 370 C240 377, 230 380, 222 376 C215 372, 210 360, 212 348 C213 338, 215 325, 215 325Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+
+  <!-- South Andaman (Port Blair) - Larger, main island -->
+  <path d="M195 400 C215 390, 245 395, 265 415 C280 430, 290 455, 285 480 C280 500, 270 520, 258 535 C250 545, 240 550, 230 555 C220 558, 208 555, 200 548 C190 540, 182 525, 178 510 C175 495, 175 475, 180 458 C185 440, 190 420, 195 400Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+  
+  <!-- Port Blair label marker -->
+  <circle cx="230" cy="470" r="5" fill="#FF6B35"/>
+  <text x="245" y="475" font-family="sans-serif" font-size="13" font-weight="600" fill="#333">Port Blair</text>
+
+  <!-- Ross Island -->
+  <path d="M305 480 C315 475, 328 478, 332 490 C335 498, 330 508, 322 510 C314 512, 305 507, 303 498 C301 490, 305 480, 305 480Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+  <text x="310" y="528" font-family="sans-serif" font-size="11" fill="#666" text-anchor="middle">Ross Island</text>
+
+  <!-- Havelock Island (Swaraj Dweep) - East of South Andaman -->
+  <path d="M350 370 C370 362, 398 368, 410 390 C418 405, 420 425, 415 440 C410 455, 398 465, 385 468 C372 470, 358 465, 350 455 C342 445, 338 430, 340 415 C342 400, 348 385, 350 370Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+  
+  <!-- Havelock label marker -->
+  <circle cx="380" cy="420" r="5" fill="#FF6B35"/>
+  <text x="380" y="490" font-family="sans-serif" font-size="13" font-weight="600" fill="#333" text-anchor="middle">Havelock Island</text>
+
+  <!-- Neil Island (Shaheed Dweep) -->
+  <path d="M330 530 C345 525, 362 530, 368 545 C372 555, 368 568, 358 573 C348 577, 335 573, 330 562 C326 552, 328 538, 330 530Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+  <text x="350" y="595" font-family="sans-serif" font-size="11" fill="#666" text-anchor="middle">Neil Island</text>
+
+  <!-- North Passage Island (Small) -->
+  <path d="M290 350 C298 346, 308 350, 312 358 C315 365, 310 372, 302 374 C295 375, 288 370, 287 363 C286 356, 290 350, 290 350Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+
+  <!-- Route: Dashed line from Port Blair → Ross Island → Havelock → Neil -->
+  <path d="M235 470 C260 475, 285 485, 315 490" 
+        stroke="#FF6B35" stroke-width="2" stroke-dasharray="6 4" fill="none" opacity="0.7"/>
+  <path d="M315 490 C340 470, 355 450, 375 425" 
+        stroke="#FF6B35" stroke-width="2" stroke-dasharray="6 4" fill="none" opacity="0.7"/>
+  <path d="M375 425 C370 460, 360 510, 350 540" 
+        stroke="#FF6B35" stroke-width="2" stroke-dasharray="6 4" fill="none" opacity="0.7"/>
+
+  <!-- Boat icon on route -->
+  <use href="#boat" x="260" y="460" width="30" height="22"/>
+  <use href="#boat" x="340" y="380" width="30" height="22"/>
+
+  <!-- Little Andaman Island (far south) -->
+  <path d="M180 700 C200 690, 225 695, 235 715 C242 730, 240 750, 232 762 C225 772, 212 776, 200 772 C188 768, 180 755, 178 740 C176 725, 178 710, 180 700Z"
+        fill="url(#islandGrad)" stroke="#b0bec5" stroke-width="0.5"/>
+  <text x="208" y="795" font-family="sans-serif" font-size="11" fill="#666" text-anchor="middle">Little Andaman</text>
+
+  <!-- Compass Rose (top-right) -->
+  <g transform="translate(420, 60)">
+    <circle cx="0" cy="0" r="22" fill="none" stroke="#ccc" stroke-width="0.5"/>
+    <text x="0" y="-28" font-family="sans-serif" font-size="11" fill="#999" text-anchor="middle" font-weight="600">N</text>
+    <line x1="0" y1="-20" x2="0" y2="-10" stroke="#999" stroke-width="1.5"/>
+    <line x1="0" y1="10" x2="0" y2="20" stroke="#ddd" stroke-width="1"/>
+    <line x1="-20" y1="0" x2="-10" y2="0" stroke="#ddd" stroke-width="1"/>
+    <line x1="10" y1="0" x2="20" y2="0" stroke="#ddd" stroke-width="1"/>
+  </g>
+
+  <!-- Bay of Bengal label -->
+  <text x="100" y="650" font-family="sans-serif" font-size="14" fill="#b0bec5" font-style="italic" opacity="0.7">Bay of Bengal</text>
+
+  <!-- Andaman Sea label -->
+  <text x="370" y="280" font-family="sans-serif" font-size="14" fill="#b0bec5" font-style="italic" opacity="0.7" transform="rotate(-70 370 280)">Andaman Sea</text>
+</svg>

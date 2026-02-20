@@ -1,5 +1,5 @@
 "use client";
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useState, useCallback } from "react";
 import * as Select from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import styles from "./SlotSelect.module.css";
@@ -28,6 +28,22 @@ const SlotSelect = memo(
     optional = false,
   }: SlotSelectPropsWithError) => {
     const isDisabled = disabled || isLoading;
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Close dropdown immediately on scroll
+    const handleScroll = useCallback(() => {
+      if (isOpen) {
+        setIsOpen(false);
+      }
+    }, [isOpen]);
+
+    useEffect(() => {
+      if (isOpen) {
+        window.addEventListener("scroll", handleScroll, true);
+        return () => window.removeEventListener("scroll", handleScroll, true);
+      }
+    }, [isOpen, handleScroll]);
+
 
     // Select first slot if value is empty and options exist (only if not disabled)
     useEffect(() => {
@@ -45,8 +61,8 @@ const SlotSelect = memo(
     const displayText = isLoading
       ? "Loading time slots..."
       : selectedSlot
-      ? selectedSlot.label || selectedSlot.time
-      : placeholder || "Select a time slot";
+        ? selectedSlot.label || selectedSlot.time
+        : placeholder || "Select a time slot";
 
     // Create unique ID for the label
     const labelId = React.useId();
@@ -57,6 +73,8 @@ const SlotSelect = memo(
           value={value}
           onValueChange={onChange}
           disabled={isDisabled}
+          open={isOpen}
+          onOpenChange={setIsOpen}
         >
           <Select.Trigger
             className={cn(
@@ -99,9 +117,9 @@ const SlotSelect = memo(
             <Select.Content
               className={styles.selectContent}
               position="popper"
+              side="bottom"
               sideOffset={8}
-              avoidCollisions={true}
-              collisionPadding={16}
+              avoidCollisions={false}
             >
               <Select.Viewport>
                 {options.map((slot) => (

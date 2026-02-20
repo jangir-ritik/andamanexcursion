@@ -37,9 +37,8 @@ export const PassengerCounter = ({
         {/* Adults Counter */}
         <div className={styles.fieldContainer}>
           <div
-            className={`${styles.selectWrapper} ${
-              hasError ? styles.error : ""
-            }`}
+            className={`${styles.selectWrapper} ${hasError ? styles.error : ""
+              }`}
           >
             <span className={styles.selectLabel}>Adults</span>
             <div className={styles.counterInner}>
@@ -70,12 +69,11 @@ export const PassengerCounter = ({
         {!hideChildren && (
           <div className={styles.fieldContainer}>
             <div
-              className={`${styles.selectWrapper} ${
-                hasError ? styles.error : ""
-              }`}
+              className={`${styles.selectWrapper} ${hasError ? styles.error : ""
+                }`}
             >
               <span className={clsx(styles.selectLabel, styles.kidSelectLabel)}>
-                Children
+                Children/Infants
               </span>
               <div className={styles.counterInner}>
                 <button
@@ -106,9 +104,8 @@ export const PassengerCounter = ({
         {!hideInfants && (
           <div className={styles.fieldContainer}>
             <div
-              className={`${styles.selectWrapper} ${
-                hasError ? styles.error : ""
-              }`}
+              className={`${styles.selectWrapper} ${hasError ? styles.error : ""
+                }`}
             >
               <span className={clsx(styles.selectLabel, styles.kidSelectLabel)}>
                 Infants

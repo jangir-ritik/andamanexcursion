@@ -31,6 +31,8 @@ import { FeatureSection } from "@/components/molecules/FeatureSection/FeatureSec
 import { DynamicCategoryPackagesBlock } from "@/components/sectionBlocks/packages/DynamicCategoryPackagesBlock/DynamicCategoryPackagesBlock";
 import { GoogleTestimonials } from "@/components/sectionBlocks/common/googleTestimonials/GoogleTestimonials";
 import TeamSection from "@/components/molecules/TeamSection/TeamSection";
+import { ThingsToDo } from "@/components/sectionBlocks/boat/thingsToDo/ThingsToDo";
+import { TripRoute } from "@/components/sectionBlocks/boat/tripRoute/TripRoute";
 
 const blockComponentsMap = {
   richText: RichTextBlock,
@@ -60,6 +62,8 @@ const blockComponentsMap = {
   dynamicCategoryPackages: DynamicCategoryPackagesBlock,
   teamSection: TeamSection,
   pnrLookup: PnrLookup,
+  thingsToDo: ThingsToDo,
+  tripRoute: TripRoute,
 } as const;
 
 interface BlockRendererProps {
@@ -76,7 +80,7 @@ export function BlockRenderer({ blocks }: BlockRendererProps) {
       {blocks.map((block, index) => {
         const Component =
           blockComponentsMap[
-            block.blockType as keyof typeof blockComponentsMap
+          block.blockType as keyof typeof blockComponentsMap
           ];
 
         if (!Component) {

@@ -2,6 +2,7 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -14,7 +15,8 @@ html {
   width: 100%;
   display: flex;
   scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Account for fixed header */
+  scroll-padding-top: 80px;
+  /* Account for fixed header */
   margin: 0;
   padding: 0;
 }
@@ -179,7 +181,7 @@ input[type="checkbox"] {
   pointer-events: none !important;
 }
 
-.react-datepicker__tab-loop > * {
+.react-datepicker__tab-loop>* {
   pointer-events: auto !important;
 }
 
@@ -204,6 +206,15 @@ input[type="checkbox"] {
   margin-bottom: 0 !important;
 }
 
+/* Override top placement - force calendar below when it tries to flip above */
+.react-datepicker-popper[data-placement^="top"] {
+  /* Remove top-flipped transform and force below trigger */
+  inset: auto auto auto 0 !important;
+  transform: none !important;
+  top: 100% !important;
+  position: absolute !important;
+}
+
 /* Ensure consistent positioning */
 .react-datepicker__input-container {
   position: relative;
@@ -218,4 +229,3 @@ input[type="checkbox"] {
   overflow: hidden !important;
   opacity: 0 !important;
 }
-
