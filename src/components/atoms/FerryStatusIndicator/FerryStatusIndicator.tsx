@@ -121,9 +121,8 @@ export function FerryStatusIndicator({
           <div
             key={operator}
             className={styles.dotWrapper}
-            title={`${
-              operatorLabels[operator as keyof typeof operatorLabels]
-            }: ${status.status}${status.message ? ` - ${status.message}` : ""}`}
+            title={`${operatorLabels[operator as keyof typeof operatorLabels]
+              }: ${status.status}${status.message ? ` - ${status.message}` : ""}`}
           >
             <span
               className={styles.statusDot}
@@ -194,9 +193,8 @@ export function FerryStatusIndicator({
           <div
             key={operator}
             className={styles.operatorCompact}
-            title={`${
-              operatorLabels[operator as keyof typeof operatorLabels]
-            }: ${status.status}${status.message ? ` - ${status.message}` : ""}`}
+            title={`${operatorLabels[operator as keyof typeof operatorLabels]
+              }: ${status.status}${status.message ? ` - ${status.message}` : ""}`}
           >
             <span
               className={styles.statusDot}

@@ -90,15 +90,6 @@ NavColumn.displayName = "NavColumn";
 export const Footer = memo<FooterProps>(({ className, ...props }) => {
   return (
     <footer className={`${styles.footer} ${className || ""}`} {...props}>
-      <div className={styles.waveContainer}>
-        <Image
-          src={wavePlusBoat}
-          alt="Wave"
-          className={styles.wavePlusBoat}
-          priority={false}
-          loading="lazy"
-        />
-      </div>
       <div className={styles.container}>
         <div className={styles.wrapper}>
           {/* Main content */}

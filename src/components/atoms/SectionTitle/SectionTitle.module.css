@@ -10,7 +10,8 @@
   font-family: var(--font-family-primary);
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-4xl); /* 40px */
+  font-size: var(--font-size-4xl);
+  /* 40px */
   line-height: 110%;
   color: var(--color-black);
   margin: var(--space-0);
@@ -41,8 +42,10 @@
   -webkit-backface-visibility: hidden;
   will-change: transform;
   /* Better SVG rendering */
-  overflow: visible; /* Allow SVG to render properly */
+  overflow: visible;
+  /* Allow SVG to render properly */
 }
+
 .underlineImage {
   height: clamp(0.1875rem, 1.5vw, 0.375rem);
   object-fit: cover;
@@ -73,7 +76,8 @@
 
   .underline {
     /* Better scaling for tablet */
-    transform: translateZ(0); /* GPU acceleration */
+    transform: translateZ(0);
+    /* GPU acceleration */
   }
 }
 
@@ -100,12 +104,12 @@
 
   /* More subtle underlines on mobile */
   .underline img {
-    height: clamp(
-      0.125rem,
-      1vw,
-      0.25rem
-    ) !important; /* Even smaller on mobile */
-    opacity: 0.8; /* Slightly transparent for less attention */
+    height: clamp(0.125rem,
+        1vw,
+        0.25rem) !important;
+    /* Even smaller on mobile */
+    opacity: 0.8;
+    /* Slightly transparent for less attention */
   }
 }
 
@@ -132,8 +136,10 @@
 
   /* Even more subtle underlines on small mobile */
   .underline img {
-    height: 0.125rem !important; /* Fixed small height */
-    opacity: 0.7; /* More transparent */
+    height: 0.125rem !important;
+    /* Fixed small height */
+    opacity: 0.7;
+    /* More transparent */
   }
 }
 
@@ -146,15 +152,17 @@
 
   /* Minimal underlines on very small screens */
   .underline img {
-    height: 0.0625rem !important; /* Very thin line */
-    opacity: 0.6; /* Quite transparent */
+    height: 0.0625rem !important;
+    /* Very thin line */
+    opacity: 0.6;
+    /* Quite transparent */
   }
 }
 
 /* High-DPI displays - ensure consistent rendering */
 @media (-webkit-min-device-pixel-ratio: 2),
-  (min-resolution: 192dpi),
-  (min-resolution: 2dppx) {
+(min-resolution: 192dpi),
+(min-resolution: 2dppx) {
   .underline {
     /* Ensure crisp rendering on high-DPI displays */
     -webkit-font-smoothing: antialiased;
@@ -164,5 +172,16 @@
   .underline img {
     /* Better rendering on retina displays */
     image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Safari/iOS: push underline SVG down for proper gap from text.
+   JS sets offset=0 on Safari (placing underline AT the text bottom).
+   This transform then adds 6px of visual gap below the text.
+   margin-top was wrong here — transform works additively with position:absolute.
+   @supports (-webkit-touch-callout: none) targets Safari on macOS and iOS only. */
+@supports (-webkit-touch-callout: none) {
+  .underline {
+    transform: translateY(6px);
   }
 }

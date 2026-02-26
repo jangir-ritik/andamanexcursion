@@ -1,7 +1,9 @@
 .unifiedSearchingForm {
   width: 100%;
   max-width: unset;
-  filter: drop-shadow(-1px 1px 7px rgba(0, 0, 0, 0.1));
+  /* NOTE: filter was removed here. CSS filter creates a new stacking context on Safari
+     which traps position:fixed descendants (like the DatePicker calendar popup).
+     The visual shadow is now applied via box-shadow on .tabsContent below. */
   z-index: 1000;
   padding: var(--space-4);
   margin-top: calc(var(--space-2) * -14);
@@ -139,6 +141,8 @@
   background: var(--color-bg-primary);
   border-radius: 0 var(--radius-md) var(--radius-md);
   width: 100%;
+  /* Shadow moved here from .unifiedSearchingForm to avoid creating a stacking context */
+  box-shadow: -1px 1px 7px rgba(0, 0, 0, 0.1);
 }
 
 /* Hide inactive tab content */
@@ -183,18 +187,23 @@
   .formField:nth-child(1) {
     grid-area: activity;
   }
+
   .formField:nth-child(2) {
     grid-area: location;
   }
+
   .formField:nth-child(3) {
     grid-area: date;
   }
+
   .formField:nth-child(4) {
     grid-area: time;
   }
+
   .formField:nth-child(5) {
     grid-area: passengers;
   }
+
   .buttonContainer {
     grid-area: buttons;
   }
@@ -222,18 +231,23 @@
   .formField:nth-child(1) {
     grid-area: activity;
   }
+
   .formField:nth-child(2) {
     grid-area: location;
   }
+
   .formField:nth-child(3) {
     grid-area: date;
   }
+
   .formField:nth-child(4) {
     grid-area: time;
   }
+
   .formField:nth-child(5) {
     grid-area: passengers;
   }
+
   .buttonContainer {
     grid-area: buttons;
   }
@@ -263,18 +277,23 @@
   .formField:nth-child(1) {
     grid-area: activity;
   }
+
   .formField:nth-child(2) {
     grid-area: location;
   }
+
   .formField:nth-child(3) {
     grid-area: date;
   }
+
   .formField:nth-child(4) {
     grid-area: time;
   }
+
   .formField:nth-child(5) {
     grid-area: passengers;
   }
+
   .buttonContainer {
     grid-area: buttons;
   }
@@ -350,18 +369,23 @@
   .formField:nth-child(1) {
     grid-area: activity;
   }
+
   .formField:nth-child(2) {
     grid-area: location;
   }
+
   .formField:nth-child(3) {
     grid-area: date;
   }
+
   .formField:nth-child(4) {
     grid-area: time;
   }
+
   .formField:nth-child(5) {
     grid-area: passengers;
   }
+
   .buttonContainer {
     grid-area: buttons;
     display: flex;
@@ -375,7 +399,7 @@
   }
 
   .selectWrapper,
-  .fieldContainer > .selectWrapper {
+  .fieldContainer>.selectWrapper {
     min-height: var(--size-form-field-min-height-mobile);
   }
 }
@@ -425,6 +449,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -433,7 +458,7 @@
 
 /* Form field containers */
 .selectWrapper,
-.fieldContainer > .selectWrapper {
+.fieldContainer>.selectWrapper {
   min-height: var(--size-form-field-min-height);
   display: flex;
   flex-direction: column;
@@ -561,6 +586,7 @@
 
 /* Animations */
 @keyframes editModeIconBounce {
+
   0%,
   20%,
   50%,
@@ -568,9 +594,11 @@
   100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-5px);
   }
+
   60% {
     transform: translateY(-3px);
   }
@@ -670,6 +698,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

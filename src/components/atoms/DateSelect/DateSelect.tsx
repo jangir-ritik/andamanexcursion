@@ -150,7 +150,10 @@ export const DateSelect = ({
             onCalendarOpen={() => setIsCalendarOpen(true)}
             onCalendarClose={() => setIsCalendarOpen(false)}
             popperProps={{
-              strategy: "fixed",
+              // Use absolute (not fixed) so the calendar escapes no stacking contexts.
+              // The filter stacking context that was trapping position:fixed
+              // has been removed from .unifiedSearchingForm.
+              strategy: "absolute",
             }}
             onKeyDown={(e) => {
               // Prevent Enter key from submitting the form

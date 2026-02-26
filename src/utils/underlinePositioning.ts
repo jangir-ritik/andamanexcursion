@@ -1,6 +1,14 @@
 // utils/underlinePositioning.ts
 import { useEffect, useState, RefObject, useCallback, useRef } from "react";
 
+// Detect Safari/WebKit (covers both macOS Safari and iOS Safari, but not Chrome on iOS)
+const isSafariWebKit = (): boolean => {
+  if (typeof window === "undefined") return false;
+  const ua = navigator.userAgent;
+  // Safari UA contains 'Safari' but not 'Chrome' or 'CriOS' (Chrome on iOS)
+  return /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+};
+
 export interface UnderlinePosition {
   left: number;
   top: number;
@@ -22,6 +30,12 @@ export const useUnderlinePositioning = ({
   offset = 8,
   debounceMs = 100,
 }: UseUnderlinePositioningProps) => {
+  // On Safari, getClientRects() returns a tighter rect.bottom (closer to the actual glyph
+  // baseline, with less line-height whitespace below). Using the normal offset subtracts
+  // too much from `top`, pushing the underline UP into the text glyphs.
+  // Fix: use offset=0 on Safari so the underline is placed AT the text bottom.
+  // A CSS translateY then adds the visual gap (see SectionTitle.module.css / Trivia.module.css).
+  const effectiveOffset = isSafariWebKit() ? 0 : offset;
   const [positions, setPositions] = useState<UnderlinePosition[]>([]);
 
   const calculatePositions = useCallback(() => {
@@ -52,7 +66,7 @@ export const useUnderlinePositioning = ({
 
             allPositions.push({
               left: Math.max(0, left), // Prevent negative positioning
-              top: top - offset,
+              top: top - effectiveOffset,
               width: rect.width,
             });
           }

@@ -51,7 +51,8 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  text-wrap: balance; /* Better text distribution */
+  text-wrap: balance;
+  /* Better text distribution */
 }
 
 .highlight {
@@ -60,8 +61,10 @@
   font-family: var(--font-family-display);
   display: inline;
   /* Enhanced wrapping behavior */
-  word-break: keep-all; /* Prefer word boundaries */
-  overflow-wrap: break-word; /* Break within words if needed */
+  word-break: keep-all;
+  /* Prefer word boundaries */
+  overflow-wrap: break-word;
+  /* Break within words if needed */
   /* Smooth transitions */
   transition: color 0.2s ease;
 }
@@ -78,7 +81,8 @@
   /* Smooth underline transitions */
   transition: transform 0.2s ease;
   /* Better SVG rendering */
-  overflow: visible; /* Allow SVG to render properly */
+  overflow: visible;
+  /* Allow SVG to render properly */
 }
 
 .underlineImage {
@@ -95,9 +99,7 @@
   object-fit: contain;
 }
 
-.longUnderline {
-  /* height: 16px; */
-}
+
 
 /* Tablet styles */
 @media (max-width: 1200px) {
@@ -134,17 +136,18 @@
 
   .underlineWrapper {
     /* Remove scaling - let responsive offset handle spacing */
-    transform: translateZ(0); /* GPU acceleration only */
+    transform: translateZ(0);
+    /* GPU acceleration only */
   }
 
   /* More subtle underlines on mobile */
   .underlineWrapper img {
-    height: clamp(
-      0.125rem,
-      1vw,
-      0.25rem
-    ) !important; /* Even smaller on mobile */
-    opacity: 0.8; /* Slightly transparent for less attention */
+    height: clamp(0.125rem,
+        1vw,
+        0.25rem) !important;
+    /* Even smaller on mobile */
+    opacity: 0.8;
+    /* Slightly transparent for less attention */
   }
 }
 
@@ -153,6 +156,7 @@
   .triviaTitle {
     font-size: var(--font-size-xs);
   }
+
   .triviaSection {
     padding: var(--space-6) var(--space-4);
   }
@@ -176,8 +180,10 @@
 
   /* Even more subtle underlines on small mobile */
   .underlineWrapper img {
-    height: 0.125rem !important; /* Fixed small height */
-    opacity: 0.7; /* More transparent */
+    height: 0.125rem !important;
+    /* Fixed small height */
+    opacity: 0.7;
+    /* More transparent */
   }
 }
 
@@ -200,13 +206,16 @@
 
   /* Minimal underlines on very small screens */
   .underlineWrapper img {
-    height: 0.0625rem !important; /* Very thin line */
-    opacity: 0.9; /* Quite transparent */
+    height: 0.0625rem !important;
+    /* Very thin line */
+    opacity: 0.9;
+    /* Quite transparent */
   }
 }
 
 /* Improved accessibility and performance */
 @media (prefers-reduced-motion: reduce) {
+
   .highlight,
   .underlineWrapper {
     transition: none;
@@ -215,8 +224,8 @@
 
 /* High DPI display adjustments */
 @media (-webkit-min-device-pixel-ratio: 2),
-  (min-resolution: 192dpi),
-  (min-resolution: 2dppx) {
+(min-resolution: 192dpi),
+(min-resolution: 2dppx) {
   .underlineWrapper {
     /* Sharper underlines on high-DPI displays */
     image-rendering: crisp-edges;
@@ -227,5 +236,15 @@
   .underlineWrapper img {
     /* Better rendering on retina displays */
     image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Safari/iOS: push underline SVG down for proper gap from text.
+   JS sets offset=0 on Safari (placing underline AT the text bottom).
+   This transform then adds 6px of visual gap below the text.
+   @supports (-webkit-touch-callout: none) targets Safari on macOS and iOS only. */
+@supports (-webkit-touch-callout: none) {
+  .underlineWrapper {
+    transform: translateY(6px);
   }
 }

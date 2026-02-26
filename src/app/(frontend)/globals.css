@@ -173,54 +173,22 @@ input[type="checkbox"] {
   }
 }
 
-/* Prevent layout shift when datepicker opens */
-.react-datepicker__tab-loop {
-  position: absolute !important;
-  z-index: 20001 !important;
-  inset: 0 !important;
-  pointer-events: none !important;
-}
-
-.react-datepicker__tab-loop>* {
-  pointer-events: auto !important;
-}
-
+/* DatePicker: ensure calendar appears above all other content */
 .react-datepicker-popper {
-  position: fixed !important;
   z-index: 20000 !important;
 }
 
-/* Ensure the datepicker doesn't cause content shift */
+/* Hide the default arrow/triangle on the calendar popup */
 .react-datepicker__triangle {
   display: none !important;
 }
 
-/* Force datepicker to always appear below the input - override any data-placement */
-.react-datepicker-popper[data-placement],
-.react-datepicker-popper[data-placement^="top"],
-.react-datepicker-popper[data-placement^="left"],
-.react-datepicker-popper[data-placement^="right"] {
-  will-change: transform;
-  /* Reset any negative Y transforms that flip the calendar above */
-  margin-top: 4px !important;
-  margin-bottom: 0 !important;
-}
-
-/* Override top placement - force calendar below when it tries to flip above */
-.react-datepicker-popper[data-placement^="top"] {
-  /* Remove top-flipped transform and force below trigger */
-  inset: auto auto auto 0 !important;
-  transform: none !important;
-  top: 100% !important;
-  position: absolute !important;
-}
-
-/* Ensure consistent positioning */
+/* Ensure consistent input container positioning */
 .react-datepicker__input-container {
   position: relative;
 }
 
-/* Hide the tab loop start/end elements that cause layout issues */
+/* Hide the tab-loop focus trap elements that cause layout shifts */
 .react-datepicker__tab-loop__start,
 .react-datepicker__tab-loop__end {
   position: absolute !important;
