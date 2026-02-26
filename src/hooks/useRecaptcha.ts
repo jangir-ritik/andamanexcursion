@@ -103,9 +103,7 @@ export function useRecaptcha({
       script.defer = true;
       document.head.appendChild(script);
     } else {
-      // Script tag already exists (injected by another render/component)
-      // Re-register the callback in case it wasn't ready yet
-      window.grecaptcha?.ready(handleReady);
+      // Script tag already exists — onRecaptchaLoadCallback will fire when it's ready
     }
 
     const onError = () => {
