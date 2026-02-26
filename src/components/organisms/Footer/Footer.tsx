@@ -113,6 +113,7 @@ export const Footer = memo<FooterProps>(({ className, ...props }) => {
                     loading="lazy"
                     width={120}
                     height={40}
+                    style={{ width: "auto" }}
                   />
                 </Link>
               </div>

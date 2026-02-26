@@ -100,6 +100,7 @@ export const Header = React.memo(
                 alt="Andaman Excursion"
                 width={150}
                 height={50}
+                style={{ width: "auto" }}
                 priority
               />
             </Link>

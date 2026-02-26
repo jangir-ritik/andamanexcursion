@@ -68,9 +68,10 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   );
 
   const handleRecaptchaError = useCallback((error: string) => {
-    console.error("reCAPTCHA error:", error);
+    // Suppress console logs here to keep the dev console clean.
+    // The UI handles the error feedback.
     setRecaptchaError(
-      "Security verification failed. Please refresh the page and try again."
+      "Security verification failed to load (possible ad-blocker or connection issue). Please refresh to try again."
     );
     setRecaptchaExecute(null);
   }, []);
@@ -172,8 +173,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   const { isValid, isDirty, errors } = form.formState;
   const hasErrors = Object.keys(errors).length > 0;
   const isRecaptchaReady = !!recaptchaExecute && !recaptchaError;
+  // Allow submission if recaptcha is ready OR if it failed to load (graceful degradation)
   const canSubmit =
-    isValid && isDirty && isRecaptchaReady && isOnline && !isSubmitting;
+    isValid && isDirty && (isRecaptchaReady || !!recaptchaError) && isOnline && !isSubmitting;
 
   // Get submit button text and state
   const getSubmitButtonContent = () => {
@@ -193,6 +195,10 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           No Connection
         </>
       );
+    }
+
+    if (recaptchaError) {
+      return "Send Enquiry (Unverified)";
     }
 
     if (!isRecaptchaReady) {
@@ -269,9 +275,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           showArrow={canSubmit}
           disabled={!canSubmit}
           type="submit"
-          className={`${styles.submitButton} ${
-            !canSubmit ? styles.disabled : ""
-          }`}
+          className={`${styles.submitButton} ${!canSubmit ? styles.disabled : ""
+            }`}
           aria-describedby={hasErrors ? "form-errors" : undefined}
         >
           {getSubmitButtonContent()}

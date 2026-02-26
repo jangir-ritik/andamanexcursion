@@ -67,9 +67,6 @@ const nextConfig = withPayload({
     return config;
   },
 
-  env: {
-    NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
-  },
 
   reactStrictMode: true,
 

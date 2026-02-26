@@ -19,13 +19,84 @@ export async function GET() {
         url: "/api/test/whatsapp",
         body: {
           phone: "+918600713587",
-          template: "hello | enquiry | booking_confirmation | payment_failed | reminder | status_update"
+          template: "all | hello | enquiry | booking_confirmation | payment_failed | reminder | status_update"
         }
       }
     },
     webhook: "/api/webhooks/plivo/whatsapp",
     timestamp: new Date().toISOString(),
   });
+}
+
+// Helper: build test payloads for each template
+function getTestPayloads(phone: string) {
+  const ts = Date.now().toString().slice(-6);
+  return {
+    enquiry: {
+      type: "enquiry_confirmation" as const,
+      recipient: phone,
+      data: {
+        fullName: "Test User",
+        enquiryId: `ENQ${ts}`,
+        email: "test@example.com",
+        phone: phone,
+        selectedPackage: "Island Tour Package",
+        message: "Test enquiry message",
+        submissionDate: new Date().toISOString(),
+      },
+    },
+    booking_confirmation: {
+      type: "booking_confirmation" as const,
+      recipient: phone,
+      data: {
+        customerName: "Test User",
+        confirmationNumber: `AE2025${ts}`,
+        bookingType: "ferry",
+        bookingDate: new Date().toISOString(),
+        totalAmount: 4500,
+        items: [{
+          location: "Port Blair to Havelock Island",
+          date: new Date().toISOString(),
+          time: "08:30 AM",
+          passengers: 2
+        }]
+      },
+    },
+    payment_failed: {
+      type: "payment_failed" as const,
+      recipient: phone,
+      data: {
+        customerName: "Test User",
+        attemptedAmount: 4500,
+        failureReason: "Insufficient funds",
+        bookingId: `BK${ts}`,
+        paymentMethod: "Credit Card"
+      },
+    },
+    reminder: {
+      type: "booking_reminder" as const,
+      recipient: phone,
+      data: {
+        customerName: "Test User",
+        confirmationNumber: `BK${ts}`,
+        updateDate: new Date().toISOString(),
+        oldStatus: "confirmed",
+        newStatus: "reminder"
+      },
+    },
+    status_update: {
+      type: "booking_status_update" as const,
+      recipient: phone,
+      data: {
+        customerName: "Test User",
+        confirmationNumber: `BK${ts}`,
+        oldStatus: "Confirmed",
+        newStatus: "Completed",
+        updateDate: new Date().toISOString(),
+        message: "Your trip has been completed successfully!"
+      },
+    },
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -38,7 +109,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Phone number is required",
-          example: { phone: "+918600713587", template: "hello" }
+          example: { phone: "+918600713587", template: "all" }
         },
         { status: 400 }
       );
@@ -61,8 +132,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let result;
+    const payloads = getTestPayloads(phone);
 
+    // ── "all" mode: send every template and collect results ──
+    if (template === "all") {
+      const templateNames = ["enquiry", "booking_confirmation", "payment_failed", "reminder", "status_update"] as const;
+      const results: Record<string, { success: boolean; messageId?: string; error?: string }> = {};
+      let allSuccess = true;
+
+      for (const name of templateNames) {
+        console.log(`[ALL] Sending ${name} template to ${phone}`);
+        try {
+          const result = await whatsapp.send(payloads[name] as any);
+          results[name] = {
+            success: result.success,
+            messageId: result.messageId,
+            error: result.error,
+          };
+          if (!result.success) allSuccess = false;
+        } catch (err) {
+          results[name] = {
+            success: false,
+            error: err instanceof Error ? err.message : "Unknown error",
+          };
+          allSuccess = false;
+        }
+        // Small delay between sends to avoid rate limits
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+
+      return NextResponse.json({
+        success: allSuccess,
+        message: allSuccess ? "All templates sent!" : "Some templates failed",
+        results,
+      });
+    }
+
+    // ── Single template mode ──
+    let result;
     console.log(`Sending ${template} template to ${phone}`);
 
     switch (template) {
@@ -71,89 +178,18 @@ export async function POST(request: NextRequest) {
         break;
 
       case "enquiry":
-        result = await whatsapp.send({
-          type: "enquiry_confirmation",
-          recipient: phone,
-          data: {
-            fullName: "Test User",
-            enquiryId: "ENQ" + Date.now().toString().slice(-6),
-            email: "test@example.com",
-            phone: phone,
-            selectedPackage: "Island Tour Package - Premium",
-            message: "Test enquiry message",
-            submissionDate: new Date().toISOString(),
-          },
-        });
-        break;
-
       case "booking_confirmation":
-        result = await whatsapp.send({
-          type: "booking_confirmation",
-          recipient: phone,
-          data: {
-            customerName: "Test User",
-            confirmationNumber: "BK" + Date.now().toString().slice(-8),
-            bookingType: "ferry",
-            bookingDate: new Date().toISOString(),
-            totalAmount: 4500,
-            items: [{
-              location: "Port Blair → Havelock Island",
-              date: new Date().toISOString(),
-              time: "08:30 AM",
-              passengers: 2
-            }]
-          },
-        });
-        break;
-
       case "payment_failed":
-        result = await whatsapp.send({
-          type: "payment_failed",
-          recipient: phone,
-          data: {
-            customerName: "Test User",
-            attemptedAmount: 4500,
-            failureReason: "Insufficient funds",
-            bookingId: "BK" + Date.now().toString().slice(-8),
-            paymentMethod: "Credit Card"
-          },
-        });
-        break;
-
       case "reminder":
-        result = await whatsapp.send({
-          type: "booking_reminder",
-          recipient: phone,
-          data: {
-            customerName: "Test User",
-            confirmationNumber: "BK" + Date.now().toString().slice(-8),
-            updateDate: new Date().toISOString(),
-            oldStatus: "confirmed",
-            newStatus: "reminder"
-          },
-        });
-        break;
-
       case "status_update":
-        result = await whatsapp.send({
-          type: "booking_status_update",
-          recipient: phone,
-          data: {
-            customerName: "Test User",
-            confirmationNumber: "BK" + Date.now().toString().slice(-8),
-            oldStatus: "Confirmed",
-            newStatus: "Completed",
-            updateDate: new Date().toISOString(),
-            message: "Your trip has been completed. Thank you for sailing with us!"
-          },
-        });
+        result = await whatsapp.send(payloads[template as keyof typeof payloads] as any);
         break;
 
       default:
         return NextResponse.json(
           {
             success: false,
-            error: "Invalid template. Use: hello, enquiry, booking_confirmation, payment_failed, reminder, status_update"
+            error: "Invalid template. Use: all, hello, enquiry, booking_confirmation, payment_failed, reminder, status_update"
           },
           { status: 400 }
         );

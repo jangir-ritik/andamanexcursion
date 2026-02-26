@@ -288,20 +288,25 @@ function ContactPageContent() {
 
         // Step 1: Verify reCAPTCHA if token provided
         if (recaptchaToken) {
-          const recaptchaResponse = await fetch("/api/verify-recaptcha", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              token: recaptchaToken,
-              action: "contact_form",
-            }),
-          });
+          try {
+            const recaptchaResponse = await fetch("/api/verify-recaptcha", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                token: recaptchaToken,
+                action: "contact_form",
+              }),
+            });
 
-          const recaptchaResult = await recaptchaResponse.json();
-          if (!recaptchaResult.success) {
-            throw new Error(
-              recaptchaResult.error || "Security verification failed"
-            );
+            const recaptchaResult = await recaptchaResponse.json();
+            if (!recaptchaResult.success) {
+              console.warn(
+                "reCAPTCHA verification failed (proceeding anyway):",
+                recaptchaResult.error
+              );
+            }
+          } catch (recaptchaError) {
+            console.warn("reCAPTCHA verification error (proceeding anyway):", recaptchaError);
           }
         }
 

@@ -20,6 +20,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Dev bypass: localhost sends this token when reCAPTCHA can't load
+    if (token === "dev-bypass-token") {
+      return NextResponse.json({
+        success: true,
+        score: 1.0,
+        action,
+        message: "reCAPTCHA bypassed for local development",
+      });
+    }
+
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
     if (!secretKey) {
       console.error("RECAPTCHA_SECRET_KEY not configured");

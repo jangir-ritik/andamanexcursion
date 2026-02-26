@@ -199,10 +199,12 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
   }
 
   private bookingConfirmationTemplate(data: BookingConfirmationData) {
-    // From screenshot 170649.png: 8 variables in body + support phone
+    // From LIVE META SCREENSHOT: 10 variables in body
+    // {{1}} Customer Name, {{2}} Booking ID, {{3}} Route, {{4}} Date,
+    // {{5}} Departure Time, {{6}} Passengers, {{7}} Seat/Class,
+    // {{8}} Amount, {{9}} Arrival Time, {{10}} Support Phone
     const firstItem = data.items[0] || {};
 
-    // Format date as shown in screenshot: "15 Dec 2025"
     const formatDate = (dateInput?: string | Date): string => {
       if (!dateInput) return "15 Dec 2025";
       const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
@@ -213,42 +215,25 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
       });
     };
 
-    const customerName = data.customerName || "Customer";
-    const bookingId = data.confirmationNumber || "AE2025001234";
-    const route = firstItem.location || "Port Blair → Havelock Island";
-    const date = formatDate(firstItem.date || data.bookingDate);
-    const departureTime = firstItem.time || "08:30 AM";
-    const passengers = (firstItem.passengers || 2).toString();
-    const seatClass = "Premium"; // Default as per screenshot
-    const amount = data.totalAmount ? `₹${data.totalAmount.toLocaleString("en-IN")}` : "₹2,800";
-
     return {
       name: this.templates.booking_confirmation,
-      language: "en", // Use "en" as shown in Plivo console
+      language: "en",
       components: [
         {
           type: "body",
           parameters: [
-            { type: "text", text: customerName },       // {{1}} Customer Name
-            { type: "text", text: bookingId },          // {{2}} Booking ID (AE2025001234)
-            { type: "text", text: route },              // {{3}} Route (Port Blair → Havelock Island)
-            { type: "text", text: date },                // {{4}} Date (15 Dec 2025)
-            { type: "text", text: departureTime },       // {{5}} Departure Time (08:30 AM)
-            { type: "text", text: passengers },          // {{6}} Passengers Count (2)
-            { type: "text", text: seatClass },           // {{7}} Seat/Class (Premium)
-            { type: "text", text: amount },              // {{8}} Amount (₹2,800)
+            { type: "text", text: data.customerName || "Customer" },                 // {{1}} Customer Name
+            { type: "text", text: data.confirmationNumber || "AE2025001234" },       // {{2}} Booking ID
+            { type: "text", text: firstItem.location || "Port Blair to Havelock Island" }, // {{3}} Route
+            { type: "text", text: formatDate(firstItem.date || data.bookingDate) },  // {{4}} Date
+            { type: "text", text: firstItem.time || "08:30 AM" },                    // {{5}} Departure Time
+            { type: "text", text: (firstItem.passengers || 2).toString() },          // {{6}} Passengers Count
+            { type: "text", text: "Premium" },                                        // {{7}} Seat/Class
+            { type: "text", text: data.totalAmount ? data.totalAmount.toLocaleString("en-IN") : "2,800" }, // {{8}} Amount
+            { type: "text", text: "1 hour" },                                         // {{9}} Arrival Time
+            { type: "text", text: this.SUPPORT_PHONE },                               // {{10}} Support Phone
           ],
         },
-        // Support phone might be in the template as part of the body
-        // If it's a separate variable, uncomment this:
-        /*
-        {
-          type: "button",
-          index: 0,
-          sub_type: "quick_reply",
-          parameters: [{ type: "text", text: this.SUPPORT_PHONE }]
-        }
-        */
       ],
     };
   }

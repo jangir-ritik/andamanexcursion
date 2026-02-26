@@ -133,6 +133,7 @@ export const SectionTitle = ({
                 alt="underline"
                 width={position.width}
                 height={6}
+                style={{ height: "auto" }}
                 className={clsx(
                   underlineGraphic === underlineShort
                     ? styles.shortUnderline
