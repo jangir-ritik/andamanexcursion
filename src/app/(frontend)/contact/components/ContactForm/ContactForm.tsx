@@ -16,8 +16,6 @@ import {
   Copy,
   Check,
   Shield,
-  Wifi,
-  WifiOff,
 } from "lucide-react";
 
 interface ContactFormProps {
@@ -37,9 +35,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   contactFormOptions,
   onDismissError,
 }) => {
-  const [recaptchaExecute, setRecaptchaExecute] = useState<
-    (() => Promise<string | null>) | null
-  >(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -49,31 +45,26 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   React.useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
-  const handleRecaptchaReady = useCallback(
-    (executeFunction: () => Promise<string | null>) => {
-      setRecaptchaExecute(() => executeFunction);
-      setRecaptchaError(null);
-    },
-    []
-  );
+  const handleRecaptchaVerify = useCallback((token: string) => {
+    setRecaptchaToken(token);
+    setRecaptchaError(null);
+  }, []);
 
-  const handleRecaptchaError = useCallback((error: string) => {
-    // Suppress console logs here to keep the dev console clean.
-    // The UI handles the error feedback.
-    setRecaptchaError(
-      "Security verification failed to load (possible ad-blocker or connection issue). Please refresh to try again."
-    );
-    setRecaptchaExecute(null);
+  const handleRecaptchaExpire = useCallback(() => {
+    setRecaptchaToken(null);
+  }, []);
+
+  const handleRecaptchaError = useCallback(() => {
+    setRecaptchaError("reCAPTCHA failed to load. Please refresh and try again.");
+    setRecaptchaToken(null);
   }, []);
 
   const handleCopyReferenceId = useCallback(async (referenceId: string) => {
@@ -132,50 +123,30 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       try {
         setRecaptchaError(null);
 
-        // Get reCAPTCHA token
-        let recaptchaToken: string | null = null;
-
-        if (recaptchaExecute) {
-          try {
-            recaptchaToken = await recaptchaExecute();
-            if (!recaptchaToken) {
-              throw new Error("Security verification failed");
-            }
-          } catch (recaptchaErr) {
-            throw new Error("Security verification failed. Please try again.");
-          }
+        if (!recaptchaToken) {
+          setRecaptchaError("Please complete the reCAPTCHA verification.");
+          return;
         }
 
         // Submit form with validated data and reCAPTCHA token
         const formData = form.getValues();
-        await onSubmit(formData, recaptchaToken || undefined);
+        await onSubmit(formData, recaptchaToken);
       } catch (error) {
         console.error("Form submission error:", error);
         const errorMessage =
           error instanceof Error ? error.message : "Submission failed";
         setRecaptchaError(errorMessage);
-
-        // If it's a network error, suggest checking connection
-        if (
-          errorMessage.includes("fetch") ||
-          errorMessage.includes("network")
-        ) {
-          setRecaptchaError(
-            "Network error. Please check your connection and try again."
-          );
-        }
       }
     },
-    [form, onSubmit, recaptchaExecute, isOnline]
+    [form, onSubmit, recaptchaToken, isOnline]
   );
 
   // Enhanced form validation state
   const { isValid, isDirty, errors } = form.formState;
   const hasErrors = Object.keys(errors).length > 0;
-  const isRecaptchaReady = !!recaptchaExecute && !recaptchaError;
-  // Allow submission if recaptcha is ready OR if it failed to load (graceful degradation)
+  // For v2: user must tick the checkbox (recaptchaToken set) OR widget failed to load (graceful degradation)
   const canSubmit =
-    isValid && isDirty && (isRecaptchaReady || !!recaptchaError) && isOnline && !isSubmitting;
+    isValid && isDirty && (!!recaptchaToken || !!recaptchaError) && isOnline && !isSubmitting;
 
   // Get submit button text and state
   const getSubmitButtonContent = () => {
@@ -189,23 +160,18 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     }
 
     if (!isOnline) {
-      return (
-        <>
-          <WifiOff size={16} />
-          No Connection
-        </>
-      );
+      return "No Connection";
     }
 
     if (recaptchaError) {
       return "Send Enquiry (Unverified)";
     }
 
-    if (!isRecaptchaReady) {
+    if (!recaptchaToken) {
       return (
         <>
           <Shield size={16} />
-          Security Check...
+          Tick reCAPTCHA to continue
         </>
       );
     }
@@ -231,10 +197,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       {/* Network Status Indicator */}
       {!isOnline && (
         <div className={styles.networkWarning} role="alert">
-          <WifiOff size={16} />
-          <span>
-            You appear to be offline. Please check your internet connection.
-          </span>
+          <span>⚠ You appear to be offline. Please check your internet connection.</span>
         </div>
       )}
 
@@ -250,10 +213,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         <div className={styles.recaptchaContainer}>
           <Recaptcha
             siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-            onReady={handleRecaptchaReady}
+            onVerify={handleRecaptchaVerify}
+            onExpire={handleRecaptchaExpire}
             onError={handleRecaptchaError}
-            action="contact_form"
-            showBadge={true}
           />
 
           {recaptchaError && (

@@ -1,76 +1,64 @@
 // src/components/atoms/Recaptcha/Recaptcha.tsx
-import React from "react";
+"use client";
+import React, { useId, useEffect, useRef } from "react";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import styles from "./Recaptcha.module.css";
 
 interface RecaptchaProps {
   siteKey: string;
-  onReady?: (executeRecaptcha: () => Promise<string | null>) => void;
+  onVerify: (token: string) => void;
+  onExpire?: () => void;
   onError?: (error: string) => void;
-  action?: string;
-  showBadge?: boolean;
 }
 
 export const Recaptcha: React.FC<RecaptchaProps> = ({
   siteKey,
-  onReady,
+  onVerify,
+  onExpire,
   onError,
-  action = "submit",
-  showBadge = true,
 }) => {
-  const { isReady, error, executeRecaptcha } = useRecaptcha({
-    siteKey,
-    action,
-  });
+  const uid = useId().replace(/:/g, "");
+  const containerId = `recaptcha-container-${uid}`;
+  const prevToken = useRef<string | null>(null);
 
-  // Notify parent when reCAPTCHA is ready
-  React.useEffect(() => {
-    if (isReady && onReady) {
-      onReady(executeRecaptcha);
+  const { isLoaded, error, token } = useRecaptcha({ siteKey, containerId });
+
+  // Notify parent when token is set (user ticked the box)
+  useEffect(() => {
+    if (token && token !== prevToken.current) {
+      prevToken.current = token;
+      onVerify(token);
     }
-  }, [isReady, onReady, executeRecaptcha]);
+    // Token went from truthy to null → expired
+    if (!token && prevToken.current) {
+      prevToken.current = null;
+      onExpire?.();
+    }
+  }, [token, onVerify, onExpire]);
 
   // Notify parent of errors
-  React.useEffect(() => {
-    if (error && onError) {
-      onError(error);
-    }
+  useEffect(() => {
+    if (error) onError?.(error);
   }, [error, onError]);
-
-  if (!showBadge) {
-    return null; // Invisible reCAPTCHA
-  }
 
   return (
     <div className={styles.recaptchaBadge}>
-      <div className={styles.recaptchaInfo}>
-        <div className={styles.recaptchaLogo}>
-          <img
-            src="https://www.gstatic.com/recaptcha/api2/logo_48.png"
-            alt="reCAPTCHA"
-            width={32}
-            height={32}
-          />
+      {/* Mount point for the v2 checkbox widget */}
+      <div id={containerId} />
+
+      {!isLoaded && !error && (
+        <div className={styles.recaptchaText}>
+          <span className={styles.loading}>⏳</span>
+          Loading reCAPTCHA...
         </div>
-        <span className={styles.recaptchaText}>
-          {isReady ? (
-            <>
-              <span className={styles.checkmark}>✓</span>
-              Protected by reCAPTCHA
-            </>
-          ) : error ? (
-            <>
-              <span className={styles.errorMark}>⚠</span>
-              reCAPTCHA Error
-            </>
-          ) : (
-            <>
-              <span className={styles.loading}>⏳</span>
-              Loading reCAPTCHA...
-            </>
-          )}
-        </span>
-      </div>
+      )}
+
+      {error && (
+        <div className={styles.recaptchaText}>
+          <span className={styles.errorMark}>⚠</span>
+          reCAPTCHA failed to load
+        </div>
+      )}
     </div>
   );
 };
