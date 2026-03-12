@@ -86,7 +86,7 @@ export const SimplifiedSeatSelectionSection: React.FC<SimplifiedSeatSelectionSec
   if (!showSeatSelection) return null;
 
   const showManualSelection = preference === "manual" || ferry.operator === "sealink";
-  const showAutoMessage = 
+  const showAutoMessage =
     preference === "auto" &&
     ferry.features.supportsAutoAssignment &&
     ferry.operator !== "sealink";
@@ -94,12 +94,24 @@ export const SimplifiedSeatSelectionSection: React.FC<SimplifiedSeatSelectionSec
   // Determine vessel class for layout selection
   const getVesselClass = () => {
     if (!selectedClass) return "economy";
-    
+
     const className = selectedClass.name.toLowerCase();
     if (className.includes("luxury")) return "luxury";
     if (className.includes("royal")) return "royal";
     if (className.includes("premium")) return "premium";
+    if (className.includes("deluxe")) return "deluxe";
     return "economy";
+  };
+
+  // For Makruzz, differentiate between vessel types (Makruzz, Gold, Pearl)
+  const getOperatorKey = () => {
+    if (ferry.operator === "makruzz") {
+      const name = ferry.ferryName.toLowerCase();
+      if (name.includes("pearl")) return "makruzz_pearl";
+      if (name.includes("gold")) return "makruzz_gold";
+      return "makruzz";
+    }
+    return ferry.operator;
   };
 
   return (
@@ -130,7 +142,7 @@ export const SimplifiedSeatSelectionSection: React.FC<SimplifiedSeatSelectionSec
 
         {seats.length > 0 && !isLoading && showManualSelection && (
           <SimplifiedSeatLayoutComponent
-            operator={ferry.operator}
+            operator={getOperatorKey()}
             vesselClass={getVesselClass()}
             seats={seats}
             selectedSeats={selectedSeats}

@@ -17,6 +17,8 @@ export const validateSeatSelection = (
   if (
     ferry.operator === "greenocean" ||
     ferry.operator === "sealink" ||
+    // For Makruzz: only require seat selection for Pearl (supportsSeatSelection is only true for Pearl)
+    (ferry.operator === "makruzz" && ferry.features.supportsSeatSelection) ||
     (ferry.features.supportsSeatSelection && !ferry.features.supportsAutoAssignment)
   ) {
     if (selectedSeats.length === 0) {
@@ -25,7 +27,7 @@ export const validateSeatSelection = (
         message: "Please select your seats before proceeding to checkout."
       };
     }
-    
+
     if (selectedSeats.length !== totalPassengers) {
       return {
         isValid: false,

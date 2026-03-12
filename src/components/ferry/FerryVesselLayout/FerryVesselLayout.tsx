@@ -4,6 +4,7 @@ import { UpdatedSealinkRoyalLayout } from "../layouts/UpdatedSealinkRoyalLayout"
 import { GreenOceanEconomyLayout } from "../layouts/GreenOceanEconomyLayout";
 import { GreenOceanPremiumLayout } from "../layouts/GreenOceanPremiumLayout";
 import { GreenOceanRoyalLayout } from "../layouts/GreenOceanRoyalLayout";
+import { MakruzzSeatLayout } from "../layouts/MakruzzSeatLayout";
 
 export function FerryVesselLayout({
   operator,
@@ -12,6 +13,11 @@ export function FerryVesselLayout({
 }: FerryVesselLayoutProps) {
   const layoutKey = `${operator}-${vesselClass}`;
   console.log(layoutKey);
+
+  // Handle all Makruzz variants (makruzz, makruzz_gold, makruzz_pearl)
+  if (operator.startsWith("makruzz")) {
+    return <MakruzzSeatLayout vesselClass={vesselClass} operator={operator} {...props} />;
+  }
 
   switch (layoutKey) {
     case "sealink-premium":
@@ -28,3 +34,4 @@ export function FerryVesselLayout({
       return <div>Default Ferry Layout</div>;
   }
 }
+

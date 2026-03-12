@@ -33,6 +33,7 @@ import { GoogleTestimonials } from "@/components/sectionBlocks/common/googleTest
 import TeamSection from "@/components/molecules/TeamSection/TeamSection";
 import { ThingsToDo } from "@/components/sectionBlocks/boat/thingsToDo/ThingsToDo";
 import { TripRoute } from "@/components/sectionBlocks/boat/tripRoute/TripRoute";
+import { JourneySection } from "@/components/molecules/JourneySection/JourneySection";
 
 const blockComponentsMap = {
   richText: RichTextBlock,
@@ -64,6 +65,7 @@ const blockComponentsMap = {
   pnrLookup: PnrLookup,
   thingsToDo: ThingsToDo,
   tripRoute: TripRoute,
+  journeySection: JourneySection,
 } as const;
 
 interface BlockRendererProps {

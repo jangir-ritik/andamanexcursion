@@ -162,6 +162,12 @@ export interface SeatLayout {
       booked_seat: string[];
       class_type: number;
     };
+    makruzz?: {
+      seats: {
+        seat_id: string;
+        status: "available" | "booked";
+      }[];
+    };
   };
 }
 
@@ -177,11 +183,11 @@ export interface Seat {
   number: string;
   seat_numbering?: string; // For Green Ocean compatibility
   status:
-    | "available"
-    | "booked"
-    | "blocked"
-    | "selected"
-    | "temporarily_blocked";
+  | "available"
+  | "booked"
+  | "blocked"
+  | "selected"
+  | "temporarily_blocked";
   type?: "window" | "aisle" | "middle";
   position?: { row: number; column: number };
   price?: number;

@@ -5,12 +5,13 @@
  * into simplified unified Seat[] format for the streamlined system
  */
 
-import { 
-  Seat, 
-  SealinkSeatData, 
+import {
+  Seat,
+  SealinkSeatData,
   GreenOceanSeatData,
+  MakruzzSeatData,
   SeatStatus,
-  SeatTier 
+  SeatTier
 } from "@/types/SeatSelection.types";
 import { SeatLayout } from "@/types/FerryBookingSession.types";
 
@@ -27,18 +28,23 @@ export function transformSeatLayoutToSeats(seatLayout: SeatLayout): Seat[] {
   });
 
   // If we have operator-specific data with actual data, use that for more accurate transformation
-  if (seatLayout.operatorData?.sealink && 
-      (Object.keys(seatLayout.operatorData.sealink.bClass || {}).length > 0 || 
-       Object.keys(seatLayout.operatorData.sealink.pClass || {}).length > 0)) {
+  if (seatLayout.operatorData?.sealink &&
+    (Object.keys(seatLayout.operatorData.sealink.bClass || {}).length > 0 ||
+      Object.keys(seatLayout.operatorData.sealink.pClass || {}).length > 0)) {
     console.log("📍 Using Sealink transformation");
     return transformSealinkToSeats(seatLayout.operatorData.sealink);
   }
-  
+
   if (seatLayout.operatorData?.greenocean && seatLayout.operatorData.greenocean.layout?.length > 0) {
     console.log("📍 Using Green Ocean transformation");
     return transformGreenOceanToSeats(seatLayout.operatorData.greenocean);
   }
-  
+
+  if (seatLayout.operatorData?.makruzz && seatLayout.operatorData.makruzz.seats?.length > 0) {
+    console.log("📍 Using Makruzz transformation");
+    return transformMakruzzToSeats(seatLayout.operatorData.makruzz);
+  }
+
   // Use the generic seats array (which is already properly formatted for Sealink)
   console.log("📍 Using generic seats array - already formatted");
   return seatLayout.seats.map((seat: any) => ({
@@ -66,17 +72,17 @@ export function transformSealinkToSeats(sealinkData: SealinkSeatData): Seat[] {
     pClassCount: Object.keys(sealinkData.pClass || {}).length,
     sealinkData: sealinkData
   });
-  
+
   const seats: Seat[] = [];
 
   // Process Business Class seats
   Object.entries(sealinkData.bClass).forEach(([seatNumber, seatDetails]) => {
-    const status: SeatStatus = 
+    const status: SeatStatus =
       sealinkData.bClass[seatNumber].isBooked === 1
         ? "booked"
         : sealinkData.bClass[seatNumber].isBlocked === 1
-        ? "blocked"
-        : "available";
+          ? "blocked"
+          : "available";
 
     seats.push({
       id: `b_${seatNumber}`,
@@ -93,12 +99,12 @@ export function transformSealinkToSeats(sealinkData: SealinkSeatData): Seat[] {
 
   // Process Premium Class seats
   Object.entries(sealinkData.pClass).forEach(([seatNumber, seatDetails]) => {
-    const status: SeatStatus = 
+    const status: SeatStatus =
       sealinkData.pClass[seatNumber].isBooked === 1
         ? "booked"
         : sealinkData.pClass[seatNumber].isBlocked === 1
-        ? "blocked"
-        : "available";
+          ? "blocked"
+          : "available";
 
     seats.push({
       id: `p_${seatNumber}`,
@@ -134,20 +140,34 @@ export function transformGreenOceanToSeats(greenOceanData: GreenOceanSeatData): 
 // REMOVED: determineSeatType function - no more seat type assumptions
 
 /**
+ * Transform Makruzz operator data to unified Seat array
+ */
+export function transformMakruzzToSeats(makruzzData: MakruzzSeatData): Seat[] {
+  return makruzzData.seats.map((seat) => ({
+    id: seat.seat_id,
+    number: seat.seat_id,
+    displayNumber: seat.seat_id,
+    status: seat.status === "booked" ? "booked" as SeatStatus : "available" as SeatStatus,
+    isAccessible: false,
+    isPremium: false,
+  }));
+}
+
+/**
  * Enhanced seat type determination with accessibility detection
  */
 export function enhanceSeatsWithAccessibility(
-  seats: Seat[], 
+  seats: Seat[],
   accessibleSeatNumbers: string[] = [],
   premiumSeatNumbers: string[] = []
 ): Seat[] {
   return seats.map(seat => ({
     ...seat,
-    isAccessible: accessibleSeatNumbers.includes(seat.number) || 
-                  isAccessibleSeat(seat.number),
-    isPremium: premiumSeatNumbers.includes(seat.number) || 
-               seat.isPremium || 
-               isPremiumSeat(seat.number),
+    isAccessible: accessibleSeatNumbers.includes(seat.number) ||
+      isAccessibleSeat(seat.number),
+    isPremium: premiumSeatNumbers.includes(seat.number) ||
+      seat.isPremium ||
+      isPremiumSeat(seat.number),
   }));
 }
 
@@ -161,7 +181,7 @@ function isAccessibleSeat(seatNumber: string): boolean {
     /^[0-9]+A$/, // A seats (often wider)
     /^[0-9]+F$/, // F seats (often wider)
   ];
-  
+
   return accessiblePatterns.some(pattern => pattern.test(seatNumber));
 }
 
@@ -174,7 +194,7 @@ function isPremiumSeat(seatNumber: string): boolean {
     /^[1-3][A-F]$/, // First 3 rows
     /^[0-9]+[AF]$/, // Window seats
   ];
-  
+
   return premiumPatterns.some(pattern => pattern.test(seatNumber));
 }
 
@@ -192,13 +212,19 @@ export function createSimplifiedSeatData(
         return transformSealinkToSeats(apiResponse.operatorData.sealink);
       }
       break;
-      
+
     case "greenocean":
       if (apiResponse.operatorData?.greenocean) {
         return transformGreenOceanToSeats(apiResponse.operatorData.greenocean);
       }
       break;
-      
+
+    case "makruzz":
+      if (apiResponse.operatorData?.makruzz) {
+        return transformMakruzzToSeats(apiResponse.operatorData.makruzz);
+      }
+      break;
+
     default:
       // Fallback for unknown operators
       if (apiResponse.seats && Array.isArray(apiResponse.seats)) {
@@ -214,6 +240,6 @@ export function createSimplifiedSeatData(
         }));
       }
   }
-  
+
   return [];
 }

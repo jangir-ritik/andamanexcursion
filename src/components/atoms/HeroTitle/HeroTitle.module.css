@@ -5,6 +5,8 @@
   padding: var(--space-0);
   gap: unset;
   width: 449px;
+  position: relative;
+  z-index: 1;
 }
 
 .primary {

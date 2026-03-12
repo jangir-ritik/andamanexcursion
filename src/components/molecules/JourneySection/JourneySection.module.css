@@ -1,0 +1,194 @@
+/*
+  Figma measurements (all absolute from section top-left):
+  - Section: 2989×437px, background #F3F8FF
+  - Dashed line: top=106px (= dot center), left=180px → right
+  - Year label area: top=54px, height=25px
+  - Gap year→dot: 13px
+  - Dot: 29×29px circle, center at y=106px
+  - Card: top=137px, height=250px, width=337px
+  - Gap between cards: ~63px
+  - First card left: 124px
+  - Year label offset from card left: ~30px
+*/
+
+/* ── Section ── */
+.root {
+  background: #FFFFFF;
+  overflow: hidden;
+  width: 100%;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* ── Scrollable container ── */
+.scrollWrapper {
+  height: 437px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+}
+.scrollWrapper:active {
+  cursor: grabbing;
+}
+.scrollWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Inner track: holds all milestone items ── */
+.track {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  height: 437px;
+  /* First card starts at 124px in Figma */
+  padding-right: 80px;
+}
+
+/* ── Dashed timeline line ── */
+/* The line runs through the center of the dots at y=106px from section top */
+.dashedLine {
+  position: absolute;
+  top: 106px;
+  left: 182px;
+  /* width is set via inline style in the component to end at last dot center */
+  height: 0;
+  border-top: 1px dashed #9B9B9B;
+  z-index: 1;
+}
+
+/* ── Each milestone column ── */
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 337px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  /* Gap between cards in Figma: ~63px */
+  margin-right: 63px;
+  /* First card at left:124px — applied via .itemFirst */
+}
+
+.item:last-child {
+  margin-right: 0;
+}
+
+.itemFirst {
+  margin-left: 124px;
+}
+
+/* The ship (50px) is taller than the dot (29px).
+   With margin-top: -11px on shipWrapper, flex height = 50-11 = 39px vs dot 29px → 10px extra.
+   Compensate by reducing card margin-top so all cards line up. */
+.itemFirst .card {
+  margin-top: 6px;
+}
+
+/* ── Year label + dot block ── */
+/* Starts at y=54px, year label 30px from card left edge */
+.yearRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  margin-top: 54px;
+  margin-left: 30px; /* Figma: year ~30px right of card left edge */
+}
+
+/* Year text */
+.year {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 25px;
+  color: #616262;
+  white-space: nowrap;
+}
+
+/* First year: bold & dark */
+.yearActive {
+  font-weight: 600;
+  color: #000E0F;
+}
+
+/* Orange dot (29×29) for non-first milestones */
+.dot {
+  width: 29px;
+  height: 29px;
+  background: #FF8A34;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Ship icon wrapper for first milestone */
+/* Dot starts at: 54(marginTop) + 25(year) + 13(gap) = 92px from section top
+   But we need ship center at y=106, ship is 50px tall → top = 81px
+   So offset: 81 - 92 = -11px */
+.shipWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -11px;
+}
+
+.shipImg {
+  width: 57px;
+  height: 50px;
+  object-fit: contain;
+}
+
+/* ── White milestone card ── */
+/*
+  Card top = 54(yearRow marginTop) + 25(year) + 13(gap) + 29(dot) + margin = 137px from section top
+  = 54 + 25 + 13 + 29 = 121px yearRow bottom
+  margin-top needed: 137 - 121 = 16px
+*/
+.card {
+  width: 337px;
+  height: 250px;
+  background: #F3F8FF;
+  flex-shrink: 0;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 12px;
+}
+
+/* ── Card inner content (268px centered) ── */
+.cardInner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 268px;
+}
+
+/* Card title */
+.cardTitle {
+  font-family: var(--font-family-primary);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 25px;
+  color: #000E0F;
+  margin: 0;
+}
+
+/* Card description */
+.cardDesc {
+  font-family: var(--font-family-primary);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #8E8E8E;
+  margin: 0;
+}

@@ -497,7 +497,7 @@ export class FerryBookingService {
       );
 
       // Prepare passenger data for Makruzz with FIXED formats
-      const passengers = request.passengerDetails.map((passenger) => ({
+      const passengers = request.passengerDetails.map((passenger, index) => ({
         title:
           passenger.gender === "Male"
             ? "MR"
@@ -515,6 +515,7 @@ export class FerryBookingService {
           passenger.nationality !== "Indian" ? passenger.fpassport || "" : "",
         fexpdate:
           passenger.nationality !== "Indian" ? passenger.fexpdate || "" : "",
+        seat: request.selectedSeats?.[index] || "", // Add selected seats
       }));
 
       const bookingData = {
@@ -600,7 +601,7 @@ export class FerryBookingService {
           tickets: request.passengerDetails.map((passenger, index) => ({
             ticketNumber: `${bookingResult.pnr}_${index + 1}`,
             passengerName: passenger.fullName,
-            seatNumber: "AUTO_ASSIGNED", // Makruzz auto-assigns seats
+            seatNumber: request.selectedSeats?.[index] || "AUTO_ASSIGNED", // Bind to selected seat mapping
           })),
         },
       };

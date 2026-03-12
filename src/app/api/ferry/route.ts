@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { FerryAggregationService } from "@/services/ferryServices/ferryAggregationService";
 import { GreenOceanService } from "@/services/ferryServices/greenOceanService";
 import { SealinkService } from "@/services/ferryServices/sealinkService";
+import { MakruzzService } from "@/services/ferryServices/makruzzService";
 import { PDFService } from "@/services/pdfService";
 import {
   FerryBookingSession,
@@ -179,8 +180,8 @@ async function handleHealth(): Promise<NextResponse> {
       )
         ? "all_online"
         : Object.values(healthStatus).some((op) => op.status === "online")
-        ? "partial_online"
-        : "all_offline",
+          ? "partial_online"
+          : "all_offline",
     });
   } catch (error) {
     console.error("Ferry health check failed:", error);
@@ -233,8 +234,7 @@ async function handleSeatLayout(request: NextRequest): Promise<NextResponse> {
   }
 
   console.log(
-    `🪑 API: Fetching seat layout for ${operator} ferry ${ferryId}, class ${classId}${
-      forceRefresh ? " (force refresh)" : ""
+    `🪑 API: Fetching seat layout for ${operator} ferry ${ferryId}, class ${classId}${forceRefresh ? " (force refresh)" : ""
     }`
   );
 
@@ -245,10 +245,10 @@ async function handleSeatLayout(request: NextRequest): Promise<NextResponse> {
     switch (operator) {
       case "greenocean":
         // Extract numeric ferry ID from prefixed format like "greenocean-1-2"
-        const numericFerryId = ferryId.includes("-") 
+        const numericFerryId = ferryId.includes("-")
           ? parseInt(ferryId.split("-").pop() || "0")
           : parseInt(ferryId);
-        
+
         seatLayout = await GreenOceanService.getSeatLayout(
           parseInt(routeId),
           numericFerryId,
@@ -283,13 +283,26 @@ async function handleSeatLayout(request: NextRequest): Promise<NextResponse> {
         break;
 
       case "makruzz":
-        return NextResponse.json(
-          {
-            error:
-              "Makruzz uses auto-assignment only, no seat selection available",
-          },
-          { status: 400 }
+        // For Makruzz, ferryId carries the schedule_id from the booking page
+        // It may come as a number or a prefixed string like "makruzz-824-makruzz-2026-03-10"
+        const ferryIdStr = String(ferryId);
+        const scheduleId = ferryIdStr.includes("-")
+          ? ferryIdStr.split("-")[1]
+          : ferryIdStr;
+
+        seatLayout = await MakruzzService.getSeatLayout(
+          scheduleId,
+          classId,
+          travelDate
         );
+        meta = {
+          scheduleId,
+          classId,
+          travelDate,
+          operator,
+          fetchedAt: new Date().toISOString(),
+        };
+        break;
 
       default:
         return NextResponse.json(
@@ -587,9 +600,9 @@ export async function POST(request: NextRequest) {
         details:
           process.env.NODE_ENV === "development"
             ? {
-                error: error instanceof Error ? error.message : "Unknown error",
-                stack: error instanceof Error ? error.stack : undefined,
-              }
+              error: error instanceof Error ? error.message : "Unknown error",
+              stack: error instanceof Error ? error.stack : undefined,
+            }
             : undefined,
       },
       { status: 503 }

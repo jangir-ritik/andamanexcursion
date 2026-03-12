@@ -20,11 +20,11 @@ export interface Seat {
   isPremium?: boolean;
 }
 
-export type SeatStatus = 
-  | "available" 
-  | "booked" 
-  | "blocked" 
-  | "selected" 
+export type SeatStatus =
+  | "available"
+  | "booked"
+  | "blocked"
+  | "selected"
   | "temporarily_blocked";
 
 export type SeatType = "window" | "aisle" | "middle";
@@ -58,6 +58,7 @@ export interface SeatLayoutConfig {
 export interface OperatorSeatData {
   sealink?: SealinkSeatData;
   greenocean?: GreenOceanSeatData;
+  makruzz?: MakruzzSeatData;
 }
 
 // Sealink-specific types
@@ -107,6 +108,16 @@ export interface GreenOceanSeatItem {
   seat_no: string;
   seat_numbering: string;
   status: string;
+}
+
+// Makruzz-specific types
+export interface MakruzzSeatData {
+  seats: MakruzzSeatItem[];
+}
+
+export interface MakruzzSeatItem {
+  seat_id: string;  // e.g. "P1A", "D3F", "R2C"
+  status: "available" | "booked";
 }
 
 // ===== SEAT SELECTION TYPES =====

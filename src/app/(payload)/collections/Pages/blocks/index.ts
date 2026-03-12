@@ -28,6 +28,7 @@ import { richTextBlock } from "./richText";
 import { pnrLookupBlock } from "./pnrLookup";
 import { thingsToDoBlock } from "./thingsToDo";
 import { tripRouteBlock } from "./tripRoute";
+import { journeySectionBlock } from "./journeySection";
 
 export const contentBlocks: Block[] = [
   richTextBlock,
@@ -58,4 +59,5 @@ export const contentBlocks: Block[] = [
   pnrLookupBlock,
   thingsToDoBlock,
   tripRouteBlock,
+  journeySectionBlock,
 ];

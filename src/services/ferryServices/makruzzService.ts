@@ -4,6 +4,7 @@ import {
   FerrySearchParams,
   UnifiedFerryResult,
   FerryClass,
+  SeatLayout,
 } from "@/types/FerryBookingSession.types";
 import { LocationMappingService } from "./locationMappingService";
 
@@ -76,6 +77,68 @@ export class MakruzzService {
   private static authToken: string | null = null;
   private static tokenExpiry: Date | null = null;
 
+  /**
+   * Get seat layout from Makruzz API
+   */
+  static async getSeatLayout(
+    scheduleId: string,
+    classId: string,
+    travelDate: string
+  ): Promise<SeatLayout> {
+    await this.ensureAuthenticated();
+
+    console.log(`🪑 Makruzz: Fetching seat layout for schedule ${scheduleId}, class ${classId}`);
+
+    const requestBody = {
+      data: {
+        schedule_id: scheduleId,
+        class_id: classId,
+        travel_date: travelDate,
+      },
+    };
+
+    const response = await fetch(`${this.BASE_URL}get_seats`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Mak_Authorization: this.authToken || "",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Makruzz seat layout error:`, errorText);
+      throw new Error(`Makruzz seat layout API error: ${response.status} - ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    console.log(`✅ Makruzz seat layout: ${responseData.data?.length || 0} seats`);
+
+    if (responseData.code !== "200") {
+      throw new Error(`Makruzz seat layout error: ${responseData.msg}`);
+    }
+
+    // Transform to unified SeatLayout format
+    const seats = (responseData.data || []).map((seat: any) => ({
+      id: seat.seat_id,
+      number: seat.seat_id,
+      displayNumber: seat.seat_id,
+      status: seat.status === "booked" ? "booked" : "available",
+    }));
+
+    return {
+      rows: 0,
+      seatsPerRow: 0,
+      seats,
+      operatorData: {
+        makruzz: {
+          seats: responseData.data || [],
+        },
+      },
+    };
+  }
+
   static async searchTrips(
     params: FerrySearchParams
   ): Promise<UnifiedFerryResult[]> {
@@ -108,8 +171,7 @@ export class MakruzzService {
     // Ensure we're authenticated
     await this.ensureAuthenticated();
     console.log(
-      `🔑 Makruzz: Using token: ${
-        this.authToken ? this.authToken.substring(0, 10) + "..." : "NULL"
+      `🔑 Makruzz: Using token: ${this.authToken ? this.authToken.substring(0, 10) + "..." : "NULL"
       }`
     );
 
@@ -192,7 +254,7 @@ export class MakruzzService {
     }
   }
 
-  private static async ensureAuthenticated(): Promise<void> {
+  static async ensureAuthenticated(): Promise<void> {
     // Check if token is still valid (assuming 1 hour validity)
     if (this.authToken && this.tokenExpiry && this.tokenExpiry > new Date()) {
       return;
@@ -285,11 +347,9 @@ export class MakruzzService {
       console.log(`   Classes in group: ${schedules.length}`);
 
       // Create unified ferry ID
-      const ferryId = `makruzz-${
-        primarySchedule.id
-      }-${primarySchedule.ship_title.toLowerCase().replace(/\s+/g, "")}-${
-        params.date
-      }`;
+      const ferryId = `makruzz-${primarySchedule.id
+        }-${primarySchedule.ship_title.toLowerCase().replace(/\s+/g, "")}-${params.date
+        }`;
 
       // Calculate duration (same for all classes in group)
       const [depHour, depMin] = primarySchedule.departure_time
@@ -384,7 +444,8 @@ export class MakruzzService {
           currency: "INR",
         },
         features: {
-          supportsSeatSelection: false,
+          // Seat selection is available for Makruzz Pearl, Regular Makruzz, and Makruzz Gold
+          supportsSeatSelection: true,
           supportsAutoAssignment: true,
           hasAC: true,
           hasWiFi: false,
@@ -602,8 +663,7 @@ export class MakruzzService {
     // Debug the critical fields
     console.log("🔍 Critical fields being sent:");
     console.log(
-      `  schedule_id: "${
-        requestBody.data.schedule_id
+      `  schedule_id: "${requestBody.data.schedule_id
       }" (type: ${typeof requestBody.data.schedule_id})`
     );
     console.log(

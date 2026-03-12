@@ -74,9 +74,13 @@ export const DateSelect = ({
     return date;
   }, [minDaysFromNow, allowPastDates]);
 
-  // Ensure selected is a valid Date object
+  // Ensure selected is a valid Date object or null
   const selectedDate =
-    selected instanceof Date ? selected : new Date(selected || new Date());
+    selected instanceof Date
+      ? selected
+      : selected
+      ? new Date(selected)
+      : null;
 
   // Prevent form submission when selecting a date
   const handleDateChange = (date: Date | null) => {
@@ -87,7 +91,7 @@ export const DateSelect = ({
 
   // Handle navigation to previous day
   const handlePreviousDay = () => {
-    const newDate = new Date(selectedDate);
+    const newDate = new Date(selectedDate || new Date());
     newDate.setDate(newDate.getDate() - 1);
     // Only allow navigation if new date is >= minDate (or no minDate restriction)
     if (!minDate || newDate >= minDate) {
@@ -98,7 +102,7 @@ export const DateSelect = ({
   // Check if previous day button should be disabled
   const isPreviousDayDisabled = React.useMemo(() => {
     if (!minDate) return false; // No restriction if allowPastDates is true
-    const previousDay = new Date(selectedDate);
+    const previousDay = new Date(selectedDate || new Date());
     previousDay.setDate(previousDay.getDate() - 1);
     previousDay.setHours(0, 0, 0, 0);
     return previousDay < minDate;
@@ -106,7 +110,7 @@ export const DateSelect = ({
 
   // Handle navigation to next day
   const handleNextDay = () => {
-    const newDate = new Date(selectedDate);
+    const newDate = new Date(selectedDate || new Date());
     newDate.setDate(newDate.getDate() + 1);
     onChange(newDate);
   };
@@ -138,6 +142,7 @@ export const DateSelect = ({
             selected={selectedDate}
             onChange={handleDateChange}
             dateFormat="EEE, dd MMM yyyy"
+            placeholderText="Select Date"
             minDate={minDate || undefined}
             className={styles.datePicker}
             id={inputId}

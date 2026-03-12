@@ -51,7 +51,7 @@ export const ClassSelection: React.FC<ClassSelectionProps> = ({
 
             {ferryClass.amenities && ferryClass.amenities.length > 0 && (
               <div className={styles.amenitiesContainer}>
-                {ferryClass.amenities.slice(0, 4).map((amenity, i) => {
+                {ferryClass.amenities.map((amenity, i) => {
                   const amenityMapping = getAmenityIcon(amenity);
                   const IconComponent = amenityMapping.icon;
                   return (
@@ -64,11 +64,6 @@ export const ClassSelection: React.FC<ClassSelectionProps> = ({
                     </div>
                   );
                 })}
-                {ferryClass.amenities.length > 4 && (
-                  <div className={styles.moreAmenities}>
-                    +{ferryClass.amenities.length - 4} more
-                  </div>
-                )}
               </div>
             )}
           </div>

@@ -23,28 +23,30 @@ export const Banner = ({ className, id = "hero", content }: BannerProps) => {
         alignItems="center"
       >
         {(content.title || content.description || content.subtitle) && (
-          <Row
-            justifyContent="between"
-            alignItems="center"
-            gap="0"
-            fullWidth
-            wrap
-          >
-            {content.title && (
-              <HeroTitle
-                primaryText={content.title}
-                secondaryText={content.subtitle || ""}
-                id="hero-title"
-              />
-            )}
-            {content.description && (
-              <DescriptionText
-                text={content.description || ""}
-                className={`${styles.descriptionText} ${styles.heroDescription}`}
-                align="right"
-              />
-            )}
-          </Row>
+          <div style={{ marginBottom: "2rem", width: "100%", position: "relative", zIndex: 1 }}>
+            <Row
+              justifyContent="between"
+              alignItems="center"
+              gap="0"
+              fullWidth
+              wrap
+            >
+              {content.title && (
+                <HeroTitle
+                  primaryText={content.title}
+                  secondaryText={content.subtitle || ""}
+                  id="hero-title"
+                />
+              )}
+              {content.description && (
+                <DescriptionText
+                  text={content.description || ""}
+                  className={`${styles.descriptionText} ${styles.heroDescription}`}
+                  align="right"
+                />
+              )}
+            </Row>
+          </div>
         )}
         <ImageContainer
           className={styles.heroImage}

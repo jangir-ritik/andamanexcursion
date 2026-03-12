@@ -4,14 +4,16 @@
   /* NOTE: filter was removed here. CSS filter creates a new stacking context on Safari
      which traps position:fixed descendants (like the DatePicker calendar popup).
      The visual shadow is now applied via box-shadow on .tabsContent below. */
-  z-index: 1000;
+  position: relative;
+  z-index: 100 !important;
   padding: var(--space-4);
-  margin-top: calc(var(--space-2) * -14);
+  /* Use transform instead of margin-top so we don't pull subsequent page sections up */
+  transform: translateY(calc(var(--space-2) * -14));
 }
 
 /* Compact variant */
 .compact {
-  margin-top: 0;
+  transform: none;
   border-radius: var(--radius-md-2);
   padding: var(--space-4);
   width: 100%;
@@ -35,7 +37,7 @@
 
 /* Embedded variant */
 .embedded {
-  margin-top: 0;
+  transform: none;
   padding: 0;
   filter: none;
   box-shadow: none;
@@ -305,7 +307,7 @@
     max-width: unset;
     width: 100%;
     padding: var(--space-2);
-    margin-top: 0;
+    transform: none;
   }
 
   .compact {

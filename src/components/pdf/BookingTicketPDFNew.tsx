@@ -590,13 +590,6 @@ const BookingTicketPDFNew: React.FC<BookingTicketPDFProps> = ({ data, qrCodeUrl 
       return "N/A";
     }
 
-    // Check if operator is Makruzz (case-insensitive)
-    const isMakruzz = ferryOperator.toLowerCase().includes("makruzz");
-
-    if (isMakruzz) {
-      return "Auto Assigned";
-    }
-
     // For other operators, get seat by index since passengerName in selectedSeats is often empty
     const selectedSeats = mainFerry?.selectedSeats || [];
 

@@ -1,3 +1,11 @@
+if (typeof window === 'undefined') {
+  try {
+    const dns = require('dns');
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+  } catch (e) {
+    // Ignore
+  }
+}
 const sharp = require("sharp");
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
