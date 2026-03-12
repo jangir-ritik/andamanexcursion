@@ -70,7 +70,7 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
         )
         .map(async (item: any) => {
           const baseItem: NavigationItem = {
-            label: item.label,
+            label: item.label === "Destinations" ? "Experiences" : item.label,
             href: item.href,
             unique: item.unique || false,
             isClickable: item.isClickable !== false, // Default to true if not explicitly false
@@ -132,6 +132,9 @@ export const getNavigationData = cache(async (): Promise<NavigationItem[]> => {
               break;
 
             case "destinations":
+              // Explicitly override the main label for the destinations dropdown
+              baseItem.label = "Experiences";
+              
               // Auto-populate destinations from page data (primary method)
               try {
                 const { pageService } = await import(
@@ -364,7 +367,7 @@ function getFallbackNavigation(): NavigationItem[] {
       href: "/fishing",
     },
     {
-      label: "Destinations",
+      label: "Experiences",
       href: "/destinations",
       children: [], // Empty children for now, will be populated by CMS
       categoryType: "destinations",

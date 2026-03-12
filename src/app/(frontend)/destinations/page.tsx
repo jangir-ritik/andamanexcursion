@@ -110,8 +110,9 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   } catch (error) {
     console.error("Error generating metadata for destinations page:", error);
+    // Default minimal metadata
     return {
-      title: "Destinations | Andaman Excursion",
+      title: "Experiences in Andaman Islands | Andaman Excursion",
       description: "Explore amazing destinations in the Andaman Islands",
     };
   }

@@ -33,7 +33,7 @@ export const footerItems = {
         href: "/about",
       },
       {
-        label: "Destinations",
+        label: "Experiences",
         href: "/destinations",
       },
       {

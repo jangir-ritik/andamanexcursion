@@ -100,8 +100,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Use SEO plugin data (meta field) or fallback to page data
     const seoTitle =
       page.meta?.title ||
-      page.title ||
-      `${page.title} | Destinations | Andaman Excursion`;
+      (page.title
+        ? `${page.title} | Experiences | Andaman Excursion`
+        : "Experiences | Andaman Excursion");
 
     const seoDescription =
       page.meta?.description ||

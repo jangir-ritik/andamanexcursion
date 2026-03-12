@@ -25,7 +25,7 @@ export const Navigation: GlobalConfig = {
             { label: "Activities Dropdown", value: "activities" },
             { label: "Packages Dropdown", value: "packages" },
             { label: "Specials Dropdown", value: "specials" },
-            { label: "Destinations Dropdown", value: "destinations" },
+            { label: "Experiences Dropdown", value: "destinations" },
             { label: "Custom Dropdown", value: "custom" },
           ],
           admin: {

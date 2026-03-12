@@ -9,7 +9,7 @@ export const pageTypeOptions = [
   { label: "Live Volcanos", value: "live-volcanos" },
   { label: "Specials", value: "specials" },
   { label: "Packages", value: "packages" },
-  { label: "Destinations", value: "destinations" },
+  { label: "Experiences", value: "destinations" },
   { label: "Ferry", value: "ferry" },
   { label: "Boat", value: "boat" },
   { label: "Plan Your Trip", value: "plan-your-trip" },
@@ -106,7 +106,7 @@ const Pages: CollectionConfig = {
           type: "select",
           required: true,
           options: [
-            { label: "Destinations Index (Overview Page)", value: "index" },
+            { label: "Experiences Index (Overview Page)", value: "index" },
             { label: "Main Destination Category", value: "main" },
             { label: "Sub-Destination (Beach/Attraction)", value: "sub" },
           ],
