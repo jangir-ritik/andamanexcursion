@@ -148,7 +148,7 @@ export function JourneySection({ content }: JourneySectionProps) {
                 {i === 0 && <div className={styles.dashedLine} style={{ width: lineWidth }} />}
 
                 <div className={styles.yearRow}>
-                  <span className={`${styles.year} ${i === 0 ? styles.yearActive : ""}`}>
+                  <span className={`${styles.year} ${isActive ? styles.yearActive : ""}`}>
                     {m.year}
                   </span>
                   {/* Dot fades when boat is on this milestone */}

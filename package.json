@@ -77,5 +77,15 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.6",
     "typescript": "^5"
+  },
+  "overrides": {
+    "uploadthing": "^7.7.4",
+    "effect": "^3.17.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "uploadthing": "^7.7.4",
+      "effect": "^3.17.7"
+    }
   }
 }
