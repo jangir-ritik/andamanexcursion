@@ -3,6 +3,7 @@
   align-items: flex-start;
   flex-direction: column;
   gap: 0;
+  margin-top: var(--space-4);
 }
 
 /* Content container - holds title and description */

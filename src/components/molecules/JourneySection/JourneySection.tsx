@@ -23,11 +23,11 @@ interface JourneySectionProps {
 }
 
 export function JourneySection({ content }: JourneySectionProps) {
-  const scrollRef     = useRef<HTMLDivElement>(null);
-  const boatRef       = useRef<HTMLDivElement>(null);
-  const firstItemRef  = useRef<HTMLDivElement>(null);
-  const isDragging    = useRef(false);
-  const startX        = useRef(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const boatRef = useRef<HTMLDivElement>(null);
+  const firstItemRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
   const scrollLeftPos = useRef(0);
 
   // Track active index in ref (sync reads) + state (React renders for dot visibility)
@@ -43,8 +43,8 @@ export function JourneySection({ content }: JourneySectionProps) {
   // Its CSS `left` is in TRACK content coordinates — it naturally scrolls with the track.
   // We only change `left` when the active milestone index changes, not on every scroll event.
   const updateBoatPosition = useCallback(() => {
-    const wrapper   = scrollRef.current;
-    const boat      = boatRef.current;
+    const wrapper = scrollRef.current;
+    const boat = boatRef.current;
     const firstItem = firstItemRef.current;
     if (!wrapper || !boat || !firstItem || n === 0) return;
 
@@ -52,7 +52,7 @@ export function JourneySection({ content }: JourneySectionProps) {
     const firstDotContentX = firstItem.offsetLeft + 28.5; // centre of 57px dot wrapper
 
     const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
-    const progress  = maxScroll > 0 ? wrapper.scrollLeft / maxScroll : 0;
+    const progress = maxScroll > 0 ? wrapper.scrollLeft / maxScroll : 0;
     // Map scroll progress linearly: 0 → milestone 0, 1 → milestone n-1
     const newIdx = Math.min(n - 1, Math.round(progress * (n - 1)));
 
@@ -101,8 +101,8 @@ export function JourneySection({ content }: JourneySectionProps) {
     }
   };
   const handleMouseLeave = () => { isDragging.current = false; };
-  const handleMouseUp    = () => { isDragging.current = false; };
-  const handleMouseMove  = (e: React.MouseEvent) => {
+  const handleMouseUp = () => { isDragging.current = false; };
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
