@@ -337,23 +337,23 @@ const Enquiries: CollectionConfig = {
               await NotificationService.sendEnquiryNotification(enquiryData);
 
             // Log Results
-            if (customerResult.email?.success) {
+            if (customerResult.success) {
               console.log(
                 `✅ Enquiry confirmation email sent to ${doc.customerInfo.email}`
               );
             } else {
               console.error(
                 `❌ Failed to send enquiry confirmation email to ${doc.customerInfo.email}:`,
-                customerResult.email?.error
+                customerResult.error
               );
             }
 
-            if (adminResult.email?.success) {
+            if (adminResult.success) {
               console.log(`✅ Enquiry notification email sent to admin`);
             } else {
               console.error(
                 `❌ Failed to send enquiry notification email to admin:`,
-                adminResult.email?.error
+                adminResult.error
               );
             }
 

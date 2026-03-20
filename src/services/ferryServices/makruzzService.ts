@@ -170,10 +170,7 @@ export class MakruzzService {
 
     // Ensure we're authenticated
     await this.ensureAuthenticated();
-    console.log(
-      `🔑 Makruzz: Using token: ${this.authToken ? this.authToken.substring(0, 10) + "..." : "NULL"
-      }`
-    );
+    console.log(`🔑 Makruzz: Token status: ${this.authToken ? "valid" : "missing"}`);
 
     const apiCall = async (): Promise<MakruzzScheduleResponse> => {
       // Use centralized location mapping
@@ -213,7 +210,7 @@ export class MakruzzService {
       }
 
       const responseText = await response.text();
-      console.log(`📨 Makruzz raw response:`, responseText);
+      console.log(`📨 Makruzz response received`);
 
       try {
         return JSON.parse(responseText);
@@ -273,13 +270,7 @@ export class MakruzzService {
       },
     };
 
-    console.log(`🔗 Makruzz login URL: ${this.BASE_URL}login`);
-    console.log(`📝 Makruzz login request:`, {
-      data: {
-        username: this.USERNAME,
-        password: this.PASSWORD ? "[HIDDEN]" : "MISSING",
-      },
-    });
+    console.log(`📝 Makruzz login request: username=${this.USERNAME ? "set" : "missing"}`);
 
     const response = await fetch(`${this.BASE_URL}login`, {
       method: "POST",
@@ -298,7 +289,7 @@ export class MakruzzService {
     }
 
     const loginResponse: MakruzzLoginResponse = await response.json();
-    console.log(`📨 Makruzz login response:`, loginResponse);
+    console.log(`📨 Makruzz login response: code=${loginResponse.code}`);
 
     if (loginResponse.code !== "200") {
       throw new Error(`Makruzz login failed: ${loginResponse.msg}`);
@@ -655,10 +646,7 @@ export class MakruzzService {
       },
     };
 
-    console.log(
-      "📝 Makruzz save passengers request:",
-      JSON.stringify(requestBody, null, 2)
-    );
+    console.log("📝 Makruzz save passengers request: passengers=", bookingData.passengers.length);
 
     // Debug the critical fields
     console.log("🔍 Critical fields being sent:");
@@ -692,11 +680,11 @@ export class MakruzzService {
     }
 
     const responseText = await response.text();
-    console.log("📨 Makruzz save passengers raw response:", responseText);
+    console.log("📨 Makruzz save passengers response received");
 
     try {
       const responseData = JSON.parse(responseText);
-      console.log("📨 Makruzz save passengers parsed response:", responseData);
+      console.log("📨 Makruzz save passengers: code=", responseData.code);
 
       if (responseData.code !== "200") {
         return {
@@ -753,7 +741,7 @@ export class MakruzzService {
     }
 
     const responseData: MakruzzConfirmResponse = await response.json();
-    console.log("📨 Makruzz confirm booking response:", responseData);
+    console.log("📨 Makruzz confirm booking: code=", responseData.code);
 
     if (responseData.code !== "200") {
       return {

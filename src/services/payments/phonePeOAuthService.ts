@@ -29,9 +29,8 @@ export class PhonePeOAuthService {
     }
 
     console.log("PhonePe OAuth Service initialized:", {
-      clientId: this.clientId,
-      authUrl: this.authUrl,
       isProduction,
+      hasCredentials: !!(this.clientId && this.clientSecret),
     });
   }
 

@@ -26,9 +26,8 @@ export class PhonePeService {
     }
 
     console.log("PhonePe Service initialized:", {
-      merchantId: this.merchantId,
-      apiUrl: this.apiUrl,
       devMode: this.devMode,
+      hasCredentials: !!(this.merchantId && this.saltKey),
     });
   }
 
@@ -114,14 +113,7 @@ export class PhonePeService {
       endpoint: `${this.apiUrl}${apiEndpoint}`,
     });
 
-    // Enhanced debugging for KEY_NOT_CONFIGURED issue
-    if (this.devMode) {
-      console.log("🔍 PhonePe Request Debug:", {
-        merchantId: this.merchantId,
-        saltIndex: this.saltIndex,
-        apiUrl: this.apiUrl,
-      });
-    }
+
 
     try {
       const response = await fetch(`${this.apiUrl}${apiEndpoint}`, {

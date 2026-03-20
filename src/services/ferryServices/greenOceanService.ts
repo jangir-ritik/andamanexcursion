@@ -99,7 +99,7 @@ export class GreenOceanService {
 
       // Generate hash according to Green Ocean documentation
       const hashString = this.generateHash(requestData);
-      console.log(`Green Ocean generated hash: ${hashString}`);
+
 
       // Add hash to request data
       const requestBody = {
@@ -107,9 +107,7 @@ export class GreenOceanService {
         hash_string: hashString,
       };
 
-      console.log(`Green Ocean request body:`, requestBody);
-      // Fixed: Add v1/ prefix to the endpoint
-      console.log(`Green Ocean URL: ${this.BASE_URL}v1/route-details`);
+      console.log(`Green Ocean: Searching route ${params.from} → ${params.to}`);
 
       const response = await fetch(`${this.BASE_URL}v1/route-details`, {
         method: "POST",
@@ -130,7 +128,7 @@ export class GreenOceanService {
       }
 
       const responseText = await response.text();
-      console.log(`Green Ocean raw response:`, responseText);
+      console.log(`Green Ocean response received`);
 
       try {
         return JSON.parse(responseText);
@@ -276,16 +274,14 @@ export class GreenOceanService {
     // Add private key at the end (no additional pipe needed)
     hashString += this.PRIVATE_KEY;
 
-    console.log(`🔒 Green Ocean hash string: ${hashString}`);
+
 
     // Create SHA512 hash and convert to lowercase
     const hash = crypto.createHash("sha512");
     hash.update(hashString, "utf-8");
     const generatedHash = hash.digest("hex").toLowerCase();
 
-    console.log(
-      `🔑 Green Ocean generated hash: ${generatedHash.substring(0, 20)}...`
-    );
+
     return generatedHash;
   }
 
@@ -482,7 +478,7 @@ export class GreenOceanService {
 
     hashString += this.PRIVATE_KEY;
 
-    console.log(`Green Ocean seat layout hash string: ${hashString}`);
+
 
     const hash = crypto.createHash("sha512");
     hash.update(hashString, "utf-8");
@@ -594,24 +590,12 @@ export class GreenOceanService {
         hash_string: hashString,
       };
 
-      console.log("🔐 Green Ocean booking request data:", {
-        ship_id: requestData.ship_id,
-        from_id: requestData.from_id,
-        dest_to: requestData.dest_to,
-        route_id: requestData.route_id,
-        class_id: requestData.class_id,
-        number_of_adults: requestData.number_of_adults,
-        number_of_infants: requestData.number_of_infants,
-        travel_date: requestData.travel_date,
-        seat_id: requestData.seat_id,
-        passenger_count: requestData.passenger_name.length,
-        hash_preview: hashString.substring(0, 20) + "...",
-      });
+      console.log("🔐 Green Ocean booking: hash generated");
 
       // Use the enhanced booking API call with longer timeout
       const response = await FerryApiService.callBookingApi(async () => {
         const apiUrl = `${GreenOceanService.BASE_URL}v1/book-ticket`;
-        console.log(`🌐 Calling Green Ocean API: ${apiUrl}`);
+
 
         // Use the enhanced fetch with timeout
         const apiResponse = await FerryApiService.fetchWithTimeout(
@@ -641,10 +625,7 @@ export class GreenOceanService {
         }
 
         const responseText = await apiResponse.text();
-        console.log(
-          `Green Ocean raw response:`,
-          responseText.substring(0, 500)
-        );
+        console.log(`Green Ocean booking response received`);
 
         try {
           return JSON.parse(responseText);
@@ -754,7 +735,7 @@ export class GreenOceanService {
     const keys = hashSequence.split("|");
     let hashString = "";
 
-    console.log("🔐 Building hash with sequence:", hashSequence);
+
 
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
@@ -786,14 +767,13 @@ export class GreenOceanService {
       hashString += value;
       hashString += "|";
 
-      console.log(`  ${i + 1}. ${key}: ${requestData[key]} → "${value}"`);
+
     }
 
     // Add private key at the end
     hashString += GreenOceanService.PRIVATE_KEY;
 
-    console.log("🔐 Final hash string:", hashString);
-    console.log("🔐 Hash length:", hashString.length);
+
 
     // Use SHA-512 as specified in the API documentation
     const crypto = require("crypto");
@@ -803,7 +783,7 @@ export class GreenOceanService {
       .digest("hex")
       .toLowerCase();
 
-    console.log("🔐 Generated hash:", hash.substring(0, 20) + "...");
+
     return hash;
   }
 }

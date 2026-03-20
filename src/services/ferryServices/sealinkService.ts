@@ -94,9 +94,7 @@ export class SealinkService {
       );
     }
 
-    console.log(
-      `Sealink: Using environment credentials - Username: ${this.USERNAME}, Token length: ${this.TOKEN.length}`
-    );
+    console.log("Sealink: Credentials validated");
 
     return {
       username: this.USERNAME,
@@ -536,11 +534,7 @@ export class SealinkService {
         totalSeatsRequested: firstBooking.paxDetail.pax.length,
       });
 
-      // Debug: Log the exact request being sent
-      console.log(
-        "Sealink booking request body:",
-        JSON.stringify(requestBody, null, 2)
-      );
+
 
       const response = await this.fetchWithRetry(
         `${this.BASE_URL}bookSeats`,
@@ -664,20 +658,7 @@ export class SealinkService {
 
         // If token validation failed, provide more detailed debugging info
         if (parsedResponse.err.includes("Token Validation Failed")) {
-          console.error("Token validation failed. Debug info:", {
-            tokenLength: bookingToken.length,
-            tokenStart: bookingToken.substring(0, 10),
-            tokenEnd: bookingToken.substring(bookingToken.length - 10),
-            username: username,
-            requestStructure: {
-              hasRootToken: !!requestBody.token,
-              hasUserDataToken:
-                !!requestBody.bookingData[0]?.userData?.apiUser?.token,
-              tokensMatch:
-                requestBody.token ===
-                requestBody.bookingData[0]?.userData?.apiUser?.token,
-            },
-          });
+          console.error("Token validation failed. Check SEALINK_TOKEN in .env");
 
           throw new Error(
             `Sealink token validation failed. Please check your SEALINK_TOKEN in .env file. ` +

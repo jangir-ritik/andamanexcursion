@@ -33,9 +33,8 @@ export class PhonePeServiceV2 {
     }
 
     console.log("PhonePe Service V2 initialized:", {
-      merchantId: this.merchantId,
-      apiUrl: this.apiUrl,
       isProduction: this.isProduction,
+      hasCredentials: !!(this.merchantId && this.saltKey),
     });
   }
 

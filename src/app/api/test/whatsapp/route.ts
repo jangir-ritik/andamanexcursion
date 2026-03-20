@@ -11,7 +11,7 @@ export async function GET() {
     config: {
       hasAuthId: !!process.env.PLIVO_AUTH_ID,
       hasAuthToken: !!process.env.PLIVO_AUTH_TOKEN,
-      fromNumber: process.env.PLIVO_WHATSAPP_NUMBER || "Not configured",
+      hasFromNumber: !!process.env.PLIVO_WHATSAPP_NUMBER,
     },
     endpoints: {
       test: {
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           config: {
             hasAuthId: !!process.env.PLIVO_AUTH_ID,
             hasAuthToken: !!process.env.PLIVO_AUTH_TOKEN,
-            fromNumber: process.env.PLIVO_WHATSAPP_NUMBER || "Not set",
+            hasFromNumber: !!process.env.PLIVO_WHATSAPP_NUMBER,
           },
         },
         { status: 500 }

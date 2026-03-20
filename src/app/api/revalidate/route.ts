@@ -7,23 +7,13 @@ const REVALIDATION_SECRET =
 
 export async function POST(request: NextRequest) {
   try {
-    // Debug logging - REMOVE THESE AFTER TESTING
-    console.log("🔍 Environment check:", {
-      hasSecret: !!process.env.REVALIDATION_SECRET,
-      secretLength: process.env.REVALIDATION_SECRET?.length || 0,
-      secretPreview: process.env.REVALIDATION_SECRET?.substring(0, 10) + "...",
-    });
+
 
     // Verify the secret token
     const authHeader = request.headers.get("authorization");
     const token = authHeader?.replace("Bearer ", "");
 
-    console.log("🔍 Auth check:", {
-      hasAuthHeader: !!authHeader,
-      tokenLength: token?.length || 0,
-      tokenPreview: token?.substring(0, 10) + "...",
-      matches: token === REVALIDATION_SECRET,
-    });
+
 
     if (token !== REVALIDATION_SECRET) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -120,15 +110,7 @@ export async function GET(request: NextRequest) {
   const tag = searchParams.get("tag");
   const secret = searchParams.get("secret");
 
-  // Debug logging - REMOVE THESE AFTER TESTING
-  console.log("🔍 GET request debug:", {
-    hasSecret: !!process.env.REVALIDATION_SECRET,
-    secretLength: process.env.REVALIDATION_SECRET?.length || 0,
-    secretPreview: process.env.REVALIDATION_SECRET?.substring(0, 10) + "...",
-    providedSecret: secret?.substring(0, 10) + "...",
-    providedSecretLength: secret?.length || 0,
-    matches: secret === REVALIDATION_SECRET,
-  });
+
 
   if (secret !== REVALIDATION_SECRET) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

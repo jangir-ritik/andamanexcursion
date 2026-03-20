@@ -63,7 +63,7 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
       console.log("WhatsApp is NOT enabled:", {
         hasAuthId: !!authId,
         hasAuthToken: !!authToken,
-        fromNumber: fromNumber || "Not set",
+        hasFromNumber: !!fromNumber,
       });
     }
 
@@ -99,16 +99,11 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
       const to = this.formatPhoneNumber(payload.recipient);
       const template = this.buildTemplate(payload);
 
-      console.log("Sending WhatsApp Payload:", JSON.stringify({
-        from: this.getFromNumber(),
-        to: to,
+      console.log("Sending WhatsApp template:", {
         type: "whatsapp",
-        template: {
-          name: template.name,
-          language: template.language,
-          components: template.components,
-        }
-      }, null, 2));
+        templateName: template.name,
+        recipientMasked: this.maskPhoneNumber(to),
+      });
 
       const response = await client.messages.create(
         this.getFromNumber(),
