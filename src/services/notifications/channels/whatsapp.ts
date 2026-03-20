@@ -24,11 +24,12 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
 
   // Approved Plivo template names (Meta-approved)
   private readonly templates = {
-    booking_confirmation: "copy_booking_conformation_hx3a96db396e8ce0dee85b1c9cb6f7ec18",
-    booking_status_update: "status_update_template_hx9e2ef803ef033cc9e572cd096e77a486",
-    booking_reminder: "booking_reminder_template_hx34db11f9481cc4192e939b9593ddabfc",
-    payment_failed: "payment_failed_template_hxe3ab754a258d9342213a8f0a732fb37d",
-    enquiry_confirmation: "enquiry_confirmation_template_hxdef2c5a728890825bd40f13e00da910a",
+    booking_confirmation: process.env.PLIVO_TEMPLATE_BOOKING_CONFIRMATION || "copy_booking_conformation_hx3a96db396e8ce0dee85b1c9cb6f7ec18",
+    booking_status_update: process.env.PLIVO_TEMPLATE_STATUS_UPDATE || "status_update_template_hx9e2ef803ef033cc9e572cd096e77a486",
+    booking_reminder: process.env.PLIVO_TEMPLATE_BOOKING_REMINDER || "booking_reminder_template_hx34db11f9481cc4192e939b9593ddabfc",
+    payment_failed: process.env.PLIVO_TEMPLATE_PAYMENT_FAILED || "payment_failed_template_hxe3ab754a258d9342213a8f0a732fb37d",
+    enquiry_confirmation: process.env.PLIVO_TEMPLATE_ENQUIRY_CONFIRMATION || "enquiry_confirmation_template_hxdef2c5a728890825bd40f13e00da910a",
+    activity_confirmation: process.env.PLIVO_TEMPLATE_ACTIVITY_CONFIRMATION || "PASTE_META_ACTIVITY_TEMPLATE_HUB_ID_HERE", // Replace when approved
   };
 
   constructor() {
@@ -163,7 +164,11 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
 
     switch (payload.type) {
       case "booking_confirmation":
-        template = this.bookingConfirmationTemplate(payload.data as BookingConfirmationData);
+        if ((payload.data as BookingConfirmationData).bookingType === "activity") {
+          template = this.activityConfirmationTemplate(payload.data as BookingConfirmationData);
+        } else {
+          template = this.bookingConfirmationTemplate(payload.data as BookingConfirmationData);
+        }
         break;
       case "booking_status_update":
         template = this.statusUpdateTemplate(payload.data as BookingStatusUpdateData);
@@ -198,6 +203,45 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
     return template;
   }
 
+  private activityConfirmationTemplate(data: BookingConfirmationData) {
+    // Activity Template: 9 variables in body
+    // {{1}} Customer Name, {{2}} Booking ID, {{3}} Activity Name, {{4}} Date,
+    // {{5}} Time, {{6}} Location/Meeting Point, {{7}} Participants,
+    // {{8}} Amount, {{9}} Support Phone
+    const firstItem = data.items[0] || {};
+
+    const formatDate = (dateInput?: string | Date): string => {
+      if (!dateInput) return "15 Dec 2025";
+      const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+      return date.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    };
+
+    return {
+      name: this.templates.activity_confirmation,
+      language: "en",
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: data.customerName || "Customer" },                 // {{1}} Customer Name
+            { type: "text", text: data.confirmationNumber || "AE2025001234" },       // {{2}} Booking ID
+            { type: "text", text: firstItem.title || "Scuba Diving" },               // {{3}} Activity Name
+            { type: "text", text: formatDate(firstItem.date || data.bookingDate) },  // {{4}} Date
+            { type: "text", text: firstItem.time || "10:00 AM" },                    // {{5}} Time
+            { type: "text", text: firstItem.location || "Havelock Island Beach" },   // {{6}} Location
+            { type: "text", text: (firstItem.passengers || 2).toString() },          // {{7}} Participants Count
+            { type: "text", text: data.totalAmount ? data.totalAmount.toLocaleString("en-IN") : "3,500" }, // {{8}} Amount
+            { type: "text", text: this.SUPPORT_PHONE },                               // {{9}} Support Phone
+          ],
+        },
+      ],
+    };
+  }
+
   private bookingConfirmationTemplate(data: BookingConfirmationData) {
     // From LIVE META SCREENSHOT: 10 variables in body
     // {{1}} Customer Name, {{2}} Booking ID, {{3}} Route, {{4}} Date,
@@ -224,13 +268,13 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
           parameters: [
             { type: "text", text: data.customerName || "Customer" },                 // {{1}} Customer Name
             { type: "text", text: data.confirmationNumber || "AE2025001234" },       // {{2}} Booking ID
-            { type: "text", text: firstItem.location || "Port Blair to Havelock Island" }, // {{3}} Route
+            { type: "text", text: firstItem.location || "Port Blair to Havelock" },  // {{3}} Route
             { type: "text", text: formatDate(firstItem.date || data.bookingDate) },  // {{4}} Date
             { type: "text", text: firstItem.time || "08:30 AM" },                    // {{5}} Departure Time
             { type: "text", text: (firstItem.passengers || 2).toString() },          // {{6}} Passengers Count
-            { type: "text", text: "Premium" },                                        // {{7}} Seat/Class
+            { type: "text", text: firstItem.seatClass || "Premium" },                // {{7}} Seat/Class
             { type: "text", text: data.totalAmount ? data.totalAmount.toLocaleString("en-IN") : "2,800" }, // {{8}} Amount
-            { type: "text", text: "1 hour" },                                         // {{9}} Arrival Time
+            { type: "text", text: firstItem.arrivalTime || "1h 30m" },               // {{9}} Arrival Time
             { type: "text", text: this.SUPPORT_PHONE },                               // {{10}} Support Phone
           ],
         },
@@ -369,7 +413,7 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
             { type: "text", text: data.enquiryId || "ENQ123456" },      // {{2}} Enquiry ID
             { type: "text", text: data.selectedPackage || "Island Tour" }, // {{3}} Package
             { type: "text", text: formatDate(data.submissionDate) },     // {{4}} Date
-            { type: "text", text: "Success" },                           // {{5}} Closing Emoji (Sending Text to be safe)
+            { type: "text", text: "🌴" },                                // {{5}} Closing Emoji
             { type: "text", text: this.SUPPORT_PHONE },                  // {{6}} Support Phone
           ],
         },

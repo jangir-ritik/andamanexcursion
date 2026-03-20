@@ -119,6 +119,32 @@ export async function GET(req: NextRequest) {
     if (isSuccess) {
       console.log("Payment successful, processing booking...");
 
+      // IDEMPOTENCY GUARD: Check if booking already exists for this order
+      const existingBookings = await payload.find({
+        collection: "bookings",
+        where: {
+          paymentTransactions: { contains: paymentRecord.id },
+        },
+        limit: 1,
+      });
+
+      if (existingBookings.docs && existingBookings.docs.length > 0) {
+        const existingBooking = existingBookings.docs[0];
+        console.log("Booking already exists for this order (idempotency guard):", {
+          bookingId: existingBooking.id,
+          merchantOrderId,
+        });
+
+        return NextResponse.json({
+          success: true,
+          status: statusResponse.state || "SUCCESS",
+          transactionId: statusResponse.orderId || merchantOrderId,
+          orderId: statusResponse.orderId || merchantOrderId,
+          booking: existingBooking,
+          message: "Payment successful and booking confirmed",
+        });
+      }
+
       try {
         // Process booking based on type
         const bookingResult = await processBooking(
@@ -204,6 +230,26 @@ export async function GET(req: NextRequest) {
     }
 
     // Payment not successful yet
+    if (isFailed) {
+      try {
+        const customerName = bookingData.contactDetails?.primaryName || bookingData.members?.[0]?.fullName || "Customer";
+        const customerEmail = bookingData.contactDetails?.email || bookingData.members?.[0]?.email || "";
+        const customerPhone = bookingData.contactDetails?.whatsapp || bookingData.contactDetails?.whatsappNumber || bookingData.contactDetails?.phone || bookingData.members?.[0]?.whatsapp || bookingData.members?.[0]?.phone || "";
+        const amount = bookingData.totalPrice || bookingData.items?.[0]?.price || 0;
+        
+        await NotificationService.sendPaymentFailedNotification(
+          customerEmail,
+          customerName,
+          amount,
+          statusResponse.message || "Payment failed or was cancelled",
+          bookingData.bookingType,
+          customerPhone
+        );
+      } catch (notifErr) {
+        console.error("Failed to send payment failure notification:", notifErr);
+      }
+    }
+
     return NextResponse.json({
       success: false,
       status: statusResponse.state || "PENDING",

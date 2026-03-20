@@ -88,6 +88,8 @@ export interface BookingConfirmationData {
     time: string;
     location?: string;
     passengers?: number;
+    seatClass?: string;
+    arrivalTime?: string;
   }>;
   passengers?: Array<{
     fullName: string;
@@ -112,6 +114,7 @@ export interface BookingStatusUpdateData {
 export interface PaymentFailedData {
   customerEmail: string;
   customerName: string;
+  customerPhone?: string;
   attemptedAmount: number;
   failureReason?: string;
   bookingType?: "ferry" | "activity" | "mixed";

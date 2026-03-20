@@ -1,9 +1,10 @@
 // src/app/api/payments/phonepe/callback/route.ts
+// PhonePe Callback Handler — Updated for v2 API compatibility
+
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@payload-config";
-import { phonePeService } from "@/services/payments/phonePeService";
-import crypto from "crypto";
+import { phonePeServiceV2 } from "@/services/payments/phonePeServiceV2";
 
 /**
  * PhonePe Callback Handler
@@ -33,29 +34,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate callback authenticity using X-VERIFY header
-    const xVerifyHeader = req.headers.get("X-VERIFY");
-    
+    // Extract base64 response and signature
+    const base64Response = bodyData?.response || responseBody;
+    const xVerifyHeader = req.headers.get("X-VERIFY") || req.headers.get("x-verify") || bodyData?.["x-verify"];
+
     if (!xVerifyHeader) {
-      console.error("Missing X-VERIFY header in callback");
+      console.error("Missing X-VERIFY / x-verify header in callback");
       return NextResponse.json(
-        { error: "Missing X-VERIFY header" },
+        { error: "Missing verification header" },
         { status: 401 }
       );
     }
 
-    // Verify signature
-    const saltKey = process.env.PHONEPE_SALT_KEY!;
-    const saltIndex = process.env.PHONEPE_SALT_INDEX!;
-    
-    // PhonePe sends base64 encoded response in the body
-    const base64Response = bodyData?.response || responseBody;
-    const expectedSignature = crypto
-      .createHash("sha256")
-      .update(base64Response + "/pg/v1/callback" + saltKey)
-      .digest("hex") + "###" + saltIndex;
+    // Verify signature using the v2 service (supports both v1 and v2 formats)
+    const isValid = phonePeServiceV2.validateCallback(base64Response, xVerifyHeader);
 
-    if (xVerifyHeader !== expectedSignature) {
+    if (!isValid) {
       console.error("Invalid PhonePe callback signature");
       return NextResponse.json(
         { error: "Invalid callback signature" },
@@ -63,13 +57,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("Callback validated successfully:", {
-      type: bodyData.type,
-      merchantOrderId: bodyData.payload?.merchantOrderId,
-    });
+    console.log("Callback signature validated successfully");
 
-    const { merchantOrderId, state, phonepeTransactionId } =
-      bodyData.payload || {};
+    // Decode the response if it's base64
+    let callbackPayload;
+    try {
+      const decoded = Buffer.from(base64Response, "base64").toString("utf-8");
+      callbackPayload = JSON.parse(decoded);
+    } catch {
+      // If not base64, use the parsed body directly
+      callbackPayload = bodyData;
+    }
+
+    const merchantOrderId =
+      callbackPayload?.data?.merchantTransactionId ||
+      callbackPayload?.payload?.merchantOrderId ||
+      bodyData?.payload?.merchantOrderId;
+
+    const state =
+      callbackPayload?.data?.state ||
+      callbackPayload?.payload?.state ||
+      bodyData?.payload?.state;
+
+    const phonepeTransactionId =
+      callbackPayload?.data?.transactionId ||
+      callbackPayload?.payload?.phonepeTransactionId;
 
     if (!merchantOrderId) {
       console.error("Callback missing merchant order ID");
@@ -78,6 +90,12 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log("Callback data extracted:", {
+      merchantOrderId,
+      state,
+      phonepeTransactionId,
+    });
 
     // Update payment record with callback data
     const payload = await getPayload({ config });
@@ -97,7 +115,7 @@ export async function POST(req: NextRequest) {
       const updatedPhonepeData = {
         ...(paymentRecord.phonepeData || {}),
         phonepeTransactionId: phonepeTransactionId,
-        callbackData: JSON.stringify(bodyData),
+        callbackData: JSON.stringify(callbackPayload),
         callbackReceivedAt: new Date().toISOString(),
       };
 
@@ -106,7 +124,7 @@ export async function POST(req: NextRequest) {
         id: paymentRecord.id,
         data: {
           status:
-            state === "SUCCESS"
+            state === "SUCCESS" || state === "COMPLETED"
               ? "success"
               : state === "FAILED"
               ? "failed"
@@ -123,33 +141,12 @@ export async function POST(req: NextRequest) {
       console.warn("Payment record not found for callback:", merchantOrderId);
     }
 
-    // Process based on callback type
-    switch (bodyData.type) {
-      case "PAYMENT_SUCCESS":
-        console.log("Payment success callback received:", merchantOrderId);
-        // Main booking processing happens in status check API
-        // This is just for logging/audit trail
-        break;
-
-      case "PAYMENT_ERROR":
-        console.log("Payment error callback received:", merchantOrderId);
-        break;
-
-      case "PAYMENT_PENDING":
-        console.log("Payment pending callback received:", merchantOrderId);
-        break;
-
-      default:
-        console.log("Unknown callback type:", bodyData.type);
-    }
-
     // Always return 200 OK to PhonePe
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
-    console.error("PhonePe callback handling error:", error);
+    console.error("PhonePe callback handling error:", error.message);
 
     // Still return 200 to prevent PhonePe from retrying
-    // Log the error for manual review
     return NextResponse.json(
       {
         success: false,

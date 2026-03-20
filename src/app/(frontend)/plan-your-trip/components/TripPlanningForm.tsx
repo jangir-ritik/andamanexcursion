@@ -138,11 +138,52 @@ export const TripPlanningForm: React.FC = () => {
   const handleSubmit = async (data: TripFormData) => {
     try {
       setSubmitStatus("submitting");
-      // Here you would typically send the data to your API
-      console.log("Form submitted:", data);
+      let checkInDate = new Date();
+      if (data.tripDetails.arrivalDate && !isNaN(new Date(data.tripDetails.arrivalDate).getTime())) {
+        checkInDate = new Date(data.tripDetails.arrivalDate);
+      }
+      let checkOutDate = new Date(checkInDate.getTime() + 86400000 * 3); // Default 3 days later
+      if (data.tripDetails.departureDate && !isNaN(new Date(data.tripDetails.departureDate).getTime())) {
+        const parsedOut = new Date(data.tripDetails.departureDate);
+        if (parsedOut > checkInDate) {
+          checkOutDate = parsedOut;
+        }
+      }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Map Plan Your Trip data to the standard Enquiry API Schema
+      const payloadData = {
+        personal: {
+          fullName: data.personalDetails.name,
+          email: data.personalDetails.email,
+          phone: data.personalDetails.phone,
+          age: 30, // Default for trip planning since it's not requested
+        },
+        booking: {
+          package: "Custom Planned Trip",
+          duration: "Custom",
+          checkIn: checkInDate.toISOString(),
+          checkOut: checkOutDate.toISOString(),
+          adults: data.tripDetails.adults || 1,
+          children: data.tripDetails.children || 0,
+        },
+        additional: {
+          tags: [...(data.travelGoals || []), ...(data.specialOccasion || [])],
+          message: `Accommodation: ${data.hotelPreferences.hotelType || "Any"} | Ferry: ${data.ferryPreferences.ferryClass || "Any"} | Add-ons: Pickup(${data.addOns.airportPickup ? 'Yes' : 'No'}), Guide(${data.addOns.privateGuide ? 'Yes' : 'No'})`,
+        },
+        enquirySource: "direct", // Must match Zod enum: 'direct' | 'package-detail' | 'newsletter' | 'referral'
+        timestamp: new Date().toISOString(),
+        recaptchaScore: "1.0",
+      };
+
+      const response = await fetch("/api/contact?action=enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payloadData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
 
       // Clear saved data on successful submission
       clearSavedData();

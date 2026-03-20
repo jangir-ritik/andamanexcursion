@@ -121,7 +121,7 @@ export class NotificationService {
       // Prepare recipients and preferences
       const recipients = {
         email: booking.customerInfo?.customerEmail,
-        phone: booking.customerInfo?.customerPhone,
+        phone: this.formatPhoneNumber(booking.customerInfo?.customerPhone),
       };
 
       const preferences: NotificationPreferences = {
@@ -140,19 +140,8 @@ export class NotificationService {
         customMessage
       );
 
-      // Log status change to booking record
-      try {
-        await payload.update({
-          collection: "bookings",
-          id: bookingId,
-          data: {
-            internalNotes: `${booking.internalNotes || ""
-              }\nStatus changed: ${oldStatus} → ${newStatus} (${new Date().toISOString()})`,
-          },
-        });
-      } catch (logError) {
-        console.error("Failed to log status change:", logError);
-      }
+      // Omitted recursive payload.update on internalNotes to avoid Mongo WriteConflict 
+      // during the afterChange hook transaction.
 
       return {
         email: results.email,
@@ -180,12 +169,14 @@ export class NotificationService {
     customerName: string,
     attemptedAmount: number,
     failureReason?: string,
-    bookingType?: string
+    bookingType?: string,
+    customerPhone?: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const paymentData: PaymentFailedData = {
         customerEmail,
         customerName,
+        customerPhone: customerPhone ? this.formatPhoneNumber(customerPhone) : undefined,
         attemptedAmount,
         failureReason,
         bookingType: (bookingType as "ferry" | "activity" | "mixed") || "mixed",
@@ -251,7 +242,7 @@ export class NotificationService {
       // Prepare recipients and preferences
       const recipients = {
         email: booking.customerInfo?.customerEmail,
-        phone: booking.customerInfo?.customerPhone,
+        phone: this.formatPhoneNumber(booking.customerInfo?.customerPhone),
       };
 
       const preferences: NotificationPreferences = {
@@ -333,8 +324,8 @@ export class NotificationService {
     booking: any
   ): BookingConfirmationData {
     // Extract ferry details for better WhatsApp formatting
-    const ferryItems = booking.ferries || [];
-    const activityItems = booking.activities || [];
+    const ferryItems = booking.ferries || booking.bookedFerries || [];
+    const activityItems = booking.activities || booking.bookedActivities || [];
 
     // Determine booking type
     let bookingType: "ferry" | "activity" | "mixed" = "mixed";
@@ -352,26 +343,28 @@ export class NotificationService {
       bookingDate: booking.bookingDate,
       serviceDate:
         activityItems[0]?.serviceDate ||
-        ferryItems[0]?.serviceDate,
+        ferryItems[0]?.serviceDate || ferryItems[0]?.schedule?.travelDate,
       totalAmount: booking.pricing.totalAmount,
       currency: booking.pricing.currency || "INR",
       bookingType: bookingType,
       items: [
         // Transform activities
         ...(activityItems.map((activity: any) => ({
-          title: activity.activityBooking?.activity?.title || "Activity",
-          date: activity.serviceDate || "",
-          time: activity.serviceTime || "",
-          location: activity.activityBooking?.activity?.location?.name,
-          passengers: activity.passengersCount,
+          title: activity.activityBooking?.activity?.title || activity.activityName || "Activity",
+          date: activity.serviceDate || activity.date || "",
+          time: activity.serviceTime || activity.time || "",
+          location: activity.activityBooking?.activity?.location?.name || activity.location || "",
+          passengers: activity.passengersCount || ((activity.passengers?.adults || 0) + (activity.passengers?.children || 0)),
         }))),
         // Transform ferries - clean up title
         ...(ferryItems.map((ferry: any) => ({
-          title: ferry.ferryBooking?.ferry?.name || "Ferry Service",
-          date: ferry.serviceDate || "",
-          time: ferry.departureTime || "",
-          location: `${ferry.fromLocation} → ${ferry.toLocation}`,
-          passengers: ferry.passengersCount,
+          title: ferry.ferryBooking?.ferry?.name || ferry.ferryName || "Ferry Service",
+          date: ferry.serviceDate || ferry.schedule?.travelDate || "",
+          time: ferry.departureTime || ferry.schedule?.departureTime || "",
+          location: (ferry.fromLocation && ferry.toLocation) ? `${ferry.fromLocation} → ${ferry.toLocation}` : (ferry.route?.from && ferry.route?.to ? `${ferry.route.from} → ${ferry.route.to}` : "Port Blair → Havelock"),
+          passengers: ferry.passengersCount || ((ferry.passengers?.adults || 0) + (ferry.passengers?.children || 0) + (ferry.passengers?.infants || 0)) || 1,
+          seatClass: ferry.selectedClass?.className || "Premium",
+          arrivalTime: ferry.schedule?.arrivalTime || ferry.schedule?.duration || "1 hour",
         }))),
       ],
       passengers:
@@ -411,8 +404,13 @@ export class NotificationService {
         language: "en",
       };
 
+      const formattedEnquiryData = {
+        ...enquiryData,
+        phone: enquiryData.phone ? this.formatPhoneNumber(enquiryData.phone) : enquiryData.phone
+      };
+
       const results = await notificationManager.sendEnquiryConfirmation(
-        enquiryData,
+        formattedEnquiryData,
         preferences
       );
 
@@ -437,8 +435,13 @@ export class NotificationService {
     adminEmail?: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      const formattedEnquiryData = {
+        ...enquiryData,
+        phone: enquiryData.phone ? this.formatPhoneNumber(enquiryData.phone) : enquiryData.phone
+      };
+
       const results = await notificationManager.sendEnquiryNotification(
-        enquiryData,
+        formattedEnquiryData,
         adminEmail
       );
 

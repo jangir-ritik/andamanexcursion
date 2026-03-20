@@ -1,4 +1,4 @@
-import notificationManager from "@/services/notifications/NotificationManager";
+import NotificationService from "@/services/notifications/notificationService";
 import { CollectionConfig } from "payload";
 
 const Enquiries: CollectionConfig = {
@@ -332,9 +332,9 @@ const Enquiries: CollectionConfig = {
 
             // Send confirmation to customer and notification to admin
             const customerResult =
-              await notificationManager.sendEnquiryConfirmation(enquiryData);
+              await NotificationService.sendEnquiryConfirmation(enquiryData);
             const adminResult =
-              await notificationManager.sendEnquiryNotification(enquiryData);
+              await NotificationService.sendEnquiryNotification(enquiryData);
 
             // Log Results
             if (customerResult.email?.success) {

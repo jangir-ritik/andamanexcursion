@@ -1,4 +1,5 @@
 import { CollectionConfig } from "payload";
+import NotificationService from "@/services/notifications/notificationService";
 
 const Bookings: CollectionConfig = {
   slug: "bookings",
@@ -848,6 +849,22 @@ const Bookings: CollectionConfig = {
         }
         return data;
       },
+    ],
+    afterChange: [
+      async ({ doc, previousDoc, operation }) => {
+        if (operation === "update" && doc.status !== previousDoc?.status && previousDoc) {
+          try {
+            await NotificationService.sendBookingStatusUpdate(
+              doc.id,
+              previousDoc.status,
+              doc.status
+            );
+            console.log(`✅ Sent status update notification for booking ${doc.confirmationNumber}`);
+          } catch (error) {
+            console.error(`❌ Failed to send status update for booking ${doc.confirmationNumber}:`, error);
+          }
+        }
+      }
     ],
   },
   defaultSort: "-bookingDate",

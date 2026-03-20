@@ -1,6 +1,7 @@
 // src/services/payments/phonePeServiceV2.ts
 // PhonePe Checkout API v2 Implementation
 
+import crypto from "crypto";
 import { phonePeOAuthService } from "./phonePeOAuthService";
 
 /**
@@ -9,12 +10,16 @@ import { phonePeOAuthService } from "./phonePeOAuthService";
  */
 export class PhonePeServiceV2 {
   private merchantId: string;
+  private saltKey: string;
+  private saltIndex: string;
   private apiUrl: string;
   private devMode: boolean;
   private isProduction: boolean;
 
   constructor() {
     this.merchantId = process.env.PHONEPE_MERCHANT_ID!;
+    this.saltKey = process.env.PHONEPE_SALT_KEY!;
+    this.saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
     this.devMode = process.env.PHONEPE_DEV_MODE === "true";
     this.isProduction = process.env.PHONEPE_ENV === "production";
 
@@ -30,7 +35,6 @@ export class PhonePeServiceV2 {
     console.log("PhonePe Service V2 initialized:", {
       merchantId: this.merchantId,
       apiUrl: this.apiUrl,
-      devMode: this.devMode,
       isProduction: this.isProduction,
     });
   }
@@ -87,7 +91,6 @@ export class PhonePeServiceV2 {
           merchantOrderId: params.merchantOrderId,
           amount: amountInPaise,
           hasToken: !!accessToken,
-          tokenPreview: accessToken.substring(0, 20) + "...",
         });
       }
 
@@ -116,6 +119,14 @@ export class PhonePeServiceV2 {
         expiresAt: result.expireAt,
       });
 
+      // Log production transaction
+      this.logProductionTransaction({
+        type: "PAYMENT_INITIATED",
+        transactionId: result.orderId,
+        merchantOrderId: params.merchantOrderId,
+        amount: amountInPaise,
+      });
+
       // v2 API returns different structure than v1
       return {
         success: true,
@@ -126,7 +137,7 @@ export class PhonePeServiceV2 {
         expireAt: result.expireAt,
       };
     } catch (error: any) {
-      console.error("PhonePe v2 payment initiation error:", error);
+      console.error("PhonePe v2 payment initiation error:", error.message);
       throw new Error(error.message || "Failed to initiate payment with PhonePe v2");
     }
   }
@@ -180,8 +191,133 @@ export class PhonePeServiceV2 {
         message: this.getStatusMessage(result.state),
       };
     } catch (error: any) {
-      console.error("PhonePe v2 status check error:", error);
+      console.error("PhonePe v2 status check error:", error.message);
       throw new Error(error.message || "Failed to check payment status");
+    }
+  }
+
+  /**
+   * Initiate refund with PhonePe Checkout v2 API
+   * @param merchantOrderId - The original order's merchant order ID
+   * @param amount - Refund amount in rupees (full or partial)
+   * @param reason - Reason for refund
+   */
+  public async initiateRefund(params: {
+    merchantOrderId: string;
+    amount: number; // Amount in rupees
+    reason?: string;
+  }) {
+    const amountInPaise = Math.round(params.amount * 100);
+
+    console.log("PhonePe v2 refund initiation:", {
+      merchantOrderId: params.merchantOrderId,
+      amount: amountInPaise,
+      amountInRupees: params.amount,
+      reason: params.reason,
+    });
+
+    try {
+      const accessToken = await phonePeOAuthService.getAccessToken();
+
+      const requestBody = {
+        amount: amountInPaise,
+        merchantOrderId: params.merchantOrderId,
+        ...(params.reason && { reason: params.reason }),
+      };
+
+      const response = await fetch(
+        `${this.apiUrl}/checkout/v2/order/${params.merchantOrderId}/refund`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `O-Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("PhonePe v2 refund error:", errorText);
+        throw new Error(`Refund request failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      console.log("PhonePe v2 refund response:", {
+        orderId: result.orderId,
+        state: result.state,
+        refundId: result.refundId,
+      });
+
+      this.logProductionTransaction({
+        type: "REFUND_INITIATED",
+        transactionId: result.orderId || params.merchantOrderId,
+        refundId: result.refundId,
+        amount: amountInPaise,
+      });
+
+      return {
+        success: result.state === "SUCCESS" || result.state === "PENDING",
+        state: result.state,
+        refundId: result.refundId,
+        orderId: result.orderId,
+        amount: result.amount,
+        message: result.state === "SUCCESS"
+          ? "Refund processed successfully"
+          : result.state === "PENDING"
+          ? "Refund is being processed"
+          : "Refund request failed",
+      };
+    } catch (error: any) {
+      console.error("PhonePe v2 refund error:", error.message);
+      throw new Error(error.message || "Failed to initiate refund");
+    }
+  }
+
+  /**
+   * Check refund status for an order
+   */
+  public async checkRefundStatus(merchantOrderId: string) {
+    console.log("Checking PhonePe v2 refund status for:", merchantOrderId);
+
+    try {
+      const accessToken = await phonePeOAuthService.getAccessToken();
+
+      const response = await fetch(
+        `${this.apiUrl}/checkout/v2/order/${merchantOrderId}/refund/status`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `O-Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("PhonePe v2 refund status error:", errorText);
+        throw new Error(`Refund status check failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      console.log("PhonePe v2 refund status:", {
+        orderId: result.orderId,
+        state: result.state,
+        refundDetails: result.refundDetails?.length || 0,
+      });
+
+      return {
+        success: true,
+        state: result.state,
+        orderId: result.orderId,
+        refundDetails: result.refundDetails || [],
+      };
+    } catch (error: any) {
+      console.error("PhonePe v2 refund status error:", error.message);
+      throw new Error(error.message || "Failed to check refund status");
     }
   }
 
@@ -199,58 +335,84 @@ export class PhonePeServiceV2 {
   }
 
   /**
-   * Validate webhook callback (v2 uses same mechanism as v1 if webhooks are configured)
-   * For v2, webhooks are optional - redirect flow is primary
+   * Validate webhook/callback signature using SHA256
+   * Verifies that the callback actually came from PhonePe
    */
-  public validateCallback(payload: any): boolean {
-    // v2 primarily uses redirect flow
-    // Webhooks are optional and use similar validation as v1
-    // For now, we'll rely on status check after redirect
-    return true;
-  }
-
-  /**
-   * Production-specific validation
-   */
-  private validateProductionRequest(request: any): boolean {
-    if (process.env.NODE_ENV !== 'production') return true;
-    
-    // Check request IP against PhonePe production IPs
-    const allowedIPs = [
-      '52.76.117.0/24',
-      '35.154.0.0/16',
-      '13.126.0.0/16',
-    ];
-    
-    // Add timestamp validation (prevent replay attacks)
-    const requestTime = new Date().getTime();
-    const timestamp = request.timestamp || 0;
-    const timeDiff = Math.abs(requestTime - timestamp);
-    
-    if (timeDiff > 300000) { // 5 minutes
-      console.error('Request timestamp expired');
+  public validateCallback(base64Response: string, receivedSignature: string): boolean {
+    if (!this.saltKey) {
+      console.error("PHONEPE_SALT_KEY not configured — cannot validate callback");
       return false;
     }
-    
+
+    try {
+      // PhonePe callback signature: SHA256(base64Response + callbackEndpoint + saltKey) + "###" + saltIndex
+      // Try multiple endpoint paths for compatibility between v1 and v2
+      const endpoints = ["/pg/v1/pay", "/pg/v1/callback"];
+
+      for (const endpoint of endpoints) {
+        const stringToHash = base64Response + endpoint + this.saltKey;
+        const calculatedHash = crypto
+          .createHash("sha256")
+          .update(stringToHash)
+          .digest("hex");
+        const expectedSignature = `${calculatedHash}###${this.saltIndex}`;
+
+        if (expectedSignature === receivedSignature) {
+          return true;
+        }
+      }
+
+      // In dev mode, log mismatch but still allow
+      if (this.devMode) {
+        console.warn("Callback signature mismatch in dev mode — allowing anyway");
+        return true;
+      }
+
+      console.error("Callback signature verification failed");
+      return false;
+    } catch (error) {
+      console.error("Callback signature verification error:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Production-specific request validation
+   * Validates timestamp to prevent replay attacks
+   */
+  public validateProductionRequest(request: { timestamp?: number; ip?: string }): boolean {
+    if (!this.isProduction) return true;
+
+    // Timestamp validation (prevent replay attacks)
+    if (request.timestamp) {
+      const timeDiff = Math.abs(Date.now() - request.timestamp);
+      if (timeDiff > 300000) { // 5 minutes
+        console.error("Request timestamp expired:", { timeDiff });
+        return false;
+      }
+    }
+
     return true;
   }
 
   /**
-   * Production logging
+   * Production transaction logging (no sensitive data)
    */
-  private logProductionTransaction(data: any) {
-    if (process.env.NODE_ENV === 'production') {
-      // Log to production monitoring system
-      console.log('Production Transaction:', {
-        transactionId: data.transactionId,
-        amount: data.amount,
+  private logProductionTransaction(data: {
+    type: string;
+    transactionId?: string;
+    merchantOrderId?: string;
+    refundId?: string;
+    amount?: number;
+  }) {
+    if (this.isProduction) {
+      console.log("📊 PhonePe Transaction:", {
+        ...data,
         merchantId: this.merchantId,
         timestamp: new Date().toISOString(),
-        // Do NOT log sensitive data like card numbers
       });
     }
   }
-  
 }
 
 // Export singleton instance

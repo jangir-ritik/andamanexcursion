@@ -209,7 +209,10 @@ export class NotificationManager {
   ): Promise<MultiChannelResult> {
     return this.sendNotification({
       type: "payment_failed",
-      recipients: { email: paymentData.customerEmail },
+      recipients: { 
+        email: paymentData.customerEmail,
+        phone: paymentData.customerPhone
+      },
       data: paymentData,
       preferences,
       options: {

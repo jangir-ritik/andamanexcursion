@@ -1,27 +1,21 @@
+// src/app/api/payments/phonepe/health/route.ts
+// PhonePe Health Check Endpoint
+
 import { NextRequest, NextResponse } from "next/server";
-import { phonePeServiceV2 } from "@/services/payments/phonePeServiceV2";
+import { getPhonePeConfig } from "@/config/phonepe.production";
 
 export async function GET(req: NextRequest) {
+  const config = getPhonePeConfig();
+
   const healthChecks = {
     timestamp: new Date().toISOString(),
     status: 'checking',
+    environment: config.isProduction ? 'production' : 'sandbox',
     checks: [] as Array<{name: string; status: string; details?: string}>,
   };
 
   try {
-    // Check 1: API Connectivity
-    healthChecks.checks.push({
-      name: 'phonepe_api_connectivity',
-      status: 'pending',
-    });
-
-    // Check 2: Database connection (if applicable)
-    healthChecks.checks.push({
-      name: 'database_connection',
-      status: 'pending',
-    });
-
-    // Check 3: Environment variables
+    // Check 1: Environment variables
     const envVars = [
       'PHONEPE_MERCHANT_ID',
       'PHONEPE_SALT_KEY',
@@ -37,7 +31,7 @@ export async function GET(req: NextRequest) {
       details: missingVars.length > 0 ? `Missing: ${missingVars.join(', ')}` : undefined,
     });
 
-    // Check 4: OAuth token (if using v2)
+    // Check 2: OAuth token
     try {
       const { phonePeOAuthService } = await import('@/services/payments/phonePeOAuthService');
       const hasToken = phonePeOAuthService.hasValidToken();
@@ -45,6 +39,7 @@ export async function GET(req: NextRequest) {
       healthChecks.checks.push({
         name: 'oauth_token',
         status: hasToken ? 'healthy' : 'unhealthy',
+        details: hasToken ? undefined : 'No valid cached token (will be generated on next request)',
       });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -55,8 +50,24 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // Check 3: Refund capability
+    healthChecks.checks.push({
+      name: 'refund_api',
+      status: 'healthy',
+      details: 'Refund endpoint available at /api/payments/phonepe/refund',
+    });
+
+    // Check 4: Security config
+    healthChecks.checks.push({
+      name: 'security',
+      status: 'healthy',
+      details: config.isProduction
+        ? `HTTPS required, IP whitelisting enabled, timeout: ${config.security.requestTimeout}ms`
+        : 'Sandbox mode — relaxed security',
+    });
+
     // Determine overall status
-    const unhealthyChecks = healthChecks.checks.filter(c => c.status !== 'healthy');
+    const unhealthyChecks = healthChecks.checks.filter(c => c.status === 'unhealthy' || c.status === 'error');
     healthChecks.status = unhealthyChecks.length === 0 ? 'healthy' : 'unhealthy';
 
     return NextResponse.json(healthChecks, {

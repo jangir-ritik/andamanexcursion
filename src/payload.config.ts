@@ -6,6 +6,35 @@ if (typeof window === 'undefined') {
     // Ignore
   }
 }
+
+// Silence spammy UploadThing adapter logs and Buffer warnings
+if (typeof console !== 'undefined') {
+  const originalConsoleLog = console.log;
+  console.log = function (...args: any[]) {
+    if (typeof args[0] === 'string' && (
+      args[0].includes('[UT-ADAPTER]') ||
+      args[0].includes('[UT-STORAGE]') ||
+      args[0].includes('[CLOUD-STORAGE-PLUGIN]')
+    )) {
+      return;
+    }
+    originalConsoleLog.apply(console, args);
+  };
+}
+
+// Suppress Buffer() deprecation warnings from older node_modules
+if (typeof process !== 'undefined' && process.emitWarning) {
+  const originalEmitWarning = process.emitWarning;
+  process.emitWarning = function(warning: string | Error, ...args: any[]) {
+    if (typeof warning === 'string' && warning.includes('Buffer() is deprecated')) {
+      return;
+    }
+    if (warning instanceof Error && warning.message.includes('Buffer() is deprecated')) {
+      return;
+    }
+    return originalEmitWarning.call(process, warning, ...args);
+  };
+}
 const sharp = require("sharp");
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
@@ -137,7 +166,7 @@ export default buildConfig({
       options: {
         token: process.env.UPLOADTHING_TOKEN || "",
         acl: "public-read",
-        logLevel: process.env.NODE_ENV === "development" ? "Debug" : "Error",
+        logLevel: "Error", // Suppress noisy UT-ADAPTER debug logs
       },
     }),
     seoPlugin({
