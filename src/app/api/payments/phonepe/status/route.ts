@@ -463,7 +463,24 @@ async function processBooking(
               pnr: ferryBookingResult.pnr || "",
               operatorBookingId: ferryBookingResult.providerBookingId || "",
               bookingStatus: providerBookingStatus,
-              providerResponse: JSON.stringify(ferryBookingResult),
+              providerResponse: JSON.stringify(
+                (() => {
+                  // Strip large binary data (pdf_base64) and nested providerResponse
+                  // to keep the textarea field within size limits
+                  const { confirmationDetails, ...rest } = ferryBookingResult as any;
+                  if (confirmationDetails) {
+                    const { providerResponse: nested, ...confirmRest } = confirmationDetails;
+                    // Also strip pdf_base64 from nested providerResponse if present
+                    let cleanNested = undefined;
+                    if (nested && typeof nested === 'object') {
+                      const { pdf_base64, originalResponse, ...nestedRest } = nested;
+                      cleanNested = nestedRest;
+                    }
+                    return { ...rest, confirmationDetails: { ...confirmRest, providerResponse: cleanNested } };
+                  }
+                  return rest;
+                })()
+              ),
               errorMessage: ferryBookingResult.success
                 ? ""
                 : ferryBookingResult.error || "Booking failed",
@@ -764,23 +781,51 @@ async function createFailedBookingRecord(
   paymentId: string,
   error: any
 ) {
-  return await payload.create({
-    collection: "bookings",
-    data: {
-      bookingId: orderId,
-      confirmationNumber: orderId,
-      status: "failed",
-      bookingType: bookingData.bookingType,
-      bookingData: bookingData,
-      paymentId: paymentId,
-      customerDetails: bookingData.contactDetails,
-      errorDetails: {
-        message: error.message,
-        timestamp: new Date().toISOString(),
+  try {
+    const firstItem = bookingData.items?.[0] || {};
+    return await payload.create({
+      collection: "bookings",
+      data: {
+        bookingId: orderId,
+        confirmationNumber: orderId,
+        status: "pending",
+        paymentStatus: "paid",
+        bookingType: bookingData.bookingType || "ferry",
+        serviceDate: firstItem.date || new Date().toISOString().split("T")[0],
+        customerInfo: {
+          primaryContactName:
+            bookingData.contactDetails?.primaryName ||
+            bookingData.members?.[0]?.fullName ||
+            "Unknown",
+          customerEmail: bookingData.contactDetails?.email || "unknown@example.com",
+          customerPhone: bookingData.contactDetails?.whatsapp || "0000000000",
+          nationality: bookingData.nationality || "Indian",
+        },
+        passengers: (bookingData.members || []).map(
+          (member: any, idx: number) => ({
+            isPrimary: idx === 0,
+            fullName: member.fullName || "Unknown",
+            age: member.age || 0,
+            gender: member.gender || "Male",
+            nationality: member.nationality || "Indian",
+            assignedActivities: [],
+          })
+        ),
+        pricing: {
+          subtotal: bookingData.totalPrice || firstItem.price || 0,
+          totalAmount: bookingData.totalPrice || firstItem.price || 0,
+          currency: "INR",
+        },
+        paymentTransactions: [paymentId],
+        termsAccepted: true,
+        internalNotes: `Booking failed: ${error?.message || "Unknown error"}. Payment was successful — requires manual processing or refund.`,
       },
-      createdAt: new Date().toISOString(),
-    },
-  });
+    });
+  } catch (fallbackError) {
+    console.error("Failed to create failed booking record:", fallbackError);
+    // Return a minimal object so the caller doesn't crash
+    return { id: orderId, status: "failed", error: error?.message };
+  }
 }
 
 /**

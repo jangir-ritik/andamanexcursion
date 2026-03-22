@@ -269,7 +269,7 @@ export class WhatsAppNotificationChannel extends BaseNotificationChannel {
             { type: "text", text: (firstItem.passengers || 2).toString() },          // {{6}} Passengers Count
             { type: "text", text: firstItem.seatClass || "Premium" },                // {{7}} Seat/Class
             { type: "text", text: data.totalAmount ? data.totalAmount.toLocaleString("en-IN") : "2,800" }, // {{8}} Amount
-            { type: "text", text: firstItem.arrivalTime || "1h 30m" },               // {{9}} Arrival Time
+            { type: "text", text: "1 hour" },                                       // {{9}} Arrive X before departure
             { type: "text", text: this.SUPPORT_PHONE },                               // {{10}} Support Phone
           ],
         },
